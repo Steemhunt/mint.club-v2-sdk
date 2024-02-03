@@ -4199,9 +4199,17 @@ class GenericContractLogic {
     return this;
   }
   async initializeWallet() {
-    if (!window.ethereum)
+    if (this.walletClient) {
+      const [address] = await this.walletClient?.requestAddresses();
+      this.walletClient = createWalletClient({
+        account: address,
+        chain: this.chain,
+        transport: custom(this.walletClient.transport)
+      });
+      return;
+    } else if (!window.ethereum) {
       throw new Error("No Ethereum provider found");
-    else if (!this.walletClient?.account) {
+    } else {
       this.walletClient = createWalletClient({
         chain: this.chain,
         transport: custom(window.ethereum)

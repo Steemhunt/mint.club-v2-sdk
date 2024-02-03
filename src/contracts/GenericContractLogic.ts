@@ -131,8 +131,19 @@ export class GenericContractLogic<A extends SupportedAbiType> {
   }
 
   private async initializeWallet() {
-    if (!window.ethereum) throw new Error('No Ethereum provider found');
-    else if (!this.walletClient?.account) {
+    // there could be an existing wallet client
+    if (this.walletClient) {
+      const [address] = await this.walletClient?.requestAddresses();
+
+      this.walletClient = createWalletClient({
+        account: address,
+        chain: this.chain,
+        transport: custom(this.walletClient.transport),
+      });
+      return;
+    } else if (!window.ethereum) {
+      throw new Error('No Ethereum provider found');
+    } else {
       this.walletClient = createWalletClient({
         chain: this.chain,
         transport: custom(window.ethereum),
