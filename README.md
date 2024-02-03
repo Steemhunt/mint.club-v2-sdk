@@ -2,6 +2,8 @@
 
 This SDK enables seamless interaction with Mint Club's smart contracts, offering both read and write capabilities across multiple blockchain networks.
 
+Check the docs here: https://test-mint-club-v2-sdk-docs.vercel.app/
+
 ## Quick Start
 
 **Installation:**
