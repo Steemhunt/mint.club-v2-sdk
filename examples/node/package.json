@@ -1,0 +1,17 @@
+{
+  "name": "examples",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "test-mint.club-v2-sdk": "^0.0.18"
+  },
+  "scripts": {
+    "start": "bun run example.ts"
+  }
+}
