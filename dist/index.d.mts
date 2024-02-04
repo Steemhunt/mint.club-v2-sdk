@@ -3358,7 +3358,7 @@ type CreateTokenParams = {
 };
 declare class BondContractLogic extends GenericContractLogic<typeof BOND_ABI> {
     private generateCreateArgs;
-    createToken(params: CreateTokenParams & Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>): Promise<any>;
+    createToken(params: Omit<CreateTokenParams, 'tokenType'> & Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>): Promise<any>;
 }
 
 declare global {

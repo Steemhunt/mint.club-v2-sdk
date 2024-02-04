@@ -59,9 +59,10 @@ export class BondContractLogic extends GenericContractLogic<typeof BOND_ABI> {
   }
 
   public async createToken(
-    params: CreateTokenParams & Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>,
+    params: Omit<CreateTokenParams, 'tokenType'> &
+      Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>,
   ) {
-    const args = this.generateCreateArgs(params);
+    const args = this.generateCreateArgs({ ...params, tokenType: 'ERC20' });
     const { onError, onRequestSignature, onSigned, onSuccess } = params;
 
     const fee = await this.read({

@@ -4331,7 +4331,7 @@ class BondContractLogic extends GenericContractLogic {
     return { tokenParams, bondParams };
   }
   async createToken(params) {
-    const args = this.generateCreateArgs(params);
+    const args = this.generateCreateArgs({ ...params, tokenType: "ERC20" });
     const { onError, onRequestSignature, onSigned, onSuccess } = params;
     const fee = await this.read({
       functionName: "creationFee",
