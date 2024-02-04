@@ -4382,11 +4382,10 @@ class GenericContract {
     if (!chainId) {
       throw new Error(`Chain ${id} not supported`);
     }
-    let logicClass;
+    let logicClass = GenericContractLogic.network(chainId, this.contractType, this.abi);
     if (this.contractType === "BOND") {
       logicClass = BondContractLogic.network(chainId, this.contractType, this.abi);
     }
-    logicClass = GenericContractLogic.network(chainId, this.contractType, this.abi);
     return logicClass;
   }
 }
