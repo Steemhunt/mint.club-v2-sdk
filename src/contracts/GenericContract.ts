@@ -79,10 +79,12 @@ export class GenericContract<T extends ContractType> {
       throw new Error(`Chain ${id} not supported`);
     }
 
-    let logicClass = GenericContractLogic.network(chainId, this.contractType, this.abi);
+    let logicClass;
 
     if (this.contractType === 'BOND') {
-      logicClass = BondContractLogic.network(chainId, this.contractType, this.abi);
+      logicClass = BondContractLogic.getInstance(chainId, this.contractType, this.abi);
+    } else {
+      logicClass = GenericContractLogic.getInstance(chainId, this.contractType, this.abi);
     }
 
     return logicClass as T extends 'BOND' ? BondContractLogic : GenericContractLogic<AbiType<T>>;

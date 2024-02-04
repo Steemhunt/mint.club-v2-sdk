@@ -3333,7 +3333,7 @@ declare class GenericContractLogic<A extends SupportedAbiType> {
     withAccount(account: `0x${string}`): this;
     withProvider(provider: any): Promise<this>;
     private initializeWallet;
-    static network<T extends SupportedAbiType>(chainId: ContractChainType, type: ContractType, abi: T): GenericContractLogic<T>;
+    static getInstance<T extends SupportedAbiType>(chainId: ContractChainType, type: ContractType, abi: T): GenericContractLogic<T>;
     read<T extends ContractFunctionName<A, 'view' | 'pure'>, R extends ContractFunctionArgs<A, 'view' | 'pure', T>>(params: {
         functionName: T;
         args: R;

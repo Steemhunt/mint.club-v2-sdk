@@ -4242,7 +4242,7 @@ class GenericContractLogic {
       });
     }
   }
-  static network(chainId, type, abi) {
+  static getInstance(chainId, type, abi) {
     if (!this.instances[chainId]) {
       this.instances[chainId] = new this({
         chainId,
@@ -4382,9 +4382,11 @@ class GenericContract {
     if (!chainId) {
       throw new Error(`Chain ${id} not supported`);
     }
-    let logicClass = GenericContractLogic.network(chainId, this.contractType, this.abi);
+    let logicClass;
     if (this.contractType === "BOND") {
-      logicClass = BondContractLogic.network(chainId, this.contractType, this.abi);
+      logicClass = BondContractLogic.getInstance(chainId, this.contractType, this.abi);
+    } else {
+      logicClass = GenericContractLogic.getInstance(chainId, this.contractType, this.abi);
     }
     return logicClass;
   }

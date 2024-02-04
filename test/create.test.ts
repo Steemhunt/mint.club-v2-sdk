@@ -4,7 +4,6 @@ import { bondContract } from '../src';
 describe('Bond contract', () => {
   test('Create a new token', async () => {
     await bondContract.network('sepolia').createToken({
-      tokenType: 'ERC20',
       name: 'Baby Token',
       symbol: 'BABY',
       mintRoyalty: 1, // 1%
@@ -13,8 +12,6 @@ describe('Bond contract', () => {
         address: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14', // WETH
         decimals: 18,
       },
-      maxSupply: 10_000_000, // supply: 10M
-      creatorAllocation: 10_000,
       stepData: [
         { rangeTo: 100000, price: 2 },
         { rangeTo: 200000, price: 3 },

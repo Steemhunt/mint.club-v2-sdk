@@ -159,7 +159,7 @@ export class GenericContractLogic<A extends SupportedAbiType> {
     }
   }
 
-  public static network<T extends SupportedAbiType>(chainId: ContractChainType, type: ContractType, abi: T) {
+  public static getInstance<T extends SupportedAbiType>(chainId: ContractChainType, type: ContractType, abi: T) {
     if (!this.instances[chainId]) {
       // new "this" to allow for subclassing
       this.instances[chainId] = new this({
