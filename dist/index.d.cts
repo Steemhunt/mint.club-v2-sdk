@@ -3351,11 +3351,9 @@ type CreateTokenParams = {
     };
     mintRoyalty: number;
     burnRoyalty: number;
-    maxSupply: number;
-    creatorAllocation: number;
     stepData: {
-        x: number;
-        y: number;
+        rangeTo: number;
+        price: number;
     }[];
 };
 declare class BondContractLogic extends GenericContractLogic<typeof BOND_ABI> {

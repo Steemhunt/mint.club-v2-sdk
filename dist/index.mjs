@@ -4033,7 +4033,7 @@ function restructureStepData(data) {
     return [];
   const cloned = cloneDeep(data);
   for (let i = cloned.length - 1; i > 0; i--) {
-    cloned[i].y = cloned[i - 1]?.y;
+    cloned[i].price = cloned[i - 1]?.price;
   }
   cloned.shift();
   return cloned;
@@ -4282,14 +4282,10 @@ class GenericContractLogic {
 
 class BondContractLogic extends GenericContractLogic {
   generateCreateArgs(params) {
-    const { tokenType, name, symbol, reserveToken, mintRoyalty, burnRoyalty, maxSupply, creatorAllocation, stepData } = params;
+    const { tokenType, name, symbol, reserveToken, mintRoyalty, burnRoyalty, stepData } = params;
     const clonedStepData = restructureStepData(stepData);
-    const stepRanges = clonedStepData.map(({ x }) => wei(x, tokenType === "ERC20" ? 18 : 0));
-    const stepPrices = clonedStepData.map(({ y }) => wei(y, reserveToken.decimals));
-    if (creatorAllocation && creatorAllocation > 0) {
-      stepRanges.unshift(wei(creatorAllocation, tokenType === "ERC20" ? 18 : 0));
-      stepPrices.unshift(0n);
-    }
+    const stepRanges = clonedStepData.map(({ rangeTo }) => wei(rangeTo, tokenType === "ERC20" ? 18 : 0));
+    const stepPrices = clonedStepData.map(({ price }) => wei(price, reserveToken.decimals));
     for (let i = 0; i < stepPrices.length; i++) {
       if (stepPrices[i] === stepPrices[i + 1]) {
         stepRanges.splice(i, 1);
@@ -4302,13 +4298,13 @@ class BondContractLogic extends GenericContractLogic {
     }
     const tokenParams = {
       name,
-      symbol: symbol.toUpperCase()
+      symbol
     };
     const bondParams = {
       mintRoyalty: mintRoyalty * 100,
       burnRoyalty: burnRoyalty * 100,
       reserveToken: reserveToken.address,
-      maxSupply: wei(maxSupply, tokenType === "ERC20" ? 18 : 0),
+      maxSupply: stepRanges[stepRanges.length - 1],
       stepRanges,
       stepPrices
     };

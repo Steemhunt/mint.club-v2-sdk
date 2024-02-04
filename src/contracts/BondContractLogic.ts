@@ -1,6 +1,6 @@
 import { BOND_ABI } from '../constants/abis/bond';
 import { restructureStepData, wei } from '../utils';
-import { GenericContractLogic, GenericLogicConstructorParams, GenericWriteParams } from './GenericContractLogic';
+import { GenericContractLogic, GenericWriteParams } from './GenericContractLogic';
 
 export type CreateTokenParams = {
   tokenType: 'ERC20' | 'ERC1155';
@@ -12,26 +12,17 @@ export type CreateTokenParams = {
   };
   mintRoyalty: number;
   burnRoyalty: number;
-  maxSupply: number;
-  creatorAllocation: number;
-  stepData: { x: number; y: number }[];
+  stepData: { rangeTo: number; price: number }[];
 };
 
 export class BondContractLogic extends GenericContractLogic<typeof BOND_ABI> {
   private generateCreateArgs(params: CreateTokenParams) {
-    const { tokenType, name, symbol, reserveToken, mintRoyalty, burnRoyalty, maxSupply, creatorAllocation, stepData } =
-      params;
+    const { tokenType, name, symbol, reserveToken, mintRoyalty, burnRoyalty, stepData } = params;
 
     const clonedStepData = restructureStepData(stepData);
 
-    const stepRanges = clonedStepData.map(({ x }) => wei(x, tokenType === 'ERC20' ? 18 : 0));
-
-    const stepPrices = clonedStepData.map(({ y }) => wei(y, reserveToken.decimals));
-
-    if (creatorAllocation && creatorAllocation > 0) {
-      stepRanges.unshift(wei(creatorAllocation, tokenType === 'ERC20' ? 18 : 0));
-      stepPrices.unshift(0n);
-    }
+    const stepRanges = clonedStepData.map(({ rangeTo }) => wei(rangeTo, tokenType === 'ERC20' ? 18 : 0));
+    const stepPrices = clonedStepData.map(({ price }) => wei(price, reserveToken.decimals));
 
     // merge same price points
     for (let i = 0; i < stepPrices.length; i++) {
@@ -52,14 +43,14 @@ export class BondContractLogic extends GenericContractLogic<typeof BOND_ABI> {
       uri?: string;
     } = {
       name,
-      symbol: symbol.toUpperCase(),
+      symbol,
     };
 
     const bondParams = {
       mintRoyalty: mintRoyalty * 100,
       burnRoyalty: burnRoyalty * 100,
       reserveToken: reserveToken.address,
-      maxSupply: wei(maxSupply, tokenType === 'ERC20' ? 18 : 0),
+      maxSupply: stepRanges[stepRanges.length - 1],
       stepRanges,
       stepPrices,
     };

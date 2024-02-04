@@ -16,13 +16,13 @@ describe('Bond contract', () => {
       maxSupply: 10_000_000, // supply: 10M
       creatorAllocation: 10_000,
       stepData: [
-        { x: 100000, y: 2 },
-        { x: 200000, y: 3 },
-        { x: 500000, y: 4 },
-        { x: 1000000, y: 5 },
-        { x: 2000000, y: 7 },
-        { x: 5000000, y: 10 },
-        { x: 10000000, y: 15 },
+        { rangeTo: 100000, price: 2 },
+        { rangeTo: 200000, price: 3 },
+        { rangeTo: 500000, price: 4 },
+        { rangeTo: 1000000, price: 5 },
+        { rangeTo: 2000000, price: 7 },
+        { rangeTo: 5000000, price: 10 },
+        { rangeTo: 10000000, price: 15 },
       ],
 
       onError: (error) => {
