@@ -1,6 +1,5 @@
 'use strict';
 
-require('core-js/actual/structured-clone');
 var chains = require('viem/chains');
 var viem = require('viem');
 var accounts = require('viem/accounts');
@@ -3983,7 +3982,7 @@ const CHAINS$1 = [
     icon: "https://mint.club/assets/networks/avalanche@2x.png",
     color: "#E94143",
     openseaSlug: "avalanche",
-    enabled: viem.isAddress(CONTRACT_ADDRESSES.BOND[chains.arbitrum.id])
+    enabled: viem.isAddress(CONTRACT_ADDRESSES.BOND[chains.avalanche.id])
   },
   {
     id: chains.polygon.id,

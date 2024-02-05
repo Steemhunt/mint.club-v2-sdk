@@ -22,4 +22,5 @@
     "isolatedModules": true,
     "types": ["bun-types"],
   },
+  "exclude": ["./test"],
 }

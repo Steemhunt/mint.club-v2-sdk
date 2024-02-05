@@ -51,7 +51,7 @@ export const CHAINS: Array<ChainType> = [
     icon: 'https://mint.club/assets/networks/avalanche@2x.png',
     color: '#E94143',
     openseaSlug: 'avalanche',
-    enabled: isAddress(CONTRACT_ADDRESSES.BOND[arbitrum.id]),
+    enabled: isAddress(CONTRACT_ADDRESSES.BOND[avalanche.id]),
   },
   {
     id: polygon.id,

@@ -1,4 +1,3 @@
-import 'core-js/actual/structured-clone';
 import * as chains from 'viem/chains';
 import { mainnet, optimism, arbitrum, avalanche, base, polygon, bsc, sepolia } from 'viem/chains';
 import { isAddress, parseUnits, http, createPublicClient, fallback, createWalletClient, custom } from 'viem';
@@ -3963,7 +3962,7 @@ const CHAINS$1 = [
     icon: "https://mint.club/assets/networks/avalanche@2x.png",
     color: "#E94143",
     openseaSlug: "avalanche",
-    enabled: isAddress(CONTRACT_ADDRESSES.BOND[arbitrum.id])
+    enabled: isAddress(CONTRACT_ADDRESSES.BOND[avalanche.id])
   },
   {
     id: polygon.id,

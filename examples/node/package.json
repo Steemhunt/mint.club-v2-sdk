@@ -9,7 +9,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "test-mint.club-v2-sdk": "^0.0.18"
+    "test-mint.club-v2-sdk": "latest"
   },
   "scripts": {
     "start": "bun run example.ts"

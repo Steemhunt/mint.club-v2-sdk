@@ -1,5 +1,4 @@
 // pollyfill
-import 'core-js/actual/structured-clone';
 import { Abi } from 'viem';
 import { BOND_ABI } from './constants/abis/bond';
 import { ERC1155_ABI } from './constants/abis/erc1155';
