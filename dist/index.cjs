@@ -1,8 +1,8 @@
 'use strict';
 
+require('core-js/actual/structured-clone');
 var chains = require('viem/chains');
 var viem = require('viem');
-var lodashEs = require('lodash-es');
 var accounts = require('viem/accounts');
 
 function _interopNamespaceDefault(e) {
@@ -4051,7 +4051,7 @@ function countDecimals(value) {
 function restructureStepData(data) {
   if (!data)
     return [];
-  const cloned = lodashEs.cloneDeep(data);
+  const cloned = structuredClone(data);
   for (let i = cloned.length - 1; i > 0; i--) {
     cloned[i].price = cloned[i - 1]?.price;
   }

@@ -1,7 +1,7 @@
+import 'core-js/actual/structured-clone';
 import * as chains from 'viem/chains';
 import { mainnet, optimism, arbitrum, avalanche, base, polygon, bsc, sepolia } from 'viem/chains';
 import { isAddress, parseUnits, http, createPublicClient, fallback, createWalletClient, custom } from 'viem';
-import { cloneDeep } from 'lodash-es';
 import { privateKeyToAccount } from 'viem/accounts';
 
 const BOND_ABI = [
@@ -4031,7 +4031,7 @@ function countDecimals(value) {
 function restructureStepData(data) {
   if (!data)
     return [];
-  const cloned = cloneDeep(data);
+  const cloned = structuredClone(data);
   for (let i = cloned.length - 1; i > 0; i--) {
     cloned[i].price = cloned[i - 1]?.price;
   }

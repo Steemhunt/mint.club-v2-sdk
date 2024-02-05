@@ -1,11 +1,10 @@
-import { cloneDeep } from 'lodash-es';
 import { parseUnits } from 'viem';
 import { handleScientificNotation } from './numbers';
 
 export function restructureStepData(data?: { rangeTo: number; price: number }[] | null) {
   if (!data) return [];
   // we shift the y values to the right
-  const cloned = cloneDeep(data);
+  const cloned = structuredClone(data);
   for (let i = cloned.length - 1; i > 0; i--) {
     cloned[i].price = cloned[i - 1]?.price;
   }
