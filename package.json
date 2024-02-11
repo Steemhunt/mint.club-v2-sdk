@@ -1,7 +1,7 @@
 {
   "name": "test-mint.club-v2-sdk",
   "type": "module",
-  "version": "0.0.50",
+  "version": "0.0.51",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "module": "./dist/index.mjs",
