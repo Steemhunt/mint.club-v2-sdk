@@ -4027,16 +4027,6 @@ function countDecimals(value) {
   return numStr?.split(".")?.[1]?.length || 0;
 }
 
-function restructureStepData(data) {
-  if (!data)
-    return [];
-  const cloned = structuredClone(data);
-  for (let i = cloned.length - 1; i > 0; i--) {
-    cloned[i].price = cloned[i - 1]?.price;
-  }
-  cloned.shift();
-  return cloned;
-}
 function wei(num, decimals = 18) {
   const stringified = handleScientificNotation(num.toString());
   return parseUnits(stringified, decimals);
@@ -4282,9 +4272,12 @@ class GenericContractLogic {
 class BondContractLogic extends GenericContractLogic {
   generateCreateArgs(params) {
     const { tokenType, name, symbol, reserveToken, mintRoyalty, burnRoyalty, stepData } = params;
-    const clonedStepData = restructureStepData(stepData);
-    const stepRanges = clonedStepData.map(({ rangeTo }) => wei(rangeTo, tokenType === "ERC20" ? 18 : 0));
-    const stepPrices = clonedStepData.map(({ price }) => wei(price, reserveToken.decimals));
+    const stepRanges = [];
+    const stepPrices = [];
+    stepData.forEach(({ rangeTo, price }) => {
+      stepRanges.push(wei(rangeTo, tokenType === "ERC20" ? 18 : 0));
+      stepPrices.push(wei(price, reserveToken.decimals));
+    });
     for (let i = 0; i < stepPrices.length; i++) {
       if (stepPrices[i] === stepPrices[i + 1]) {
         stepRanges.splice(i, 1);
@@ -4293,7 +4286,7 @@ class BondContractLogic extends GenericContractLogic {
       }
     }
     if (!stepData || stepRanges.length === 0 || stepPrices.length === 0 || stepRanges.length !== stepPrices.length) {
-      throw new Error("Invalid step data. Please check your curve");
+      throw new Error("Invalid step data. Please double check the step data");
     }
     const tokenParams = {
       name,

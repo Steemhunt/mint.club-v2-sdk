@@ -1,5 +1,5 @@
 import { BOND_ABI } from '../constants/abis/bond';
-import { restructureStepData, wei } from '../utils';
+import { wei } from '../utils';
 import { GenericContractLogic, GenericWriteParams } from './GenericContractLogic';
 
 export type CreateTokenParams = {
@@ -19,10 +19,13 @@ export class BondContractLogic extends GenericContractLogic<typeof BOND_ABI> {
   private generateCreateArgs(params: CreateTokenParams) {
     const { tokenType, name, symbol, reserveToken, mintRoyalty, burnRoyalty, stepData } = params;
 
-    const clonedStepData = restructureStepData(stepData);
+    const stepRanges: bigint[] = [];
+    const stepPrices: bigint[] = [];
 
-    const stepRanges = clonedStepData.map(({ rangeTo }) => wei(rangeTo, tokenType === 'ERC20' ? 18 : 0));
-    const stepPrices = clonedStepData.map(({ price }) => wei(price, reserveToken.decimals));
+    stepData.forEach(({ rangeTo, price }) => {
+      stepRanges.push(wei(rangeTo, tokenType === 'ERC20' ? 18 : 0));
+      stepPrices.push(wei(price, reserveToken.decimals));
+    });
 
     // merge same price points
     for (let i = 0; i < stepPrices.length; i++) {
@@ -34,7 +37,7 @@ export class BondContractLogic extends GenericContractLogic<typeof BOND_ABI> {
     }
 
     if (!stepData || stepRanges.length === 0 || stepPrices.length === 0 || stepRanges.length !== stepPrices.length) {
-      throw new Error('Invalid step data. Please check your curve');
+      throw new Error('Invalid step data. Please double check the step data');
     }
 
     const tokenParams: {
