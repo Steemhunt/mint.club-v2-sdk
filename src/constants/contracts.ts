@@ -87,5 +87,6 @@ type ExtractChainIds<T> = T extends { [key: string]: infer U }
   : never;
 
 export type ContractType = keyof typeof CONTRACT_ADDRESSES;
+export type TokenType = 'ERC20' | 'ERC1155';
 export type ContractChainType = ExtractChainIds<typeof CONTRACT_ADDRESSES>;
 export type MainnetChain = ExcludeValue<ContractChainType, 11155111>;

@@ -17,6 +17,7 @@ export type * from './constants/chains';
 export * from './constants/contracts';
 export * from './constants/tokens';
 
+export const mintclub = new GenericContract('BOND');
 export const bondContract = new GenericContract('BOND');
 export const erc20Contract = new GenericContract('ERC20');
 export const erc1155Contract = new GenericContract('ERC1155');

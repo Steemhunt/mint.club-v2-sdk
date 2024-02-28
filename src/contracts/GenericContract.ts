@@ -87,6 +87,6 @@ export class GenericContract<T extends ContractType> {
       logicClass = GenericContractLogic.getInstance(chainId, this.contractType, this.abi);
     }
 
-    return logicClass as T extends 'BOND' ? BondContractLogic : GenericContractLogic<AbiType<T>>;
+    return logicClass as T extends 'BOND' ? BondContractLogic : GenericContractLogic<AbiType<T>, T>;
   }
 }

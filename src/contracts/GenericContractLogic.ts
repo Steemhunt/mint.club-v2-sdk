@@ -2,12 +2,14 @@ import {
   Abi,
   ContractFunctionArgs,
   ContractFunctionName,
+  FallbackTransport,
+  PublicClient,
   PublicClientConfig,
   ReadContractParameters,
   ReadContractReturnType,
   SimulateContractParameters,
   SimulateContractReturnType,
-  WaitForTransactionReceiptReturnType,
+  TransactionReceipt,
   WalletClient,
   WriteContractParameters,
   createPublicClient,
@@ -20,7 +22,8 @@ import { privateKeyToAccount } from 'viem/accounts';
 import * as chains from 'viem/chains';
 import { CHAIN_MAP } from '../constants/chains';
 import { CONTRACT_ADDRESSES, ContractChainType, ContractType } from '../constants/contracts';
-import { chainRPCFallbacks } from '../constants/rpcs';
+import { DEFAULT_RANK_OPTIONS, chainRPCFallbacks } from '../constants/rpcs';
+import { ERC20LogicHelper } from '../helpers/ERC20LogicHelper';
 import { SupportedAbiType } from './GenericContract';
 
 declare global {
@@ -39,28 +42,33 @@ export type GenericWriteParams<
   value?: bigint;
   onRequestSignature?: () => void;
   onSigned?: (tx: `0x${string}`) => void;
-  onSuccess?: (receipt: WaitForTransactionReceiptReturnType) => void;
+  onSuccess?: (receipt: TransactionReceipt) => void;
   onError?: (error: unknown) => void;
 };
 
-export type GenericLogicConstructorParams<A extends SupportedAbiType = SupportedAbiType> = {
+export type GenericLogicConstructorParams<
+  A extends SupportedAbiType = SupportedAbiType,
+  C extends ContractType = ContractType,
+> = {
   chainId: ContractChainType;
-  type: ContractType;
+  type: C;
   abi: A;
-  options?: PublicClientConfig;
 };
 
-export class GenericContractLogic<A extends SupportedAbiType> {
+export class GenericContractLogic<
+  A extends SupportedAbiType = SupportedAbiType,
+  C extends ContractType = ContractType,
+> {
   public static instances: Partial<Record<ContractChainType, GenericContractLogic<SupportedAbiType>>> = {};
   private abi: A;
-  private contractType: ContractType;
+  private contractType: C;
   private chain: chains.Chain;
   private chainId: ContractChainType;
-  private publicClient;
   private walletClient?: WalletClient;
+  private publicClient: PublicClient<FallbackTransport> | PublicClient;
 
-  constructor(params: GenericLogicConstructorParams<A>) {
-    const { chainId, type, abi, options } = params;
+  constructor(params: GenericLogicConstructorParams<A, C>) {
+    const { chainId, type, abi } = params;
     const supported = CHAIN_MAP[chainId];
 
     if (!supported) throw new Error(`Chain ${chainId} not supported`);
@@ -75,20 +83,38 @@ export class GenericContractLogic<A extends SupportedAbiType> {
 
     this.publicClient = createPublicClient({
       chain,
-      transport: fallback(chainRPCFallbacks(chain.id), { rank: true }),
-      ...options,
+      transport: fallback(chainRPCFallbacks(chain), DEFAULT_RANK_OPTIONS),
+    }) as PublicClient<FallbackTransport>;
+
+    (this.publicClient as PublicClient<FallbackTransport>).transport.onResponse((response) => {
+      const error = response.error;
+      const errorName = error?.name;
+      const isErrorResponse = response.status === 'error';
+      const name = response.transport.config.name;
+
+      if (isErrorResponse) {
+        console.error(`[RPC FAILED ${errorName}] - ${name}\n${error?.stack}`);
+      }
+
+      if (!response.response && response.status === 'success') {
+        throw new Error('Empty RPC Response');
+      }
     });
   }
 
-  public withConfig(options?: PublicClientConfig) {
+  public getWalletClient() {
+    return this.walletClient;
+  }
+
+  public getPublicClient() {
+    return this.publicClient;
+  }
+
+  public withConfig(options: PublicClientConfig) {
     const chain = Object.values(chains).find((chain) => chain.id === this.chainId);
     if (!chain) throw new Error('Chain  not found');
 
-    this.publicClient = createPublicClient({
-      chain,
-      transport: fallback(chainRPCFallbacks(this.chain.id), { rank: true }),
-      ...options,
-    });
+    this.publicClient = createPublicClient(options);
   }
 
   public withPrivateKey(privateKey: `0x${string}`) {
@@ -172,14 +198,30 @@ export class GenericContractLogic<A extends SupportedAbiType> {
     return this.instances[chainId] as unknown as GenericContractLogic<T>;
   }
 
+  public token(symbolOrAddress: string) {
+    return new ERC20LogicHelper({
+      symbolOrAddress,
+      chainId: this.chainId,
+      logicInstance: this,
+    });
+  }
+
   public read<
     T extends ContractFunctionName<A, 'view' | 'pure'>,
     R extends ContractFunctionArgs<A, 'view' | 'pure', T>,
-  >(params: { functionName: T; args: R }) {
-    const { functionName, args } = params;
+  >(
+    params: C extends 'ERC20' | 'ERC1155'
+      ? {
+          functionName: T;
+          args: R;
+          tokenAddress: `0x${string}`;
+        }
+      : { functionName: T; args: R; tokenAddress?: `0x${string}` },
+  ) {
+    const { functionName, args, tokenAddress } = params;
     return this.publicClient.readContract({
       abi: this.abi,
-      address: CONTRACT_ADDRESSES[this.contractType][this.chainId],
+      address: tokenAddress || CONTRACT_ADDRESSES[this.contractType][this.chainId],
       functionName,
       ...(args && { args }),
     } as unknown as ReadContractParameters<A, T, R>) as Promise<ReadContractReturnType<A, T, R>>;
@@ -188,7 +230,7 @@ export class GenericContractLogic<A extends SupportedAbiType> {
   public async write<
     T extends ContractFunctionName<A, 'payable' | 'nonpayable'>,
     R extends ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
-  >(params: GenericWriteParams<A, T, R>): Promise<WaitForTransactionReceiptReturnType> {
+  >(params: GenericWriteParams<A, T, R>) {
     await this.initializeWallet();
 
     if (!this.walletClient?.account) throw new Error('No wallet client found');
@@ -227,7 +269,7 @@ export class GenericContractLogic<A extends SupportedAbiType> {
         hash: tx,
       });
 
-      onSuccess?.(receipt);
+      onSuccess?.(receipt as TransactionReceipt);
 
       return receipt;
     } catch (e) {

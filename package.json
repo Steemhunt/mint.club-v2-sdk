@@ -36,6 +36,6 @@
   "dependencies": {
     "@types/lodash-es": "^4.17.12",
     "abitype": "^1.0.0",
-    "viem": "^2.7.1"
+    "viem": "latest"
   }
 }
