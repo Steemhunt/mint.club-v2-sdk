@@ -216,12 +216,18 @@ export class GenericContractLogic<
           args: R;
           tokenAddress: `0x${string}`;
         }
-      : { functionName: T; args: R; tokenAddress?: `0x${string}` },
+      : { functionName: T; args: R },
   ) {
-    const { functionName, args, tokenAddress } = params;
+    const { functionName, args } = params;
+    let address;
+    if ('tokenAddress' in params) {
+      address = params.tokenAddress;
+    } else {
+      address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
+    }
     return this.publicClient.readContract({
       abi: this.abi,
-      address: tokenAddress || CONTRACT_ADDRESSES[this.contractType][this.chainId],
+      address,
       functionName,
       ...(args && { args }),
     } as unknown as ReadContractParameters<A, T, R>) as Promise<ReadContractReturnType<A, T, R>>;
