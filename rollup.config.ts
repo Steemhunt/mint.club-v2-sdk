@@ -1,4 +1,5 @@
 import typescript from '@rollup/plugin-typescript';
+import terser from '@rollup/plugin-terser';
 
 const config = {
   input: 'src/index.ts',
@@ -8,6 +9,7 @@ const config = {
       tsconfig: 'tsconfig.json',
       exclude: ['**/test', '**/*.test.ts', '/examples'],
     }),
+    terser(),
   ],
 };
 

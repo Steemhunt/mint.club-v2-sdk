@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.0",
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
     "bun": "^1.0.25",
     "bun-types": "latest",
