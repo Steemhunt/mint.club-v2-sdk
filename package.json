@@ -26,8 +26,8 @@
     "test": "npx bun test",
     "test:watch": "npx bun test --watch",
     "purge": "npx rimraf ./dist",
-    "prepublishOnly": "npm run build",
-    "deploy": "npm version patch && git push && npm publish",
+    "prepublishOnly": "npm version patch && git push && npm run build",
+    "deploy": "npm publish",
     "postinstall": "npm run build --verbose"
   },
   "devDependencies": {
