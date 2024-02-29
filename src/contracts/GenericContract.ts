@@ -1,13 +1,18 @@
-import { BOND_ABI } from '../constants/abis/bond';
-import { ERC1155_ABI } from '../constants/abis/erc1155';
-import { ERC20_ABI } from '../constants/abis/erc20';
-import { LOCKER_ABI } from '../constants/abis/locker';
-import { MERKLE_ABI } from '../constants/abis/merkle';
-import { ONEINCH_ABI } from '../constants/abis/oneinch';
-import { ZAP_ABI } from '../constants/abis/zap';
-import { LowerCaseChainNames, chainStringToId } from '../constants/chains';
-import { ContractChainType, ContractType } from '../constants/contracts';
-import { BondContractLogic } from './BondContractLogic';
+import { autoInjectable } from 'tsyringe';
+import {
+  BOND_ABI,
+  ContractChainType,
+  ContractType,
+  ERC1155_ABI,
+  ERC20_ABI,
+  LOCKER_ABI,
+  LowerCaseChainNames,
+  MERKLE_ABI,
+  ONEINCH_ABI,
+  ZAP_ABI,
+  chainStringToId,
+} from '../exports';
+import { AbiType, SupportedAbiType } from '../types';
 import { GenericContractLogic } from './GenericContractLogic';
 
 declare global {
@@ -16,31 +21,7 @@ declare global {
   }
 }
 
-type AbiType<T extends ContractType> = T extends 'BOND'
-  ? typeof BOND_ABI
-  : T extends 'ERC20'
-    ? typeof ERC20_ABI
-    : T extends 'ERC1155'
-      ? typeof ERC1155_ABI
-      : T extends 'LOCKER'
-        ? typeof LOCKER_ABI
-        : T extends 'MERKLE'
-          ? typeof MERKLE_ABI
-          : T extends 'ZAP'
-            ? typeof ZAP_ABI
-            : T extends 'ONEINCH'
-              ? typeof ONEINCH_ABI
-              : never;
-
-export type SupportedAbiType =
-  | typeof BOND_ABI
-  | typeof ERC20_ABI
-  | typeof ERC1155_ABI
-  | typeof LOCKER_ABI
-  | typeof MERKLE_ABI
-  | typeof ZAP_ABI
-  | typeof ONEINCH_ABI;
-
+@autoInjectable()
 export class GenericContract<T extends ContractType> {
   private contractType: T;
   private abi: SupportedAbiType;
@@ -67,7 +48,7 @@ export class GenericContract<T extends ContractType> {
   }
 
   public network(id: ContractChainType | LowerCaseChainNames) {
-    let chainId;
+    let chainId: ContractChainType | undefined;
 
     if (typeof id === 'string') {
       chainId = chainStringToId(id);
@@ -79,14 +60,9 @@ export class GenericContract<T extends ContractType> {
       throw new Error(`Chain ${id} not supported`);
     }
 
-    let logicClass;
-
-    if (this.contractType === 'BOND') {
-      logicClass = BondContractLogic.getInstance(chainId, this.contractType, this.abi);
-    } else {
-      logicClass = GenericContractLogic.getInstance(chainId, this.contractType, this.abi);
-    }
-
-    return logicClass as T extends 'BOND' ? BondContractLogic : GenericContractLogic<AbiType<T>, T>;
+    return GenericContractLogic.getInstance(chainId, this.contractType, this.abi as AbiType<T>) as GenericContractLogic<
+      AbiType<T>,
+      T
+    >;
   }
 }

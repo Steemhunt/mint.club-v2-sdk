@@ -1,14 +1,15 @@
 import { isAddress } from 'viem';
 import { ContractChainType, TokenType } from '../constants/contracts';
+import { GenericWriteParams } from '../types';
 import { computeCreate2Address } from '../utils/addresses';
-import { GenericContractLogic } from '../contracts/GenericContractLogic';
-import { GenericContract, SupportedAbiType } from '../contracts/GenericContract';
+import { CreateTokenParams, generateCreateArgs } from '../utils/bond';
+import { ClientHelper } from './ClientHelper';
+import { bondContract } from '../contracts';
 
 export type GenericTokenHelperConstructorParams = {
   symbolOrAddress: string;
   chainId: ContractChainType;
   tokenType: TokenType;
-  logicInstance: any;
 };
 
 type BuySellCommonParams = {
@@ -26,13 +27,13 @@ type SellParams = BuySellCommonParams & {
 
 export class GenericTokenHelper {
   private tokenAddress: `0x${string}`;
-  private bondContract = new GenericContract('BOND');
-
+  private bondContract = bondContract;
+  private tokenType: TokenType;
+  private clientHelper: ClientHelper;
   protected chainId: ContractChainType;
-  protected logicInstance: GenericContractLogic<SupportedAbiType>;
 
   constructor(params: GenericTokenHelperConstructorParams) {
-    const { symbolOrAddress, chainId, tokenType, logicInstance } = params;
+    const { symbolOrAddress, chainId, tokenType } = params;
 
     if (isAddress(symbolOrAddress)) {
       this.tokenAddress = symbolOrAddress;
@@ -41,15 +42,8 @@ export class GenericTokenHelper {
     }
 
     this.chainId = chainId;
-    this.logicInstance = logicInstance;
-  }
-
-  protected getWalletClient() {
-    return this.logicInstance.getWalletClient();
-  }
-
-  protected getPublicClient() {
-    return this.logicInstance.getPublicClient();
+    this.tokenType = tokenType;
+    this.clientHelper = new ClientHelper(chainId);
   }
 
   public getTokenAddress() {
@@ -126,15 +120,7 @@ export class GenericTokenHelper {
     const [estimatedOutcome] = await this.estimateBuy(tokensToMint);
     const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
-    if (!this.getWalletClient()) {
-      throw new Error('Wallet client not found');
-    }
-
-    const [connectedAddress] = (await this.getWalletClient()?.requestAddresses()) || [];
-
-    if (!connectedAddress) {
-      throw new Error('Connected address not found');
-    }
+    const connectedAddress = await this.clientHelper.getConnectedAddress();
 
     const recipientAddress = recipient || connectedAddress;
 
@@ -149,11 +135,7 @@ export class GenericTokenHelper {
     const [estimatedOutcome] = await this.estimateSell(tokensToBurn);
     const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
-    if (!this.getWalletClient()) {
-      throw new Error('Wallet client not found');
-    }
-
-    const [connectedAddress] = (await this.getWalletClient()?.requestAddresses()) || [];
+    const connectedAddress = await this.clientHelper.getConnectedAddress();
 
     if (!connectedAddress) {
       throw new Error('Connected address not found');
@@ -163,6 +145,29 @@ export class GenericTokenHelper {
     return this.bondContract.network(this.chainId).write({
       functionName: 'burn',
       args: [this.tokenAddress, tokensToBurn, maxReserveAmount, recipientAddress],
+    });
+  }
+
+  public async create(
+    params: Omit<CreateTokenParams, 'tokenType'> &
+      Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>,
+  ) {
+    const args = generateCreateArgs({ ...params, tokenType: this.tokenType });
+    const { onError, onRequestSignature, onSigned, onSuccess } = params;
+
+    const fee = await this.bondContract.network(this.chainId).read({
+      functionName: 'creationFee',
+      args: [],
+    });
+
+    return this.bondContract.network(this.chainId).write({
+      functionName: 'createToken',
+      args: [args.tokenParams, args.bondParams],
+      value: fee,
+      onError,
+      onRequestSignature,
+      onSigned,
+      onSuccess,
     });
   }
 }

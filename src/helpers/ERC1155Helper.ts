@@ -1,8 +1,10 @@
-import { GenericContract } from '../contracts/GenericContract';
+import { autoInjectable } from 'tsyringe';
 import { GenericTokenHelper, GenericTokenHelperConstructorParams } from './GenericTokenHelper';
+import { erc1155Contract } from '../contracts';
 
+@autoInjectable()
 export class ERC1155Helper extends GenericTokenHelper {
-  private erc1155Contract = new GenericContract('ERC1155');
+  private erc1155Contract = erc1155Contract;
 
   constructor(params: Omit<GenericTokenHelperConstructorParams, 'tokenType'>) {
     super({

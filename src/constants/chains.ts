@@ -108,11 +108,11 @@ export function chainNameToPublicIconURL(chainName: LowerCaseChainNames) {
 }
 
 export function chainStringToId(name: LowerCaseChainNames) {
-  if (!name) return;
-
   const found = CHAINS.find((chain) => chain.name?.toLowerCase() === name.toLowerCase());
 
-  return found?.id;
+  if (!found) throw new Error(`Chain ${name} not found`);
+
+  return found.id;
 }
 
 type ChainMapType = Record<ContractChainType, ChainType>;

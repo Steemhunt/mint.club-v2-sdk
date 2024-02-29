@@ -37,6 +37,8 @@
   "dependencies": {
     "@types/lodash-es": "^4.17.12",
     "abitype": "^1.0.0",
+    "reflect-metadata": "^0.2.1",
+    "tsyringe": "^4.8.0",
     "viem": "latest"
   }
 }

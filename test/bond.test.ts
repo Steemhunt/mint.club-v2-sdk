@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import mintclub, { bondContract } from '../src';
+import { bondContract } from '../src';
 import { LowerCaseChainNames } from '../src/constants/chains';
 import { ALL_CHAINS, getCreationFee } from './utils';
 
@@ -30,7 +30,7 @@ Made with ❤️ by @0xggoma
 describe('Checking validity of contracts', () => {
   ALL_CHAINS.forEach((chain) => {
     test(`Checking ${chain} creationFee`, async () => {
-      const fee = await mintclub.network(chain).read({
+      const fee = await bondContract.network(chain).read({
         functionName: 'creationFee',
         args: [],
       });
@@ -43,7 +43,7 @@ describe('Checking validity of contracts', () => {
 describe('Read token counts', () => {
   ALL_CHAINS.forEach((chain) => {
     test(`Checking ${chain} token count`, async () => {
-      const count = await mintclub.network(chain).read({
+      const count = await bondContract.network(chain).read({
         functionName: 'tokenCount',
         args: [],
       });
