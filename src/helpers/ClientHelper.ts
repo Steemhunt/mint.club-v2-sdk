@@ -19,13 +19,15 @@ declare global {
   }
 }
 
+type SingletonKey = `${ContractChainType}-${string}`;
+
 export class ClientHelper {
-  private static instance: ClientHelper;
+  private static instances: Partial<Record<SingletonKey, ClientHelper>> = {};
   private chain: chains.Chain;
   private walletClient?: WalletClient;
   private publicClient: PublicClient<FallbackTransport> | PublicClient;
 
-  constructor(chainId: ContractChainType) {
+  constructor(chainId: ContractChainType, singletonKey = 'ClientHelper') {
     const chain = Object.values(chains).find((chain) => chain.id === chainId);
     if (!chain) throw new Error('Chain not found');
 
@@ -35,8 +37,10 @@ export class ClientHelper {
       transport: fallback(chainRPCFallbacks(chain), DEFAULT_RANK_OPTIONS),
     }) as PublicClient<FallbackTransport>;
 
-    if (ClientHelper.instance) {
-      return ClientHelper.instance;
+    const key: SingletonKey = `${chainId}-${singletonKey}`;
+
+    if (ClientHelper.instances[key]) {
+      return ClientHelper.instances[key]!;
     }
 
     (this.publicClient as PublicClient<FallbackTransport>).transport.onResponse((response) => {
@@ -54,7 +58,7 @@ export class ClientHelper {
       }
     });
 
-    ClientHelper.instance = this;
+    ClientHelper.instances[key] = this;
   }
 
   public async getConnectedAddress() {

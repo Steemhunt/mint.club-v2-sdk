@@ -27,7 +27,6 @@ type SellParams = BuySellCommonParams & {
 
 export class GenericTokenHelper {
   private tokenAddress: `0x${string}`;
-  private bondContract = bondContract;
   private tokenType: TokenType;
   private clientHelper: ClientHelper;
   protected chainId: ContractChainType;
@@ -43,7 +42,7 @@ export class GenericTokenHelper {
 
     this.chainId = chainId;
     this.tokenType = tokenType;
-    this.clientHelper = new ClientHelper(chainId);
+    this.clientHelper = new ClientHelper(chainId, 'GenericTokenHelper');
   }
 
   public getTokenAddress() {
@@ -51,14 +50,14 @@ export class GenericTokenHelper {
   }
 
   public exists() {
-    return this.bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId).read({
       functionName: 'exists',
       args: [this.tokenAddress],
     });
   }
 
   public getDetail() {
-    return this.bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId).read({
       functionName: 'getDetail',
       args: [this.tokenAddress],
     });
@@ -74,42 +73,42 @@ export class GenericTokenHelper {
       reserveBalance: bigint,
     ]
   > {
-    return this.bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId).read({
       functionName: 'tokenBond',
       args: [this.tokenAddress],
     });
   }
 
   public getSteps() {
-    return this.bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId).read({
       functionName: 'getSteps',
       args: [this.tokenAddress],
     });
   }
 
   public getMaxSupply() {
-    return this.bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId).read({
       functionName: 'maxSupply',
       args: [this.tokenAddress],
     });
   }
 
   public getPriceForNextMint() {
-    return this.bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId).read({
       functionName: 'priceForNextMint',
       args: [this.tokenAddress],
     });
   }
 
   public estimateSell(amount: bigint) {
-    return this.bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId).read({
       functionName: 'getRefundForTokens',
       args: [this.tokenAddress, amount],
     });
   }
 
   public estimateBuy(amount: bigint) {
-    return this.bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId).read({
       functionName: 'getReserveForToken',
       args: [this.tokenAddress, amount],
     });
@@ -124,7 +123,7 @@ export class GenericTokenHelper {
 
     const recipientAddress = recipient || connectedAddress;
 
-    return this.bondContract.network(this.chainId).write({
+    return bondContract.network(this.chainId).write({
       functionName: 'mint',
       args: [this.tokenAddress, tokensToMint, maxReserveAmount, recipientAddress],
     });
@@ -142,7 +141,7 @@ export class GenericTokenHelper {
     }
     const recipientAddress = recipient || connectedAddress;
 
-    return this.bondContract.network(this.chainId).write({
+    return bondContract.network(this.chainId).write({
       functionName: 'burn',
       args: [this.tokenAddress, tokensToBurn, maxReserveAmount, recipientAddress],
     });
@@ -155,12 +154,12 @@ export class GenericTokenHelper {
     const args = generateCreateArgs({ ...params, tokenType: this.tokenType });
     const { onError, onRequestSignature, onSigned, onSuccess } = params;
 
-    const fee = await this.bondContract.network(this.chainId).read({
+    const fee = await bondContract.network(this.chainId).read({
       functionName: 'creationFee',
       args: [],
     });
 
-    return this.bondContract.network(this.chainId).write({
+    return bondContract.network(this.chainId).write({
       functionName: 'createToken',
       args: [args.tokenParams, args.bondParams],
       value: fee,

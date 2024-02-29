@@ -12,38 +12,33 @@ import { CHAIN_MAP, CONTRACT_ADDRESSES, ContractChainType, ContractType } from '
 import type { GenericWriteParams, SupportedAbiType } from '../types';
 import { ClientHelper } from '../helpers/ClientHelper';
 
+type GenericLogicConstructorParams<
+  A extends SupportedAbiType = SupportedAbiType,
+  C extends ContractType = ContractType,
+> = {
+  chainId: ContractChainType;
+  type: C;
+  abi: A;
+};
+
 export class GenericContractLogic<
   A extends SupportedAbiType = SupportedAbiType,
   C extends ContractType = ContractType,
 > extends ClientHelper {
-  public static instances: Partial<
-    Record<`${ContractChainType}-${ContractType}`, GenericContractLogic<SupportedAbiType>>
-  > = {};
   private abi: A;
   private contractType: C;
   private chainId: ContractChainType;
 
-  constructor(params: { chainId: ContractChainType; type: C; abi: A }) {
+  constructor(params: GenericLogicConstructorParams<A, C>) {
     const { chainId, type, abi } = params;
     const supported = CHAIN_MAP[chainId];
 
     if (!supported) throw new Error(`Chain ${chainId} not supported`);
 
-    super(chainId);
+    super(chainId, type);
     this.contractType = type;
     this.abi = abi;
     this.chainId = chainId;
-  }
-
-  public static getInstance<T extends SupportedAbiType>(chainId: ContractChainType, type: ContractType, abi: T) {
-    if (!this.instances[`${chainId}-${type}`]) {
-      this.instances[`${chainId}-${type}`] = new this({
-        chainId,
-        type,
-        abi,
-      }) as unknown as GenericContractLogic<SupportedAbiType>;
-    }
-    return this.instances[`${chainId}-${type}`] as unknown as GenericContractLogic<T>;
   }
 
   public read<
@@ -57,7 +52,7 @@ export class GenericContractLogic<
           tokenAddress: `0x${string}`;
         }
       : { functionName: T; args: R },
-  ) {
+  ): Promise<ReadContractReturnType<A, T, R>> {
     const { functionName, args } = params;
     let address: `0x${string}`;
 
@@ -78,7 +73,7 @@ export class GenericContractLogic<
   public async write<
     T extends ContractFunctionName<A, 'payable' | 'nonpayable'>,
     R extends ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
-  >(params: GenericWriteParams<A, T, R, C>) {
+  >(params: GenericWriteParams<A, T, R, C>): Promise<TransactionReceipt | undefined> {
     await this.initializeWallet();
 
     const walletClient = this.getWalletClient();

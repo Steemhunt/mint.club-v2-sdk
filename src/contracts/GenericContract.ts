@@ -46,7 +46,7 @@ export class GenericContract<T extends ContractType> {
   }
 
   public network(id: ContractChainType | LowerCaseChainNames) {
-    let chainId: ContractChainType | undefined;
+    let chainId: ContractChainType;
 
     if (typeof id === 'string') {
       chainId = chainStringToId(id);
@@ -58,9 +58,10 @@ export class GenericContract<T extends ContractType> {
       throw new Error(`Chain ${id} not supported`);
     }
 
-    return GenericContractLogic.getInstance(chainId, this.contractType, this.abi as AbiType<T>) as GenericContractLogic<
-      AbiType<T>,
-      T
-    >;
+    return new GenericContractLogic({
+      chainId,
+      type: this.contractType,
+      abi: this.abi,
+    }) as unknown as GenericContractLogic<AbiType<T>, T>;
   }
 }

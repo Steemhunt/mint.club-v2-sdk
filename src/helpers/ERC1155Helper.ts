@@ -2,8 +2,6 @@ import { GenericTokenHelper, GenericTokenHelperConstructorParams } from './Gener
 import { erc1155Contract } from '../contracts';
 
 export class ERC1155Helper extends GenericTokenHelper {
-  private erc1155Contract = erc1155Contract;
-
   constructor(params: Omit<GenericTokenHelperConstructorParams, 'tokenType'>) {
     super({
       ...params,
@@ -12,7 +10,7 @@ export class ERC1155Helper extends GenericTokenHelper {
   }
 
   public balanceOf(walletAddress: `0x${string}`) {
-    return this.erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'balanceOf',
       args: [walletAddress, 0n],
@@ -21,7 +19,7 @@ export class ERC1155Helper extends GenericTokenHelper {
 
   public balanceOfBatch(walletAddresses: `0x${string}`[]) {
     const ids: bigint[] = Array(walletAddresses.length).fill(0n);
-    return this.erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'balanceOfBatch',
       args: [walletAddresses, ids],
@@ -29,7 +27,7 @@ export class ERC1155Helper extends GenericTokenHelper {
   }
 
   public contrctURI() {
-    return this.erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'contractURI',
       args: [],
@@ -37,7 +35,7 @@ export class ERC1155Helper extends GenericTokenHelper {
   }
 
   public decimals() {
-    return this.erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'decimals',
       args: [],
@@ -45,7 +43,7 @@ export class ERC1155Helper extends GenericTokenHelper {
   }
 
   public isApprovedForAll(owner: `0x${string}`, spender: `0x${string}`) {
-    return this.erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'isApprovedForAll',
       args: [owner, spender],
@@ -53,7 +51,7 @@ export class ERC1155Helper extends GenericTokenHelper {
   }
 
   public name() {
-    return this.erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'name',
       args: [],
@@ -61,7 +59,7 @@ export class ERC1155Helper extends GenericTokenHelper {
   }
 
   public supportsInterface(interfaceId: `0x${string}`) {
-    return this.erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'supportsInterface',
       args: [interfaceId],
@@ -69,7 +67,7 @@ export class ERC1155Helper extends GenericTokenHelper {
   }
 
   public symbol() {
-    return this.erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'symbol',
       args: [],
@@ -77,7 +75,7 @@ export class ERC1155Helper extends GenericTokenHelper {
   }
 
   public totalSupply() {
-    return this.erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'totalSupply',
       args: [],
@@ -85,7 +83,7 @@ export class ERC1155Helper extends GenericTokenHelper {
   }
 
   public uri() {
-    return this.erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'uri',
       args: [0n],
