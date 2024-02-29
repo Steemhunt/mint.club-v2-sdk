@@ -32,19 +32,30 @@ declare global {
   }
 }
 
-export type GenericWriteParams<
-  A extends Abi = Abi,
-  T extends ContractFunctionName<A, 'payable' | 'nonpayable'> = ContractFunctionName<A, 'payable' | 'nonpayable'>,
-  R extends ContractFunctionArgs<A, 'payable' | 'nonpayable', T> = ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
-> = {
-  functionName: T;
-  args: R;
+type CommonWriteParams = {
   value?: bigint;
   onRequestSignature?: () => void;
   onSigned?: (tx: `0x${string}`) => void;
   onSuccess?: (receipt: TransactionReceipt) => void;
   onError?: (error: unknown) => void;
 };
+
+export type GenericWriteParams<
+  A extends Abi = Abi,
+  T extends ContractFunctionName<A, 'payable' | 'nonpayable'> = ContractFunctionName<A, 'payable' | 'nonpayable'>,
+  R extends ContractFunctionArgs<A, 'payable' | 'nonpayable', T> = ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
+  C extends ContractType = ContractType,
+> = (C extends 'ERC20' | 'ERC1155'
+  ? {
+      tokenAddress: `0x${string}`;
+      functionName: T;
+      args: R;
+    }
+  : {
+      functionName: T;
+      args: R;
+    }) &
+  CommonWriteParams;
 
 export type GenericLogicConstructorParams<
   A extends SupportedAbiType = SupportedAbiType,
@@ -59,7 +70,9 @@ export class GenericContractLogic<
   A extends SupportedAbiType = SupportedAbiType,
   C extends ContractType = ContractType,
 > {
-  public static instances: Partial<Record<ContractChainType, GenericContractLogic<SupportedAbiType>>> = {};
+  public static instances: Partial<
+    Record<`${ContractChainType}-${ContractType}`, GenericContractLogic<SupportedAbiType>>
+  > = {};
   private abi: A;
   private contractType: C;
   private chain: chains.Chain;
@@ -186,16 +199,16 @@ export class GenericContractLogic<
   }
 
   public static getInstance<T extends SupportedAbiType>(chainId: ContractChainType, type: ContractType, abi: T) {
-    if (!this.instances[chainId]) {
+    if (!this.instances[`${chainId}-${type}`]) {
       // new "this" to allow for subclassing
-      this.instances[chainId] = new this({
+      this.instances[`${chainId}-${type}`] = new this({
         chainId,
         type,
         abi,
       }) as unknown as GenericContractLogic<SupportedAbiType>;
     }
 
-    return this.instances[chainId] as unknown as GenericContractLogic<T>;
+    return this.instances[`${chainId}-${type}`] as unknown as GenericContractLogic<T>;
   }
 
   public token(symbolOrAddress: string) {
@@ -219,12 +232,15 @@ export class GenericContractLogic<
       : { functionName: T; args: R },
   ) {
     const { functionName, args } = params;
-    let address;
+
+    let address: `0x${string}`;
+
     if ('tokenAddress' in params) {
       address = params.tokenAddress;
     } else {
       address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
     }
+
     return this.publicClient.readContract({
       abi: this.abi,
       address,
@@ -236,7 +252,7 @@ export class GenericContractLogic<
   public async write<
     T extends ContractFunctionName<A, 'payable' | 'nonpayable'>,
     R extends ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
-  >(params: GenericWriteParams<A, T, R>) {
+  >(params: GenericWriteParams<A, T, R, C>) {
     await this.initializeWallet();
 
     if (!this.walletClient?.account) throw new Error('No wallet client found');
@@ -248,12 +264,20 @@ export class GenericContractLogic<
 
     const { functionName, args, value, onError, onRequestSignature, onSigned, onSuccess } = params;
 
+    let address: `0x${string}`;
+
+    if ('tokenAddress' in params) {
+      address = params.tokenAddress;
+    } else {
+      address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
+    }
+
     const [account] = await this.walletClient.getAddresses();
     const simulationArgs = {
       account,
       chain: this.chain,
       abi: this.abi,
-      address: CONTRACT_ADDRESSES[this.contractType][this.chainId],
+      address,
       functionName,
       args,
       ...(value && { value }),

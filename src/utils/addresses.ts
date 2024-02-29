@@ -37,6 +37,5 @@ export function computeCreate2Address(chainId: ContractChainType, tokenType: Tok
 
 export function createRandomAddress() {
   const randBytes = randomBytes(20);
-  const address = `0x${bytesToHex(randBytes)}`;
-  return address as `0x${string}`;
+  return bytesToHex(randBytes);
 }

@@ -52,7 +52,7 @@ export class GenericTokenLogicHelper {
     return this.logicInstance.getPublicClient();
   }
 
-  public getAddress() {
+  public getTokenAddress() {
     return this.tokenAddress;
   }
 

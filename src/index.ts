@@ -7,7 +7,7 @@ import { LOCKER_ABI } from './constants/abis/locker';
 import { MERKLE_ABI } from './constants/abis/merkle';
 import { ONEINCH_ABI } from './constants/abis/oneinch';
 import { ZAP_ABI } from './constants/abis/zap';
-import { LowerCaseChainNames } from './constants/chains';
+import { LowerCaseChainNames, chainIdToString } from './constants/chains';
 import { ContractChainType, ContractType } from './constants/contracts';
 import { CONTRACT_ERROR_MESSAGES } from './constants/error-dictionary/contract-errors';
 import { TOKENS } from './constants/tokens';
@@ -59,4 +59,4 @@ const supportedChainsMap: Record<LowerCaseChainNames, ContractChainType> = {
   base: 8453,
 };
 
-export { abis, errorMessages, supportedChains, supportedChainsMap, whitelistedTokens };
+export { abis, errorMessages, supportedChains, supportedChainsMap, whitelistedTokens, chainIdToString };
