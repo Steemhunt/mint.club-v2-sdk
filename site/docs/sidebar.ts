@@ -29,51 +29,90 @@ export const sidebar = {
     },
 
     {
-      text: 'Main SDK',
-      collapsed: true,
+      text: 'SDK',
+      collapsed: false,
       items: [
         { text: 'Introduction', link: '/docs/main/sdk/introduction' },
+
         {
           text: 'mintclub',
+          collapsed: false,
           items: [
             {
-              text: 'getBalance',
-              link: '/docs/main/sdk/getBalance',
+              text: 'network',
+              items: [
+                {
+                  text: 'createToken',
+                  link: '/docs/main/sdk/getBalance',
+                },
+                {
+                  text: 'createNFT',
+                  link: '/docs/main/sdk/getBalance',
+                },
+                {
+                  text: 'token',
+                  collapsed: true,
+                  items: [
+                    {
+                      text: 'createToken',
+                      link: '/docs/main/sdk/getBalance',
+                    },
+                    {
+                      text: 'createNFT',
+                      link: '/docs/main/sdk/getBalance',
+                    },
+                    {
+                      text: 'token',
+                      collapsed: true,
+                      link: '/docs/main/sdk/getBalance',
+                    },
+                    {
+                      text: 'nft',
+                      collapsed: true,
+                      link: '/docs/main/sdk/getBalance',
+                    },
+                  ],
+                },
+                {
+                  text: 'nft',
+                  collapsed: true,
+                  items: [
+                    {
+                      text: 'createToken',
+                      link: '/docs/main/sdk/getBalance',
+                    },
+                    {
+                      text: 'createNFT',
+                      link: '/docs/main/sdk/getBalance',
+                    },
+                    {
+                      text: 'token',
+                      collapsed: true,
+                      link: '/docs/main/sdk/getBalance',
+                    },
+                    {
+                      text: 'nft',
+                      collapsed: true,
+                      link: '/docs/main/sdk/getBalance',
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
+
         {
-          text: 'token',
+          text: 'utilities',
+          collapsed: true,
           items: [
             {
-              text: 'getBalance',
+              text: 'a',
               link: '/docs/main/sdk/getBalance',
             },
             {
-              text: 'getTransactionCount',
-              link: '/docs/main/sdk/getTransactionCount',
-            },
-          ],
-        },
-        {
-          text: 'nft',
-          items: [
-            { text: 'getBlock', link: '/docs/main/sdk/getBlock' },
-            {
-              text: 'getBlockNumber',
-              link: '/docs/main/sdk/getBlockNumber',
-            },
-            {
-              text: 'getBlockTransactionCount',
-              link: '/docs/main/sdk/getBlockTransactionCount',
-            },
-            {
-              text: 'watchBlockNumber',
-              link: '/docs/main/sdk/watchBlockNumber',
-            },
-            {
-              text: 'watchBlocks',
-              link: '/docs/main/sdk/watchBlocks',
+              text: 'b',
+              link: '/docs/main/sdk/getBalance',
             },
           ],
         },
