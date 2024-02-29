@@ -52,4 +52,4 @@ export const supportedChainsMap: Record<LowerCaseChainNames, ContractChainType> 
 export * from './exports';
 export * from './contracts';
 
-export default new MintClubSDK();
+export const mintclub = new MintClubSDK();
