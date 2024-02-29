@@ -1,8 +1,6 @@
-import { autoInjectable } from 'tsyringe';
 import { GenericTokenHelper, GenericTokenHelperConstructorParams } from './GenericTokenHelper';
 import { erc1155Contract } from '../contracts';
 
-@autoInjectable()
 export class ERC1155Helper extends GenericTokenHelper {
   private erc1155Contract = erc1155Contract;
 

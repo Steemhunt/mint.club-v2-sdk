@@ -1,4 +1,3 @@
-import { autoInjectable } from 'tsyringe';
 import {
   BOND_ABI,
   ContractChainType,
@@ -21,7 +20,6 @@ declare global {
   }
 }
 
-@autoInjectable()
 export class GenericContract<T extends ContractType> {
   private contractType: T;
   private abi: SupportedAbiType;
