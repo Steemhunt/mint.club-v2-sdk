@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon } from 'viem/chains';
-import { MainnetChain, chainIdToString, mintclub } from '../../src';
+import mintclub, { MainnetChain, chainIdToString } from '../../src';
 import { createRandomAddress } from '../../src/utils/addresses';
 
 type ERC20Token = {

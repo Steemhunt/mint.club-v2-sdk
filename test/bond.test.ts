@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { bondContract, mintclub } from '../src';
+import mintclub, { bondContract } from '../src';
 import { LowerCaseChainNames } from '../src/constants/chains';
 import { ALL_CHAINS, getCreationFee } from './utils';
 
