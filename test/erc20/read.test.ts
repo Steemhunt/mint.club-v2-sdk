@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon } from 'viem/chains';
 import { mintclub, MainnetChain, chainIdToString } from '../../src';
 import { createRandomAddress } from '../../src/utils/addresses';
-mintclub.network('base').token('SBNOMA').
 
 type ERC20Token = {
   symbol: string;
@@ -61,7 +60,7 @@ describe('ERC20 decimals should equal 18', () => {
   testAll((chainId, token) => {
     const { symbol, address } = token;
     test(`Chain ${chainIdToString(chainId)} - ${symbol} ${address}`, async () => {
-      const decimals = await mintclub.network(chainId).token(symbol).decimals();
+      const decimals = await mintclub.network(chainId).token(symbol).getDecimals();
       expect(decimals).toEqual(18);
     });
   });
@@ -71,9 +70,9 @@ describe('ERC20 read name, symbol, and totalSupply', () => {
   testAll((chainId, token) => {
     const { symbol, address } = token;
     test(`Chain ${chainIdToString(chainId)} - ${symbol} ${address}`, async () => {
-      const name = await mintclub.network(chainId).token(symbol).name();
-      const tokenSymbol = await mintclub.network(chainId).token(symbol).symbol();
-      const totalSupply = await mintclub.network(chainId).token(symbol).totalSupply();
+      const name = await mintclub.network(chainId).token(symbol).getName();
+      const tokenSymbol = await mintclub.network(chainId).token(symbol).getSymbol();
+      const totalSupply = await mintclub.network(chainId).token(symbol).getTotalSupply();
 
       expect(name).toBeString();
       expect(tokenSymbol).toBeString();
@@ -88,7 +87,7 @@ describe('ERC20 balance of fake address should be 0n', () => {
     const { symbol, address } = token;
     const fakeAddress = createRandomAddress();
     test(`Chain ${chainIdToString(chainId)} - ${symbol} FakeAddress: ${fakeAddress}`, async () => {
-      const balance = await mintclub.network(chainId).token(symbol).balanceOf(fakeAddress);
+      const balance = await mintclub.network(chainId).token(symbol).getBalanceOf(fakeAddress);
       expect(balance).toEqual(0n);
     });
   });

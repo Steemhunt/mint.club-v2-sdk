@@ -60,7 +60,7 @@ describe('ERC1155 decimals should equal 0', () => {
   testAll((chainId, token) => {
     const { symbol, address } = token;
     test(`Chain ${chainIdToString(chainId)} - ${symbol} ${address}`, async () => {
-      const decimals = await mintclub.network(chainId).nft(symbol).decimals();
+      const decimals = await mintclub.network(chainId).nft(symbol).getDecimals();
       expect(decimals).toEqual(0);
     });
   });
@@ -70,9 +70,9 @@ describe('ERC1155 read name, symbol, and totalSupply', () => {
   testAll((chainId, token) => {
     const { symbol, address } = token;
     test(`Chain ${chainIdToString(chainId)} - ${symbol} ${address}`, async () => {
-      const name = await mintclub.network(chainId).nft(symbol).name();
-      const tokenSymbol = await mintclub.network(chainId).nft(symbol).symbol();
-      const totalSupply = await mintclub.network(chainId).nft(symbol).totalSupply();
+      const name = await mintclub.network(chainId).nft(symbol).getName();
+      const tokenSymbol = await mintclub.network(chainId).nft(symbol).getSymbol();
+      const totalSupply = await mintclub.network(chainId).nft(symbol).getTotalSupply();
 
       expect(name).toBeString();
       expect(tokenSymbol).toBeString();
@@ -87,7 +87,7 @@ describe('ERC1155 balance of fake address should be 0n', () => {
     const { symbol } = token;
     const fakeAddress = createRandomAddress();
     test(`Chain ${chainIdToString(chainId)} - ${symbol} FakeAddress: ${fakeAddress}`, async () => {
-      const balance = await mintclub.network(chainId).nft(symbol).balanceOf(fakeAddress);
+      const balance = await mintclub.network(chainId).nft(symbol).getBalanceOf(fakeAddress);
       expect(balance).toEqual(0n);
     });
   });

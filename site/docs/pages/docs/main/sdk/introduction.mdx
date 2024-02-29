@@ -54,7 +54,7 @@ import { mintclub } from 'mint.club-v2-sdk';
 const symbolOrAddress: string = 'CHICKEN';
 // [!code focus]
 // @noErrors
-mintclub.network('base').token(symbolOrAddress // [!code focus]
+mintclub.network('base').token(symbolOrAddress); // [!code focus]
 //                       ^^^^^
 //                                     ^?
 // [!code focus]
@@ -70,8 +70,8 @@ import { mintclub } from 'mint.club-v2-sdk';
 const symbolOrAddress: string = 'CHICKEN';
 // [!code focus]
 // @noErrors
-mintclub.network('base').token(symbolOrAddress). // [!code focus]
-//                                              ^|
+mintclub.network('base').token(symbolOrAddress).g; // [!code focus]
+//                                               ^|
 // [!code focus]
 ```
 

@@ -45,15 +45,15 @@ export class GenericTokenHelper {
     this.clientHelper = new ClientHelper(chainId, 'GenericTokenHelper');
   }
 
-  public getTokenAddress() {
-    return this.tokenAddress;
-  }
-
   public exists() {
     return bondContract.network(this.chainId).read({
       functionName: 'exists',
       args: [this.tokenAddress],
     });
+  }
+
+  public getTokenAddress() {
+    return this.tokenAddress;
   }
 
   public getDetail() {
@@ -100,14 +100,14 @@ export class GenericTokenHelper {
     });
   }
 
-  public estimateSell(amount: bigint) {
+  public getSellEstimation(amount: bigint) {
     return bondContract.network(this.chainId).read({
       functionName: 'getRefundForTokens',
       args: [this.tokenAddress, amount],
     });
   }
 
-  public estimateBuy(amount: bigint) {
+  public getBuyEstimation(amount: bigint) {
     return bondContract.network(this.chainId).read({
       functionName: 'getReserveForToken',
       args: [this.tokenAddress, amount],
@@ -116,7 +116,7 @@ export class GenericTokenHelper {
 
   public async buy(params: BuyParams) {
     const { tokensToMint, slippage = 0, recipient } = params;
-    const [estimatedOutcome] = await this.estimateBuy(tokensToMint);
+    const [estimatedOutcome] = await this.getBuyEstimation(tokensToMint);
     const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
     const connectedAddress = await this.clientHelper.getConnectedAddress();
@@ -131,7 +131,7 @@ export class GenericTokenHelper {
 
   public async sell(params: SellParams) {
     const { tokensToBurn, slippage = 0, recipient } = params;
-    const [estimatedOutcome] = await this.estimateSell(tokensToBurn);
+    const [estimatedOutcome] = await this.getSellEstimation(tokensToBurn);
     const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
     const connectedAddress = await this.clientHelper.getConnectedAddress();

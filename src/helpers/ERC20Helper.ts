@@ -9,7 +9,7 @@ export class ERC20Helper extends GenericTokenHelper {
     });
   }
 
-  public allowance(owner: `0x${string}`, spender: `0x${string}`) {
+  public getAllowance(owner: `0x${string}`, spender: `0x${string}`) {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'allowance',
@@ -17,7 +17,7 @@ export class ERC20Helper extends GenericTokenHelper {
     });
   }
 
-  public balanceOf(walletAddress: `0x${string}`) {
+  public getBalanceOf(walletAddress: `0x${string}`) {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'balanceOf',
@@ -25,7 +25,7 @@ export class ERC20Helper extends GenericTokenHelper {
     });
   }
 
-  public getBondAddress() {
+  public getGetBondAddress() {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'bond',
@@ -33,7 +33,7 @@ export class ERC20Helper extends GenericTokenHelper {
     });
   }
 
-  public decimals() {
+  public getDecimals() {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'decimals',
@@ -41,7 +41,7 @@ export class ERC20Helper extends GenericTokenHelper {
     });
   }
 
-  public name() {
+  public getName() {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'name',
@@ -49,7 +49,7 @@ export class ERC20Helper extends GenericTokenHelper {
     });
   }
 
-  public symbol() {
+  public getSymbol() {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'symbol',
@@ -57,7 +57,7 @@ export class ERC20Helper extends GenericTokenHelper {
     });
   }
 
-  public totalSupply() {
+  public getTotalSupply() {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'totalSupply',

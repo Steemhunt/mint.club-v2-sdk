@@ -9,7 +9,7 @@ export class ERC1155Helper extends GenericTokenHelper {
     });
   }
 
-  public balanceOf(walletAddress: `0x${string}`) {
+  public getBalanceOf(walletAddress: `0x${string}`) {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'balanceOf',
@@ -17,7 +17,7 @@ export class ERC1155Helper extends GenericTokenHelper {
     });
   }
 
-  public balanceOfBatch(walletAddresses: `0x${string}`[]) {
+  public getBalanceOfBatch(walletAddresses: `0x${string}`[]) {
     const ids: bigint[] = Array(walletAddresses.length).fill(0n);
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
@@ -26,7 +26,7 @@ export class ERC1155Helper extends GenericTokenHelper {
     });
   }
 
-  public contrctURI() {
+  public getContrctURI() {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'contractURI',
@@ -34,7 +34,7 @@ export class ERC1155Helper extends GenericTokenHelper {
     });
   }
 
-  public decimals() {
+  public getDecimals() {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'decimals',
@@ -42,7 +42,7 @@ export class ERC1155Helper extends GenericTokenHelper {
     });
   }
 
-  public isApprovedForAll(owner: `0x${string}`, spender: `0x${string}`) {
+  public getIsApprovedForAll(owner: `0x${string}`, spender: `0x${string}`) {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'isApprovedForAll',
@@ -50,7 +50,7 @@ export class ERC1155Helper extends GenericTokenHelper {
     });
   }
 
-  public name() {
+  public getName() {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'name',
@@ -58,7 +58,7 @@ export class ERC1155Helper extends GenericTokenHelper {
     });
   }
 
-  public supportsInterface(interfaceId: `0x${string}`) {
+  public getSupportsInterface(interfaceId: `0x${string}`) {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'supportsInterface',
@@ -66,7 +66,7 @@ export class ERC1155Helper extends GenericTokenHelper {
     });
   }
 
-  public symbol() {
+  public getSymbol() {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'symbol',
@@ -74,7 +74,7 @@ export class ERC1155Helper extends GenericTokenHelper {
     });
   }
 
-  public totalSupply() {
+  public getTotalSupply() {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'totalSupply',
@@ -82,7 +82,7 @@ export class ERC1155Helper extends GenericTokenHelper {
     });
   }
 
-  public uri() {
+  public getUri() {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'uri',
