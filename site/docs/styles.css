@@ -1,0 +1,10 @@
+@layer vocs_preflight {
+  @tailwind base;
+}
+@tailwind components;
+@tailwind utilities;
+
+.twoslash:has(.twoslash-popup-info),
+.twoslash:has(.twoslash-completion-list) {
+  min-height: 280px;
+}

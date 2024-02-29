@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon } from 'viem/chains';
 import { mintclub, MainnetChain, chainIdToString } from '../../src';
 import { createRandomAddress } from '../../src/utils/addresses';
+mintclub.network('base').token('SBNOMA').
 
 type ERC20Token = {
   symbol: string;

@@ -1,15 +1,15 @@
 import { defineConfig } from 'vocs';
+import { sidebar } from './docs/sidebar';
 
 export default defineConfig({
-  title: 'Docs',
-  sidebar: [
-    {
-      text: 'Getting Started',
-      link: '/getting-started',
-    },
-    {
-      text: 'Example',
-      link: '/example',
-    },
-  ],
+  title: 'Mint.club',
+  logoUrl: 'https://mint.club/assets/icons/mint-logo.png',
+  sidebar,
+  theme: {
+    accentColor: '#15e6b7',
+    colorScheme: 'dark',
+  },
+  font: {
+    google: 'Raleway',
+  },
 });

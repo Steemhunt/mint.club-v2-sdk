@@ -1,0 +1,80 @@
+![image](https://github.com/Steemhunt/mint.club-v2-contract/assets/1332279/66ce69bd-7ebd-4d58-b064-f82053b51b5a)
+
+# Getting Started
+
+## Overview
+
+Mint.club is a multichain supported [DApp](https://mint.club) that lets you easily create Bonding Curved ERC-20 and ERC-1155 with custom tokenomics.
+
+You can use this SDK in both the browser and Node.js, and it's strongly-typed with TypeScript. Both ESM and CommonJS are supported.
+
+Maximize the bonding curve protocol with your own flavor. 🍏
+
+## Quick Start
+
+Below is a quick example of how to use the SDK to communicate with the Mint.club Protocol.
+
+::::steps
+
+### Install
+
+First, we will install `mint.club-v2-sdk` as a dependency in our project.
+
+:::code-group
+
+```bash [npm]
+npm i mint.club-v2-sdk
+```
+
+```bash [pnpm]
+pnpm i mint.club-v2-sdk
+```
+
+```bash [yarn]
+yarn add mint.club-v2-sdk
+```
+
+```bash [bun]
+bun i mint.club-v2-sdk
+```
+
+:::
+
+### Reading Data
+
+Below is a simple example of retrieving the token's total supply.
+
+```ts twoslash [app.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+// [!code focus]
+const totalSupply = await mintclub.network('base').token('CHICKEN').totalSupply(); // [!code focus]
+//    ^?
+// [!code focus]
+
+// @noErrors
+
+// The token actually exists! https://mint.club/token/base/CHICKEN 🐔 // [!code hl]
+```
+
+[Go to full documentation](/docs/main/sdk/introduction)
+
+### Writing Data
+
+Below is a simple example of purchasing a token.
+
+```ts [app.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+// [!code focus]
+const result = await mintclub.network('base').token('CHICKEN').buy(100n); // [!code focus]
+// [!code focus]
+```
+
+[Go to full documentation](/docs/main/sdk/introduction)
+
+### Next Steps 🎊
+
+You can find more examples and detailed documentation throughout the rest of this site.
+
+::::

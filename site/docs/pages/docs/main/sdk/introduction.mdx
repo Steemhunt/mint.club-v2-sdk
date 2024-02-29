@@ -1,0 +1,78 @@
+# `mintclub` SDK [A brief introduction on common patterns.]
+
+## Introduction
+
+::::steps
+
+### mintclub 👌
+
+You will most likely find everything needed within the `mintclub` module exported from `mint.club-v2-sdk`.
+
+```ts [app.ts]
+// [!include ~/snippets/example.ts:import]
+```
+
+### network
+
+The SDK follows a common pattern of having a `network` method to set the network to interact with.
+
+Available networks are `ethereum` `base` `optimism` `arbitrum` `polygon` `avalanche` `bnbchain` and `sepolia`.
+
+```ts twoslash [app.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+// [!code focus]
+// @noErrors
+mintclub.network('' // [!code focus]
+//                ^|
+// [!code focus]
+```
+
+You could also pass the `chainId` instead of string value if you want.
+
+```ts twoslash [app.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+// [!code focus]
+// @noErrors
+mintclub.network(1 // [!code focus]
+//                ^|
+// [!code focus]
+```
+
+### `token` | `nft`
+
+Then follows the `token` and `nft` methods to interact with.
+
+`token` represents fungible ERC-20 tokens, while `nft` represents non-fungible ERC-1155 tokens.
+
+It takes in a `string` parameter which could be the token symbol or address.
+
+```ts twoslash [app.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+const symbolOrAddress: string = 'CHICKEN';
+// [!code focus]
+// @noErrors
+mintclub.network('base').token(symbolOrAddress // [!code focus]
+//                       ^^^^^
+//                                     ^?
+// [!code focus]
+```
+
+### `functionName`
+
+Lastly, you can call the functions on the token or nft.
+
+```ts twoslash [app.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+const symbolOrAddress: string = 'CHICKEN';
+// [!code focus]
+// @noErrors
+mintclub.network('base').token(symbolOrAddress). // [!code focus]
+//                                              ^|
+// [!code focus]
+```
+
+::::

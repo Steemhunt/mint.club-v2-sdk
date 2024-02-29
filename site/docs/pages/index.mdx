@@ -1,18 +1,24 @@
 ---
+title: Mint Club v2 SDK | Bonding Curve Backed Token/NFT Creator
 layout: landing
+showLogo: true
 ---
 
 import { HomePage } from 'vocs/components';
 
 <HomePage.Root>
-  <HomePage.Logo />
-  <HomePage.Tagline>My Awesome Docs</HomePage.Tagline>
-  <HomePage.InstallPackage name="alpha-mint.club-v2-sdk" type="init" />
-  <HomePage.Description>This is a description of my documentation website.</HomePage.Description>
+  <HomePage.Logo className="aspect-square" />
+  <HomePage.Tagline>Mint Club v2 SDK</HomePage.Tagline>
+  <HomePage.InstallPackage name="mint.club-v2-sdk" type="install" />
+  <HomePage.Description>
+    Mint Club is a bonding curve-based token (ERC20, ERC1155) creation and trading protocol. Users can create an asset
+    with a custom bonding curve on top of any existing ERC20 token as collateral. By using a bonding curve, the new
+    asset is immediately tradable without the need for liquidity creation on DEXs or CEXs.
+  </HomePage.Description>
   <HomePage.Buttons>
-    <HomePage.Button href="/getting-started" variant="accent">
+    <HomePage.Button href="/docs/getting-started" variant="accent">
       Get started
     </HomePage.Button>
-    <HomePage.Button href="https://github.com/wevm/vocs">GitHub</HomePage.Button>
+    <HomePage.Button href="https://github.com/Steemhunt/mint.club-v2-sdk">GitHub</HomePage.Button>
   </HomePage.Buttons>
 </HomePage.Root>

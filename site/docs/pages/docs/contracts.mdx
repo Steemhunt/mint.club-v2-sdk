@@ -1,0 +1,100 @@
+import { Button, Callout } from 'vocs/components';
+
+# Mint Club V2 Contracts
+
+## GitHub Repository 📁
+
+<Button href="https://github.com/Steemhunt/mint.club-v2-contract">GitHub Repo</Button>
+
+## Security Audits 🛡️
+
+- The Mint Club V2 contract underwent two audit processes to bolster its security. Initially, in December 2023, we conducted a community contract audit, engaging 15 Solidity experts from around the globe.
+
+<Button href="https://docs.mint.club/audit/com_audit">Community Audit</Button>
+
+- Additionally, in January 2024, we completed a rigorous security audit and KYC process with CertiK.
+
+<Button href="https://docs.mint.club/audit/report">CertiK Audit</Button>
+
+## Contract addresses 📜
+
+| Contract / Chain  | [Ethereum](https://etherscan.io)           | [Optimism](https://optimistic.etherscan.io) | [Arbitrum](https://arbiscan.io)            | [Base](https://basescan.org)               | [BNB Chain](https://bscscan.com)           | [Polygon (PoS)](https://polygonscan.com)   |
+| ----------------- | ------------------------------------------ | ------------------------------------------- | ------------------------------------------ | ------------------------------------------ | ------------------------------------------ | ------------------------------------------ |
+| MCV2_Token        | 0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df | 0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df  | 0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df | 0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df | 0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df | 0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df |
+| MCV2_MultiToken   | 0x6c61918eECcC306D35247338FDcf025af0f6120A | 0x6c61918eECcC306D35247338FDcf025af0f6120A  | 0x6c61918eECcC306D35247338FDcf025af0f6120A | 0x6c61918eECcC306D35247338FDcf025af0f6120A | 0x6c61918eECcC306D35247338FDcf025af0f6120A | 0x6c61918eECcC306D35247338FDcf025af0f6120A |
+| MCV2_Bond         | 0xc5a076cad94176c2996B32d8466Be1cE757FAa27 | 0xc5a076cad94176c2996B32d8466Be1cE757FAa27  | 0xc5a076cad94176c2996B32d8466Be1cE757FAa27 | 0xc5a076cad94176c2996B32d8466Be1cE757FAa27 | 0xc5a076cad94176c2996B32d8466Be1cE757FAa27 | 0xc5a076cad94176c2996B32d8466Be1cE757FAa27 |
+| MCV2_ZapV1        | 0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa | 0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa  | 0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa | 0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa | 0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa | 0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa |
+| Locker            | 0xA3dCf3Ca587D9929d540868c924f208726DC9aB6 | 0xA3dCf3Ca587D9929d540868c924f208726DC9aB6  | 0xA3dCf3Ca587D9929d540868c924f208726DC9aB6 | 0xA3dCf3Ca587D9929d540868c924f208726DC9aB6 | 0xA3dCf3Ca587D9929d540868c924f208726DC9aB6 | 0xA3dCf3Ca587D9929d540868c924f208726DC9aB6 |
+| MerkleDistributor | 0x1349A9DdEe26Fe16D0D44E35B3CB9            |
+
+### Test Coverage ☂️
+
+| File                  | % Stmts | % Branch | % Funcs | % Lines | Uncovered Lines |
+| --------------------- | ------- | -------- | ------- | ------- | --------------- |
+| contracts/            | 99.08   | 79.39    | 95.89   | 99.08   |                 |
+| Locker.sol            | 97.5    | 84.09    | 85.71   | 98.21   | 107             |
+| MCV2_Bond.sol         | 99.39   | 83.33    | 96.43   | 99.04   | 351,721         |
+| MCV2_MultiToken.sol   | 100     | 58.33    | 100     | 100     |                 |
+| MCV2_Royalty.sol      | 100     | 85       | 100     | 100     |                 |
+| MCV2_Token.sol        | 100     | 50       | 100     | 100     |                 |
+| MCV2_ZapV1.sol        | 100     | 54.55    | 100     | 100     |                 |
+| MerkleDistributor.sol | 98.39   | 82.81    | 92.31   | 98.81   | 257             |
+| contracts/interfaces/ | 100     | 100      | 100     | 100     |                 |
+| IMintClubBond.sol     | 100     | 100      | 100     | 100     |                 |
+| IWETH.sol             | 100     | 100      | 100     | 100     |                 |
+| MCV2_ICommonToken.sol | 100     | 100      | 100     | 100     |                 |
+| All files             | 99.08   | 79.39    | 95.89   | 99.08   |                 |
+
+## Gas Consumption ⛽️
+
+**Solc version:** 0.8.20  
+**Optimizer enabled:** true  
+**Runs:** 50000  
+**Block limit:** 30000000 gas
+
+### Methods
+
+| Contract          | Method                    | Min    | Max    | Avg    | # calls | usd (avg) |
+| ----------------- | ------------------------- | ------ | ------ | ------ | ------- | --------- |
+| Locker            | createLockUp              | 118371 | 177007 | 147544 | 40      | -         |
+| Locker            | unlock                    | 65465  | 66722  | 66024  | 9       | -         |
+| MCV2_Bond         | burn                      | 95828  | 130648 | 118254 | 43      | -         |
+| MCV2_Bond         | burnRoyalties             | -      | -      | 79831  | 1       | -         |
+| MCV2_Bond         | claimRoyalties            | -      | -      | 80107  | 3       | -         |
+| MCV2_Bond         | createMultiToken          | 394070 | 495607 | 489206 | 104     | -         |
+| MCV2_Bond         | createToken               | 299237 | 521942 | 495638 | 146     | -         |
+| MCV2_Bond         | mint                      | 109458 | 208974 | 189745 | 104     | -         |
+| MCV2_Bond         | updateBondCreator         | 26250  | 29062  | 28283  | 15      | -         |
+| MCV2_Bond         | updateCreationFee         | 46917  | 46929  | 46924  | 5       | -         |
+| MCV2_Bond         | updateMaxRoyaltyRange     | -      | -      | 29763  | 2       | -         |
+| MCV2_Bond         | updateProtocolBeneficiary | -      | -      | 30150  | 1       | -         |
+| MCV2_MultiToken   | safeTransferFrom          | -      | -      | 37867  | 1       | -         |
+| MCV2_MultiToken   | setApprovalForAll         | -      | -      | 48812  | 26      | -         |
+| MCV2_Token        | approve                   | 48964  | 49312  | 49220  | 36      | -         |
+| MCV2_Token        | transfer                  | -      | -      | 32280  | 1       | -         |
+| MCV2_ZapV1        | burnToEth                 | 164215 | 169230 | 166723 | 12      | -         |
+| MCV2_ZapV1        | mintWithEth               | 207024 | 210787 | 208906 | 24      | -         |
+| MCV2_ZapV1        | rescueETH                 | -      | -      | 34679  | 2       | -         |
+| MerkleDistributor | claim                     | 91708  | 97812  | 95785  | 30      | -         |
+| MerkleDistributor | createDistribution        | 140046 | 203810 | 188782 | 69      | -         |
+| MerkleDistributor | refund                    | 47624  | 48934  | 48279  | 8       | -         |
+| TaxToken          | approve                   | -      | -      | 46634  | 4       | -         |
+| TaxToken          | transfer                  | -      | -      | 54349  | 4       | -         |
+| TestMultiToken    | setApprovalForAll         | 26214  | 46114  | 45529  | 34      | -         |
+| TestToken         | approve                   | 24327  | 46611  | 46057  | 169     | -         |
+| TestToken         | transfer                  | 34354  | 51490  | 50452  | 117     | -         |
+
+### Deployments
+
+| Contract          | Min     | Max     | Avg     | % of limit | usd (avg) |
+| ----------------- | ------- | ------- | ------- | ---------- | --------- |
+| Locker            | -       | -       | 1311347 | 4.4%       | -         |
+| MCV2_Bond         | 4849625 | 4849649 | 4849630 | 16.2%      | -         |
+| MCV2_MultiToken   | -       | -       | 1955155 | 6.5%       | -         |
+| MCV2_Token        | -       | -       | 858512  | 2.9%       | -         |
+| MCV2_ZapV1        | -       | -       | 1466694 | 4.9%       | -         |
+| MerkleDistributor | -       | -       | 2053503 | 6.8%       | -         |
+| TaxToken          | -       | -       | 736527  | 2.5%       | -         |
+| TestMultiToken    | 1380930 | 1380954 | 1380942 | 4.6%       | -         |
+| TestToken         | 659419  | 679707  | 678187  | 2.3%       | -         |
+| WETH9             | -       | -       | 799725  | 2.7%       | -         |
