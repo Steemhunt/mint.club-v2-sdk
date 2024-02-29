@@ -1,5 +1,5 @@
 {
-  "name": "alpha-mint.club-v2-sdk",
+  "name": "mint.club-v2-sdk",
   "type": "module",
   "version": "0.0.1",
   "main": "./dist/index.cjs",
