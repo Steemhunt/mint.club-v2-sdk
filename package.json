@@ -1,5 +1,8 @@
 {
   "name": "mint.club-v2-sdk",
+  "files": [
+    "./src"
+  ],
   "type": "module",
   "version": "0.0.3",
   "main": "./dist/index.cjs",
