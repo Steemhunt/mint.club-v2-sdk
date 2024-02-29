@@ -23,7 +23,7 @@ import * as chains from 'viem/chains';
 import { CHAIN_MAP } from '../constants/chains';
 import { CONTRACT_ADDRESSES, ContractChainType, ContractType } from '../constants/contracts';
 import { DEFAULT_RANK_OPTIONS, chainRPCFallbacks } from '../constants/rpcs';
-import { ERC20LogicHelper } from '../helpers/ERC20LogicHelper';
+import { ERC20Helper } from '../helpers/ERC20Helper';
 import { SupportedAbiType } from './GenericContract';
 
 declare global {
@@ -212,7 +212,7 @@ export class GenericContractLogic<
   }
 
   public token(symbolOrAddress: string) {
-    return new ERC20LogicHelper({
+    return new ERC20Helper({
       symbolOrAddress,
       chainId: this.chainId,
       logicInstance: this,

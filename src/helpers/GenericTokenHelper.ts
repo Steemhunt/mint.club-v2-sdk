@@ -4,7 +4,7 @@ import { computeCreate2Address } from '../utils/addresses';
 import { GenericContractLogic } from '../contracts/GenericContractLogic';
 import { GenericContract, SupportedAbiType } from '../contracts/GenericContract';
 
-export type GenericTokenLogicHelperConstructorParams = {
+export type GenericTokenHelperConstructorParams = {
   symbolOrAddress: string;
   chainId: ContractChainType;
   tokenType: TokenType;
@@ -24,14 +24,14 @@ type SellParams = BuySellCommonParams & {
   tokensToBurn: bigint;
 };
 
-export class GenericTokenLogicHelper {
+export class GenericTokenHelper {
   private tokenAddress: `0x${string}`;
   private bondContract = new GenericContract('BOND');
 
   protected chainId: ContractChainType;
   protected logicInstance: GenericContractLogic<SupportedAbiType>;
 
-  constructor(params: GenericTokenLogicHelperConstructorParams) {
+  constructor(params: GenericTokenHelperConstructorParams) {
     const { symbolOrAddress, chainId, tokenType, logicInstance } = params;
 
     if (isAddress(symbolOrAddress)) {

@@ -3,12 +3,12 @@ import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon } from 'viem
 import { MainnetChain, chainIdToString, mintclub } from '../../src';
 import { createRandomAddress } from '../../src/utils/addresses';
 
-type ERC20Token = {
+type ERC1155Token = {
   symbol: string;
   address: `0x${string}`;
 };
 
-const TEST_ERC20_COINS: Record<MainnetChain, ERC20Token> = {
+const TEST_ERC1155_COINS: Record<MainnetChain, ERC1155Token> = {
   [mainnet.id]: { symbol: 'SBNOMA', address: '0xe9cA66202233beBFb4cC3b54cD73b9f90AC6ba3f' },
   [optimism.id]: { symbol: 'TOKYO', address: '0x8046fb6b61Ac1b501a9a9aF0d8367f45eac1a84F' },
   [arbitrum.id]: { symbol: 'KUKO', address: '0x0a69068aE17882B9E50778bA9a501600a11993b2' },
@@ -18,10 +18,10 @@ const TEST_ERC20_COINS: Record<MainnetChain, ERC20Token> = {
   [base.id]: { symbol: 'CHICKEN', address: '0x13c2Bc9B3b8427791F700cB153314b487fFE8F5e' },
 } as const;
 
-function testAll(cb: (chainId: MainnetChain, token: ERC20Token) => void) {
-  Object.keys(TEST_ERC20_COINS).forEach((_chainId) => {
+function testAll(cb: (chainId: MainnetChain, token: ERC1155Token) => void) {
+  Object.keys(TEST_ERC1155_COINS).forEach((_chainId) => {
     const chainId = Number(_chainId) as MainnetChain;
-    cb(chainId, TEST_ERC20_COINS[chainId]);
+    cb(chainId, TEST_ERC1155_COINS[chainId]);
   });
 }
 

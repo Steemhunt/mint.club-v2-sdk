@@ -1,10 +1,10 @@
 import { GenericContract } from '../contracts/GenericContract';
-import { GenericTokenLogicHelper, GenericTokenLogicHelperConstructorParams } from './GenericTokenLogicHelper';
+import { GenericTokenHelper, GenericTokenHelperConstructorParams } from './GenericTokenHelper';
 
-export class ERC20LogicHelper extends GenericTokenLogicHelper {
+export class ERC20Helper extends GenericTokenHelper {
   private erc20Contract = new GenericContract('ERC20');
 
-  constructor(params: Omit<GenericTokenLogicHelperConstructorParams, 'tokenType'>) {
+  constructor(params: Omit<GenericTokenHelperConstructorParams, 'tokenType'>) {
     super({
       ...params,
       tokenType: 'ERC20',
