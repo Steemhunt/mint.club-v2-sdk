@@ -25,6 +25,7 @@ import { CONTRACT_ADDRESSES, ContractChainType, ContractType } from '../constant
 import { DEFAULT_RANK_OPTIONS, chainRPCFallbacks } from '../constants/rpcs';
 import { ERC20Helper } from '../helpers/ERC20Helper';
 import { SupportedAbiType } from './GenericContract';
+import { ERC1155Helper } from '../helpers/ERC1155Helper';
 
 declare global {
   interface Window {
@@ -213,6 +214,14 @@ export class GenericContractLogic<
 
   public token(symbolOrAddress: string) {
     return new ERC20Helper({
+      symbolOrAddress,
+      chainId: this.chainId,
+      logicInstance: this,
+    });
+  }
+
+  public nft(symbolOrAddress: string) {
+    return new ERC1155Helper({
       symbolOrAddress,
       chainId: this.chainId,
       logicInstance: this,
