@@ -4,7 +4,7 @@ import { sidebar } from './docs/sidebar'
 export default defineConfig({
   ogImageUrl: 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description',
   title: 'Mint.club V2 SDK Documentation',
-  description: 'Effortlessly Create Bonding Curved Tokens',
+  description: 'Create and Trade Bonding Curve Tokens / NFTs with Automated Liquidity',
   logoUrl: 'https://mint.club/assets/icons/mint-logo.png',
   sidebar,
   theme: {
