@@ -6,7 +6,7 @@
     "dev": "vocs dev",
     "build": "vocs build",
     "preview": "vocs preview",
-    "deploy": "vocs preview"
+    "deploy": "vercel build && vercel --prod"
   },
   "dependencies": {
     "@types/react": "latest",
