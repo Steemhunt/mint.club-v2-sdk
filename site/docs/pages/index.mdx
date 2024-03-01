@@ -9,17 +9,93 @@ import { HomePage } from 'vocs/components'
 
 <HomePage.Root>
   <HomePage.Logo className="aspect-square" />
-  <HomePage.Tagline>Mint Club V2 SDK</HomePage.Tagline>
-  <HomePage.InstallPackage name="mint.club-v2-sdk" type="install" />
-  <HomePage.Description>
-    Mint Club is a bonding curve-based token (ERC20, ERC1155) creation and trading protocol. Users can create an asset
-    with a custom bonding curve on top of any existing ERC20 token as collateral. By using a bonding curve, the new
-    asset is immediately tradable without the need for liquidity creation on DEXs or CEXs.
-  </HomePage.Description>
-  <HomePage.Buttons>
+  <HomePage.Tagline className='text-primary font-bold'>Mint Club V2 SDK</HomePage.Tagline>
+  <HomePage.Description>Create and Trade Bonding Curve Tokens / NFTs with Automated Liquidity</HomePage.Description>
+   <HomePage.Buttons>
     <HomePage.Button href="/docs/getting-started" variant="accent">
       Get started
     </HomePage.Button>
     <HomePage.Button href="https://github.com/Steemhunt/mint.club-v2-sdk">GitHub</HomePage.Button>
   </HomePage.Buttons>
 </HomePage.Root>
+
+:::code-group
+
+```bash [npm]
+npm i mint.club-v2-sdk
+```
+
+```bash [pnpm]
+pnpm i mint.club-v2-sdk
+```
+
+```bash [yarn]
+yarn add mint.club-v2-sdk
+```
+
+```bash [bun]
+bun i mint.club-v2-sdk
+```
+
+:::
+
+
+:::tip
+Deploying & buying an `ERC-20` token on `BASE🔵` chain.
+
+≤ 50 lines of code
+👇
+:::
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+// 🚀 Deploying $RNM tokens
+await mintclub.network('base').token('RNM').create({
+    name: 'Rick and Mee6',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18, 
+    }, 
+    curveData: {
+      curveType: 'EXPONENTIAL', 
+      stepCount: 10,
+      maxSupply: 10_000,
+      initialMintingPrice: 0.01, // 0.01 WETH 
+      finalMintingPrice: 0.1, // 0.1 WETH
+      creatorAllocation: 100,
+    }
+  })
+
+
+// 💲 Buying $RNM tokens
+const buyParams = { tokensToMint: 100n }
+const result = await mintclub.network('base').token('RNM').buy(buyParams);
+  //   ^? 
+
+
+```
+
+:::success[Why?]
+🧃 Easily Create Bonding Curve Tokens / NFTs 
+
+🤤 Automated Liquidity
+
+💪 Strongly Typed
+
+⚡ Powered by viem
+
+☕ Built with love and a lot of coffee
+
+> Any Questions? Ping [`@undefined`](https://warpcast.com/undefined)
+:::
+
+
+
+:::warning
+⚠️ 
+
+This SDK is still under construction and is subjective to change any time. 
+
+Please use at your own risk
+:::
