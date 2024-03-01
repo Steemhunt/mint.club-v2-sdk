@@ -22,6 +22,7 @@
     }
   },
   "scripts": {
+    "docs:deploy": "",
     "build": "npm run purge && npx pkgroll",
     "prepublishOnly": "npm version prerelease && git push && npm run build",
     "purge": "npx rimraf ./dist",
