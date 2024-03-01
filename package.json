@@ -5,7 +5,7 @@
     "./src/**/*"
   ],
   "type": "module",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "module": "./dist/index.mjs",
@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "npm run purge && npx pkgroll",
-    "prepublishOnly": "npm version patch && git push && npm run build",
+    "prepublishOnly": "npm version prerelease && git push && npm run build",
     "purge": "npx rimraf ./dist",
     "test": "npx bun test",
     "test:watch": "npx bun test --watch"
