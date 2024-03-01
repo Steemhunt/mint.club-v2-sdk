@@ -15,14 +15,14 @@ export const baseFetcher = ky.extend({
   hooks: {
     afterResponse: [
       async (request, options, response) => {
-        const data = await response.json();
+        const data = (await response.json()) as any;
         const { ok, status } = response;
 
         if (ok) {
-          return data;
+          return response; // return the response object
         }
 
-        const { message = 'An error occurred while fetching the data.' } = data;
+        const message = data?.message || 'An error occurred while fetching the data.';
 
         throw new ApiError({ status, message });
       },

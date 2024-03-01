@@ -19,6 +19,10 @@ declare global {
   }
 }
 
+if (typeof window === 'undefined') {
+  global.window = {} as any;
+}
+
 type SingletonKey = `${ContractChainType}-${string}`;
 
 export class ClientHelper {

@@ -271,7 +271,9 @@ function customTransport(params: { rpc?: string; chain: Chain; fetchOptions?: Ht
 export function chainRPCFallbacks(
   chain: Chain,
   fetchOptions: HttpTransportConfig['fetchOptions'] = {
-    cache: 'no-store',
+    headers: {
+      'Cache-Control': 'no-cache',
+    },
   },
 ) {
   return (
