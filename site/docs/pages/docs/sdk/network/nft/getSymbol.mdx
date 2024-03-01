@@ -1,0 +1,21 @@
+---
+description: Returns the symbol of the token.
+---
+
+# getSymbol 
+
+Returns the symbol of the token.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const symbol = await mintclub.network('ethereum').token('SYMBOL').getSymbol()
+```
+
+## Return Value
+
+`Promise<string>`
+
+Returns the symbol of the token.

@@ -1,0 +1,34 @@
+---
+description: Returns balance of the address for the token.
+---
+
+# getBalanceOf 
+
+Returns balance of the address for the token.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const balance = await mintclub.network('ethereum').token('SYMBOL').getBalanceOf('0x...')
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns the balance of the address for the token.
+
+
+## Parameters
+
+### walletAddress
+
+The wallet address for which the balance is to be fetched.
+
+```ts twoslash
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const balance = await mintclub.network('ethereum').token('SYMBOL').getBalanceOf('0x...')
+```

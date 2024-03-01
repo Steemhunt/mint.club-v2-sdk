@@ -1,0 +1,21 @@
+---
+description: Returns the total supply of the token.
+---
+
+# getTotalSupply 
+
+Returns the total supply of the token.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const totalSupply = await mintclub.network('ethereum').token('SYMBOL').getTotalSupply()
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns the total supply of the token.

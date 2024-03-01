@@ -1,0 +1,21 @@
+---
+description: Returns the decimals of the token.
+---
+
+# getDecimals 
+
+Returns the decimals of the token.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const decimals = await mintclub.network('ethereum').token('SYMBOL').getDecimals()
+```
+
+## Return Value
+
+`Promise<number>`
+
+Returns the decimals of the token.

@@ -1,22 +1,22 @@
 ---
-description: Deploys a Bonding Curved ERC-20 Contract
+description: Deploys a Bonding Curved ERC-1155 Contract
 ---
 
-# create [Deploys a Bonding Curved ERC-20 Contract]
+# create [Deploys a Bonding Curved ERC-1155 Contract]
 
 ## Usage
 
 Below is a basic example of how to call the `create` function.
 
 :::tip[NOTE]
-When using the `create` function, you must pass a `symbol` that you want to create as the parameter of the `token` function.
+When using the `create` function, you must pass a `symbol` that you want to create as the parameter of the `nft` function.
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT') // [!code focus]
+  .nft('MNFT') // [!code focus]
 ```
 
-> In the example below, we are creating a token with the symbol `MINT` with the token name of `Mint Club` on the `ethereum` network.
+> In the example below, we are creating a nft with the symbol `MNFT` with the nft name of `Mint Club Collection` on the `ethereum` network.
 ::::
 
 
@@ -27,11 +27,11 @@ import { curveData } from './data';
 
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18, 
     }, 
 		// [!code focus]
@@ -45,11 +45,11 @@ import { stepData } from './data';
 
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18, 
     }, 
 		// [!code focus]
@@ -91,16 +91,16 @@ The receipt for the signed transaction.
 
 ### name
 
-The token name.
+The nft name.
 
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club', // [!code focus]
+    name: 'Mint Club Collection', // [!code focus]
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address
       decimals: 18,
     },
   })
@@ -108,20 +108,20 @@ await mintclub
 
 ### reserveToken
 
-The reserve token to use for the bonding curve. This is the token that will be used to mint new tokens.
+The reserve nft to use for the bonding curve. This is the nft that will be used to mint new tokens.
 
 Both `address` and `decimals` are required.
 
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     // [!code focus]
     reserveToken: { // [!code focus]
       // [!code focus]
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address // [!code focus]
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address // [!code focus]
       decimals: 18, // [!code focus]
     }, // [!code focus]
   })
@@ -151,19 +151,19 @@ This is the number of steps the curve will have. The more steps, the more granul
 
 - Type: `number`
 
-The maximum supply of the token.
+The maximum supply of the nft.
 
 ##### initialMintingPrice
 
 - Type: `number`
 
-The initial price of the token on the bonding curve.
+The initial price of the nft on the bonding curve.
 
 ##### finalMintingPrice
 
 - Type: `number`
 
-The final price of the token on the bonding curve. 
+The final price of the nft on the bonding curve. 
 
 ##### creatorAllocation (optional)
 
@@ -179,11 +179,11 @@ import { curveData } from './curve-data';
 
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18, 
     }, 
 		// [!code focus]
@@ -212,7 +212,7 @@ export const curveData = {
 
 If [`curveData`](#curvedata-conditionally-required) is not provided, `stepData` is required.
 
-Steps that will be used to construct the bonding curve. The `rangeTo` property is the number of tokens that will be minted until the given price. The `price` property is the price of the token in the reserve token.
+Steps that will be used to construct the bonding curve. The `rangeTo` property is the number of tokens that will be minted until the given price. The `price` property is the price of the nft in the reserve nft.
 
 If price is 0, the first `rangeTo` tokens will be allocated to the creator of the bonding curve.
 
@@ -227,11 +227,11 @@ import { stepData } from './step-data';
 
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18, 
     }, 
 		// [!code focus]
@@ -262,11 +262,11 @@ buyRoyalty is the percentage of the buy trade fee that will go to the creator.
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
     buyRoyalty: 0.03, // [!code focus]
@@ -284,11 +284,11 @@ sellRoyalty is the percentage of the sell trade fee that will go to the creator.
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
     sellRoyalty: 0.03, // [!code focus]
@@ -306,11 +306,11 @@ Callback function for when the user is requested to sign the transaction.
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
     sellRoyalty: 0.03, 
@@ -329,11 +329,11 @@ Callback function for when the user is signs the transaction.
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
     sellRoyalty: 0.03, 
@@ -352,11 +352,11 @@ Callback function for when the transaction is successful.
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
     sellRoyalty: 0.03, 
@@ -374,11 +374,11 @@ Callback function for when the transaction fails. This also includes when the us
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
+  .nft('MNFT')
   .create({
-    name: 'Mint Club',
+    name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
     sellRoyalty: 0.03, 

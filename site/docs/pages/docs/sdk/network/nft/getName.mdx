@@ -1,0 +1,21 @@
+---
+description: Returns the name of the token.
+---
+
+# getName 
+
+Returns the name of the token.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const name = await mintclub.network('ethereum').token('SYMBOL').getName()
+```
+
+## Return Value
+
+`Promise<string>`
+
+Returns the name of the token.

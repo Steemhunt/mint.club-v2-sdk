@@ -13,3 +13,17 @@ mintclub.network('' // [!code focus]
 //                ^|
 // [!code focus]
 ```
+
+:::tip[chainId]
+You could also pass the chain id of the network instead of string value.
+:::
+
+```ts twoslash [app.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+// [!code focus]
+// @noErrors
+mintclub.network(1 // [!code focus]
+//                ^|
+// [!code focus]
+```
