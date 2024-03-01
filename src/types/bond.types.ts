@@ -1,4 +1,5 @@
 import { CurveType } from '.';
+import { NFTMetadata } from './ipfs.types';
 
 export type ReserveToken = {
   address: `0x${string}`;
@@ -38,7 +39,17 @@ export type CreateERC20TokenParams = {
 } & (WithCurveData | WithStepData);
 
 export type CreateERC1155TokenParams = CreateERC20TokenParams & {
-  uri: string;
+  filebaseApiKey?: string;
+  metadata?: {
+    description: string;
+    external_url: string;
+    attributes?: {
+      trait_type: string;
+      value: string;
+    }[];
+  };
+  image: File;
+  video?: File;
 };
 
 export type CreateTokenParams = CreateERC20TokenParams & {

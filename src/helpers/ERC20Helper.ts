@@ -1,10 +1,9 @@
-import { erc20Contract } from '../contracts';
-import { GenericWriteParams } from '../types';
-import { TokenHelper, TokenHelperConstructorParams } from './TokenHelper';
-import { generateCreateArgs } from '../utils/bond';
-import { bondContract } from '../contracts';
-import { CreateERC20TokenParams, CreateTokenParams } from '../types/bond.types';
+import { bondContract, erc20Contract } from '../contracts';
 import { SymbolNotDefinedError, TokenAlreadyExistsError } from '../errors/sdk.errors';
+import { GenericWriteParams } from '../types';
+import { CreateERC20TokenParams } from '../types/bond.types';
+import { generateCreateArgs } from '../utils/bond';
+import { TokenHelper, TokenHelperConstructorParams } from './TokenHelper';
 
 export class ERC20Helper extends TokenHelper {
   constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
@@ -14,7 +13,8 @@ export class ERC20Helper extends TokenHelper {
     });
   }
 
-  public getAllowance(owner: `0x${string}`, spender: `0x${string}`) {
+  public getAllowance(params: { owner: `0x${string}`; spender: `0x${string}` }) {
+    const { owner, spender } = params;
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'allowance',
@@ -30,7 +30,7 @@ export class ERC20Helper extends TokenHelper {
     });
   }
 
-  public getGetBondAddress() {
+  public getBondAddress() {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'bond',

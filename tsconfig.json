@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext", "DOM"],
+    "lib": ["ESNext"],
     "module": "esnext",
     "target": "esnext",
     "noEmit": false,
@@ -20,7 +20,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["bun-types"],
+    "types": ["bun-types"]
   },
-  "exclude": ["./site"],
+  "exclude": ["./site", "./dist", "./node_modules"]
 }
