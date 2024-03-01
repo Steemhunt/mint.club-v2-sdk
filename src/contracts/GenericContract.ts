@@ -54,10 +54,6 @@ export class GenericContract<T extends ContractType> {
       chainId = id;
     }
 
-    if (!chainId) {
-      throw new Error(`Chain ${id} not supported`);
-    }
-
     return new GenericContractLogic({
       chainId,
       type: this.contractType,

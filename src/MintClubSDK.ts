@@ -1,4 +1,5 @@
 import { ContractChainType, LowerCaseChainNames, chainStringToId } from './exports';
+import { BondHelper } from './helpers/BondHelper';
 import { ERC1155Helper } from './helpers/ERC1155Helper';
 import { ERC20Helper } from './helpers/ERC20Helper';
 
@@ -12,10 +13,6 @@ export class MintClubSDK {
       chainId = id;
     }
 
-    if (!chainId) {
-      throw new Error(`Chain ${id} not supported`);
-    }
-
     return {
       token: (symbolOrAddress: string) => {
         return new ERC20Helper({
@@ -27,6 +24,12 @@ export class MintClubSDK {
       nft: (symbolOrAddress: string) => {
         return new ERC1155Helper({
           symbolOrAddress,
+          chainId,
+        });
+      },
+
+      bond: () => {
+        return new BondHelper({
           chainId,
         });
       },

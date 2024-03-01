@@ -23,12 +23,11 @@
   },
   "scripts": {
     "build": "npm run purge && npx pkgroll",
-    "test": "npx bun test",
-    "test:watch": "npx bun test --watch",
-    "purge": "npx rimraf ./dist",
     "prepublishOnly": "npm version patch && git push && npm run build",
-    "deploy": "npm publish",
-    "postinstall": "npm run build --verbose"
+    "publish": "npm publish",
+    "purge": "npx rimraf ./dist",
+    "test": "npx bun test",
+    "test:watch": "npx bun test --watch"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.0",
@@ -36,14 +35,19 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "bun": "^1.0.25",
     "bun-types": "latest",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
     "pkgroll": "^2.0.1",
-    "prettier": "^3.2.4",
+    "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0"
   },
   "dependencies": {
     "@types/lodash-es": "^4.17.12",
     "abitype": "^1.0.0",
+    "lodash": "^4.17.21",
     "viem": "latest"
   }
 }

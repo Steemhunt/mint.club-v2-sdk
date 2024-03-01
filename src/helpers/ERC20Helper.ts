@@ -1,8 +1,13 @@
 import { erc20Contract } from '../contracts';
-import { GenericTokenHelper, GenericTokenHelperConstructorParams } from './GenericTokenHelper';
+import { GenericWriteParams } from '../types';
+import { TokenHelper, TokenHelperConstructorParams } from './TokenHelper';
+import { generateCreateArgs } from '../utils/bond';
+import { bondContract } from '../contracts';
+import { CreateERC20TokenParams, CreateTokenParams } from '../types/bond.types';
+import { TokenAlreadyExistsError } from '../errors/sdk.errors';
 
-export class ERC20Helper extends GenericTokenHelper {
-  constructor(params: Omit<GenericTokenHelperConstructorParams, 'tokenType'>) {
+export class ERC20Helper extends TokenHelper {
+  constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
     super({
       ...params,
       tokenType: 'ERC20',
@@ -62,6 +67,30 @@ export class ERC20Helper extends GenericTokenHelper {
       tokenAddress: this.getTokenAddress(),
       functionName: 'totalSupply',
       args: [],
+    });
+  }
+
+  public async create(
+    params: CreateERC20TokenParams &
+      Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>,
+  ) {
+    const exists = await this.exists();
+
+    if (exists) throw new TokenAlreadyExistsError();
+
+    const args = generateCreateArgs({ ...params, tokenType: this.tokenType });
+    const { onError, onRequestSignature, onSigned, onSuccess } = params;
+
+    const fee = await this.getCreationFee();
+
+    return bondContract.network(this.chainId).write({
+      functionName: 'createToken',
+      args: [args.tokenParams, args.bondParams],
+      value: fee,
+      onError,
+      onRequestSignature,
+      onSigned,
+      onSuccess,
     });
   }
 }

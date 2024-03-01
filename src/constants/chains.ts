@@ -1,6 +1,7 @@
 import { isAddress } from 'viem';
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
 import { CONTRACT_ADDRESSES, ContractChainType } from './contracts';
+import { ChainNotSupportedError } from '../errors/sdk.errors';
 
 export type ChainType = {
   readonly id: ContractChainType;
@@ -86,31 +87,16 @@ export type LowerCaseChainNames = (typeof CHAINS)[number]['name'] extends infer 
     : never
   : never;
 
-export function chainIdToString(chainId?: number) {
-  if (!chainId) return '';
+export function chainIdToString(chainId: number) {
   const found = CHAINS.find((chain) => chain.id === chainId);
-  return (found?.name?.toLowerCase() as LowerCaseChainNames) || '';
-}
-
-export function chainNameToPublicIconURL(chainName: LowerCaseChainNames) {
-  let url = '';
-  if (chainName === 'ethereum' || chainName === 'sepolia') url = 'ethereum@2x.png';
-  else if (chainName === 'base') url = 'base@2x.png';
-  else if (chainName === 'optimism') url = 'optimism@2x.png';
-  else if (chainName === 'arbitrum') url = 'arbitrum@2x.png';
-  else if (chainName === 'polygon') url = 'polygon@2x.png';
-  else if (chainName === 'bnbchain') url = 'bnb@2x.png';
-
-  // fallback to mint logo
-  if (!url) return `https://mint.club/assets/icons/mint-logo@2x.png`;
-
-  return `https://mint.club/assets/networks/${url}`;
+  if (!found) throw new ChainNotSupportedError(chainId);
+  return found?.name?.toLowerCase() as LowerCaseChainNames;
 }
 
 export function chainStringToId(name: LowerCaseChainNames) {
   const found = CHAINS.find((chain) => chain.name?.toLowerCase() === name.toLowerCase());
 
-  if (!found) throw new Error(`Chain ${name} not found`);
+  if (!found) throw new ChainNotSupportedError(name);
 
   return found.id;
 }

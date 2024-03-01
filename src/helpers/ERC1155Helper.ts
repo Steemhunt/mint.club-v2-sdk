@@ -1,8 +1,8 @@
-import { GenericTokenHelper, GenericTokenHelperConstructorParams } from './GenericTokenHelper';
+import { TokenHelper, TokenHelperConstructorParams } from './TokenHelper';
 import { erc1155Contract } from '../contracts';
 
-export class ERC1155Helper extends GenericTokenHelper {
-  constructor(params: Omit<GenericTokenHelperConstructorParams, 'tokenType'>) {
+export class ERC1155Helper extends TokenHelper {
+  constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
     super({
       ...params,
       tokenType: 'ERC1155',

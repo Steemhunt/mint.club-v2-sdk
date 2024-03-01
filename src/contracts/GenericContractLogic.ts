@@ -8,9 +8,9 @@ import {
   TransactionReceipt,
   WriteContractParameters,
 } from 'viem';
-import { CHAIN_MAP, CONTRACT_ADDRESSES, ContractChainType, ContractType } from '../exports';
-import type { GenericWriteParams, SupportedAbiType } from '../types';
+import { CONTRACT_ADDRESSES, ContractChainType, ContractType } from '../exports';
 import { ClientHelper } from '../helpers/ClientHelper';
+import type { GenericWriteParams, SupportedAbiType } from '../types';
 
 type GenericLogicConstructorParams<
   A extends SupportedAbiType = SupportedAbiType,
@@ -31,9 +31,6 @@ export class GenericContractLogic<
 
   constructor(params: GenericLogicConstructorParams<A, C>) {
     const { chainId, type, abi } = params;
-    const supported = CHAIN_MAP[chainId];
-
-    if (!supported) throw new Error(`Chain ${chainId} not supported`);
 
     super(chainId, type);
     this.contractType = type;
@@ -93,7 +90,7 @@ export class GenericContractLogic<
       address,
       functionName,
       args,
-      ...(value && { value }),
+      ...(value !== undefined && { value }),
     } as unknown as SimulateContractParameters<A, T, R>;
 
     try {

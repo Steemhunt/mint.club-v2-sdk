@@ -1,23 +1,30 @@
+import { WrongCreateParameterError } from '../errors/sdk.errors';
 import { wei } from '../exports';
+import { CreateTokenParams } from '../types/bond.types';
+import { generateSteps } from './graph';
 
-export type CreateTokenParams = {
-  tokenType: 'ERC20' | 'ERC1155';
-  name: string;
-  symbol: string;
-  reserveToken: {
-    address: `0x${string}`;
-    decimals: number;
-  };
-  mintRoyalty: number;
-  burnRoyalty: number;
-  stepData: { rangeTo: number; price: number }[];
-};
+export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC20' | 'ERC1155' }) {
+  const { tokenType, name, symbol, curveData, reserveToken, mintRoyalty, burnRoyalty, stepData: _stepData } = params;
 
-export function generateCreateArgs(params: CreateTokenParams) {
-  const { tokenType, name, symbol, reserveToken, mintRoyalty, burnRoyalty, stepData } = params;
+  if (curveData === undefined && _stepData === undefined) {
+    throw new WrongCreateParameterError();
+  }
 
   const stepRanges: bigint[] = [];
   const stepPrices: bigint[] = [];
+
+  let stepData: { rangeTo: number; price: number }[] = [];
+
+  if (curveData) {
+    const { stepData: generatedSteps } = generateSteps({
+      ...params,
+      curveData,
+    });
+
+    stepData = generatedSteps;
+  } else {
+    stepData = _stepData;
+  }
 
   stepData.forEach(({ rangeTo, price }) => {
     stepRanges.push(wei(rangeTo, tokenType === 'ERC20' ? 18 : 0));
@@ -33,7 +40,7 @@ export function generateCreateArgs(params: CreateTokenParams) {
     }
   }
 
-  if (!stepData || stepRanges.length === 0 || stepPrices.length === 0 || stepRanges.length !== stepPrices.length) {
+  if (stepRanges.length === 0 || stepPrices.length === 0 || stepRanges.length !== stepPrices.length) {
     throw new Error('Invalid step data. Please double check the step data');
   }
 

@@ -8,7 +8,7 @@ import {
   MERKLE_ABI,
   ONEINCH_ABI,
   ZAP_ABI,
-} from './exports';
+} from '../exports';
 
 export type AbiType<T extends ContractType> = T extends 'BOND'
   ? typeof BOND_ABI
@@ -59,3 +59,10 @@ export type GenericWriteParams<
       args: R;
     }) &
   CommonWriteParams;
+
+export const enum CurveType {
+  FLAT = 'FLAT',
+  LINEAR = 'LINEAR',
+  EXPONENTIAL = 'EXPONENTIAL',
+  LOGARITHMIC = 'LOGARITHMIC',
+}

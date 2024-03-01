@@ -1,12 +1,10 @@
 import { isAddress } from 'viem';
 import { ContractChainType, TokenType } from '../constants/contracts';
-import { GenericWriteParams } from '../types';
 import { computeCreate2Address } from '../utils/addresses';
-import { CreateTokenParams, generateCreateArgs } from '../utils/bond';
 import { ClientHelper } from './ClientHelper';
 import { bondContract } from '../contracts';
 
-export type GenericTokenHelperConstructorParams = {
+export type TokenHelperConstructorParams = {
   symbolOrAddress: string;
   chainId: ContractChainType;
   tokenType: TokenType;
@@ -25,13 +23,13 @@ type SellParams = BuySellCommonParams & {
   tokensToBurn: bigint;
 };
 
-export class GenericTokenHelper {
+export class TokenHelper {
   private tokenAddress: `0x${string}`;
-  private tokenType: TokenType;
   private clientHelper: ClientHelper;
+  protected tokenType: TokenType;
   protected chainId: ContractChainType;
 
-  constructor(params: GenericTokenHelperConstructorParams) {
+  constructor(params: TokenHelperConstructorParams) {
     const { symbolOrAddress, chainId, tokenType } = params;
 
     if (isAddress(symbolOrAddress)) {
@@ -42,7 +40,14 @@ export class GenericTokenHelper {
 
     this.chainId = chainId;
     this.tokenType = tokenType;
-    this.clientHelper = new ClientHelper(chainId, 'GenericTokenHelper');
+    this.clientHelper = new ClientHelper(chainId);
+  }
+
+  protected getCreationFee() {
+    return bondContract.network(this.chainId).read({
+      functionName: 'creationFee',
+      args: [],
+    });
   }
 
   public exists() {
@@ -144,29 +149,6 @@ export class GenericTokenHelper {
     return bondContract.network(this.chainId).write({
       functionName: 'burn',
       args: [this.tokenAddress, tokensToBurn, maxReserveAmount, recipientAddress],
-    });
-  }
-
-  public async create(
-    params: Omit<CreateTokenParams, 'tokenType'> &
-      Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>,
-  ) {
-    const args = generateCreateArgs({ ...params, tokenType: this.tokenType });
-    const { onError, onRequestSignature, onSigned, onSuccess } = params;
-
-    const fee = await bondContract.network(this.chainId).read({
-      functionName: 'creationFee',
-      args: [],
-    });
-
-    return bondContract.network(this.chainId).write({
-      functionName: 'createToken',
-      args: [args.tokenParams, args.bondParams],
-      value: fee,
-      onError,
-      onRequestSignature,
-      onSigned,
-      onSuccess,
     });
   }
 }
