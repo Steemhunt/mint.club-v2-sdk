@@ -59,12 +59,12 @@ const RickMee6Token = mintclub.network('base').token('RNM')
 // 🚀 Deploying $RNM tokens
 await RickMee6Token.create({
   name: 'Rick and Mee6',
-  // base WETH 
+  // Base Network WETH 
   reserveToken: {
     address: '0x4200000000000000000000000000000000000006', 
     decimals: 18, 
   }, 
-  // bonding curve data
+  // Bonding curve data
   curveData: {
     curveType: 'EXPONENTIAL', 
     stepCount: 10,
@@ -91,15 +91,15 @@ const totalSupply = await RickMee6Token.getTotalSupply()
 ```
 
 :::success[Why?]
-🧃 Easily Create Bonding Curve Tokens / NFTs 
+🧃 Easily Create Bonding Curve ERC-20 Tokens / ERC-1155 NFTs 
 
 🤤 Automated Liquidity
 
 💪 Strongly Typed
 
-⚡ Powered by viem
+⚡ Powered with Viem
 
-☕ Built with love and a lot of coffee
+☕ Built with love & coffee
 
 > Any Questions? Ping [`@undefined`](https://warpcast.com/undefined)
 :::
