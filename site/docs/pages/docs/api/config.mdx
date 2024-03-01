@@ -1,6 +1,6 @@
 # Config [Define global metadata for your documentation]
 
-Vocs uses a [configuration file (`vocs.config.ts`)](/docs/structure#configuration-file) to define global metadata for your documentation. This includes things like the site title, description, logo, sidebar, and more for your project. 
+Vocs uses a [configuration file (`vocs.config.ts`)](/docs/structure#configuration-file) to define global metadata for your documentation. This includes things like the site title, description, logo, sidebar, and more for your project.
 
 ## Initialize Config File
 
@@ -36,6 +36,7 @@ export default defineConfig({
 Configuration for the banner fixed to the top of the page.
 
 Can be a Markdown string, a React Element, or an object with the following properties:
+
 - `dismissable`: Whether or not the banner can be dismissed.
 - `backgroundColor`: The background color of the banner.
 - `content`: The content of the banner.
@@ -62,7 +63,11 @@ import { defineConfig } from 'vocs'
 
 // @log:   ↓ as a React Element
 export default defineConfig({
-  banner: <div>Head to our new <a href="https://discord.gg/JUrRkGweXV">Discord</a></div>, // [!code focus]
+  banner: (
+    <div>
+      Head to our new <a href="https://discord.gg/JUrRkGweXV">Discord</a>
+    </div>
+  ), // [!code focus]
   title: 'Viem'
 })
 ```
@@ -72,12 +77,13 @@ import { defineConfig } from 'vocs'
 
 // @log:   ↓ as an object
 export default defineConfig({
-  banner: { // [!code focus]
+  banner: {
+    // [!code focus]
     dismissable: false, // [!code focus]
     backgroundColor: 'red', // [!code focus]
     content: 'Head to our new [Discord](https://discord.gg/JUrRkGweXV)!', // [!code focus]
     height: '28px', // [!code focus]
-    textColor: 'white', // [!code focus]
+    textColor: 'white' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
 })
@@ -89,14 +95,14 @@ export default defineConfig({
 
 The base path the documentation will be deployed at. All assets & pages will be prefixed with this path.
 
-For example, this is useful for deploying to GitHub Pages. 
+For example, this is useful for deploying to GitHub Pages.
 If the target URL is `https://example.github.io/foo`, then the `basePath` should be set to `/foo`.
 
 ```ts twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  basePath: '/docs', // [!code focus]
+  basePath: '/docs' // [!code focus]
 })
 ```
 
@@ -104,14 +110,14 @@ export default defineConfig({
 
 - **Type:** `string`
 
-The base URL for your documentation. This is used to populate the `<base>` tag in the `<head>` of the page, 
+The base URL for your documentation. This is used to populate the `<base>` tag in the `<head>` of the page,
 and is used to form the `%logo` variable for dynamic OG images.
 
 ```ts twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  baseUrl: 'https://vocs.dev', // [!code focus]
+  baseUrl: 'https://vocs.dev' // [!code focus]
 })
 ```
 
@@ -141,7 +147,8 @@ General description for the documentation.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  description: 'Build reliable apps & libraries with lightweight, composable, and type-safe modules that interface with Ethereum.', // [!code focus]
+  description:
+    'Build reliable apps & libraries with lightweight, composable, and type-safe modules that interface with Ethereum.', // [!code focus]
   title: 'Viem'
 })
 ```
@@ -156,7 +163,8 @@ Edit location for the documentation.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  editLink: { // [!code focus]
+  editLink: {
+    // [!code focus]
     pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path', // [!code focus]
     text: 'Edit on GitHub' // [!code focus]
   }, // [!code focus]
@@ -174,7 +182,8 @@ Edit link pattern.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  editLink: { // [!code focus]
+  editLink: {
+    // [!code focus]
     pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
@@ -191,8 +200,9 @@ Edit link text.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  editLink: { // [!code focus]
-    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path', 
+  editLink: {
+    // [!code focus]
+    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path',
     text: 'Edit on GitHub' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
@@ -213,7 +223,8 @@ Only Google Fonts are supported at the moment.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  font: { // [!code focus]
+  font: {
+    // [!code focus]
     google: 'Inter' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
@@ -236,14 +247,22 @@ import * as React from 'react'
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  head: ( // [!code focus]
-    <> // [!code focus]
+  // [!code focus]
+  // [!code focus]
+  head: (
+    <>
+      {' '}
+      // [!code focus]
       <meta property="og:type" content="website" /> // [!code focus]
       <meta property="og:title" content="viem · TypeScript Interface for Ethereum" /> // [!code focus]
       <meta property="og:image" content="https://viem.sh/og-image.png" /> // [!code focus]
       <meta property="og:url" content="https://viem.sh" /> // [!code focus]
-      <meta property="og:description" content="Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem." /> // [!code focus]
-    </> // [!code focus]
+      <meta
+        property="og:description"
+        content="Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem."
+      />{' '}
+      // [!code focus]
+    </>
   ), // [!code focus]
   title: 'Viem'
 })
@@ -274,7 +293,8 @@ You can also specify icons for light and dark mode.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  iconUrl: { // [!code focus]
+  iconUrl: {
+    // [!code focus]
     light: '/icon-light.svg', // [!code focus]
     dark: '/icon-dark.svg' // [!code focus]
   }, // [!code focus]
@@ -307,7 +327,8 @@ You can also specify logos for light and dark mode.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  logoUrl: { // [!code focus]
+  logoUrl: {
+    // [!code focus]
     light: '/logo-light.svg', // [!code focus]
     dark: '/logo-dark.svg' // [!code focus]
   }, // [!code focus]
@@ -331,9 +352,12 @@ Used to configure the syntax highlighting theme of code blocks.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  markdown: { // [!code focus]
-    code: { // [!code focus]
-      themes: { // [!code focus]
+  markdown: {
+    // [!code focus]
+    code: {
+      // [!code focus]
+      themes: {
+        // [!code focus]
         light: 'github-light', // [!code focus]
         dark: 'github-dark' // [!code focus]
       } // [!code focus]
@@ -345,9 +369,10 @@ export default defineConfig({
 
 ::::note
 :::details[Available Built-in Themes]
+
 ```ts
-"aurora-x" 
-"catppuccin-frappe" 
+"aurora-x"
+"catppuccin-frappe"
 "catppuccin-latte" "catppuccin-macchiato"
 "catppuccin-mocha"
 "dark-plus"
@@ -380,6 +405,7 @@ export default defineConfig({
 "vitesse-dark"
 "vitesse-light"
 ```
+
 :::
 ::::
 
@@ -397,8 +423,10 @@ import { defineConfig } from 'vocs'
 import remarkMath from 'remark-math' // [!code focus]
 
 export default defineConfig({
-  markdown: { // [!code focus]
-    remarkPlugins: [ // [!code focus]
+  markdown: {
+    // [!code focus]
+    remarkPlugins: [
+      // [!code focus]
       remarkMath // [!code focus]
     ] // [!code focus]
   }, // [!code focus]
@@ -420,8 +448,10 @@ import { defineConfig } from 'vocs'
 import rehypeSlots from 'rehype-slots' // [!code focus]
 
 export default defineConfig({
-  markdown: { // [!code focus]
-    rehypePlugins: [ // [!code focus]
+  markdown: {
+    // [!code focus]
+    rehypePlugins: [
+      // [!code focus]
       rehypeSlots // [!code focus]
     ] // [!code focus]
   }, // [!code focus]
@@ -452,9 +482,10 @@ This will render a different OG image depending on the path the user is on.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  ogImageUrl: { // [!code focus]
+  ogImageUrl: {
+    // [!code focus]
     '/': 'https://vocs.dev/og-image.png', // [!code focus]
-    '/docs': 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description', // [!code focus]
+    '/docs': 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
 })
@@ -486,20 +517,25 @@ Navigation displayed on the sidebar.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  sidebar: [ // [!code focus]
-    { // [!code focus]
+  sidebar: [
+    // [!code focus]
+    {
+      // [!code focus]
       text: 'Getting Started', // [!code focus]
-      link: '/docs', // [!code focus]
+      link: '/docs' // [!code focus]
     }, // [!code focus]
-    { // [!code focus]
+    {
+      // [!code focus]
       text: 'API', // [!code focus]
       collapsed: true, // [!code focus]
-      items: [ // [!code focus]
-        { // [!code focus]
+      items: [
+        // [!code focus]
+        {
+          // [!code focus]
           text: 'Config', // [!code focus]
-          link: '/docs/api/config', // [!code focus]
-        }, // [!code focus]
-      ], // [!code focus]
+          link: '/docs/api/config' // [!code focus]
+        } // [!code focus]
+      ] // [!code focus]
     } // [!code focus]
   ], // [!code focus]
   title: 'Viem'
@@ -514,15 +550,22 @@ This will render a different sidebar depending on the path the user is on.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  sidebar: { // [!code focus]
-    '/guide': [{ // [!code focus]
-      text: 'Getting Started', // [!code focus]
-      link: '/guide', // [!code focus]
-    }], // [!code focus]
-    '/api': [{ // [!code focus]
-      text: 'Config', // [!code focus]
-      link: '/api/config', // [!code focus]
-    }], // [!code focus]
+  sidebar: {
+    // [!code focus]
+    '/guide': [
+      {
+        // [!code focus]
+        text: 'Getting Started', // [!code focus]
+        link: '/guide' // [!code focus]
+      }
+    ], // [!code focus]
+    '/api': [
+      {
+        // [!code focus]
+        text: 'Config', // [!code focus]
+        link: '/api/config' // [!code focus]
+      }
+    ] // [!code focus]
   }, // [!code focus]
   title: 'Viem'
 })
@@ -540,15 +583,18 @@ Supports **Discord**, **GitHub**, **Telegram**, and **X**.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  socials: [ // [!code focus]
-    { // [!code focus]
+  socials: [
+    // [!code focus]
+    {
+      // [!code focus]
       icon: 'github', // [!code focus]
-      link: 'https://github.com/wevm/viem', // [!code focus]
+      link: 'https://github.com/wevm/viem' // [!code focus]
     }, // [!code focus]
-    { // [!code focus]
+    {
+      // [!code focus]
       icon: 'x', // [!code focus]
-      link: 'https://twitter.com/wevm_dev', // [!code focus]
-    }, // [!code focus]
+      link: 'https://twitter.com/wevm_dev' // [!code focus]
+    } // [!code focus]
   ], // [!code focus]
   title: 'Viem'
 })
@@ -564,41 +610,51 @@ Set of sponsors to display on MDX directives and (optionally) the sidebar.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  sponsors: [ // [!code focus]
-    { // [!code focus]
+  sponsors: [
+    // [!code focus]
+    {
+      // [!code focus]
       name: 'Collaborator', // [!code focus]
       height: 120, // [!code focus]
-      items: [ // [!code focus]
-        [ // [!code focus]
-          { // [!code focus]
+      items: [
+        // [!code focus]
+        [
+          // [!code focus]
+          {
+            // [!code focus]
             name: 'Paradigm', // [!code focus]
             link: 'https://paradigm.xyz', // [!code focus]
-            image: // [!code focus]
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/paradigm-light.svg', // [!code focus]
-          }, // [!code focus]
-        ], // [!code focus]
-      ], // [!code focus]
+            // [!code focus]
+            image: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/paradigm-light.svg' // [!code focus]
+          } // [!code focus]
+        ] // [!code focus]
+      ] // [!code focus]
     }, // [!code focus]
-    { // [!code focus]
+    {
+      // [!code focus]
       name: 'Large Enterprise', // [!code focus]
       height: 60, // [!code focus]
-      items: [ // [!code focus]
-        [ // [!code focus]
-          { // [!code focus]
+      items: [
+        // [!code focus]
+        [
+          // [!code focus]
+          {
+            // [!code focus]
             name: 'WalletConnect', // [!code focus]
             link: 'https://walletconnect.com', // [!code focus]
-            image: // [!code focus]
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-light.svg', // [!code focus]
+            // [!code focus]
+            image: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-light.svg' // [!code focus]
           }, // [!code focus]
-          { // [!code focus]
+          {
+            // [!code focus]
             name: 'Stripe', // [!code focus]
             link: 'https://www.stripe.com', // [!code focus]
-            image: // [!code focus]
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg', // [!code focus]
-          }, // [!code focus]
-        ], // [!code focus]
-      ], // [!code focus]
-    }, // [!code focus]
+            // [!code focus]
+            image: 'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg' // [!code focus]
+          } // [!code focus]
+        ] // [!code focus]
+      ] // [!code focus]
+    } // [!code focus]
   ], // [!code focus]
   title: 'Viem'
 })
@@ -616,11 +672,15 @@ Theme configuration.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  theme: { // [!code focus]
+  theme: {
+    // [!code focus]
     accentColor: '#ff0000', // [!code focus]
-    variables: { // [!code focus]
-      color: { // [!code focus]
-        background: { // [!code focus]
+    variables: {
+      // [!code focus]
+      color: {
+        // [!code focus]
+        background: {
+          // [!code focus]
           light: 'white', // [!code focus]
           dark: 'black' // [!code focus]
         } // [!code focus]
@@ -633,179 +693,181 @@ export default defineConfig({
 
 ::::note
 :::details[Theme Reference]
+
 ```ts
 type Theme = {
   accentColor?: string
   colorScheme?: 'dark' | 'light' | 'system'
   variables?: {
     borderRadius?: {
-      '0': string,
-      '2': string,
-      '4': string,
-      '8': string,
-    },
+      '0': string
+      '2': string
+      '4': string
+      '8': string
+    }
     color?: {
-      white: { light: string, dark: string },
-      black: { light: string, dark: string },
-      background: { light: string, dark: string },
-      background2: { light: string, dark: string },
-      background3: { light: string, dark: string },
-      background4: { light: string, dark: string },
-      background5: { light: string, dark: string },
-      backgroundAccent: { light: string, dark: string },
-      backgroundAccentHover: { light: string, dark: string },
-      backgroundAccentText: { light: string, dark: string },
-      backgroundBlueTint: { light: string, dark: string },
-      backgroundDark: { light: string, dark: string },
-      backgroundGreenTint: { light: string, dark: string },
-      backgroundGreenTint2: { light: string, dark: string },
-      backgroundIrisTint: { light: string, dark: string },
-      backgroundRedTint: { light: string, dark: string },
-      backgroundRedTint2: { light: string, dark: string },
-      backgroundYellowTint: { light: string, dark: string },
-      border: { light: string, dark: string },
-      border2: { light: string, dark: string },
-      borderAccent: { light: string, dark: string },
-      borderBlue: { light: string, dark: string },
-      borderGreen: { light: string, dark: string },
-      borderIris: { light: string, dark: string },
-      borderRed: { light: string, dark: string },
-      borderYellow: { light: string, dark: string },
-      heading: { light: string, dark: string },
-      shadow: { light: string, dark: string },
-      text: { light: string, dark: string },
-      text2: { light: string, dark: string },
-      text3: { light: string, dark: string },
-      text4: { light: string, dark: string },
-      textAccent: { light: string, dark: string },
-      textAccentHover: { light: string, dark: string },
-      textBlue: { light: string, dark: string },
-      textBlueHover: { light: string, dark: string },
-      textGreen: { light: string, dark: string },
-      textGreenHover: { light: string, dark: string },
-      textIris: { light: string, dark: string },
-      textIrisHover: { light: string, dark: string },
-      textRed: { light: string, dark: string },
-      textRedHover: { light: string, dark: string },
-      textYellow: { light: string, dark: string },
-      textYellowHover: { light: string, dark: string },
+      white: { light: string; dark: string }
+      black: { light: string; dark: string }
+      background: { light: string; dark: string }
+      background2: { light: string; dark: string }
+      background3: { light: string; dark: string }
+      background4: { light: string; dark: string }
+      background5: { light: string; dark: string }
+      backgroundAccent: { light: string; dark: string }
+      backgroundAccentHover: { light: string; dark: string }
+      backgroundAccentText: { light: string; dark: string }
+      backgroundBlueTint: { light: string; dark: string }
+      backgroundDark: { light: string; dark: string }
+      backgroundGreenTint: { light: string; dark: string }
+      backgroundGreenTint2: { light: string; dark: string }
+      backgroundIrisTint: { light: string; dark: string }
+      backgroundRedTint: { light: string; dark: string }
+      backgroundRedTint2: { light: string; dark: string }
+      backgroundYellowTint: { light: string; dark: string }
+      border: { light: string; dark: string }
+      border2: { light: string; dark: string }
+      borderAccent: { light: string; dark: string }
+      borderBlue: { light: string; dark: string }
+      borderGreen: { light: string; dark: string }
+      borderIris: { light: string; dark: string }
+      borderRed: { light: string; dark: string }
+      borderYellow: { light: string; dark: string }
+      heading: { light: string; dark: string }
+      shadow: { light: string; dark: string }
+      text: { light: string; dark: string }
+      text2: { light: string; dark: string }
+      text3: { light: string; dark: string }
+      text4: { light: string; dark: string }
+      textAccent: { light: string; dark: string }
+      textAccentHover: { light: string; dark: string }
+      textBlue: { light: string; dark: string }
+      textBlueHover: { light: string; dark: string }
+      textGreen: { light: string; dark: string }
+      textGreenHover: { light: string; dark: string }
+      textIris: { light: string; dark: string }
+      textIrisHover: { light: string; dark: string }
+      textRed: { light: string; dark: string }
+      textRedHover: { light: string; dark: string }
+      textYellow: { light: string; dark: string }
+      textYellowHover: { light: string; dark: string }
 
-      blockquoteBorder: { light: string, dark: string },
-      blockquoteText: { light: string, dark: string },
-      codeBlockBackground: { light: string, dark: string },
-      codeCharacterHighlightBackground: { light: string, dark: string },
-      codeHighlightBackground: { light: string, dark: string },
-      codeHighlightBorder: { light: string, dark: string },
-      codeInlineBackground: { light: string, dark: string },
-      codeInlineBorder: { light: string, dark: string },
-      codeInlineText: { light: string, dark: string },
-      codeTitleBackground: { light: string, dark: string },
-      dangerBackground: { light: string, dark: string },
-      dangerBorder: { light: string, dark: string },
-      dangerText: { light: string, dark: string },
-      dangerTextHover: { light: string, dark: string },
-      hr: { light: string, dark: string },
-      infoBackground: { light: string, dark: string },
-      infoBorder: { light: string, dark: string },
-      infoText: { light: string, dark: string },
-      infoTextHover: { light: string, dark: string },
-      lineNumber: { light: string, dark: string },
-      link: { light: string, dark: string },
-      linkHover: { light: string, dark: string },
-      noteBackground: { light: string, dark: string },
-      noteBorder: { light: string, dark: string },
-      noteText: { light: string, dark: string },
-      successBackground: { light: string, dark: string },
-      successBorder: { light: string, dark: string },
-      successText: { light: string, dark: string },
-      successTextHover: { light: string, dark: string },
-      tableBorder: { light: string, dark: string },
-      tableHeaderBackground: { light: string, dark: string },
-      tableHeaderText: { light: string, dark: string },
-      tipBackground: { light: string, dark: string },
-      tipBorder: { light: string, dark: string },
-      tipText: { light: string, dark: string },
-      tipTextHover: { light: string, dark: string },
-      warningBackground: { light: string, dark: string },
-      warningBorder: { light: string, dark: string },
-      warningText: { light: string, dark: string },
-      warningTextHover: { light: string, dark: string },
-    },
+      blockquoteBorder: { light: string; dark: string }
+      blockquoteText: { light: string; dark: string }
+      codeBlockBackground: { light: string; dark: string }
+      codeCharacterHighlightBackground: { light: string; dark: string }
+      codeHighlightBackground: { light: string; dark: string }
+      codeHighlightBorder: { light: string; dark: string }
+      codeInlineBackground: { light: string; dark: string }
+      codeInlineBorder: { light: string; dark: string }
+      codeInlineText: { light: string; dark: string }
+      codeTitleBackground: { light: string; dark: string }
+      dangerBackground: { light: string; dark: string }
+      dangerBorder: { light: string; dark: string }
+      dangerText: { light: string; dark: string }
+      dangerTextHover: { light: string; dark: string }
+      hr: { light: string; dark: string }
+      infoBackground: { light: string; dark: string }
+      infoBorder: { light: string; dark: string }
+      infoText: { light: string; dark: string }
+      infoTextHover: { light: string; dark: string }
+      lineNumber: { light: string; dark: string }
+      link: { light: string; dark: string }
+      linkHover: { light: string; dark: string }
+      noteBackground: { light: string; dark: string }
+      noteBorder: { light: string; dark: string }
+      noteText: { light: string; dark: string }
+      successBackground: { light: string; dark: string }
+      successBorder: { light: string; dark: string }
+      successText: { light: string; dark: string }
+      successTextHover: { light: string; dark: string }
+      tableBorder: { light: string; dark: string }
+      tableHeaderBackground: { light: string; dark: string }
+      tableHeaderText: { light: string; dark: string }
+      tipBackground: { light: string; dark: string }
+      tipBorder: { light: string; dark: string }
+      tipText: { light: string; dark: string }
+      tipTextHover: { light: string; dark: string }
+      warningBackground: { light: string; dark: string }
+      warningBorder: { light: string; dark: string }
+      warningText: { light: string; dark: string }
+      warningTextHover: { light: string; dark: string }
+    }
     content: {
-      horizontalPadding: string,
-      verticalPadding: string,
-      width: string,
-    },
+      horizontalPadding: string
+      verticalPadding: string
+      width: string
+    }
     fontFamily: {
-      default: string,
-      mono: string,
-    },
+      default: string
+      mono: string
+    }
     fontSize: {
-      root: string,
-      '9': string,
-      '11': string,
-      '12': string,
-      '13': string,
-      '14': string,
-      '15': string,
-      '16': string,
-      '18': string,
-      '20': string,
-      '24': string,
-      '32': string,
-      h1: string,
-      h2: string,
-      h3: string,
-      h4: string,
-      h5: string,
-      h6: string,
-      code: string,
-      codeBlock: string,
-      lineNumber: string,
-      subtitle: string,
-      th: string,
-      td: string,
-    },
+      root: string
+      '9': string
+      '11': string
+      '12': string
+      '13': string
+      '14': string
+      '15': string
+      '16': string
+      '18': string
+      '20': string
+      '24': string
+      '32': string
+      h1: string
+      h2: string
+      h3: string
+      h4: string
+      h5: string
+      h6: string
+      code: string
+      codeBlock: string
+      lineNumber: string
+      subtitle: string
+      th: string
+      td: string
+    }
     fontWeight: {
-      regular: string,
-      medium: string,
-      semibold: string,
-    },
+      regular: string
+      medium: string
+      semibold: string
+    }
     lineHeight: {
-      code: string,
-      heading: string,
-      listItem: string,
-      outlineItem: string,
-      paragraph: string,
-    },
+      code: string
+      heading: string
+      listItem: string
+      outlineItem: string
+      paragraph: string
+    }
     space: {
-      '0': string,
-      '1': string,
-      '2': string,
-      '3': string,
-      '4': string,
-      '6': string,
-      '8': string,
-      '12': string,
-      '14': string,
-      '16': string,
-      '18': string,
-      '20': string,
-      '22': string,
-      '24': string,
-      '28': string,
-      '32': string,
-      '40': string,
-      '44': string,
-      '48': string,
-      '56': string,
-      '64': string,
-      '72': string,
-      '80': string,
+      '0': string
+      '1': string
+      '2': string
+      '3': string
+      '4': string
+      '6': string
+      '8': string
+      '12': string
+      '14': string
+      '16': string
+      '18': string
+      '20': string
+      '22': string
+      '24': string
+      '28': string
+      '32': string
+      '40': string
+      '44': string
+      '48': string
+      '56': string
+      '64': string
+      '72': string
+      '80': string
     }
   }
 }
 ```
+
 :::
 ::::
 
@@ -851,9 +913,10 @@ import { defineConfig } from 'vocs'
 
 export default defineConfig({
   title: 'Viem',
-  topNav: [ // [!code focus]
+  topNav: [
+    // [!code focus]
     { text: 'Guide & API', link: '/docs/getting-started', match: '/docs' }, // [!code focus]
-    { text: 'Blog', link: '/blog' }, // [!code focus]
+    { text: 'Blog', link: '/blog' } // [!code focus]
   ] // [!code focus]
 })
 ```
@@ -869,9 +932,11 @@ import { defineConfig } from 'vocs'
 
 export default defineConfig({
   title: 'Viem',
-  twoslash: { // [!code focus]
-    compilerOptions: { // [!code focus]
-      strict: true, // [!code focus]
+  twoslash: {
+    // [!code focus]
+    compilerOptions: {
+      // [!code focus]
+      strict: true // [!code focus]
     } // [!code focus]
   } // [!code focus]
 })
@@ -890,8 +955,10 @@ import tsconfigPaths from 'vite-tsconfig-paths' // [!code focus]
 
 export default defineConfig({
   title: 'Viem',
-  vite: { // [!code focus]
-    build: { // [!code focus]
+  vite: {
+    // [!code focus]
+    build: {
+      // [!code focus]
       minify: 'terser' // [!code focus]
     }, // [!code focus]
     plugins: [tsconfigPaths()] // [!code focus]

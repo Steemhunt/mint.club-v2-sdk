@@ -6,11 +6,11 @@ To add custom CSS, you can create a `styles.css` file in the Vocs root directory
 This file will be automatically imported into the app.
 
 ```
-my-project/             
+my-project/
 ├── docs/
-│   ├── pages/ 
-|   |   ├── index.mdx 
-|   |   └── about.tsx 
+│   ├── pages/
+|   |   ├── index.mdx
+|   |   └── about.tsx
 │   └── public/
 │   |   └── favicon.ico
 |   └── styles.css // [!code focus]
@@ -72,11 +72,11 @@ All you need to do is add a `tailwind.config.cjs` file to your root directory, a
 Add a `tailwind.config.cjs` configuration to your project root.
 
 ```
-my-project/             
+my-project/
 ├── docs/
-│   ├── pages/ 
-|   |   ├── index.mdx 
-|   |   └── about.tsx 
+│   ├── pages/
+|   |   ├── index.mdx
+|   |   └── about.tsx
 │   └── public/
 │       └── favicon.ico
 ├── node_modules/
@@ -91,9 +91,9 @@ With the following content:
 module.exports = {
   content: ['./docs/**/*.{html,md,mdx,tsx,js,jsx}'],
   theme: {
-    extend: {},
+    extend: {}
   },
-  plugins: [],
+  plugins: []
 }
 ```
 
@@ -102,11 +102,11 @@ module.exports = {
 Then add a `styles.css` file, and import the Tailwind CSS.
 
 ```
-my-project/             
+my-project/
 ├── docs/
-│   ├── pages/ 
-|   |   ├── index.mdx 
-|   |   └── about.tsx 
+│   ├── pages/
+|   |   ├── index.mdx
+|   |   └── about.tsx
 │   └── public/
 │   |   └── favicon.ico
 |   └── styles.css // [!code ++]
@@ -116,7 +116,9 @@ my-project/
 ```
 
 ```css [styles.css]
-@layer vocs_preflight { @tailwind base; }
+@layer vocs_preflight {
+  @tailwind base;
+}
 @tailwind components;
 @tailwind utilities;
 ```

@@ -46,6 +46,7 @@ This is an example of including a snippet in a Markdown file.
 ## Hello world
 
 This is my snippet.
+
 </div>
 
 ::::
@@ -55,6 +56,7 @@ This is my snippet.
 As we are just rendering a React component, we can also pass props to `<Snippet />{:tsx}`. We can access those props in the MDX file with the `props` global variable.
 
 :::code-group
+
 ```mdx [example.mdx]
 import Snippet from './snippet.mdx'
 
@@ -69,5 +71,6 @@ This is an example of including a snippet in a Markdown file.
 ## {props.title}
 
 {props.content}
-``` 
+```
+
 :::

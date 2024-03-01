@@ -172,3 +172,5 @@ out
 .idea
 
 dist
+
+vocs.config.ts.timestamp-*

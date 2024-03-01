@@ -1,9 +1,9 @@
 # Twoslash
 
-[TypeScript Twoslash](https://www.typescriptlang.org/dev/twoslash/) can be seen as a pre-processor that enhances your code-samples. 
-It is a markup language for JavaScript and TypeScript. 
+[TypeScript Twoslash](https://www.typescriptlang.org/dev/twoslash/) can be seen as a pre-processor that enhances your code-samples.
+It is a markup language for JavaScript and TypeScript.
 
-It leverages the compiler APIs used by text editors to offer type-driven hover information, precise error messages, and type callouts. 
+It leverages the compiler APIs used by text editors to offer type-driven hover information, precise error messages, and type callouts.
 
 ## Queries
 
@@ -20,7 +20,6 @@ import { getHighlighterCore } from 'shiki/core'
 
 const shiki = await getHighlighterCore({})
 //    ^?
-
 ```
 
 ````md [Markdown]
@@ -34,7 +33,6 @@ const shiki = await getHighlighterCore({})
 
 :::
 
-
 ### Completions
 
 Using `^|` you can pull out information about a what the auto-complete looks like at a particular location.
@@ -46,12 +44,12 @@ Using `^|` you can pull out information about a what the auto-complete looks lik
 type Example = { apple: 'foo' | 'bar' | 'baz', ant: number, anchovy: string }
 const example: Example = { a: 'foo' }
 
-example.a 
+example.a
 //       ^|
 
 
 
-example.apple === ' 
+example.apple === '
 //                 ^|
 
 
@@ -60,7 +58,7 @@ example.apple === '
 ````md [Markdown]
 ```ts twoslash
 // @noErrors
-console.e 
+console.e
 //       ^|
 ```
 ````
@@ -106,14 +104,14 @@ The below example only shows a single line.
 :::code-group
 
 ```ts [Output] twoslash
-const level = "Danger"
+const level = 'Danger'
 // ---cut---
 console.log(level)
 ```
 
 ````md [Markdown]
 ```ts twoslash
-const level = "Danger"
+const level = 'Danger'
 // ---cut---
 console.log(level)
 ```
@@ -121,7 +119,7 @@ console.log(level)
 
 :::
 
-The example below shows the last two lines, but to TypeScript it was a program with 2 files and all of the IDE information is hooked up correctly across the files. 
+The example below shows the last two lines, but to TypeScript it was a program with 2 files and all of the IDE information is hooked up correctly across the files.
 
 This is why `// @filename: [file]` is specifically the only Twoslash command which is not removed, because if it's not relevant it can be `---cut---` away.
 
@@ -129,22 +127,22 @@ This is why `// @filename: [file]` is specifically the only Twoslash command whi
 
 ```ts [Output] twoslash
 // @filename: a.ts
-export const helloWorld = "Hi"
+export const helloWorld = 'Hi'
 
 // @filename: b.ts
 // ---cut---
-import { helloWorld } from "./a"
+import { helloWorld } from './a'
 console.log(helloWorld)
 ```
 
 ````md [Markdown]
 ```ts twoslash
 // @filename: a.ts
-export const helloWorld = "Hi"
+export const helloWorld = 'Hi'
 
 // @filename: b.ts
 // ---cut---
-import { helloWorld } from "./a"
+import { helloWorld } from './a'
 console.log(helloWorld)
 ```
 ````
@@ -164,11 +162,9 @@ import { createContext } from 'react'
 const Context = createContext('foo')
 
 const Page = () => (
-// ---cut---
-<Context.Provider value="bar">
-  Hello world
-</Context.Provider>
-// ---cut-after---
+  // ---cut---
+  <Context.Provider value="bar">Hello world</Context.Provider>
+  // ---cut-after---
 )
 ```
 
@@ -206,13 +202,13 @@ Taking this example:
 :::code-group
 
 ```ts [Output] twoslash
-const a = "123"
+const a = '123'
 a = 132
 ```
 
 ````md [Markdown]
 ```ts twoslash
-const a = "123"
+const a = '123'
 a = 132
 ```
 ````
@@ -227,14 +223,14 @@ Which the code sample does not reference, and thus the codesample has raise the 
 
 ```ts [Output] twoslash
 // @errors: 2588
-const a = "123"
+const a = '123'
 a = 132
 ```
 
 ````md [Markdown]
 ```ts twoslash
 // @errors: 2588
-const a = "123"
+const a = '123'
 a = 132
 ```
 ````
@@ -249,14 +245,14 @@ Sometimes you have needs in which a broken TypeScript build is OK, a good exampl
 
 ```ts [Output] twoslash
 // @noErrors
-const a = "123"
+const a = '123'
 a = 132
 ```
 
 ````md [Markdown]
 ```ts twoslash
 // @noErrors
-const a = "123"
+const a = '123'
 a = 132
 ```
 ````
@@ -280,7 +276,7 @@ For example, if you want to quickly fake a node module:
 export function doit(): string
 
 // @filename: index.ts
-import { doit } from "mylib"
+import { doit } from 'mylib'
 console.log(doit)
 ```
 
@@ -290,7 +286,7 @@ console.log(doit)
 export function doit(): string
 
 // @filename: index.ts
-import { doit } from "mylib"
+import { doit } from 'mylib'
 console.log(doit)
 ```
 ````
@@ -314,7 +310,7 @@ appSettings.version
 ```
 
 ````md [Markdown]
-```ts twoslash 
+```ts twoslash
 // @resolveJsonModule
 // @filename: app.json
 { "version": "23.2.3" }
@@ -385,22 +381,22 @@ Setting up globals is a little bit more complex, but not drastically. You need t
 ```ts [Output] twoslash
 /// <reference types="node" />
 // ---cut---
-import { writeFileSync } from "fs" 
-writeFileSync("myfile.txt", "// TODO")
+import { writeFileSync } from 'fs'
+writeFileSync('myfile.txt', '// TODO')
 ```
 
 ````md [Markdown]
 ```ts twoslash
 /// <reference types="node" />
 // ---cut---
-import { writeFileSync } from "fs" 
-writeFileSync("myfile.txt", "// TODO")
+import { writeFileSync } from 'fs'
+writeFileSync('myfile.txt', '// TODO')
 ```
 ````
 
 :::
 
-## Callouts 
+## Callouts
 
 :::code-group
 
@@ -736,4 +732,3 @@ Emit ECMAScript-standard-compliant class fields..
 // @useUnknownInCatchVariables
 Type catch clause variables as 'unknown' instead of 'any'..
 ```
-

@@ -4,7 +4,16 @@ import { CreateTokenParams } from '../types/bond.types';
 import { generateSteps } from './graph';
 
 export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC20' | 'ERC1155' }) {
-  const { tokenType, name, symbol, curveData, reserveToken, mintRoyalty, burnRoyalty, stepData: _stepData } = params;
+  const {
+    tokenType,
+    name,
+    symbol,
+    curveData,
+    reserveToken,
+    buyRoyalty = 0.03,
+    sellRoyalty = 0.03,
+    stepData: _stepData,
+  } = params;
 
   if (curveData === undefined && _stepData === undefined) {
     throw new WrongCreateParameterError();
@@ -54,8 +63,8 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
   };
 
   const bondParams = {
-    mintRoyalty: mintRoyalty * 100,
-    burnRoyalty: burnRoyalty * 100,
+    mintRoyalty: buyRoyalty * 10_000,
+    burnRoyalty: sellRoyalty * 10_000,
     reserveToken: reserveToken.address,
     maxSupply: stepRanges[stepRanges.length - 1],
     stepRanges,

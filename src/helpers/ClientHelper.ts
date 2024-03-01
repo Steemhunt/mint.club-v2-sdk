@@ -61,6 +61,32 @@ export class ClientHelper {
     ClientHelper.instances[key] = this;
   }
 
+  protected async initializeWallet() {
+    if (this.walletClient) {
+      const [address] = await this.walletClient?.requestAddresses();
+      this.walletClient = createWalletClient({
+        account: address,
+        chain: this.chain,
+        transport: custom(this.walletClient.transport),
+      });
+      return;
+    } else if (!window.ethereum) {
+      throw new Error('No Ethereum provider found');
+    } else {
+      this.walletClient = createWalletClient({
+        chain: this.chain,
+        transport: custom(window.ethereum),
+      });
+
+      const [address] = await this.walletClient?.requestAddresses();
+      this.walletClient = createWalletClient({
+        account: address,
+        chain: this.chain,
+        transport: custom(window.ethereum),
+      });
+    }
+  }
+
   public async getConnectedAddress() {
     const [address] = (await this.walletClient?.requestAddresses()) || [];
     if (!address) throw new Error('No wallet found');
@@ -112,31 +138,5 @@ export class ClientHelper {
     });
 
     return this;
-  }
-
-  public async initializeWallet() {
-    if (this.walletClient) {
-      const [address] = await this.walletClient?.requestAddresses();
-      this.walletClient = createWalletClient({
-        account: address,
-        chain: this.chain,
-        transport: custom(this.walletClient.transport),
-      });
-      return;
-    } else if (!window.ethereum) {
-      throw new Error('No Ethereum provider found');
-    } else {
-      this.walletClient = createWalletClient({
-        chain: this.chain,
-        transport: custom(window.ethereum),
-      });
-
-      const [address] = await this.walletClient?.requestAddresses();
-      this.walletClient = createWalletClient({
-        account: address,
-        chain: this.chain,
-        transport: custom(window.ethereum),
-      });
-    }
   }
 }

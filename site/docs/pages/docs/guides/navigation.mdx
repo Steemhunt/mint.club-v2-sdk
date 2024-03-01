@@ -1,8 +1,8 @@
 # Sidebar & Top Navigation
 
-The sidebar and top navigation are the main ways to navigate through the documentation. 
+The sidebar and top navigation are the main ways to navigate through the documentation.
 
-The sidebar contains the main items to navigate between pages. 
+The sidebar contains the main items to navigate between pages.
 It is always visible on larger desktop viewports, but for smaller viewports, the sidebar collapses into a hamburger menu.
 
 The top navigation contains higher-level navigation for the documentation, as well as miscellaneous items (social, theme toggle, etc).
@@ -25,20 +25,25 @@ The `sidebar` property is an array of sidebar items. Each sidebar item can have 
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  sidebar: [ // [!code focus]
-    { // [!code focus]
+  sidebar: [
+    // [!code focus]
+    {
+      // [!code focus]
       text: 'Getting Started', // [!code focus]
-      link: '/docs', // [!code focus]
+      link: '/docs' // [!code focus]
     }, // [!code focus]
-    { // [!code focus]
+    {
+      // [!code focus]
       text: 'API', // [!code focus]
       collapsed: true, // [!code focus]
-      items: [ // [!code focus]
-        { // [!code focus]
+      items: [
+        // [!code focus]
+        {
+          // [!code focus]
           text: 'Config', // [!code focus]
-          link: '/docs/api/config', // [!code focus]
-        }, // [!code focus]
-      ], // [!code focus]
+          link: '/docs/api/config' // [!code focus]
+        } // [!code focus]
+      ] // [!code focus]
     } // [!code focus]
   ], // [!code focus]
   title: 'Viem'
@@ -55,23 +60,23 @@ import { defineConfig } from 'vocs'
 export default defineConfig({
   sidebar: {
     '/docs/': [ // [!code focus]
-      { 
-        text: 'Getting Started', 
-        link: '/docs', 
-      }, 
-      { 
-        text: 'API', 
-        collapsed: true, 
-        items: [ 
-          { 
-            text: 'Config', 
-            link: '/docs/api/config', 
-          }, 
-        ], 
-      } 
+      {
+        text: 'Getting Started',
+        link: '/docs',
+      },
+      {
+        text: 'API',
+        collapsed: true,
+        items: [
+          {
+            text: 'Config',
+            link: '/docs/api/config',
+          },
+        ],
+      }
     ], // [!code focus]
     '/examples/': [ // [!code focus]
-      { text: 'React', link: '/examples/react' } 
+      { text: 'React', link: '/examples/react' }
       { text: 'Vue', link: '/examples/vue' }
     ] // [!code focus]
   }
@@ -93,22 +98,27 @@ import { defineConfig } from 'vocs'
 
 export default defineConfig({
   title: 'Viem',
-  topNav: [ // [!code focus]
+  topNav: [
+    // [!code focus]
     { text: 'Guide & API', link: '/docs/getting-started', match: '/docs' }, // [!code focus]
     { text: 'Blog', link: '/blog' }, // [!code focus]
-    { // [!code focus]
+    {
+      // [!code focus]
       text: version, // [!code focus]
-      items: [ // [!code focus]
-        { // [!code focus]
+      items: [
+        // [!code focus]
+        {
+          // [!code focus]
           text: 'Changelog', // [!code focus]
-          link: 'https://github.com/wevm/vocs/blob/main/src/CHANGELOG.md', // [!code focus]
+          link: 'https://github.com/wevm/vocs/blob/main/src/CHANGELOG.md' // [!code focus]
         }, // [!code focus]
-        { // [!code focus]
+        {
+          // [!code focus]
           text: 'Contributing', // [!code focus]
-          link: 'https://github.com/wevm/vocs/blob/main/.github/CONTRIBUTING.md', // [!code focus]
-        }, // [!code focus]
-      ], // [!code focus]
-    }, // [!code focus]
-  ], // [!code focus]
+          link: 'https://github.com/wevm/vocs/blob/main/.github/CONTRIBUTING.md' // [!code focus]
+        } // [!code focus]
+      ] // [!code focus]
+    } // [!code focus]
+  ] // [!code focus]
 })
 ```

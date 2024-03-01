@@ -1,0 +1,399 @@
+---
+description: Deploys a Bonding Curved ERC-20 Contract
+---
+
+# create [Deploys a Bonding Curved ERC-20 Contract]
+
+## Usage
+
+Below is a basic example of how to call the `create` function.
+
+:::tip[NOTE]
+When using the `create` function, you must pass a `symbol` in the `token` function. This is the symbol of the token you want to create.
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT') // [!code focus]
+```
+
+> In the example, we are creating a token with the symbol `MINT` with the token name of `Mint Club` on the `ethereum` network.
+::::
+
+
+:::code-group
+
+```ts [curvedata-example.ts]
+import { curveData } from './data';
+
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18, 
+    }, 
+		// [!code focus]
+	curveData, // [!code focus]
+		// [!code focus]
+  })
+```
+
+```ts [stepdata-example.ts]
+import { stepData } from './data';
+
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18, 
+    }, 
+		// [!code focus]
+	stepData, // [!code focus]
+		// [!code focus]
+  })
+```
+
+```ts [data.ts]
+// Only one of curveData or stepData is required
+
+export const stepData = [
+	{ rangeTo: 50, price: 0 }, // Since price is 0, the first 50 tokens will be allocated to the creator
+	{ rangeTo: 100, price: 0.01 }, // 0.01 WETH for the next 50 tokens
+	{ rangeTo: 1000, price: 0.1 }, // 0.1 WETH for the next 900 tokens
+	{ rangeTo: 10_000, price: 1 }, // 1 WETH for the next 9000 tokens
+]
+
+export const curveData = {
+	curveType: 'LINEAR', 
+	stepCount: 10,
+	maxSupply: 10_000,
+	initialMintingPrice: 0.01, // 0.01 WETH 
+	finalMintingPrice: 0.1, // 0.1 WETH
+	creatorAllocation: 100,
+}
+```
+
+:::
+
+
+## Return Value
+
+[`TransactionReceipt`](/docs/types/transaction-receipt)
+
+The receipt for the signed transaction.
+
+## Parameters
+
+### name
+
+The token name.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club', // [!code focus]
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address
+      decimals: 18,
+    },
+  })
+```
+
+### reserveToken
+
+The reserve token to use for the bonding curve. This is the token that will be used to mint new tokens.
+
+Both `address` and `decimals` are required.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    // [!code focus]
+    reserveToken: { // [!code focus]
+      // [!code focus]
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address // [!code focus]
+      decimals: 18, // [!code focus]
+    }, // [!code focus]
+  })
+```
+
+### curveData (conditionally required)
+
+If [`stepData`](#stepdata-conditionally-required) is not provided, `curveData` is required.
+
+It will automatically generate a bonding curve data with the given curve type for you.
+
+#### `curveData` is an object with the following properties:
+
+##### curveType
+
+- Type: `string`
+
+Can be one of : `"LINEAR"` `"EXPONENTIAL"` `"LOGARITHMIC"` `"FLAT"`
+
+##### stepCount
+
+- Type: `number`
+
+This is the number of steps the curve will have. The more steps, the more granular the curve will be. Since this data is stored on-chain, Greater stepCount will result in higher gas costs.
+
+##### maxSupply
+
+-Type: `number`
+
+The maximum supply of the token.
+
+##### initialMintingPrice
+
+-Type: `number`
+
+The initial price of the token on the bonding curve.
+
+##### finalMintingPrice
+
+- Type: `number`
+
+The final price of the token on the bonding curve. 
+
+##### creatorAllocation (optional)
+
+- Type: `number`
+- Default: `0`
+
+The amount of tokens that will be allocated to the creator of the bonding curve upon deployment.
+
+:::code-group
+
+```ts [example.ts]
+import { curveData } from './curve-data';
+
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18, 
+    }, 
+		// [!code focus]
+	curveData, // [!code focus]
+		// [!code focus]
+  })
+```
+
+```ts [curve-data.ts]
+export const curveData = {
+	curveType: 'LINEAR', 
+	stepCount: 10,
+	maxSupply: 10_000,
+	initialMintingPrice: 0.01, // 0.01 WETH 
+	finalMintingPrice: 0.1, // 0.1 WETH
+	creatorAllocation: 100,
+}
+```
+
+
+:::
+
+### stepData (conditionally required)
+
+- Type: `{ rangeTo: number; price: number }[]`
+
+If [`curveData`](#curvedata-conditionally-required) is not provided, `stepData` is required.
+
+Steps that will be used to construct the bonding curve. The `rangeTo` property is the number of tokens that will be minted until the given price. The `price` property is the price of the token in the reserve token.
+
+If price is 0, the first `rangeTo` tokens will be allocated to the creator of the bonding curve.
+
+:::warning[NOTE]
+> Note that the value of `rangeTo` and `price` can NOT be decreasing.
+:::
+
+:::code-group
+
+```ts [example.ts]
+import { stepData } from './step-data';
+
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18, 
+    }, 
+		// [!code focus]
+	stepData, // [!code focus]
+		// [!code focus]
+  })
+```
+
+```ts [step-data.ts]
+export const stepData = [
+	{ rangeTo: 50, price: 0 }, // Since price is 0, the first 50 tokens will be allocated to the creator
+	{ rangeTo: 100, price: 0.01 }, // 0.01 WETH for the next 50 tokens
+	{ rangeTo: 1000, price: 0.1 }, // 0.1 WETH for the next 900 tokens
+	{ rangeTo: 10_000, price: 1 }, // 1 WETH for the next 9000 tokens
+]
+```
+
+:::
+
+### buyRoyalty (optional)
+
+- Type: `number`
+- Default: `0.03`
+
+buyRoyalty is the percentage of the buy trade fee that will go to the creator.
+
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18,
+    }, 
+    buyRoyalty: 0.03, // [!code focus]
+  })
+```
+
+### sellRoyalty (optional)
+
+- Type: `number`
+- Default: `0.03`
+
+sellRoyalty is the percentage of the sell trade fee that will go to the creator.
+
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18,
+    }, 
+    sellRoyalty: 0.03, // [!code focus]
+  })
+```
+
+
+### onRequestSignature (optional)
+
+- Type: `onRequestSignature?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18,
+    }, 
+    sellRoyalty: 0.03, 
+	onRequestSignature: () => {} // [!code focus]
+  })
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+
+Callback function for when the user is signs the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18,
+    }, 
+    sellRoyalty: 0.03, 
+	onSigned: (txHash) => {} // [!code focus]
+  })
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18,
+    }, 
+    sellRoyalty: 0.03, 
+	onSuccess: (receipt) => {} // [!code focus]
+  })
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18,
+    }, 
+    sellRoyalty: 0.03, 
+	onError: (error) => {} // [!code focus]
+  })
+```
+
+
+{/* ## Live Example
+
+Check out the usage of `readContract` in the live [Reading Contracts Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_reading-contracts) below.
+
+<iframe
+  frameBorder="0"
+  width="100%"
+  height="500px"
+  src="https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_reading-contracts?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"
+></iframe> */}

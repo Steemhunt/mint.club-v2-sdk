@@ -49,12 +49,12 @@ Then follows the `token` and `nft` methods to interact with.
 It takes in a `string` parameter which could be the token symbol or address.
 
 ```ts twoslash [app.ts]
-import { mintclub } from 'mint.club-v2-sdk';
+import { mintclub } from 'mint.club-v2-sdk'
 
-const symbolOrAddress: string = 'CHICKEN';
+const symbolOrAddress: string = 'CHICKEN'
 // [!code focus]
 // @noErrors
-mintclub.network('base').token(symbolOrAddress); // [!code focus]
+mintclub.network('base').token(symbolOrAddress) // [!code focus]
 //                       ^^^^^
 //                                     ^?
 // [!code focus]
@@ -65,12 +65,12 @@ mintclub.network('base').token(symbolOrAddress); // [!code focus]
 Lastly, you can call the functions on the token or nft.
 
 ```ts twoslash [app.ts]
-import { mintclub } from 'mint.club-v2-sdk';
+import { mintclub } from 'mint.club-v2-sdk'
 
-const symbolOrAddress: string = 'CHICKEN';
+const symbolOrAddress: string = 'CHICKEN'
 // [!code focus]
 // @noErrors
-mintclub.network('base').token(symbolOrAddress).g; // [!code focus]
+mintclub.network('base').token(symbolOrAddress).g // [!code focus]
 //                                               ^|
 // [!code focus]
 ```

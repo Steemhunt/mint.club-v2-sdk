@@ -45,10 +45,10 @@ bun i mint.club-v2-sdk
 Below is a simple example of retrieving the token's total supply.
 
 ```ts twoslash [app.ts]
-import { mintclub } from 'mint.club-v2-sdk';
+import { mintclub } from 'mint.club-v2-sdk'
 
 // [!code focus]
-const totalSupply = await mintclub.network('base').token('CHICKEN').totalSupply(); // [!code focus]
+const totalSupply = await mintclub.network('base').token('CHICKEN').totalSupply() // [!code focus]
 //    ^?
 // [!code focus]
 
@@ -57,21 +57,21 @@ const totalSupply = await mintclub.network('base').token('CHICKEN').totalSupply(
 // The token actually exists! https://mint.club/token/base/CHICKEN 🐔 // [!code hl]
 ```
 
-[Go to full documentation](/docs/main/sdk/introduction)
+[Go to full documentation](/docs/sdk/introduction)
 
 ### Writing Data
 
 Below is a simple example of purchasing a token.
 
 ```ts [app.ts]
-import { mintclub } from 'mint.club-v2-sdk';
+import { mintclub } from 'mint.club-v2-sdk'
 
 // [!code focus]
-const result = await mintclub.network('base').token('CHICKEN').buy(100n); // [!code focus]
+const result = await mintclub.network('base').token('CHICKEN').buy(100n) // [!code focus]
 // [!code focus]
 ```
 
-[Go to full documentation](/docs/main/sdk/introduction)
+[Go to full documentation](/docs/sdk/introduction)
 
 ### Next Steps 🎊
 

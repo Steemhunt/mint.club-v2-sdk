@@ -1,0 +1,15 @@
+# network
+
+The SDK follows a common pattern of having a `network` method to set the network to interact with.
+
+Available networks are `ethereum` `base` `optimism` `arbitrum` `polygon` `avalanche` `bnbchain` and `sepolia`.
+
+```ts twoslash [app.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+// [!code focus]
+// @noErrors
+mintclub.network('' // [!code focus]
+//                ^|
+// [!code focus]
+```

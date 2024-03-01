@@ -4,7 +4,7 @@ import { TokenHelper, TokenHelperConstructorParams } from './TokenHelper';
 import { generateCreateArgs } from '../utils/bond';
 import { bondContract } from '../contracts';
 import { CreateERC20TokenParams, CreateTokenParams } from '../types/bond.types';
-import { TokenAlreadyExistsError } from '../errors/sdk.errors';
+import { SymbolNotDefinedError, TokenAlreadyExistsError } from '../errors/sdk.errors';
 
 export class ERC20Helper extends TokenHelper {
   constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
@@ -74,11 +74,12 @@ export class ERC20Helper extends TokenHelper {
     params: CreateERC20TokenParams &
       Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>,
   ) {
-    const exists = await this.exists();
+    if (!this.symbol) throw new SymbolNotDefinedError();
 
+    const exists = await this.exists();
     if (exists) throw new TokenAlreadyExistsError();
 
-    const args = generateCreateArgs({ ...params, tokenType: this.tokenType });
+    const args = generateCreateArgs({ ...params, tokenType: this.tokenType, symbol: this.symbol });
     const { onError, onRequestSignature, onSigned, onSuccess } = params;
 
     const fee = await this.getCreationFee();

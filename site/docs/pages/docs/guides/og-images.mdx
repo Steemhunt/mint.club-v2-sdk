@@ -1,12 +1,27 @@
 # Dynamic OG Images [Customizing the Open Graph Image in Vocs]
 
-Vocs has built-in support for dynamic open graph images. 
+Vocs has built-in support for dynamic open graph images.
 
 Open graph images are displayed when you share a link on an external platform such as Twitter, Slack, Telegram, etc.
 
 Every page in Vocs can come with a accompanying customized OG image. For example, the image for this page looks like:
 
-<div style={{ backgroundColor: 'var(--vocs-color_background3)', borderRadius: '4px', display: 'flex', justifyContent: 'center', paddingTop: '40px', paddingBottom: '40px' }}><img width="70%" src="https://vocs.dev/api/og?logo=https://vocs.dev/vocs-logo-dark.svg&title=Dynamic OG Images&description=Customizing the Open Graph Image in Vocs" style={{ borderRadius: '4px' }} /></div>
+<div
+  style={{
+    backgroundColor: 'var(--vocs-color_background3)',
+    borderRadius: '4px',
+    display: 'flex',
+    justifyContent: 'center',
+    paddingTop: '40px',
+    paddingBottom: '40px'
+  }}
+>
+  <img
+    width="70%"
+    src="https://vocs.dev/api/og?logo=https://vocs.dev/vocs-logo-dark.svg&title=Dynamic OG Images&description=Customizing the Open Graph Image in Vocs"
+    style={{ borderRadius: '4px' }}
+  />
+</div>
 
 ## Quick Start
 
@@ -77,9 +92,10 @@ This will render a different OG image depending on the path the user is on.
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  ogImageUrl: { // [!code focus]
+  ogImageUrl: {
+    // [!code focus]
     '/': 'https://vocs.dev/og-image.png', // [!code focus]
-    '/docs': 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description', // [!code focus]
+    '/docs': 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
 })

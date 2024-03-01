@@ -36,14 +36,14 @@ my-project/
 A basic `vocs.config.ts` could look like this:
 
 ```ts [vocs.config.ts] twoslash
-import { defineConfig } from 'vocs';
+import { defineConfig } from 'vocs'
 
 export default defineConfig({
   description:
     'Build reliable apps & libraries with lightweight, \
     composable, and type-safe modules that interface with Ethereum.',
-  title: 'Viem',
-});
+  title: 'Viem'
+})
 ```
 
 [Read the Config API](/docs/api/config)
@@ -133,10 +133,10 @@ my-project/
 The `layout.tsx` component could look like:
 
 ```tsx [layout.tsx]
-import { CustomLayout } from './Layout';
+import { CustomLayout } from './Layout'
 
 export default function Layout({ children }) {
-  return <CustomLayout>{children}</CustomLayout>;
+  return <CustomLayout>{children}</CustomLayout>
 }
 ```
 
@@ -167,7 +167,7 @@ export default function Footer() {
       <div>Released under the MIT License.</div>
       <div>Copyright © 2022-present weth, LLC.</div>
     </div>
-  );
+  )
 }
 ```
 

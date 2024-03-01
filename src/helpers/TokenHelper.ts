@@ -26,6 +26,7 @@ type SellParams = BuySellCommonParams & {
 export class TokenHelper {
   private tokenAddress: `0x${string}`;
   private clientHelper: ClientHelper;
+  protected symbol?: string;
   protected tokenType: TokenType;
   protected chainId: ContractChainType;
 
@@ -36,6 +37,7 @@ export class TokenHelper {
       this.tokenAddress = symbolOrAddress;
     } else {
       this.tokenAddress = computeCreate2Address(chainId, tokenType, symbolOrAddress);
+      this.symbol = symbolOrAddress;
     }
 
     this.chainId = chainId;

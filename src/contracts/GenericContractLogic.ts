@@ -70,7 +70,7 @@ export class GenericContractLogic<
   public async write<
     T extends ContractFunctionName<A, 'payable' | 'nonpayable'>,
     R extends ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
-  >(params: GenericWriteParams<A, T, R, C>): Promise<TransactionReceipt | undefined> {
+  >(params: GenericWriteParams<A, T, R, C>): Promise<TransactionReceipt> {
     await this.initializeWallet();
 
     const walletClient = this.getWalletClient();
@@ -117,6 +117,7 @@ export class GenericContractLogic<
         Object.assign(e, { functionName, args, simulationArgs, value });
       }
       onError?.(e);
+      throw e;
     }
   }
 }

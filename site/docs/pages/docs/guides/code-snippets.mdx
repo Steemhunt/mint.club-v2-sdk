@@ -19,10 +19,10 @@ We will create a virtual file snippet called `example.ts`. We can define a virtu
 ```ts filename="example.ts" // [!code hl]
 import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
- 
+
 const client = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http()
 })
 ```
 ````
@@ -31,27 +31,30 @@ const client = createPublicClient({
 
 Next, we will import the snippet into our Markdown file using the `// [!include ...]` marker.
 
-````mdx [example.md]
+`````mdx [example.md]
 #### Create your Client
 
 ```ts filename="example.ts"
 import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
- 
+
 const client = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http()
 })
 ```
 
 #### Use Actions
 
-```ts // [!code focus]
+````ts // [!code focus]
 //$ [!include example.ts] // [!code focus] // [!code hl]
- 
+
 const blockNumber = await client.getBlockNumber() //$ [!code focus] // [!code focus]
 ``` // [!code focus]
 ````
+`````
+
+`````
 
 ### Output
 
@@ -63,7 +66,7 @@ The resulting output will look like this:
 ```ts filename="example.ts"
 import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
- 
+
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
@@ -74,13 +77,13 @@ const client = createPublicClient({
 
 ```ts
 // [!include example.ts]
- 
+
 const blockNumber = await client.getBlockNumber() // [!code focus]
 ```
+
 </div>
 
 ::::
-
 
 ## Physical File Snippets
 
@@ -103,7 +106,7 @@ Next, we will import the snippet into our Markdown file using the `// [!include 
 ````mdx [example.md]
 #### Create your Client
 
-```ts // [!code focus]
+````ts // [!code focus]
 //$ [!include ~/snippets/example.ts] // [!code focus] // [!code hl]
 ``` // [!code focus]
 
@@ -111,10 +114,12 @@ Next, we will import the snippet into our Markdown file using the `// [!include 
 
 ```ts // [!code focus]
 //$ [!include ~/snippets/example.ts] // [!code focus] // [!code hl]
- 
+
 const blockNumber = await client.getBlockNumber() //$ [!code focus] // [!code focus]
 ``` // [!code focus]
-````
+`````
+
+`````
 
 :::info
 The `"~"` in the path refers to the [root (`config.rootDir`) directory](/docs/structure#root-directory) of the project.
@@ -127,11 +132,11 @@ The resulting output will look like this:
 <div>
 #### Create your Client
 
-```ts 
+```ts
 // [!include ~/snippets/example.ts:import]
 
-// [!include ~/snippets/example.ts:setup] 
-``` 
+// [!include ~/snippets/example.ts:setup]
+```
 
 #### Use Actions
 
@@ -139,9 +144,10 @@ The resulting output will look like this:
 // [!include ~/snippets/example.ts:import]
 
 // [!include ~/snippets/example.ts:setup]
- 
+
 const blockNumber = await client.getBlockNumber() // [!code focus]
 ```
+
 </div>
 
 ::::
@@ -181,17 +187,17 @@ import { writeFileSync } from 'node:fs'
 
 writeFileSync('test.txt', blockNumber.toString())
 ```
-````
+`````
 
 Which will result in the snippet being rendered like this:
 
 ```ts
 import { writeFileSync } from 'node:fs'
-// [!include ~/snippets/example.ts:import] 
+// [!include ~/snippets/example.ts:import]
 
-// [!include ~/snippets/example.ts:setup] 
+// [!include ~/snippets/example.ts:setup]
 
-// [!include ~/snippets/example.ts:usage-1] 
+// [!include ~/snippets/example.ts:usage-1]
 
 writeFileSync('test.txt', blockNumber.toString())
 ```
@@ -213,7 +219,7 @@ import { mainnet } from 'viem/chains'
 // [!region setup]
 const client = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http()
 })
 // [!endregion setup]
 
@@ -251,7 +257,7 @@ import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http()
 })
 
 const blockNumber = await client.getBlockNumber()
@@ -261,7 +267,7 @@ const blockNumber = await client.getBlockNumber()
 
 Which will result in the snippet being rendered like this:
 
-```ts 
+```ts
 import { writeFileSync } from 'node:fs'
 // [!include ~/snippets/example.ts:import /viem/@viem\/core/ /mainnet/sepolia/]
 
@@ -299,7 +305,7 @@ writeFileSync('test.txt', blockNumber.toString())
 
 Which will result in the snippet being rendered like this:
 
-```ts 
+```ts
 import { writeFileSync } from 'node:fs'
 // [!include ~/snippets/example.ts:import]
 
@@ -358,10 +364,10 @@ const blockNumber = await client.getBlockNumber()
 ```ts twoslash [client.ts] filename="client.ts" // [!code hl]
 import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
- 
+
 export const client = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http()
 })
 ```
 
@@ -381,10 +387,10 @@ const blockNumber = await client.getBlockNumber()
 ```ts twoslash [client.ts] filename="client.ts"
 import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
- 
+
 export const client = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http()
 })
 ```
 

@@ -14,9 +14,9 @@ type CurveParameter = {
   curveType: CurveType;
   stepCount: number;
   maxSupply: number;
-  creatorAllocation?: number;
   initialMintingPrice: number;
   finalMintingPrice: number;
+  creatorAllocation?: number;
 };
 
 type WithCurveData = {
@@ -32,10 +32,9 @@ type WithStepData = {
 export type CreateERC20TokenParams = {
   // required
   name: string;
-  symbol: string;
   reserveToken: ReserveToken;
-  mintRoyalty: number;
-  burnRoyalty: number;
+  buyRoyalty?: number;
+  sellRoyalty?: number;
 } & (WithCurveData | WithStepData);
 
 export type CreateERC1155TokenParams = CreateERC20TokenParams & {
@@ -44,6 +43,7 @@ export type CreateERC1155TokenParams = CreateERC20TokenParams & {
 
 export type CreateTokenParams = CreateERC20TokenParams & {
   tokenType: 'ERC20' | 'ERC1155';
+  symbol: string;
 };
 
 export type GenerateStepArgs = CreateTokenParams & {

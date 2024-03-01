@@ -1,5 +1,5 @@
-import { defineConfig } from 'vocs';
-import { sidebar } from './docs/sidebar';
+import { defineConfig } from 'vocs'
+import { sidebar } from './docs/sidebar'
 
 export default defineConfig({
   title: 'Mint.club',
@@ -7,9 +7,9 @@ export default defineConfig({
   sidebar,
   theme: {
     accentColor: '#15e6b7',
-    colorScheme: 'dark',
-  },
-  font: {
-    google: 'Raleway',
-  },
-});
+    colorScheme: 'dark'
+  }
+  // font: {
+  //   google: 'Raleway',
+  // },
+})

@@ -24,9 +24,9 @@ module.exports = {
         erc20: '#1261C4',
         erc1155: '#009369',
         freemint: '#c6f120',
-        warpcast: '#794aee',
-      },
-    },
+        warpcast: '#794aee'
+      }
+    }
   },
-  plugins: [],
-};
+  plugins: []
+}

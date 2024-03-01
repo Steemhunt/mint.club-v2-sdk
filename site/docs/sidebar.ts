@@ -1,4 +1,4 @@
-import type { Sidebar } from 'vocs';
+import type { Sidebar } from 'vocs'
 
 export const sidebar = {
   '/docs/': [
@@ -7,99 +7,146 @@ export const sidebar = {
       items: [
         {
           text: 'Why Mint.club?',
-          link: '/docs/why-mint-club',
+          link: '/docs/why-mint-club'
         },
         {
           text: 'Getting Started',
-          link: '/docs/getting-started',
+          link: '/docs/getting-started'
         },
         {
           text: 'Contracts',
-          link: '/docs/contracts',
+          link: '/docs/contracts'
         },
         {
           text: 'Curve Design',
-          link: '/docs/curve-design',
+          link: '/docs/curve-design'
         },
         {
           text: 'FAQ',
-          link: '/docs/faq',
-        },
-      ],
+          link: '/docs/faq'
+        }
+      ]
     },
 
     {
       text: 'SDK',
       collapsed: false,
       items: [
-        { text: 'Introduction', link: '/docs/main/sdk/introduction' },
-
         {
           text: 'mintclub',
           collapsed: false,
+          link: '/docs/sdk/introduction',
           items: [
             {
               text: 'network',
+              link: '/docs/sdk/network',
               items: [
                 {
-                  text: 'createToken',
-                  link: '/docs/main/sdk/getBalance',
-                },
-                {
-                  text: 'createNFT',
-                  link: '/docs/main/sdk/getBalance',
-                },
-                {
                   text: 'token',
-                  collapsed: true,
+                  link: '/docs/sdk/network/token',
+                  collapsed: false,
                   items: [
                     {
-                      text: 'createToken',
-                      link: '/docs/main/sdk/getBalance',
+                      text: 'create',
+                      link: '/docs/sdk/network/token/create'
                     },
                     {
-                      text: 'createNFT',
-                      link: '/docs/main/sdk/getBalance',
+                      text: 'getAllowance',
+                      link: '/docs/sdk/network/token/getAllowance'
                     },
                     {
-                      text: 'token',
-                      collapsed: true,
-                      link: '/docs/main/sdk/getBalance',
+                      text: 'getBalanceOf',
+                      link: '/docs/sdk/network/token/getBalanceOf'
                     },
                     {
-                      text: 'nft',
-                      collapsed: true,
-                      link: '/docs/main/sdk/getBalance',
+                      text: 'getGetBondAddress',
+                      link: '/docs/sdk/network/token/getGetBondAddress'
                     },
-                  ],
+                    {
+                      text: 'getDecimals',
+                      link: '/docs/sdk/network/token/getDecimals'
+                    },
+                    {
+                      text: 'getName',
+                      link: '/docs/sdk/network/token/getName'
+                    },
+                    {
+                      text: 'getSymbol',
+                      link: '/docs/sdk/network/token/getSymbol'
+                    },
+                    {
+                      text: 'getTotalSupply',
+                      link: '/docs/sdk/network/token/getTotalSupply'
+                    }
+                  ]
                 },
                 {
                   text: 'nft',
-                  collapsed: true,
+                  collapsed: false,
                   items: [
                     {
                       text: 'createToken',
-                      link: '/docs/main/sdk/getBalance',
+                      link: '/docs/sdk/network/getBalance'
                     },
                     {
                       text: 'createNFT',
-                      link: '/docs/main/sdk/getBalance',
-                    },
-                    {
-                      text: 'token',
-                      collapsed: true,
-                      link: '/docs/main/sdk/getBalance',
-                    },
-                    {
-                      text: 'nft',
-                      collapsed: true,
-                      link: '/docs/main/sdk/getBalance',
-                    },
-                  ],
+                      link: '/docs/sdk/network/getBalance'
+                    }
+                  ]
                 },
-              ],
-            },
-          ],
+                {
+                  text: 'bond',
+                  collapsed: true,
+                  link: '/docs/sdk/network/getBalance'
+                },
+                {
+                  text: 'airdrop',
+                  collapsed: true,
+                  link: '/docs/sdk/network/getBalance'
+                },
+                {
+                  text: 'lockup',
+                  collapsed: true,
+                  link: '/docs/sdk/network/getBalance'
+                },
+                {
+                  text: 'Making Write Calls',
+                  collapsed: true,
+                  link: '/docs/sdk/network/write',
+                  items: [
+                    {
+                      text: 'getConnectedAddress',
+                      link: '/docs/sdk/network/write/getConnectedAddress'
+                    },
+                    {
+                      text: 'getWalletClient',
+                      link: '/docs/sdk/network/write/getWalletClient'
+                    },
+                    {
+                      text: 'getPublicClient',
+                      link: '/docs/sdk/network/write/getPublicClient'
+                    },
+                    {
+                      text: 'withConfig',
+                      link: '/docs/sdk/network/write/withConfig'
+                    },
+                    {
+                      text: 'withPrivateKey',
+                      link: '/docs/sdk/network/write/withPrivateKey'
+                    },
+                    {
+                      text: 'withAccount',
+                      link: '/docs/sdk/network/write/withAccount'
+                    },
+                    {
+                      text: 'withProvider',
+                      link: '/docs/sdk/network/write/withProvider'
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         },
 
         {
@@ -108,15 +155,15 @@ export const sidebar = {
           items: [
             {
               text: 'a',
-              link: '/docs/main/sdk/getBalance',
+              link: '/docs/sdk/network/getBalance'
             },
             {
               text: 'b',
-              link: '/docs/main/sdk/getBalance',
-            },
-          ],
-        },
-      ],
-    },
-  ],
-} as const satisfies Sidebar;
+              link: '/docs/sdk/network/getBalance'
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} as const satisfies Sidebar

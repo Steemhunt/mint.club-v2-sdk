@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@types/react": "latest",
-    "mint.club-v2-sdk": "0.0.8",
+    "mint.club-v2-sdk": "link:mint.club-v2-sdk",
     "react": "latest",
     "react-dom": "latest",
     "typescript": "latest",
