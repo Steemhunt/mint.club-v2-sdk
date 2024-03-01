@@ -50,27 +50,37 @@ Deploying & buying an `ERC-20` token on `BASE🔵` chain.
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk';
 
+const RickMee6Token = mintclub.network('base').token('RNM')
+
 // 🚀 Deploying $RNM tokens
-await mintclub.network('base').token('RNM').create({
-    name: 'Rick and Mee6',
-    reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
-      decimals: 18, 
-    }, 
-    curveData: {
-      curveType: 'EXPONENTIAL', 
-      stepCount: 10,
-      maxSupply: 10_000,
-      initialMintingPrice: 0.01, // 0.01 WETH 
-      finalMintingPrice: 0.1, // 0.1 WETH
-      creatorAllocation: 100,
-    }
-  })
+await RickMee6Token.create({
+  name: 'Rick and Mee6',
+  // base WETH 
+  reserveToken: {
+    address: '0x4200000000000000000000000000000000000006', 
+    decimals: 18, 
+  }, 
+  // bonding curve data
+  curveData: {
+    curveType: 'EXPONENTIAL', 
+    stepCount: 10,
+    maxSupply: 10_000,
+    initialMintingPrice: 0.01, // 0.01 WETH 
+    finalMintingPrice: 0.1, // 0.1 WETH
+    creatorAllocation: 100,
+  }
+})
 
 
 // 💲 Buying $RNM tokens
 const buyParams = { tokensToMint: 100n }
-const result = await mintclub.network('base').token('RNM').buy(buyParams);
+const result = await RickMee6Token.buy(buyParams);
+  //   ^? 
+
+
+
+// 🔍 querying $RNM on-chain data
+const totalSupply = await RickMee6Token.getTotalSupply()
   //   ^? 
 
 
