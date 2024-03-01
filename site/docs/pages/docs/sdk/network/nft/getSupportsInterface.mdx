@@ -1,0 +1,32 @@
+---
+description: Returns if the nft supports the interface or not.
+---
+
+# getSupportsInterface 
+
+Returns if the nft supports the interface or not.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const isSupported = await mintclub.network('ethereum').nft('SYMBOL').getSupportsInterface('0x...')
+```
+
+## Return Value
+
+`Promise<boolean>`
+
+Returns if the nft supports the interface or not.
+
+
+## Parameters
+
+### interfaceId
+
+- Type: `'0x${string}'`
+
+The interface id to check if the nft supports it or not.
+
+

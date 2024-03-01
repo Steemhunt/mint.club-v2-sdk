@@ -1,9 +1,15 @@
 import { uniqBy } from 'lodash';
 import { countDecimals, countLeadingZeros, handleScientificNotation } from './numbers';
-import { CurveType } from '../types';
 import { GenerateStepArgs } from '../types/bond.types';
 
-export const graphTypes = [CurveType.FLAT, CurveType.LINEAR, CurveType.EXPONENTIAL, CurveType.LOGARITHMIC] as const;
+export const enum CurveEnum {
+  FLAT = 'FLAT',
+  LINEAR = 'LINEAR',
+  EXPONENTIAL = 'EXPONENTIAL',
+  LOGARITHMIC = 'LOGARITHMIC',
+}
+
+export const graphTypes = [CurveEnum.FLAT, CurveEnum.LINEAR, CurveEnum.EXPONENTIAL, CurveEnum.LOGARITHMIC] as const;
 
 // interval range: max supply decimal count + 3
 // price: starting price decimal count + 3
@@ -34,7 +40,7 @@ export function generateSteps(form: GenerateStepArgs) {
     },
   } = form;
   const stepPoints: Array<{ rangeTo: number; price: number }> = [];
-  const stepCount = curveType === CurveType.FLAT ? 1 : _stepCount;
+  const stepCount = curveType === CurveEnum.FLAT ? 1 : _stepCount;
 
   // here we need to calculate the extra step count if the starting price is 0
   let extraStepCount = 0;
@@ -67,17 +73,17 @@ export function generateSteps(form: GenerateStepArgs) {
     let price: number;
 
     switch (curveType) {
-      case CurveType.FLAT:
+      case CurveEnum.FLAT:
         price = initialMintingPrice;
         break;
-      case CurveType.LINEAR:
+      case CurveEnum.LINEAR:
         const stepPerPrice = totalY / totalX;
         price = stepPerPrice * (rangeTo - creatorAllocation) + initialMintingPrice;
         break;
-      case CurveType.EXPONENTIAL:
+      case CurveEnum.EXPONENTIAL:
         price = initialMintingPrice + coefficientExponential * Math.pow(rangeTo - creatorAllocation, 2);
         break;
-      case CurveType.LOGARITHMIC:
+      case CurveEnum.LOGARITHMIC:
         if (rangeTo - creatorAllocation === 0) price = initialMintingPrice;
         else {
           // OLD - using Math.log
@@ -108,7 +114,7 @@ export function generateSteps(form: GenerateStepArgs) {
 
     // last point is used to ensure the max price is reached
     // x is the range, y is the price
-    if (i === stepCount && curveType !== CurveType.FLAT) {
+    if (i === stepCount && curveType !== CurveEnum.FLAT) {
       stepPoints.push({ rangeTo, price: finalMintingPrice });
     } else {
       // there are cases where y is negative (e.g. when the curve is logarithmic and the starting price is 0)

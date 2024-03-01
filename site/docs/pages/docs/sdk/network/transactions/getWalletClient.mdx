@@ -1,0 +1,61 @@
+---
+description: Mint.club SDK - getWalletClient
+---
+
+# getWalletClient [Using wallet client to make write calls]
+
+## WalletClient
+
+Wallet clients are used to make `write` calls.
+
+:::tip[Tip]
+You can make write calls to `non-mint.club contracts`, as well as `signing message`
+:::
+
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+
+const walletClient = await mintclub.network('base').getWalletClient() // [!code focus]
+//     ^?
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+:::note[Tip]
+The example below uses the `walletClient` to `sign a message`.
+:::
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const walletClient = await mintclub.network('base').getWalletClient() 
+
+const [account] = await walletClient?.getAddresses() || [] // [!code focus]
+
+if(account) { // [!code focus]
+	const signed = await walletClient?.signMessage({ // [!code highlight] // [!code focus]
+	//      ^?
+
+
+		account, // [!code focus]
+		message: 'Hello, Mint Club!' // [!code focus]
+	})
+}
+```
+
+## Viem Documentation
+
+For more information on how to use the wallet client more effectively, you can refer to the [Viem's documentation](https://viem.sh/docs/actions/wallet/introduction)

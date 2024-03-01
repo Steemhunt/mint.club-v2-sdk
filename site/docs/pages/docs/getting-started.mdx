@@ -48,13 +48,16 @@ Below is a simple example of retrieving the token's total supply.
 import { mintclub } from 'mint.club-v2-sdk'
 
 // [!code focus]
-const totalSupply = await mintclub.network('base').token('CHICKEN').totalSupply() // [!code focus]
-//    ^?
-// [!code focus]
+const totalSupply = await mintclub // [!code focus]
+//     ^?
 
-// @noErrors
 
-// The token actually exists! https://mint.club/token/base/CHICKEN 🐔 // [!code hl]
+							.network('base') // [!code focus]
+							.token('CHICKEN') // [!code focus]
+							.getTotalSupply() // [!code focus]
+
+// $CHICKEN token actually exists! 
+// https://mint.club/token/base/CHICKEN 🐔 
 ```
 
 [Go to full documentation](/docs/sdk/introduction)
@@ -63,11 +66,15 @@ const totalSupply = await mintclub.network('base').token('CHICKEN').totalSupply(
 
 Below is a simple example of purchasing a token.
 
-```ts [app.ts]
+```ts twoslash [app.ts]
 import { mintclub } from 'mint.club-v2-sdk'
 
 // [!code focus]
-const result = await mintclub.network('base').token('CHICKEN').buy(100n) // [!code focus]
+const result = await mintclub.network('base').token('CHICKEN').buy({ // [!code focus]
+	tokensToMint: 100n, // [!code focus]
+	slippage: 0, // [!code focus]
+	recipient: '0x...' // [!code focus]
+}) // [!code focus]
 // [!code focus]
 ```
 

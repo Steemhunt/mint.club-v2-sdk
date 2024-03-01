@@ -1,0 +1,47 @@
+---
+description: Returns the current creationFee of the protocol
+---
+
+# getCreationFee 
+
+Returns the current creationFee of the protocol
+
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const fee = await mintclub.network('ethereum').bond().getCreationFee()
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns the current creationFee of the protocol
+
+## Why is there a creation fee?
+
+:::note[Creation Fees on Mint Club]
+A nominal fee, equivalent to $5 in tokens, is required for creating bonding curve-backed tokens or NFT contracts on Mint.club. 
+
+This fee is implemented as a `safeguard against front-runners` who might attempt to steal a chosen token symbol, and to minimize abusive attempts. 
+:::
+
+```json
+The exact creation fees per chain are as follows
+
+> Ethereum: 0.002 ETH
+> Optimism: 0.002 ETH
+> Arbitrum: 0.002 ETH
+> Base: 0.002 ETH
+> Polygon: 5 MATIC
+> BSC: 0.015 BNB
+> Avalanche: 0.15 AVAX
+```
+
+:::warning[Note]
+Please note that gas fees for launching, minting, burning, or updating information of bonding assets will also need to be covered.
+:::
+

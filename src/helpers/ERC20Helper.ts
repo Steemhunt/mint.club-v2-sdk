@@ -74,13 +74,20 @@ export class ERC20Helper extends TokenHelper {
     params: CreateERC20TokenParams &
       Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>,
   ) {
-    if (!this.symbol) throw new SymbolNotDefinedError();
+    const { onError, onRequestSignature, onSigned, onSuccess } = params;
+    if (!this.symbol) {
+      onError?.(new SymbolNotDefinedError());
+      return;
+    }
 
     const exists = await this.exists();
-    if (exists) throw new TokenAlreadyExistsError();
+
+    if (exists) {
+      onError?.(new TokenAlreadyExistsError());
+      return;
+    }
 
     const args = generateCreateArgs({ ...params, tokenType: this.tokenType, symbol: this.symbol });
-    const { onError, onRequestSignature, onSigned, onSuccess } = params;
 
     const fee = await this.getCreationFee();
 

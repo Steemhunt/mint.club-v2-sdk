@@ -30,21 +30,24 @@ export const sidebar = {
 
     {
       text: 'SDK',
-      collapsed: false,
       items: [
         {
           text: 'mintclub',
           collapsed: false,
-          link: '/docs/sdk/introduction',
           items: [
+            {
+              text: 'Introduction',
+              link: '/docs/sdk/introduction',
+            },
             {
               text: 'network',
               link: '/docs/sdk/network',
+              collapsed: true,
               items: [
                 {
                   text: 'token',
                   link: '/docs/sdk/network/token',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     {
                       text: 'create',
@@ -82,7 +85,8 @@ export const sidebar = {
                 },
                 {
                   text: 'nft',
-                  collapsed: false,
+                  link: '/docs/sdk/network/nft',
+                  collapsed: true,
                   items: [
                     {
                       text: 'create',
@@ -98,7 +102,7 @@ export const sidebar = {
                     },
                     {
                       text: 'getContrctURI',
-                      link: '/docs/sdk/network/nft/getContrctURI',
+                      link: '/docs/sdk/network/nft/getContractURI',
                     },
                     {
                       text: 'getDecimals',
@@ -133,69 +137,70 @@ export const sidebar = {
                 {
                   text: 'bond',
                   collapsed: true,
-                  link: '/docs/sdk/network/getBalance',
+                  items: [
+                    {
+                      text: 'getCreationFee',
+                      link: '/docs/sdk/network/bond/getCreationFee',
+                    },
+                  ],
                 },
                 {
                   text: 'airdrop',
                   collapsed: true,
-                  link: '/docs/sdk/network/getBalance',
+                  link: '/docs/sdk/network/airdrop',
                 },
                 {
                   text: 'lockup',
                   collapsed: true,
-                  link: '/docs/sdk/network/getBalance',
+                  link: '/docs/sdk/network/lockup',
                 },
                 {
-                  text: 'Making Write Calls',
+                  text: 'Transactions',
                   collapsed: true,
-                  link: '/docs/sdk/network/write',
                   items: [
                     {
-                      text: 'getConnectedAddress',
-                      link: '/docs/sdk/network/write/getConnectedAddress',
-                    },
-                    {
-                      text: 'getWalletClient',
-                      link: '/docs/sdk/network/write/getWalletClient',
+                      text: 'Introduction',
+                      link: '/docs/sdk/network/transactions',
                     },
                     {
                       text: 'getPublicClient',
-                      link: '/docs/sdk/network/write/getPublicClient',
+                      link: '/docs/sdk/network/transactions/getPublicClient',
                     },
                     {
-                      text: 'withConfig',
-                      link: '/docs/sdk/network/write/withConfig',
-                    },
-                    {
-                      text: 'withPrivateKey',
-                      link: '/docs/sdk/network/write/withPrivateKey',
+                      text: 'getWalletClient',
+                      link: '/docs/sdk/network/transactions/getWalletClient',
                     },
                     {
                       text: 'withAccount',
-                      link: '/docs/sdk/network/write/withAccount',
+                      link: '/docs/sdk/network/transactions/withAccount',
+                    },
+                    {
+                      text: 'withPublicConfig',
+                      link: '/docs/sdk/network/transactions/withPublicConfig',
+                    },
+                    {
+                      text: 'withWalletConfig',
+                      link: '/docs/sdk/network/transactions/withWalletConfig',
+                    },
+                    {
+                      text: 'withPrivateKey',
+                      link: '/docs/sdk/network/transactions/withPrivateKey',
                     },
                     {
                       text: 'withProvider',
-                      link: '/docs/sdk/network/write/withProvider',
+                      link: '/docs/sdk/network/transactions/withProvider',
+                    },
+                    {
+                      text: 'TransactionReceipt',
+                      link: '/docs/sdk/network/transactions/receipt',
+                    },
+                    {
+                      text: 'RPCs',
+                      link: '/docs/sdk/network/transactions/rpcs',
                     },
                   ],
                 },
               ],
-            },
-          ],
-        },
-
-        {
-          text: 'utilities',
-          collapsed: true,
-          items: [
-            {
-              text: 'a',
-              link: '/docs/sdk/network/getBalance',
-            },
-            {
-              text: 'b',
-              link: '/docs/sdk/network/getBalance',
             },
           ],
         },

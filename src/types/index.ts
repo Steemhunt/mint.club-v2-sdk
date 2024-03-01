@@ -60,9 +60,4 @@ export type GenericWriteParams<
     }) &
   CommonWriteParams;
 
-export const enum CurveType {
-  FLAT = 'FLAT',
-  LINEAR = 'LINEAR',
-  EXPONENTIAL = 'EXPONENTIAL',
-  LOGARITHMIC = 'LOGARITHMIC',
-}
+export type CurveType = 'LINEAR' | 'EXPONENTIAL' | 'LOGARITHMIC' | 'FLAT';

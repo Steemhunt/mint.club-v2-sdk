@@ -1,0 +1,122 @@
+---
+description: Signing Transactions using the SDK
+---
+
+# Transactions [How to sign transactions using the SDK]
+
+## Common use cases
+
+Unlike `read calls`, `write calls` require users to sign transactions.
+
+For example, when a user wants to create a new asset, he/she will need to sign the transaction using a wallet like `Metamask`
+
+:::code-group
+
+```ts [example.ts]
+import { curveData } from './data';
+
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18, 
+    }, 
+	curveData, 
+	onRequestSignature: () => {},
+	onSigned: (tx) => {},
+	onSuccess: (receipt) => {},
+	onError: (error ) => {}
+  })
+
+// The user will be prompted to sign the transaction
+```
+
+```ts [data.ts]
+export const curveData = {
+	curveType: 'LINEAR', 
+	stepCount: 10,
+	maxSupply: 10_000,
+	initialMintingPrice: 0.01, // 0.01 WETH 
+	finalMintingPrice: 0.1, // 0.1 WETH
+	creatorAllocation: 100,
+}
+```
+:::
+
+If you're using this SDK in a browser environment where your users will be signing transactions, the SDK will try to use the `window.ethereum` provider by default. 
+
+## Other use cases
+
+However, there are cases where you might want to use a custom provider or use the SDK in a non-browser environment to sign the transaction.
+
+::::steps
+
+### Using a custom provider
+
+:::note
+Signing transactions [withProvider](/docs/sdk/network/transactions/withProvider) using a custom provider
+:::
+
+### Using a private key
+
+:::note
+Signing transactions [withPrivateKey](/docs/sdk/network/transactions/withProvider) using a private key
+:::
+
+### Using an account
+
+:::note
+Signing transactions [withAccount](/docs/sdk/network/transactions/withProvider) using a private key
+:::
+
+::::
+
+## Beyond Infinity 
+
+### Getting the most juice out of the SDK 🧃
+
+The Mint Club SDK internally uses the [`viem@2.7.16`](https://viem.sh/docs/clients/public) to make read/write calls. 
+
+This means that you can access both the `public` and `wallet` clients to make read/write calls.
+
+Using Public/Wallet Client opens up a lot of possibilities for you to explore outside of the SDK boxes.
+
+For example
+
+- you can use the `publicClient` to read [`block data`](/docs/sdk/network/transactions/getPublicClient#publicclient),
+- you can use the `walletClient` to [`sign a message`](/docs/sdk/network/transactions/getWalletClient#walletclient)
+- and much more.
+
+
+
+::::steps
+
+### Using the PublicClient
+
+:::note
+Mint Club SDK's [getPublicClient](/docs/sdk/network/transactions/getPublicClient)
+:::
+
+### Using the WalletClient
+
+:::note
+Mint Club SDK's [getWalletClient](/docs/sdk/network/transactions/getWalletClient)
+:::
+
+### Overriding PublicClient config
+
+:::note
+Mint Club SDK's [withPublicConfig](/docs/sdk/network/transactions/withPublicConfig)
+:::
+
+### Overriding WalletClient config
+
+:::note
+Mint Club SDK's [withWalletConfig](/docs/sdk/network/transactions/withWalletConfig)
+:::
+
+
+::::

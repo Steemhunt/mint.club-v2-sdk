@@ -1,0 +1,42 @@
+---
+description: Mint.club SDK - withProvider
+---
+
+# withProvider
+
+`withProvider` method allows you to create a wallet client with a custom provider & account.
+
+## Usage
+
+:::note[Tip]
+The example below uses the `withProvider` method to create a custom [`network`](/docs/sdk/network).
+:::
+
+```ts [example.ts]
+await mintclub
+	.network('ethereum')
+	.withProvider(window.birdman!) // [!code focus]
+	.token('MINT')
+	.create({
+		name: 'Mint Club',
+		reserveToken: {
+			address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+			decimals: 18, 
+		}, 
+		curveData
+	})
+```
+
+## Return Value
+
+[`network`](/docs/sdk/network)  
+
+Returns the `network` instance, so you chain functions such as [`token`](/docs/sdk/network/nft) and [`nft`](/docs/sdk/network/nft).
+
+## Parameters
+
+### provider
+
+- Type: `any`
+
+Custom wallet provider

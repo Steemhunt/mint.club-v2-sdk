@@ -1,6 +1,6 @@
-# `token` [ERC-20 token introduction]
+# `nft` [ERC-1155 nft introduction]
 
-`token` represents fungible ERC-20 tokens.
+`nft` represents fungible ERC-1155 tokens.
 
 All the `read calls` are prepended with `get` and all the other calls are `write calls` that requires the user to sign the transaction.
 
@@ -10,8 +10,10 @@ import { mintclub } from 'mint.club-v2-sdk'
 const symbolOrAddress: string = 'CHICKEN'
 // [!code focus]
 // @noErrors
-mintclub.network('base').token(symbolOrAddress). // [!code focus]
-//                                              ^|
+mintclub.network('base').nft(symbolOrAddress). // [!code focus]
+//                                            ^|
+
+
 
 
 

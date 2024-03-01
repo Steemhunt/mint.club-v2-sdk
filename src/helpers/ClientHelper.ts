@@ -8,10 +8,12 @@ import {
   PublicClient,
   PublicClientConfig,
   WalletClient,
+  WalletClientConfig,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import * as chains from 'viem/chains';
-import { ContractChainType, DEFAULT_RANK_OPTIONS, chainRPCFallbacks } from '../exports';
+import { NoEthereumProviderError } from '../errors/sdk.errors';
+import { chainRPCFallbacks, ContractChainType, DEFAULT_RANK_OPTIONS } from '../exports';
 
 declare global {
   interface Window {
@@ -75,7 +77,7 @@ export class ClientHelper {
       });
       return;
     } else if (!window.ethereum) {
-      throw new Error('No Ethereum provider found');
+      throw new NoEthereumProviderError();
     } else {
       this.walletClient = createWalletClient({
         chain: this.chain,
@@ -93,7 +95,7 @@ export class ClientHelper {
 
   public async getConnectedAddress() {
     const [address] = (await this.walletClient?.requestAddresses()) || [];
-    if (!address) throw new Error('No wallet found');
+    if (!address) return null;
     return address;
   }
 
@@ -105,8 +107,14 @@ export class ClientHelper {
     return this.publicClient;
   }
 
-  public withConfig(options: PublicClientConfig) {
+  public withPublicConfig(options: PublicClientConfig) {
     this.publicClient = createPublicClient(options);
+    return this;
+  }
+
+  public withWalletConfig(options: WalletClientConfig) {
+    this.walletClient = createWalletClient(options);
+    return this;
   }
 
   public withPrivateKey(privateKey: `0x${string}`) {
@@ -119,11 +127,12 @@ export class ClientHelper {
     return this;
   }
 
-  public withAccount(account: `0x${string}`) {
+  public withAccount(account: `0x${string}`, provider?: any) {
+    const providerToUse = provider || window.ethereum;
     this.walletClient = createWalletClient({
       account,
       chain: this.chain,
-      transport: custom(window.ethereum),
+      transport: custom(providerToUse),
     });
     return this;
   }

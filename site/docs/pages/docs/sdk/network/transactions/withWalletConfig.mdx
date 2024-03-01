@@ -1,0 +1,53 @@
+---
+description: Mint.club SDK - withWalletConfig
+---
+
+# withWalletConfig
+
+Override the configuration of default [`WalletClient`](/docs/sdk/network/transactions/getWalletClient) with a custom configuration.
+
+## Usage
+
+:::note[Tip]
+The example below uses the `withWalletConfig` method to create a custom [`network`](/docs/sdk/network).
+:::
+
+```ts [example.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+await mintclub
+  .withWalletConfig({ // [!code focus]
+    account: '0x...',  // [!code focus]
+    chain: mee6, // [!code focus]
+    transport: custom(window.mee6!) // [!code focus]
+    ... // [!code focus]
+  }) // [!code focus]
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address
+      decimals: 18,
+    },
+	curveData: {
+		curveType: 'LINEAR',
+		stepCount: 10,
+		maxSupply: 10_000,
+		initialMintingPrice: 0.01, // 0.01 WETH
+		finalMintingPrice: 0.1, // 0.1 WETH
+		creatorAllocation: 100,
+	}
+  })
+```
+
+## Return Value
+
+[`network`](/docs/sdk/network)
+
+Returns the `network` instance, so you chain functions such as [`token`](/docs/sdk/network/nft) and [`nft`](/docs/sdk/network/nft).
+
+## Parameters
+
+### walletClientConfig
+
+- Type: [`WalletClientConfig`](https://viem.sh/docs/clients/wallet)

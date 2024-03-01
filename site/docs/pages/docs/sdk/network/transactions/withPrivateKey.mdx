@@ -1,0 +1,52 @@
+---
+description: Mint.club SDK - withPrivateKey
+---
+
+# withPrivateKey
+
+`withAccount` method allows you to create a wallet client with a private key.
+
+## Usage
+
+:::warning[WARNING]
+It's probably not a good idea for you to use this in a public-facing application, as it requires the input of private key.
+:::
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk';
+
+await mintclub
+  .network('ethereum')
+  .withPrivateKey('0xdeadbeef') // [!code focus]
+  .token('MINT')
+  .create({
+    name: 'Mint Club',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+      decimals: 18, 
+    }, 
+	curveData: {
+		curveType: 'LINEAR', 
+		stepCount: 10,
+		maxSupply: 10_000,
+		initialMintingPrice: 0.01, // 0.01 WETH 
+		finalMintingPrice: 0.1, // 0.1 WETH
+		creatorAllocation: 100,
+	}
+  })
+```
+
+
+## Return Value
+
+[`network`](/docs/sdk/network)  
+
+Returns the `network` instance, so you chain functions such as [`token`](/docs/sdk/network/nft) and [`nft`](/docs/sdk/network/nft).
+
+## Parameters
+
+### privatekey
+
+- Type: `'0x${string}'`
+
+The private key of a wallet.

@@ -1,5 +1,5 @@
 import { CurveType } from '.';
-import { NFTMetadata } from './ipfs.types';
+import { HttpUrl, IpfsHashUrl } from './ipfs.types';
 
 export type ReserveToken = {
   address: `0x${string}`;
@@ -38,19 +38,34 @@ export type CreateERC20TokenParams = {
   sellRoyalty?: number;
 } & (WithCurveData | WithStepData);
 
+type IpfsHashProvided = {
+  filebaseApiKey?: never;
+  image: IpfsHashUrl;
+  video?: IpfsHashUrl;
+  onIpfsUploadStart?: never;
+  onIpfsUploadComplete?: never;
+};
+
+type FilebaseApiKeyProvided = {
+  filebaseApiKey: string;
+  image: File;
+  video?: File;
+  onIpfsUploadStart?: () => void;
+  onIpfsUploadComplete?: () => void;
+};
+
 export type CreateERC1155TokenParams = CreateERC20TokenParams & {
-  filebaseApiKey?: string;
   metadata?: {
-    description: string;
-    external_url: string;
+    description?: string;
+    external_url?: string;
     attributes?: {
       trait_type: string;
       value: string;
     }[];
   };
-  image: File;
-  video?: File;
-};
+  image: File | IpfsHashUrl | HttpUrl;
+  video?: File | IpfsHashUrl | HttpUrl;
+} & (IpfsHashProvided | FilebaseApiKeyProvided);
 
 export type CreateTokenParams = CreateERC20TokenParams & {
   tokenType: 'ERC20' | 'ERC1155';

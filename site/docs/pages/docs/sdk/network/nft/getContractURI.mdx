@@ -1,0 +1,21 @@
+---
+description: Returns the contract URI of the nft.
+---
+
+# getContractURI
+
+Returns the contract URI of the nft.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const decimals = await mintclub.network('ethereum').nft('SYMBOL').getContractURI()
+```
+
+## Return Value
+
+`Promise<string>`
+
+Returns the contract URI of the nft.

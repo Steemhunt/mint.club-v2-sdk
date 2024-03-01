@@ -1,17 +1,19 @@
 ---
-description: Returns allowance of a spender that can spend the token on behalf of the owner.
+description: Returns the approval status of the spender for the owner's tokens.
 ---
 
-# getAllowance 
+# getIsApprovedForAll 
 
-Returns allowance of a spender that can spend the token on behalf of the owner.
+Returns the approval status of the spender for the owner's tokens.
+
+Unlike fungible tokens, non-fungible tokens' allowance is not set on a per-token basis.
 
 ## Usage
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
  
-const allowance = await mintclub.network('ethereum').token('SYMBOL').getAllowance({
+const isApproved = await mintclub.network('ethereum').nft('SYMBOL').getIsApprovedForAll({
 	owner: '0x...',
 	spender: '0x...'
 })
@@ -19,9 +21,9 @@ const allowance = await mintclub.network('ethereum').token('SYMBOL').getAllowanc
 
 ## Return Value
 
-`Promise<bigint>`
+`Promise<boolean>`
 
-Returns a promise that resolves to the allowance of the spender on the token for the owner.
+Returns a promise that resolves to a boolean value indicating whether the spender is approved to spend the owner's tokens.
 
 
 ## Parameters
@@ -35,7 +37,7 @@ The address of the owner of the tokens. Usually the user's address.
 ```ts twoslash
 import { mintclub } from 'mint.club-v2-sdk'
  
-const allowance = await mintclub.network('ethereum').token('SYMBOL').getAllowance({
+const isApproved = await mintclub.network('ethereum').nft('SYMBOL').getIsApprovedForAll({
 	owner: '0x...', // [!code focus]
 	spender: '0x...'
 })
@@ -50,7 +52,7 @@ The address of the spender of the tokens. Usually the contract that is allowed t
 ```ts twoslash
 import { mintclub } from 'mint.club-v2-sdk'
  
-const allowance = await mintclub.network('ethereum').token('SYMBOL').getAllowance({
+const isApproved = await mintclub.network('ethereum').nft('SYMBOL').getIsApprovedForAll({
 	owner: '0x...', 
 	spender: '0x...' // [!code focus]
 })

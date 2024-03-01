@@ -7,8 +7,8 @@ export default defineConfig({
   sidebar,
   theme: {
     accentColor: '#15e6b7',
-    colorScheme: 'dark'
-  }
+    colorScheme: 'dark',
+  },
   // font: {
   //   google: 'Raleway',
   // },

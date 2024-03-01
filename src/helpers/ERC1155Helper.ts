@@ -1,11 +1,11 @@
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
-import { SymbolNotDefinedError, TokenAlreadyExistsError } from '../errors/sdk.errors';
+import { FilebaseKeyNeededErrror, SymbolNotDefinedError, TokenAlreadyExistsError } from '../errors/sdk.errors';
 import { CHAIN_MAP, chainIdToString } from '../exports';
 import { GenericWriteParams } from '../types';
 import { CreateERC1155TokenParams } from '../types/bond.types';
-import { IPFSUploadERC1155MetadataParams } from '../types/ipfs.types';
+import { IpfsHashUrl, MetadataUploadParams } from '../types/ipfs.types';
 import { generateCreateArgs } from '../utils/bond';
-import { IPFS } from './IPFSHelper';
+import { IpfsHelper } from './IpfsHelper';
 import { TokenHelper, TokenHelperConstructorParams } from './TokenHelper';
 
 export class ERC1155Helper extends TokenHelper {
@@ -33,7 +33,7 @@ export class ERC1155Helper extends TokenHelper {
     });
   }
 
-  public getContrctURI() {
+  public getContractURI() {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'contractURI',
@@ -49,7 +49,8 @@ export class ERC1155Helper extends TokenHelper {
     });
   }
 
-  public getIsApprovedForAll(owner: `0x${string}`, spender: `0x${string}`) {
+  public getIsApprovedForAll(params: { owner: `0x${string}`; spender: `0x${string}` }) {
+    const { owner, spender } = params;
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'isApprovedForAll',
@@ -97,7 +98,7 @@ export class ERC1155Helper extends TokenHelper {
     });
   }
 
-  private async uploadMetadata(data: CreateERC1155TokenParams) {
+  private async uploadMetadata(data: CreateERC1155TokenParams): Promise<IpfsHashUrl> {
     const { name, reserveToken, image, metadata, video } = data;
     const chainString = chainIdToString(this.chainId);
     const chainName = CHAIN_MAP[this.chainId].name;
@@ -121,7 +122,7 @@ export class ERC1155Helper extends TokenHelper {
       defaultExternalLink,
     ].join('\n\n');
 
-    const finalMetadata: IPFSUploadERC1155MetadataParams = {
+    const finalMetadata: MetadataUploadParams = {
       name,
       description: defaultDescription,
       image,
@@ -133,30 +134,53 @@ export class ERC1155Helper extends TokenHelper {
     if (metadata?.external_url) finalMetadata.external_url = metadata.external_url;
     if (metadata?.attributes) finalMetadata.attributes = metadata.attributes;
 
-    const hash = await IPFS.uploadERC1155Metadata(finalMetadata);
-
-    return `ipfs://${hash}`;
+    return await IpfsHelper.uploadERC1155Metadata(finalMetadata);
   }
 
   public async create(
     params: CreateERC1155TokenParams &
-      Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'> & {
-        onIPFSUploadStart?: () => void;
-        onIPFSUploadComplete?: () => void;
-      },
+      Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>,
   ) {
-    if (!this.symbol) throw new SymbolNotDefinedError();
+    const {
+      image,
+      video,
+      filebaseApiKey,
+      onError,
+      onIpfsUploadStart: onIPFSUploadStart,
+      onIpfsUploadComplete: onIPFSUploadComplete,
+      onRequestSignature,
+      onSigned,
+      onSuccess,
+    } = params;
+
+    if (!this.symbol) {
+      onError?.(new SymbolNotDefinedError());
+      return;
+    }
 
     const exists = await this.exists();
-    if (exists) throw new TokenAlreadyExistsError();
+
+    if (exists) {
+      onError?.(new TokenAlreadyExistsError());
+      return;
+    }
 
     const args = generateCreateArgs({ ...params, tokenType: this.tokenType, symbol: this.symbol });
-    const { onError, onIPFSUploadStart, onIPFSUploadComplete, onRequestSignature, onSigned, onSuccess } = params;
 
     const fee = await this.getCreationFee();
-    onIPFSUploadStart?.();
+
+    const filebaseUsed = image instanceof File || video instanceof File;
+
+    if (filebaseUsed && !filebaseApiKey) {
+      onError?.(new FilebaseKeyNeededErrror());
+      return;
+    }
+
+    if (filebaseUsed) onIPFSUploadStart?.();
     const uri = await this.uploadMetadata(params);
-    onIPFSUploadComplete?.();
+    // double check the uploaded hash
+    IpfsHelper.validateIpfsHash(uri);
+    if (filebaseUsed) onIPFSUploadComplete?.();
 
     return bondContract.network(this.chainId).write({
       functionName: 'createMultiToken',

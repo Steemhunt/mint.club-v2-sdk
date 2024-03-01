@@ -29,3 +29,38 @@ export class SymbolNotDefinedError extends BaseError {
     });
   }
 }
+
+export class InvalidImageProvidedError extends BaseError {
+  constructor() {
+    super(
+      'You must provide a valid url for the media. It should be either a http/https url, or a CIDv0 or CIDv1 ipfs hash that starts with `ipfs://...`',
+      {
+        docsPath: 'docs/sdk/network/nft/create',
+      },
+    );
+  }
+}
+
+export class FilebaseKeyNeededErrror extends BaseError {
+  constructor() {
+    super('You must provide a filebaseApiKey to upload Files to the IPFS', {
+      docsPath: 'docs/sdk/network/nft/create',
+    });
+  }
+}
+
+export class NoEthereumProviderError extends BaseError {
+  constructor() {
+    super('window.ethereum not found', {
+      docsPath: 'docs/sdk/network/transactions',
+    });
+  }
+}
+
+export class WalletNotConnectedError extends BaseError {
+  constructor() {
+    super('Wallet not connected', {
+      docsPath: 'docs/sdk/network/transactions',
+    });
+  }
+}

@@ -11,6 +11,8 @@ Below is a basic example of how to call the `create` function.
 :::tip[NOTE]
 When using the `create` function, you must pass a `symbol` that you want to create as the parameter of the `token` function.
 ```ts
+import { mintclub } from 'mint.club-v2-sdk';
+
 await mintclub
   .network('ethereum')
   .token('MINT') // [!code focus]
@@ -23,6 +25,7 @@ await mintclub
 :::code-group
 
 ```ts [curvedata-example.ts]
+import { mintclub } from 'mint.club-v2-sdk';
 import { curveData } from './data';
 
 await mintclub
@@ -34,13 +37,12 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
       decimals: 18, 
     }, 
-		// [!code focus]
-	curveData, // [!code focus]
-		// [!code focus]
+	curveData, 
   })
 ```
 
 ```ts [stepdata-example.ts]
+import { mintclub } from 'mint.club-v2-sdk';
 import { stepData } from './data';
 
 await mintclub
@@ -52,9 +54,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
       decimals: 18, 
     }, 
-		// [!code focus]
-	stepData, // [!code focus]
-		// [!code focus]
+	stepData,
   })
 ```
 
@@ -83,7 +83,7 @@ export const curveData = {
 
 ## Return Value
 
-[`TransactionReceipt`](/docs/types/transaction-receipt)
+[`TransactionReceipt`](/docs/sdk/network/transactions/receipt) | `undefined`
 
 The receipt for the signed transaction.
 
@@ -92,6 +92,8 @@ The receipt for the signed transaction.
 ### name
 
 The token name.
+
+- Type: `string`
 
 ```ts
 await mintclub
@@ -103,14 +105,15 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address
       decimals: 18,
     },
+    curveData
   })
 ```
 
 ### reserveToken
 
-The reserve token to use for the bonding curve. This is the token that will be used to mint new tokens.
+- Type: `{ address: '0x${string}'; decimals: number }`
 
-Both `address` and `decimals` are required.
+The reserve token to use for the bonding curve. This is the token that will be used to mint new tokens.
 
 ```ts
 await mintclub
@@ -124,6 +127,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address // [!code focus]
       decimals: 18, // [!code focus]
     }, // [!code focus]
+    curveData
   })
 ```
 
@@ -258,6 +262,10 @@ export const stepData = [
 
 buyRoyalty is the percentage of the buy trade fee that will go to the creator.
 
+:::note[NOTE]
+The royalty is split 8:2 between the creator (80%) and the protocol (20%) [Link](https://docs.mint.club/royalties/creator-royalties)
+:::
+
 
 ```ts
 await mintclub
@@ -269,6 +277,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
       decimals: 18,
     }, 
+    curveData,
     buyRoyalty: 0.03, // [!code focus]
   })
 ```
@@ -280,6 +289,10 @@ await mintclub
 
 sellRoyalty is the percentage of the sell trade fee that will go to the creator.
 
+:::note[NOTE]
+The royalty is split 8:2 between the creator (80%) and the protocol (20%) [Link](https://docs.mint.club/royalties/creator-royalties)
+:::
+
 
 ```ts
 await mintclub
@@ -291,6 +304,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
       decimals: 18,
     }, 
+    curveData,
     sellRoyalty: 0.03, // [!code focus]
   })
 ```
@@ -313,7 +327,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
       decimals: 18,
     }, 
-    sellRoyalty: 0.03, 
+    curveData,
 	onRequestSignature: () => {} // [!code focus]
   })
 ```
@@ -336,7 +350,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
       decimals: 18,
     }, 
-    sellRoyalty: 0.03, 
+    curveData,
 	onSigned: (txHash) => {} // [!code focus]
   })
 ```
@@ -359,7 +373,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
       decimals: 18,
     }, 
-    sellRoyalty: 0.03, 
+    curveData,
 	onSuccess: (receipt) => {} // [!code focus]
   })
 ```
@@ -381,7 +395,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
       decimals: 18,
     }, 
-    sellRoyalty: 0.03, 
+    curveData,
 	onError: (error) => {} // [!code focus]
   })
 ```

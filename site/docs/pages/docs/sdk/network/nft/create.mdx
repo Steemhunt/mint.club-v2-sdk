@@ -20,6 +20,7 @@ await mintclub
 ::::
 
 
+
 :::code-group
 
 ```ts [curvedata-example.ts]
@@ -34,9 +35,8 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18, 
     }, 
-		// [!code focus]
-	curveData, // [!code focus]
-		// [!code focus]
+    image:  'ipfs://...' | 'https://...' | File,
+	curveData,
   })
 ```
 
@@ -52,9 +52,8 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18, 
     }, 
-		// [!code focus]
-	stepData, // [!code focus]
-		// [!code focus]
+    image:  'ipfs://...' | 'https://...' | File,
+	stepData, 
   })
 ```
 
@@ -80,16 +79,21 @@ export const curveData = {
 
 :::
 
+:::warning[NOTE]
+If you pass a `File` instance, you will also need to pass a [`filebaseApiKey`](#filebaseapikey-conditionally-required) as a parameter.
+:::
 
 ## Return Value
 
-[`TransactionReceipt`](/docs/types/transaction-receipt)
+[`TransactionReceipt`](/docs/sdk/network/transactions/receipt) | `undefined`
 
 The receipt for the signed transaction.
 
 ## Parameters
 
 ### name
+
+- Type: `string`
 
 The nft name.
 
@@ -103,14 +107,16 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address
       decimals: 18,
     },
+    image,
+    curveData,
   })
 ```
 
 ### reserveToken
 
-The reserve nft to use for the bonding curve. This is the nft that will be used to mint new tokens.
+- Type: `{ address: '0x${string}'; decimals: number }`
 
-Both `address` and `decimals` are required.
+The reserve nft to use for the bonding curve. This is the nft that will be used to mint new tokens.
 
 ```ts
 await mintclub
@@ -124,8 +130,86 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address // [!code focus]
       decimals: 18, // [!code focus]
     }, // [!code focus]
+    image,
+    curveData,
   })
 ```
+
+### image
+
+- Type: `File` | `'ipfs://${string}'` | `'https://${string}'`
+
+The image to use for the nft. You can pass a `File` instance, an `IPFS Hash`, or a `URL`.
+
+
+:::warning[NOTE]
+If you pass a `File` instance, you will also need to pass a [`filebaseApiKey`](#filebaseapikey-conditionally-required) as a parameter.
+:::
+
+:::code-group
+
+```ts [file-example.ts]
+await mintclub
+  .network('ethereum')
+  .nft('MNFT')
+  .create({
+    name: 'Mint Club Collection',
+    reserveToken: { 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address // 
+      decimals: 18,
+    }, 
+    filebaseApiKey: '[Your Filebase API KEY]' // [!code focus]
+    image: URL.createObjectURL('...') // [!code focus]
+    // or a File instance when using in node.js // [!code focus]
+    curveData,
+  })
+```
+
+```ts [url-example.ts]
+await mintclub
+  .network('ethereum')
+  .nft('MNFT')
+  .create({
+    name: 'Mint Club Collection',
+    reserveToken: { 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address // 
+      decimals: 18,
+    }, 
+    image: 'ipfs://...' | 'https://...' // [!code focus]
+    curveData,
+  })
+```
+
+:::
+
+
+### filebaseApiKey (conditionally required)
+
+- Type: `string`
+
+
+:::tip[Filebase]
+[Filebase](https://filebase.com/) is a free, decentralized storage solution that is used to store the media files of the nft.
+:::
+
+
+```ts
+await mintclub
+  .network('ethereum')
+  .nft('MNFT')
+  .create({
+    name: 'Mint Club Collection',
+    reserveToken: { 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address // 
+      decimals: 18,
+    }, 
+    curveData,
+    image,
+    filebaseApiKey: '[Your Filebase API Key]' // [!code focus]
+  })
+```
+
+
 
 ### curveData (conditionally required)
 
@@ -165,6 +249,7 @@ The initial price of the nft on the bonding curve.
 
 The final price of the nft on the bonding curve. 
 
+
 ##### creatorAllocation (optional)
 
 - Type: `number`
@@ -186,6 +271,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18, 
     }, 
+    image,
 		// [!code focus]
 	curveData, // [!code focus]
 		// [!code focus]
@@ -234,6 +320,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18, 
     }, 
+    image,
 		// [!code focus]
 	stepData, // [!code focus]
 		// [!code focus]
@@ -258,6 +345,10 @@ export const stepData = [
 
 buyRoyalty is the percentage of the buy trade fee that will go to the creator.
 
+:::note[NOTE]
+The royalty is split 8:2 between the creator (80%) and the protocol (20%) [Link](https://docs.mint.club/royalties/creator-royalties)
+:::
+
 
 ```ts
 await mintclub
@@ -269,6 +360,8 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
+    image,
+    curveData,
     buyRoyalty: 0.03, // [!code focus]
   })
 ```
@@ -281,6 +374,11 @@ await mintclub
 sellRoyalty is the percentage of the sell trade fee that will go to the creator.
 
 
+:::note[NOTE]
+The royalty is split 8:2 between the creator (80%) and the protocol (20%) [Link](https://docs.mint.club/royalties/creator-royalties)
+:::
+
+
 ```ts
 await mintclub
   .network('ethereum')
@@ -291,9 +389,156 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
+    image,
+    curveData,
     sellRoyalty: 0.03, // [!code focus]
   })
 ```
+
+### video (optional)
+
+- Type: `File` | `'ipfs://${string}'` | `'https://${string}'`
+- Default: `undefined`
+
+The animation to use for the nft. You can pass a `File` instance, an `IPFS Hash`, or a `URL`.
+
+If you pass a `File` instance, you will also need to pass a [`filebaseApiKey`](#filebaseapikey-conditionally-required)
+
+```ts
+await mintclub
+  .network('ethereum')
+  .nft('MNFT')
+  .create({
+    name: 'Mint Club Collection',
+    reserveToken: { 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address // 
+      decimals: 18,
+    }, 
+    image,
+    curveData,
+    filebaseApiKey: '[Your Filebase API KEY]' // [!code focus]
+    video: URL.createObjectURL('...') // [!code focus]
+    // or a File instance when using in node.js // [!code focus]
+  })
+```
+
+### metadata (optional)
+
+- Type: 
+
+```ts
+{
+  description?: string;
+  external_url?: string;
+  attributes?: {
+    trait_type: string;
+    value: string;
+  }[];
+}
+```
+
+- Default:
+
+```ts
+{
+  description: `
+  ${name} (${symbol}) is a Bonding Curved ERC-1155 token created on mint.club.
+
+  Backed by ${reserveTokenName} (${reserveTokenSymbol}) on ${network} chain.
+
+  https://mint.club/nft/${network}/${symbol}'
+  `,
+  external_url: 'https://mint.club/nft/${network}/${symbol}',
+  attributes: []
+}
+```
+
+
+Metadata for the nft. This will be used to display the nft information on marketplace such as OpenSea or Blur.
+
+
+```ts
+await mintclub
+  .network('ethereum')
+  .nft('MNFT')
+  .create({
+    name: 'Mint Club Collection',
+    reserveToken: { 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address // 
+      decimals: 18,
+    }, 
+    image,
+    curveData,
+    metadata: { // [!code focus]
+      description: 'This is a mint club nft', // [!code focus]
+      external_url: 'https://mywebsite.com/MNFT', // [!code focus]
+      attributes: [ // [!code focus]
+        { trait_type: 'rarity', value: 'legendary' }, // [!code focus]
+        { trait_type: 'type', value: 'ERC-1155' }, // [!code focus]
+      ] // [!code focus]
+    }
+  })
+```
+
+
+
+
+### onIpfsUploadStart (optional)
+
+- Type: `onIpfsUploadStart?: () => void;` 
+- Default: `undefined`
+
+Callback function for when the media starts to upload to IPFS.
+
+This callback function will only be invoked when you pass a `File` instance for the `image` or `video` parameter along with the filebaseApiKey.
+
+:::warning[NOTE]
+This will not be called when you pass an IPFS Hash or a URL
+:::
+
+```ts
+await mintclub
+  .network('ethereum')
+  .nft('MNFT')
+  .create({
+    name: 'Mint Club Collection',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
+      decimals: 18,
+    }, 
+    image,
+    curveData,
+	onIpfsUploadStart: () => {} // [!code focus]
+  })
+```
+
+### onIpfsUploadComplete (optional)
+
+- Type: `onIpfsUploadComplete?: () => void;` 
+- Default: `undefined`
+
+Callback function for when the media upload to IPFS is complete.
+
+This callback function will only be invoked when you pass a `File` instance for the `image` or `video` parameter along with the filebaseApiKey.
+
+:::warning[NOTE]
+This will not be called when you pass an IPFS Hash or a URL
+:::
+
+```ts
+await mintclub
+  .network('ethereum')
+  .nft('MNFT')
+  .create({
+    name: 'Mint Club Collection',
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
+      decimals: 18,
+    }, 
+	onIpfsUploadComplete: () => {} // [!code focus]
+  })
+```
+
 
 
 ### onRequestSignature (optional)
@@ -313,7 +558,6 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
-    sellRoyalty: 0.03, 
 	onRequestSignature: () => {} // [!code focus]
   })
 ```
@@ -336,7 +580,6 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
-    sellRoyalty: 0.03, 
 	onSigned: (txHash) => {} // [!code focus]
   })
 ```
@@ -359,7 +602,6 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
-    sellRoyalty: 0.03, 
 	onSuccess: (receipt) => {} // [!code focus]
   })
 ```
@@ -381,7 +623,6 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
-    sellRoyalty: 0.03, 
 	onError: (error) => {} // [!code focus]
   })
 ```

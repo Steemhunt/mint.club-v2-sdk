@@ -1,0 +1,13 @@
+# RPCs
+
+Mint.club SDK uses viem's [`fallback`](https://viem.sh/docs/clients/transports/fallback) to ensure that the read/write calls are made with high availability.
+
+Below are the list of RPCs that are used.
+
+:::success
+The SDK pings all the available RPCs and selects the one with the lowest latency. If the selected RPC fails, the SDK will automatically switch to the next available RPC.
+:::
+
+```ts [rpcs.ts]
+// [!include ~/snippets/example.ts:rpc]
+```

@@ -1,0 +1,50 @@
+---
+description: Mint.club SDK - getPublicClient
+---
+
+# getPublicClient [Using public client to make read calls]
+
+## PublicClient
+
+Public clients are used to make `read` calls.
+
+You can access the public client for a specific `network` by calling `getPublicClient` on the `network` object.
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const publicClient = await mintclub.network('base').getPublicClient() // [!code focus]
+```
+
+Using this public client, you could make read calls to non-mint.club contracts as well.
+
+:::note[Tip]
+The example below retrieves the `block` data from the `base` network.
+:::
+
+```ts twoslash [example.ts]
+
+import { mintclub } from 'mint.club-v2-sdk'
+
+const publicClient = await mintclub.network('base').getPublicClient() 
+
+const block = await publicClient.getBlock(); // [!code focus]
+// 			^?
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+## Viem Documentation
+
+For more information on how to use the public client more effectively, you can refer to the [Viem's documentation](https://viem.sh/docs/actions/public/introduction)

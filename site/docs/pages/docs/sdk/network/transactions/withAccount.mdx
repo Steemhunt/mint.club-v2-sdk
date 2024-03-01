@@ -1,0 +1,53 @@
+---
+description: Mint.club SDK - withAccount
+---
+
+# withAccount
+
+Create a wallet client with a custom provider & account.
+
+## Usage
+
+:::note[Tip]
+The example below uses the `withAccount` method to create a token with a `wallet address` from the `custom provider`.
+:::
+
+```ts [example.ts]
+await mintclub
+	.network('ethereum')
+	.withAccount('0x...', window.ethereum) // [!code focus]
+	.token('MINT')
+	.create({
+		name: 'Mint Club',
+		reserveToken: {
+			address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
+			decimals: 18, 
+		}, 
+		curveData
+	})
+```
+
+## Return Value
+
+[`network`](/docs/sdk/network)  
+
+Returns the `network` instance, so you chain functions such as [`token`](/docs/sdk/network/nft) and [`nft`](/docs/sdk/network/nft).
+
+
+You could also chain methods like [`withPublicConfig`](/docs/sdk/network/transactions/withPublicConfig) and [`withWalletConfig`](/docs/sdk/network/transactions/withWalletConfig).
+
+
+## Parameters
+
+### walletAddress
+
+- Type: `'0x${string}'`
+
+The wallet address from the provider
+
+### provider (optional)
+
+- Type: `any`
+- Default: `window.ethereum`
+
+Custom wallet provider

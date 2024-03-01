@@ -1,0 +1,33 @@
+---
+description: Returns the balance of multiple addresses for the nft. 
+---
+
+# getBalanceOfBatch
+
+Returns the balance of multiple addresses for the nft. 
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const balances = await mintclub.network('ethereum').nft('SYMBOL').getBalanceOfBatch(
+	['0x...', '0x...']
+)
+```
+
+## Return Value
+
+`Promise<bigint[]>`
+
+Returns the balances of the addresses for the nft.
+
+
+## Parameters
+
+### walletAddresses
+
+- Type: `'0x${string}'[]`
+
+The wallet addresses for which the balances to be fetched.
+

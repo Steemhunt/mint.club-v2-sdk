@@ -3,6 +3,7 @@ import { ContractChainType, TokenType } from '../constants/contracts';
 import { computeCreate2Address } from '../utils/addresses';
 import { ClientHelper } from './ClientHelper';
 import { bondContract } from '../contracts';
+import { WalletNotConnectedError } from '../errors/sdk.errors';
 
 export type TokenHelperConstructorParams = {
   symbolOrAddress: string;
@@ -128,6 +129,8 @@ export class TokenHelper {
 
     const connectedAddress = await this.clientHelper.getConnectedAddress();
 
+    if (!connectedAddress) throw new WalletNotConnectedError();
+
     const recipientAddress = recipient || connectedAddress;
 
     return bondContract.network(this.chainId).write({
@@ -143,9 +146,8 @@ export class TokenHelper {
 
     const connectedAddress = await this.clientHelper.getConnectedAddress();
 
-    if (!connectedAddress) {
-      throw new Error('Connected address not found');
-    }
+    if (!connectedAddress) throw new WalletNotConnectedError();
+
     const recipientAddress = recipient || connectedAddress;
 
     return bondContract.network(this.chainId).write({
