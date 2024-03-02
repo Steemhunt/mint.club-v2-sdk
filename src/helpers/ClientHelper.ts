@@ -13,7 +13,7 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 import * as chains from 'viem/chains';
 import { NoEthereumProviderError } from '../errors/sdk.errors';
-import { chainRPCFallbacks, ContractChainType, DEFAULT_RANK_OPTIONS } from '../exports';
+import { chainRPCFallbacks, SdkSupportedChainIds, DEFAULT_RANK_OPTIONS } from '../exports';
 
 declare global {
   interface Window {
@@ -25,7 +25,7 @@ if (typeof window === 'undefined') {
   global.window = {} as any;
 }
 
-type SingletonKey = `${ContractChainType}-${string}`;
+type SingletonKey = `${SdkSupportedChainIds}-${string}`;
 
 export class ClientHelper {
   private static instances: Partial<Record<SingletonKey, ClientHelper>> = {};
@@ -33,7 +33,7 @@ export class ClientHelper {
   private walletClient?: WalletClient;
   private publicClient: PublicClient<FallbackTransport> | PublicClient;
 
-  constructor(chainId: ContractChainType, singletonKey = 'ClientHelper') {
+  constructor(chainId: SdkSupportedChainIds, singletonKey = 'ClientHelper') {
     const chain = Object.values(chains).find((chain) => chain.id === chainId);
     if (!chain) throw new Error('Chain not found');
 

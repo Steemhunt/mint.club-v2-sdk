@@ -3,8 +3,8 @@ import {
   Abi,
   BOND_ABI,
   CONTRACT_ERROR_MESSAGES,
-  ContractChainType,
-  ContractType,
+  SdkSupportedChainIds,
+  ContractNames,
   ERC1155_ABI,
   ERC20_ABI,
   LOCKER_ABI,
@@ -15,7 +15,7 @@ import {
   ZAP_ABI,
 } from './exports';
 
-export const abis: Record<ContractType, Abi> = {
+export const abis: Record<ContractNames, Abi> = {
   BOND: BOND_ABI,
   ERC20: ERC20_ABI,
   ERC1155: ERC1155_ABI,
@@ -38,7 +38,7 @@ export const supportedChains = [
   'base',
 ] as const;
 
-export const supportedChainsMap: Record<LowerCaseChainNames, ContractChainType> = {
+export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainIds> = {
   ethereum: 1,
   sepolia: 11155111,
   bnbchain: 56,

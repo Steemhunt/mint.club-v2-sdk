@@ -1,10 +1,10 @@
 import { isAddress } from 'viem';
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
-import { CONTRACT_ADDRESSES, ContractChainType } from './contracts';
+import { CONTRACT_ADDRESSES, SdkSupportedChainIds } from './contracts';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
 
 export type ChainType = {
-  readonly id: ContractChainType;
+  readonly id: SdkSupportedChainIds;
   readonly name: 'Ethereum' | 'Base' | 'Optimism' | 'Arbitrum' | 'Avalanche' | 'Polygon' | 'BNBChain' | 'Sepolia';
   readonly icon: string;
   readonly color: string;
@@ -101,13 +101,13 @@ export function chainStringToId(name: LowerCaseChainNames) {
   return found.id;
 }
 
-type ChainMapType = Record<ContractChainType, ChainType>;
+type ChainMapType = Record<SdkSupportedChainIds, ChainType>;
 
 export const CHAIN_MAP = CHAINS.reduce((prev, curr) => {
   prev[curr.id] = curr;
   return prev;
 }, {} as ChainMapType);
 
-export const CHAIN_NAME_ID_MAP: Record<string, ContractChainType> = {
+export const CHAIN_NAME_ID_MAP: Record<string, SdkSupportedChainIds> = {
   sepolia: sepolia.id,
 } as const;

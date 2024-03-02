@@ -8,26 +8,26 @@ import {
   TransactionReceipt,
   WriteContractParameters,
 } from 'viem';
-import { CONTRACT_ADDRESSES, ContractChainType, ContractType } from '../exports';
+import { CONTRACT_ADDRESSES, SdkSupportedChainIds, ContractNames } from '../exports';
 import { ClientHelper } from '../helpers/ClientHelper';
 import type { GenericWriteParams, SupportedAbiType } from '../types';
 
 type GenericLogicConstructorParams<
   A extends SupportedAbiType = SupportedAbiType,
-  C extends ContractType = ContractType,
+  C extends ContractNames = ContractNames,
 > = {
-  chainId: ContractChainType;
+  chainId: SdkSupportedChainIds;
   type: C;
   abi: A;
 };
 
 export class GenericContractLogic<
   A extends SupportedAbiType = SupportedAbiType,
-  C extends ContractType = ContractType,
+  C extends ContractNames = ContractNames,
 > extends ClientHelper {
   private abi: A;
   private contractType: C;
-  private chainId: ContractChainType;
+  private chainId: SdkSupportedChainIds;
 
   constructor(params: GenericLogicConstructorParams<A, C>) {
     const { chainId, type, abi } = params;

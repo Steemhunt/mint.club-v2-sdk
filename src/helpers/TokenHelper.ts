@@ -1,13 +1,15 @@
-import { isAddress } from 'viem';
-import { ContractChainType, TokenType } from '../constants/contracts';
+import { isAddress, maxUint256 } from 'viem';
+import { CONTRACT_ADDRESSES, SdkSupportedChainIds, TokenType } from '../constants/contracts';
+import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
+import { WRAPPED_NATIVE_TOKENS } from '../exports';
+import { TradeType } from '../types';
 import { computeCreate2Address } from '../utils/addresses';
 import { ClientHelper } from './ClientHelper';
-import { bondContract } from '../contracts';
 import { WalletNotConnectedError } from '../errors/sdk.errors';
 
 export type TokenHelperConstructorParams = {
   symbolOrAddress: string;
-  chainId: ContractChainType;
+  chainId: SdkSupportedChainIds;
   tokenType: TokenType;
 };
 
@@ -16,20 +18,48 @@ type BuySellCommonParams = {
   slippage?: number;
 };
 
-type BuyParams = BuySellCommonParams & {
+export type BuyParams = BuySellCommonParams & {
   tokensToMint: bigint;
 };
 
-type SellParams = BuySellCommonParams & {
+export type SellParams = BuySellCommonParams & {
   tokensToBurn: bigint;
 };
 
-export class TokenHelper {
+type BondApprovedParams<T extends TokenType, TT extends TradeType = TradeType> = T extends 'ERC20'
+  ? {
+      walletAddress: `0x${string}`;
+      amountToSpend: bigint;
+      tradeType: TT;
+    }
+  : TT extends 'buy'
+    ? {
+        walletAddress: `0x${string}`;
+        amountToSpend: bigint;
+        tradeType: TT;
+      }
+    : TT extends 'sell'
+      ? {
+          walletAddress: `0x${string}`;
+          tradeType: TT;
+        }
+      : never;
+
+type BondApproveParams<T extends TokenType> = T extends 'ERC20'
+  ? {
+      tradeType: TradeType;
+      amountToSpend?: bigint;
+    }
+  : {
+      tradeType: TradeType;
+    };
+
+export class TokenHelper<T extends TokenType = TokenType> {
   private tokenAddress: `0x${string}`;
-  private clientHelper: ClientHelper;
+  protected clientHelper: ClientHelper;
   protected symbol?: string;
-  protected tokenType: TokenType;
-  protected chainId: ContractChainType;
+  protected tokenType: T;
+  protected chainId: SdkSupportedChainIds;
 
   constructor(params: TokenHelperConstructorParams) {
     const { symbolOrAddress, chainId, tokenType } = params;
@@ -42,8 +72,69 @@ export class TokenHelper {
     }
 
     this.chainId = chainId;
-    this.tokenType = tokenType;
+    this.tokenType = tokenType as T;
     this.clientHelper = new ClientHelper(chainId);
+  }
+
+  protected async getConnectedWalletAddress() {
+    const connectedAddress = await this.clientHelper.getConnectedAddress();
+    if (!connectedAddress) throw new WalletNotConnectedError();
+    return connectedAddress;
+  }
+
+  protected async tokenToApprove(tradeType: TradeType) {
+    return tradeType === 'buy' ? this.getTokenAddress() : await this.getReserveTokenAddress();
+  }
+
+  protected async bondContractApproved(params: BondApprovedParams<T>) {
+    const { tradeType, walletAddress } = params;
+    const tokenToCheck = await this.tokenToApprove(tradeType);
+
+    if (this.tokenType === 'ERC1155') {
+      return erc1155Contract.network(this.chainId).read({
+        tokenAddress: tokenToCheck,
+        functionName: 'isApprovedForAll',
+        args: [walletAddress, CONTRACT_ADDRESSES.BOND[this.chainId]],
+      });
+    }
+
+    let amountToSpend = maxUint256;
+    if ('amountToSpend' in params && params?.amountToSpend !== undefined) {
+      amountToSpend = params.amountToSpend;
+    }
+
+    const allowance = await erc20Contract.network(this.chainId).read({
+      tokenAddress: tokenToCheck,
+      functionName: 'allowance',
+      args: [walletAddress, CONTRACT_ADDRESSES.BOND[this.chainId]],
+    });
+
+    return allowance >= amountToSpend;
+  }
+
+  protected async approveBondContract(params: BondApproveParams<T>) {
+    const { tradeType } = params;
+    const tokenToCheck = await this.tokenToApprove(tradeType);
+
+    if (this.tokenType === 'ERC1155') {
+      return erc1155Contract.network(this.chainId).write({
+        tokenAddress: tokenToCheck,
+        functionName: 'setApprovalForAll',
+        args: [CONTRACT_ADDRESSES.BOND[this.chainId], true],
+      });
+    } else {
+      let amountToSpend = maxUint256;
+
+      if ('amountToSpend' in params && params?.amountToSpend !== undefined) {
+        amountToSpend = params.amountToSpend;
+      }
+
+      return erc20Contract.network(this.chainId).write({
+        tokenAddress: tokenToCheck,
+        functionName: 'approve',
+        args: [CONTRACT_ADDRESSES.BOND[this.chainId], amountToSpend],
+      });
+    }
   }
 
   protected getCreationFee() {
@@ -53,11 +144,22 @@ export class TokenHelper {
     });
   }
 
+  protected async zapAvailable() {
+    const { reserveToken } = await this.getTokenBond();
+    const reserveIsWrapped = WRAPPED_NATIVE_TOKENS[this.chainId].tokenAddress === reserveToken;
+    return reserveIsWrapped;
+  }
+
   public exists() {
     return bondContract.network(this.chainId).read({
       functionName: 'exists',
       args: [this.tokenAddress],
     });
+  }
+
+  public async getReserveTokenAddress() {
+    const { reserveToken } = await this.getTokenBond();
+    return reserveToken;
   }
 
   public getTokenAddress() {
@@ -71,20 +173,22 @@ export class TokenHelper {
     });
   }
 
-  public getTokenBond(): Promise<
-    readonly [
-      creator: `0x${string}`,
-      mintRoyalty: number,
-      burnRoyalty: number,
-      createdAt: number,
-      reserveToken: `0x${string}`,
-      reserveBalance: bigint,
-    ]
-  > {
-    return bondContract.network(this.chainId).read({
-      functionName: 'tokenBond',
-      args: [this.tokenAddress],
-    });
+  public async getTokenBond() {
+    const [creator, mintRoyalty, burnRoyalty, createdAt, reserveToken, reserveBalance] = await bondContract
+      .network(this.chainId)
+      .read({
+        functionName: 'tokenBond',
+        args: [this.tokenAddress],
+      });
+
+    return {
+      creator,
+      mintRoyalty,
+      burnRoyalty,
+      createdAt,
+      reserveToken,
+      reserveBalance,
+    };
   }
 
   public getSteps() {
@@ -122,37 +226,25 @@ export class TokenHelper {
     });
   }
 
-  public async buy(params: BuyParams) {
+  public async buy(params: BuyParams & { recipient: `0x${string}` }) {
     const { tokensToMint, slippage = 0, recipient } = params;
     const [estimatedOutcome] = await this.getBuyEstimation(tokensToMint);
     const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
-    const connectedAddress = await this.clientHelper.getConnectedAddress();
-
-    if (!connectedAddress) throw new WalletNotConnectedError();
-
-    const recipientAddress = recipient || connectedAddress;
-
     return bondContract.network(this.chainId).write({
       functionName: 'mint',
-      args: [this.tokenAddress, tokensToMint, maxReserveAmount, recipientAddress],
+      args: [this.tokenAddress, tokensToMint, maxReserveAmount, recipient],
     });
   }
 
-  public async sell(params: SellParams) {
+  public async sell(params: SellParams & { recipient: `0x${string}` }) {
     const { tokensToBurn, slippage = 0, recipient } = params;
     const [estimatedOutcome] = await this.getSellEstimation(tokensToBurn);
     const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
-    const connectedAddress = await this.clientHelper.getConnectedAddress();
-
-    if (!connectedAddress) throw new WalletNotConnectedError();
-
-    const recipientAddress = recipient || connectedAddress;
-
     return bondContract.network(this.chainId).write({
       functionName: 'burn',
-      args: [this.tokenAddress, tokensToBurn, maxReserveAmount, recipientAddress],
+      args: [this.tokenAddress, tokensToBurn, maxReserveAmount, recipient],
     });
   }
 }

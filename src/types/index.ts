@@ -1,7 +1,7 @@
 import { Abi, ContractFunctionArgs, ContractFunctionName, TransactionReceipt } from 'viem';
 import {
   BOND_ABI,
-  ContractType,
+  ContractNames,
   ERC1155_ABI,
   ERC20_ABI,
   LOCKER_ABI,
@@ -10,7 +10,7 @@ import {
   ZAP_ABI,
 } from '../exports';
 
-export type AbiType<T extends ContractType> = T extends 'BOND'
+export type AbiType<T extends ContractNames> = T extends 'BOND'
   ? typeof BOND_ABI
   : T extends 'ERC20'
     ? typeof ERC20_ABI
@@ -47,7 +47,7 @@ export type GenericWriteParams<
   A extends Abi = Abi,
   T extends ContractFunctionName<A, 'payable' | 'nonpayable'> = ContractFunctionName<A, 'payable' | 'nonpayable'>,
   R extends ContractFunctionArgs<A, 'payable' | 'nonpayable', T> = ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
-  C extends ContractType = ContractType,
+  C extends ContractNames = ContractNames,
 > = (C extends 'ERC20' | 'ERC1155'
   ? {
       tokenAddress: `0x${string}`;
@@ -61,3 +61,5 @@ export type GenericWriteParams<
   CommonWriteParams;
 
 export type CurveType = 'LINEAR' | 'EXPONENTIAL' | 'LOGARITHMIC' | 'FLAT';
+
+export type TradeType = 'buy' | 'sell';

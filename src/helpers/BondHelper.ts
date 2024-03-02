@@ -1,12 +1,12 @@
-import { ContractChainType } from '../constants/contracts';
+import { SdkSupportedChainIds } from '../constants/contracts';
 import { bondContract } from '../contracts';
 
 export type BondHelperConstructorParams = {
-  chainId: ContractChainType;
+  chainId: SdkSupportedChainIds;
 };
 
 export class BondHelper {
-  protected chainId: ContractChainType;
+  protected chainId: SdkSupportedChainIds;
 
   constructor(params: BondHelperConstructorParams) {
     const { chainId } = params;

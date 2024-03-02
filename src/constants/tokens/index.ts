@@ -1,5 +1,5 @@
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
-import { ContractChainType } from '../contracts';
+import { SdkSupportedChainIds } from '../contracts';
 import { ARBITRUM_TOKENS } from './arbitrum';
 import { AVALANCHE_TOKENS } from './avalanche';
 import { BASE_TOKENS } from './base';
@@ -19,7 +19,7 @@ export const COINGECKO_NETWORK_IDS = {
   [polygon.id]: 'polygon-pos',
   [bsc.id]: 'binance-smart-chain',
   [sepolia.id]: 'ethereum', // sepolia not supported by coingecko API
-} as const satisfies Partial<Record<ContractChainType, string>>;
+} as const satisfies Partial<Record<SdkSupportedChainIds, string>>;
 
 export type BaseToken = {
   name: string;
@@ -40,7 +40,7 @@ export type WrappedToken = {
   decimals: number;
 };
 
-export const WRAPPED_NATIVE_TOKENS: Record<ContractChainType, WrappedToken> = {
+export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> = {
   [mainnet.id]: {
     image: 'https://mint.club/assets/tokens/large/eth.png',
     tokenAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -100,7 +100,7 @@ export const WRAPPED_NATIVE_TOKENS: Record<ContractChainType, WrappedToken> = {
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
-export const TOKENS: Record<ContractChainType, Record<`0x${string}`, BaseToken>> = {
+export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToken>> = {
   // export const TOKENS = {
   [mainnet.id]: MAINNET_TOKENS,
   [optimism.id]: OPTIMISM_TOKENS,

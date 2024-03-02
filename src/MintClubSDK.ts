@@ -1,4 +1,4 @@
-import { ContractChainType, LowerCaseChainNames, chainStringToId } from './exports';
+import { SdkSupportedChainIds, LowerCaseChainNames, chainStringToId } from './exports';
 import { BondHelper } from './helpers/BondHelper';
 import { ClientHelper } from './helpers/ClientHelper';
 import { ERC1155Helper } from './helpers/ERC1155Helper';
@@ -11,8 +11,8 @@ type NetworkReturnType = {
 } & ClientHelper;
 
 export class MintClubSDK {
-  public network(id: ContractChainType | LowerCaseChainNames): NetworkReturnType {
-    let chainId: ContractChainType;
+  public network(id: SdkSupportedChainIds | LowerCaseChainNames): NetworkReturnType {
+    let chainId: SdkSupportedChainIds;
 
     if (typeof id === 'string') {
       chainId = chainStringToId(id);

@@ -1,7 +1,7 @@
 import {
   BOND_ABI,
-  ContractChainType,
-  ContractType,
+  SdkSupportedChainIds,
+  ContractNames,
   ERC1155_ABI,
   ERC20_ABI,
   LOCKER_ABI,
@@ -20,7 +20,7 @@ declare global {
   }
 }
 
-export class GenericContract<T extends ContractType> {
+export class GenericContract<T extends ContractNames> {
   private contractType: T;
   private abi: SupportedAbiType;
 
@@ -45,8 +45,8 @@ export class GenericContract<T extends ContractType> {
     }
   }
 
-  public network(id: ContractChainType | LowerCaseChainNames) {
-    let chainId: ContractChainType;
+  public network(id: SdkSupportedChainIds | LowerCaseChainNames) {
+    let chainId: SdkSupportedChainIds;
 
     if (typeof id === 'string') {
       chainId = chainStringToId(id);

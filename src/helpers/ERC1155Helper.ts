@@ -6,9 +6,9 @@ import { CreateERC1155TokenParams } from '../types/bond.types';
 import { IpfsHashUrl, MetadataUploadParams } from '../types/ipfs.types';
 import { generateCreateArgs } from '../utils/bond';
 import { IpfsHelper } from './IpfsHelper';
-import { TokenHelper, TokenHelperConstructorParams } from './TokenHelper';
+import { BuyParams, SellParams, TokenHelper, TokenHelperConstructorParams } from './TokenHelper';
 
-export class ERC1155Helper extends TokenHelper {
+export class ERC1155Helper extends TokenHelper<'ERC1155'> {
   constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
     super({
       ...params,
@@ -190,6 +190,49 @@ export class ERC1155Helper extends TokenHelper {
       onRequestSignature,
       onSigned,
       onSuccess,
+    });
+  }
+
+  public async buy(params: BuyParams) {
+    const connectedAddress = await this.getConnectedWalletAddress();
+    const { recipient, tokensToMint } = params;
+
+    const bondApproved = await this.bondContractApproved({
+      walletAddress: connectedAddress,
+      amountToSpend: tokensToMint,
+      tradeType: 'buy',
+    });
+
+    if (!bondApproved) {
+      await this.approveBondContract({
+        tradeType: 'buy',
+      });
+    }
+
+    return super.buy({
+      ...params,
+      recipient: recipient || connectedAddress,
+    });
+  }
+
+  public async sell(params: SellParams) {
+    const connectedAddress = await this.getConnectedWalletAddress();
+    const { recipient } = params;
+
+    const bondApproved = await this.bondContractApproved({
+      walletAddress: connectedAddress,
+      tradeType: 'sell',
+    });
+
+    if (!bondApproved) {
+      await this.approveBondContract({
+        tradeType: 'sell',
+      });
+    }
+
+    return super.sell({
+      ...params,
+      recipient: recipient || connectedAddress,
     });
   }
 }
