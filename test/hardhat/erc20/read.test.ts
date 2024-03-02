@@ -25,8 +25,6 @@ describe('Hardhat ERC20', async () => {
     expect(maxSupply).toEqual(82000000000000000000000000000n);
   });
 
-  return;
-
   test(`Alice can't create a new token named CHICKEN since it exists`, async () => {
     await mintclub.token('CHICKEN').create({
       name: 'CHICKEN',

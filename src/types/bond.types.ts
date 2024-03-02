@@ -1,6 +1,5 @@
 import { CurveType, TradeType } from '.';
 import { TokenType } from '../exports';
-import { BuySellCommonParams } from './bond.types';
 import { HttpUrl, IpfsHashUrl } from './ipfs.types';
 
 export type ReserveToken = {
@@ -103,13 +102,16 @@ export type BondApprovedParams<T extends TokenType, TT extends TradeType = Trade
           tradeType: TT;
         }
       : never;
+
 export type BuySellCommonParams = {
   recipient?: `0x${string}`;
   slippage?: number;
 };
+
 export type BuyParams = BuySellCommonParams & {
   tokensToMint: bigint;
 };
+
 export type SellParams = BuySellCommonParams & {
   tokensToBurn: bigint;
 };
