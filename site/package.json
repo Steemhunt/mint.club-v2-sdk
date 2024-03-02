@@ -15,5 +15,8 @@
     "react-dom": "latest",
     "typescript": "latest",
     "vocs": "latest"
+  },
+  "devDependencies": {
+    "vercel": "^33.5.3"
   }
 }

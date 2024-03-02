@@ -81,29 +81,16 @@ await RickMee6Token.create({
     creatorAllocation: 100, // initial supply to the deployer
   },
 })
-
-// 💲 Buying $RNM tokens
-const buyParams = { tokensToMint: 100n }
-const tx = await RickMee6Token.buy(buyParams)
-//    ^?
-
-
-
-// 🔍 querying $RNM on-chain data
-const totalSupply = await RickMee6Token.getTotalSupply()
-//       ^?
-
-
 ```
 
 ```ts twoslash [erc-1155.ts]
 import { mintclub } from 'mint.club-v2-sdk'
 
-const MortyMee6 = mintclub.network('base').nft('MnM-NFT') // [!code highlight]
-//                                  ^|
+const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT') // [!code highlight]
+//                                     ^|
 
 // 🚀 Deploying $MNM-NFT tokens
-await MortyMee6.create({
+await MortyMee6Nft.create({
   name: 'Morty and Mee6',
   // Base Network WETH
   reserveToken: {
@@ -125,19 +112,32 @@ await MortyMee6.create({
   },
   image: 'ipfs://...' // [!code highlight]
 })
+```
 
-// 💲 Buying $MNM-NFT tokens
+
+```ts twoslash [buy-sell.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+// 💲 Buying/Selling $MNM-NFT tokens
+const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT');
+
+// buy
 const buyParams = { tokensToMint: 100n }
-const tx = await MortyMee6.buy(buyParams)
-//    ^?
+await MortyMee6Nft.buy(buyParams)
 
+// sell
+const sellParams = { tokensToBurn: 100n }
+await MortyMee6Nft.sell(sellParams)
+```
 
+```ts twoslash [read.ts]
+import { mintclub } from 'mint.club-v2-sdk'
 
 // 🔍 querying $MNM-NFT on-chain data
-const totalSupply = await MortyMee6.getTotalSupply()
+const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT');
+
+const totalSupply = await MortyMee6Nft.getTotalSupply()
 //       ^?
-
-
 ```
 
 :::
