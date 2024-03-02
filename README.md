@@ -2,7 +2,7 @@
 
 ```
 ⚠️
-NOTE: This SDK is still under construction and is subjective to change any time.
+NOTE: This SDK is still under construction and is subject to change any time.
 
 PLEASE USE WITH CAUTION
 ```

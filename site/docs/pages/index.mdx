@@ -9,9 +9,9 @@ import { HomePage } from 'vocs/components'
 
 <HomePage.Root>
   <HomePage.Logo className="aspect-square" />
-  <HomePage.Tagline className='text-primary font-bold'>Mint Club V2 SDK</HomePage.Tagline>
+  <HomePage.Tagline className="text-primary font-bold">Mint Club V2 SDK</HomePage.Tagline>
   <HomePage.Description>Create and Trade Bonding Curve Tokens / NFTs with Automated Liquidity</HomePage.Description>
-   <HomePage.Buttons>
+  <HomePage.Buttons>
     <HomePage.Button href="/docs/getting-started" variant="accent">
       Get started
     </HomePage.Button>
@@ -39,61 +39,115 @@ bun i mint.club-v2-sdk
 
 :::
 
-
 ::::steps
-##### `🚀 Deploying Bonding Curved ERC-20` 
 
-##### `💲 Buying the Tokens`
+##### `🚀 Deploying Bonding Curved ERC-20 / ERC-1155`
 
-##### `🔵 On Base Network`  
+##### `💰 Buying the Tokens`
+
+##### `🔵 On Base Network (+ more)`
 
 ##### `👇 In ≤ 50 lines of code`
+
 ::::
 
+:::code-group
 
-```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk';
+```ts twoslash [erc-20.ts]
+import { mintclub } from 'mint.club-v2-sdk'
 
-const RickMee6Token = mintclub.network('base').token('RNM')
+const RickMee6Token = mintclub.network('base').token('RNM') // [!code highlight]
+//                                      ^|
 
 // 🚀 Deploying $RNM tokens
 await RickMee6Token.create({
   name: 'Rick and Mee6',
-  // Base Network WETH 
+  // Base Network WETH
   reserveToken: {
-    address: '0x4200000000000000000000000000000000000006', 
-    decimals: 18, 
-  }, 
+    address: '0x4200000000000000000000000000000000000006',
+    decimals: 18,
+  },
   // Bonding curve data
   curveData: {
-    curveType: 'EXPONENTIAL', 
-    stepCount: 10,
-    maxSupply: 10_000,
-    initialMintingPrice: 0.01, // 0.01 WETH 
-    finalMintingPrice: 0.1, // 0.1 WETH
-    creatorAllocation: 100,
-  }
-})
+    curveType: 'EXPONENTIAL',
+//              ^|
 
+
+
+    stepCount: 10, // how granular the curve is
+    maxSupply: 10_000, // token max supply
+    initialMintingPrice: 0.01, // starting price, 0.01 WETH
+    finalMintingPrice: 0.1, // ending price, 0.1 WETH
+    creatorAllocation: 100, // initial supply to the deployer
+  },
+})
 
 // 💲 Buying $RNM tokens
 const buyParams = { tokensToMint: 100n }
-const result = await RickMee6Token.buy(buyParams);
-  //   ^? 
+const tx = await RickMee6Token.buy(buyParams)
+//    ^?
 
 
 
 // 🔍 querying $RNM on-chain data
 const totalSupply = await RickMee6Token.getTotalSupply()
-  //   ^? 
+//       ^?
 
 
 ```
 
-:::success[Why?]
-🧃 Easily Create Bonding Curve ERC-20 Tokens / ERC-1155 NFTs 
+```ts twoslash [erc-1155.ts]
+import { mintclub } from 'mint.club-v2-sdk'
 
-🤤 Automated Liquidity
+const MortyMee6 = mintclub.network('base').nft('MnM-NFT') // [!code highlight]
+//                                  ^|
+
+// 🚀 Deploying $MNM-NFT tokens
+await MortyMee6.create({
+  name: 'Morty and Mee6',
+  // Base Network WETH
+  reserveToken: {
+    address: '0x4200000000000000000000000000000000000006',
+    decimals: 18,
+  },
+  // Bonding curve data
+  curveData: {
+    curveType: 'EXPONENTIAL',
+//              ^|
+
+
+
+    stepCount: 10, // how granular the curve is
+    maxSupply: 10_000, // NFT max supply
+    initialMintingPrice: 0.01, // starting price, 0.01 WETH
+    finalMintingPrice: 0.1, // ending price, 0.1 WETH
+    creatorAllocation: 100, // initial supply to the deployer
+  },
+  image: 'ipfs://...' // [!code highlight]
+})
+
+// 💲 Buying $MNM-NFT tokens
+const buyParams = { tokensToMint: 100n }
+const tx = await MortyMee6.buy(buyParams)
+//    ^?
+
+
+
+// 🔍 querying $MNM-NFT on-chain data
+const totalSupply = await MortyMee6.getTotalSupply()
+//       ^?
+
+
+```
+
+:::
+
+:::success[Why?]
+🧃 Easily Deploy ERC-20 Tokens / ERC-1155 NFTs
+
+🤤 Automated Liquidity on Bonding Curve
+
+🔥 Fully customizable 
 
 💪 Strongly Typed
 
@@ -104,12 +158,10 @@ const totalSupply = await RickMee6Token.getTotalSupply()
 > Any Questions? Ping [`@undefined`](https://warpcast.com/undefined)
 :::
 
-
-
 :::warning
-⚠️ 
+⚠️
 
-This SDK is still under construction and is subjective to change any time. 
+This SDK is still under construction and is subject to change any time.
 
 Please use at your own risk
 :::
