@@ -1,6 +1,6 @@
 import { bondContract, erc20Contract } from '../contracts';
 import { SymbolNotDefinedError, TokenAlreadyExistsError } from '../errors/sdk.errors';
-import { GenericWriteParams } from '../types';
+import { CommonWriteParams } from '../types';
 import { CreateERC20TokenParams } from '../types/bond.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
 import { generateCreateArgs } from '../utils/bond';
@@ -71,10 +71,7 @@ export class ERC20Helper extends TokenHelper<'ERC20'> {
     });
   }
 
-  public async create(
-    params: CreateERC20TokenParams &
-      Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>,
-  ) {
+  public async create(params: CreateERC20TokenParams & Omit<CommonWriteParams, 'value'>) {
     const { onError, onRequestSignature, onSigned, onSuccess } = params;
     if (!this.symbol) {
       onError?.(new SymbolNotDefinedError());

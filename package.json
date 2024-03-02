@@ -28,11 +28,12 @@
     "purge": "npx rimraf ./dist",
     "test": "npx bun test",
     "test:watch": "npx bun test --watch",
-    "hardhat": "npx bun test hardhat"
+    "hardhat": "NODE_ENV=test npx bun test hardhat"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@nomicfoundation/hardhat-viem": "^2.0.0",
+    "@openzeppelin/contracts": "^5.0.2",
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",

@@ -8,7 +8,7 @@ import {
   TransactionReceipt,
   WriteContractParameters,
 } from 'viem';
-import { CONTRACT_ADDRESSES, SdkSupportedChainIds, ContractNames } from '../exports';
+import { CONTRACT_ADDRESSES, ContractNames, SdkSupportedChainIds } from '../exports';
 import { ClientHelper } from '../helpers/ClientHelper';
 import type { GenericWriteParams, SupportedAbiType } from '../types';
 
@@ -60,6 +60,10 @@ export class GenericContractLogic<
       address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
     }
 
+    if (process.env.NODE_ENV === 'test') {
+      address = global?.mcv2Hardhat?.[this.contractType]?.[this.chainId]!;
+    }
+
     const publicClient = this.clientHelper.getPublicClient(this.chainId);
 
     return publicClient.readContract({
@@ -80,7 +84,7 @@ export class GenericContractLogic<
 
     if (!walletClient) throw new Error('No wallet client found');
 
-    const { functionName, args, value, onError, onRequestSignature, onSigned, onSuccess } = params;
+    const { functionName, args, value, debug, onError, onRequestSignature, onSigned, onSuccess } = params;
     let address: `0x${string}`;
 
     if ('tokenAddress' in params) {
@@ -88,14 +92,20 @@ export class GenericContractLogic<
     } else {
       address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
     }
+
+    if (process.env.NODE_ENV === 'test') {
+      address = global?.mcv2Hardhat?.[this.contractType]?.[this.chainId]!;
+    }
+
     const simulationArgs = {
-      account: walletClient.account,
       abi: this.abi,
       address,
       functionName,
       args,
       ...(value !== undefined && { value }),
     } as unknown as SimulateContractParameters<A, T, R>;
+
+    debug?.(simulationArgs);
 
     try {
       const { request } = (await this.clientHelper

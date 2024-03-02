@@ -1,9 +1,13 @@
-import { HardhatUserConfig } from 'hardhat/config';
-import '@nomicfoundation/hardhat-viem';
-import '@nomicfoundation/hardhat-toolbox';
+require('@nomicfoundation/hardhat-viem');
+require('@nomicfoundation/hardhat-toolbox');
 
-const config: HardhatUserConfig = {
+module.exports = {
   // taken from mint.club-v2-contract
+  paths: {
+    sources: './test/hardhat/contracts',
+    tests: './test/hardhat',
+    artifacts: './test/hardhat/artifacts',
+  },
   solidity: {
     compilers: [
       {
@@ -24,5 +28,3 @@ const config: HardhatUserConfig = {
     ],
   },
 };
-
-export default config;

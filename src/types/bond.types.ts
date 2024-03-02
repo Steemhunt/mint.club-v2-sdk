@@ -76,6 +76,7 @@ export type CreateTokenParams = CreateERC20TokenParams & {
 export type GenerateStepArgs = CreateTokenParams & {
   curveData: CurveParameter;
 };
+
 export type ApproveBondParams<T extends TokenType> = T extends 'ERC20'
   ? {
       tradeType: TradeType;
@@ -84,6 +85,7 @@ export type ApproveBondParams<T extends TokenType> = T extends 'ERC20'
   : {
       tradeType: TradeType;
     };
+
 export type BondApprovedParams<T extends TokenType, TT extends TradeType = TradeType> = T extends 'ERC20'
   ? {
       walletAddress: `0x${string}`;

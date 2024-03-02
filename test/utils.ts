@@ -3,7 +3,23 @@ import { LowerCaseChainNames } from '../src/constants/chains';
 type ValueOf<T> = T[keyof T];
 type Entries<T> = [keyof T, ValueOf<T>][];
 
+export const PROTOCOL_BENEFICIARY = '0x00000B655d573662B9921e14eDA96DBC9311fDe6'; // a random address for testing
+
 export const ALL_CHAINS = ['ethereum', 'optimism', 'arbitrum', 'avalanche', 'polygon', 'bnbchain', 'base'] as const;
+
+export const MAX_STEPS = {
+  mainnet: 1000n, // 30M gas limit
+  optimisticEthereum: 1000n, // 30M gas limit
+  arbitrumOne: 1000n, // over 30M gas limit
+  base: 1000n, // 30M gas limit
+  sepolia: 1000n, // 30M gas limit
+  polygon: 1000n, // 30M gas limit
+  bsc: 1000n, // 30M gas limit
+  avalanche: 1000n, // 15M gas limit
+  blastSepolia: 1000n, // 30M gas limit
+  avalancheFujiTestnet: 1000n, // ? gas limit
+  movementDevnet: 1000n, // ? gas limit
+};
 
 // Same as `Object.entries()` but with type inference
 export function objectEntries<T extends object>(obj: T): Entries<T> {

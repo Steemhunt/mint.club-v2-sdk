@@ -35,8 +35,9 @@ export type SupportedAbiType =
   | typeof ZAP_ABI
   | typeof ONEINCH_ABI;
 
-type CommonWriteParams = {
+export type CommonWriteParams = {
   value?: bigint;
+  debug?: (args: any) => void;
   onRequestSignature?: () => void;
   onSigned?: (tx: `0x${string}`) => void;
   onSuccess?: (receipt: TransactionReceipt) => void;
@@ -63,3 +64,11 @@ export type GenericWriteParams<
 export type CurveType = 'LINEAR' | 'EXPONENTIAL' | 'LOGARITHMIC' | 'FLAT';
 
 export type TradeType = 'buy' | 'sell';
+
+declare global {
+  var mcv2Hardhat: Partial<{
+    [K in ContractNames]: Partial<{
+      [K in number]: `0x${string}`;
+    }>;
+  }>;
+}

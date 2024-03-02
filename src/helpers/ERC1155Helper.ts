@@ -1,7 +1,7 @@
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
 import { FilebaseKeyNeededErrror, SymbolNotDefinedError, TokenAlreadyExistsError } from '../errors/sdk.errors';
 import { CHAIN_MAP, chainIdToString } from '../exports';
-import { GenericWriteParams } from '../types';
+import { CommonWriteParams } from '../types';
 import { CreateERC1155TokenParams } from '../types/bond.types';
 import { IpfsHashUrl, MetadataUploadParams } from '../types/ipfs.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
@@ -138,10 +138,7 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     return await IpfsHelper.uploadERC1155Metadata(finalMetadata);
   }
 
-  public async create(
-    params: CreateERC1155TokenParams &
-      Pick<GenericWriteParams, 'onError' | 'onRequestSignature' | 'onSigned' | 'onSuccess'>,
-  ) {
+  public async create(params: CreateERC1155TokenParams & Omit<CommonWriteParams, 'value'>) {
     const {
       image,
       video,
