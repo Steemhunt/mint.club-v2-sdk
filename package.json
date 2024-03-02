@@ -28,7 +28,7 @@
     "purge": "npx rimraf ./dist",
     "test": "npx bun test",
     "test:watch": "npx bun test --watch",
-    "hardhat": "NODE_ENV=test npx bun test hardhat"
+    "hardhat": "NODE_ENV=hardhat npx bun test hardhat"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",

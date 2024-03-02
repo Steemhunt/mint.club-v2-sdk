@@ -1,10 +1,9 @@
-import { beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import hre from 'hardhat';
-import { base, hardhat } from 'viem/chains';
-import { mintclub as sdk } from '../../src';
-import { TokenAlreadyExistsError } from '../../src/errors/sdk.errors';
-import { MAX_STEPS, PROTOCOL_BENEFICIARY, wei } from '../utils';
 import { checksumAddress } from 'viem';
+import { hardhat } from 'viem/chains';
+import { mintclub as sdk } from '../../src';
+import { MAX_STEPS, PROTOCOL_BENEFICIARY, wei } from '../utils';
 
 const publicClient = await hre.viem.getPublicClient();
 
@@ -27,15 +26,6 @@ describe('Hardhat ERC20', async () => {
 
   // @ts-ignore
   const ReserveToken = await hre.viem.deployContract('TestToken', [wei(200000000, 9), 'Test Token', 'TEST', 18n]); // supply: 200M
-
-  global.mcv2Hardhat = {
-    BOND: {
-      [hardhat.id]: contract.address,
-    },
-    ERC20: {
-      [hardhat.id]: ReserveToken.address,
-    },
-  };
 
   const mintclub = sdk.withPublicClient(publicClient).withWalletClient(alice);
 

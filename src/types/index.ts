@@ -64,11 +64,3 @@ export type GenericWriteParams<
 export type CurveType = 'LINEAR' | 'EXPONENTIAL' | 'LOGARITHMIC' | 'FLAT';
 
 export type TradeType = 'buy' | 'sell';
-
-declare global {
-  var mcv2Hardhat: Partial<{
-    [K in ContractNames]: Partial<{
-      [K in number]: `0x${string}`;
-    }>;
-  }>;
-}
