@@ -27,22 +27,27 @@
     "prepublishOnly": "npm version prerelease && git push && npm run build",
     "purge": "npx rimraf ./dist",
     "test": "npx bun test",
-    "test:watch": "npx bun test --watch"
+    "test:watch": "npx bun test --watch",
+    "hardhat": "npx bun test hardhat"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-viem": "^2.0.0",
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
     "bun": "^1.0.25",
     "bun-types": "latest",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
+    "hardhat": "^2.20.1",
     "pkgroll": "^2.0.1",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
-    "typescript": "^5.3.3",
-    "@typescript-eslint/eslint-plugin": "^7.1.0",
-    "@typescript-eslint/parser": "^7.1.0"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "@filebase/client": "^0.0.5",

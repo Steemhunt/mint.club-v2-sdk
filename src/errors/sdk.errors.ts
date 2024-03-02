@@ -64,3 +64,11 @@ export class WalletNotConnectedError extends BaseError {
     });
   }
 }
+
+export class InvalidClientError extends BaseError {
+  constructor() {
+    super('Client with no chain was passed', {
+      docsPath: 'docs/sdk/network/transactions/withPublicClient',
+    });
+  }
+}

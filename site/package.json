@@ -17,6 +17,7 @@
     "vocs": "latest"
   },
   "devDependencies": {
-    "vercel": "^33.5.3"
+    "vercel": "^33.5.3",
+    "mint.club-v2-sdk": "link:mint.club-v2-sdk"
   }
 }

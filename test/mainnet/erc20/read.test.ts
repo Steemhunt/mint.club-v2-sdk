@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon } from 'viem/chains';
-import { mintclub, MainnetChain, chainIdToString } from '../../src';
-import { createRandomAddress } from '../../src/utils/addresses';
+import { mintclub, MainnetChain, chainIdToString } from '../../../src';
+import { createRandomAddress } from '../../../src/utils/addresses';
 
 type ERC20Token = {
   symbol: string;
@@ -84,7 +84,7 @@ describe('ERC20 read name, symbol, and totalSupply', () => {
 
 describe('ERC20 balance of fake address should be 0n', () => {
   testAll((chainId, token) => {
-    const { symbol, address } = token;
+    const { symbol } = token;
     const fakeAddress = createRandomAddress();
     test(`Chain ${chainIdToString(chainId)} - ${symbol} FakeAddress: ${fakeAddress}`, async () => {
       const balance = await mintclub.network(chainId).token(symbol).getBalanceOf(fakeAddress);

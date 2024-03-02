@@ -1,4 +1,5 @@
 import {
+  Chain,
   createPublicClient,
   createWalletClient,
   custom,
@@ -6,14 +7,12 @@ import {
   FallbackTransport,
   http,
   PublicClient,
-  PublicClientConfig,
   WalletClient,
-  WalletClientConfig,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import * as chains from 'viem/chains';
-import { NoEthereumProviderError } from '../errors/sdk.errors';
-import { chainRPCFallbacks, SdkSupportedChainIds, DEFAULT_RANK_OPTIONS } from '../exports';
+import { ChainNotSupportedError, NoEthereumProviderError, WalletNotConnectedError } from '../errors/sdk.errors';
+import { chainRPCFallbacks, DEFAULT_RANK_OPTIONS, SdkSupportedChainIds } from '../exports';
 
 declare global {
   interface Window {
@@ -25,31 +24,75 @@ if (typeof window === 'undefined') {
   global.window = {} as any;
 }
 
-type SingletonKey = `${SdkSupportedChainIds}-${string}`;
-
 export class ClientHelper {
-  private static instances: Partial<Record<SingletonKey, ClientHelper>> = {};
-  private chain: chains.Chain;
+  private static instance?: ClientHelper;
   private walletClient?: WalletClient;
-  private publicClient: PublicClient<FallbackTransport> | PublicClient;
+  // these are always defined, singleton
+  private publicClients: Record<number, PublicClient<FallbackTransport> | PublicClient> = {};
 
-  constructor(chainId: SdkSupportedChainIds, singletonKey = 'ClientHelper') {
-    const chain = Object.values(chains).find((chain) => chain.id === chainId);
-    if (!chain) throw new Error('Chain not found');
+  constructor() {
+    if (ClientHelper.instance) {
+      return ClientHelper.instance;
+    }
 
-    this.chain = chain;
-    this.publicClient = createPublicClient({
+    ClientHelper.instance = this;
+  }
+
+  public async connectWallet() {
+    if (this.walletClient?.account) return;
+
+    if (this.walletClient) {
+      const [address] = await this.walletClient?.requestAddresses();
+      this.walletClient = createWalletClient({
+        account: address,
+        transport: custom(this.walletClient.transport),
+      });
+    } else {
+      if (window.ethereum === undefined) throw new NoEthereumProviderError();
+      this.walletClient = createWalletClient({
+        transport: custom(window.ethereum),
+      });
+      const [address] = await this.walletClient?.requestAddresses();
+      this.walletClient = createWalletClient({
+        account: address,
+        transport: custom(window.ethereum),
+      });
+    }
+  }
+
+  public async getNativeBalance(params?: { walletAddress: `0x${string}`; chainId: number }) {
+    const { walletAddress, chainId } = params || {};
+    if (chainId !== undefined && walletAddress)
+      return this.getPublicClient(chainId).getBalance({ address: walletAddress });
+
+    await this.connectWallet();
+    const address = await this.getConnectedAddress();
+    const connectedChain = this.walletClient?.chain?.id;
+
+    if (!address || connectedChain === undefined) throw new WalletNotConnectedError();
+
+    return this.getPublicClient(connectedChain).getBalance({
+      address,
+    });
+  }
+
+  public async getConnectedAddress() {
+    return this.walletClient?.account?.address;
+  }
+
+  public getPublicClient(id: number) {
+    if (this.publicClients[id] !== undefined) return this.publicClients[id];
+
+    const chain: Chain | undefined = Object.values(chains).find((chain) => chain.id === id);
+
+    if (!chain) throw new ChainNotSupportedError(id);
+
+    this.publicClients[id] = createPublicClient({
       chain,
       transport: fallback(chainRPCFallbacks(chain), DEFAULT_RANK_OPTIONS),
     }) as PublicClient<FallbackTransport>;
 
-    const key: SingletonKey = `${chainId}-${singletonKey}`;
-
-    if (ClientHelper.instances[key]) {
-      return ClientHelper.instances[key]!;
-    }
-
-    (this.publicClient as PublicClient<FallbackTransport>).transport.onResponse((response) => {
+    (this.publicClients[id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
       const error = response.error;
       const errorName = error?.name;
       const isErrorResponse = response.status === 'error';
@@ -64,56 +107,21 @@ export class ClientHelper {
       }
     });
 
-    ClientHelper.instances[key] = this;
-  }
-
-  protected async initializeWallet() {
-    if (this.walletClient) {
-      const [address] = await this.walletClient?.requestAddresses();
-      this.walletClient = createWalletClient({
-        account: address,
-        chain: this.chain,
-        transport: custom(this.walletClient.transport),
-      });
-      return;
-    } else if (!window.ethereum) {
-      throw new NoEthereumProviderError();
-    } else {
-      this.walletClient = createWalletClient({
-        chain: this.chain,
-        transport: custom(window.ethereum),
-      });
-
-      const [address] = await this.walletClient?.requestAddresses();
-      this.walletClient = createWalletClient({
-        account: address,
-        chain: this.chain,
-        transport: custom(window.ethereum),
-      });
-    }
-  }
-
-  public async getConnectedAddress() {
-    const [address] = (await this.walletClient?.requestAddresses()) || [];
-    if (!address) return null;
-    return address;
+    return this.publicClients[id];
   }
 
   public getWalletClient() {
     return this.walletClient;
   }
 
-  public getPublicClient() {
-    return this.publicClient;
-  }
-
-  public withPublicConfig(options: PublicClientConfig) {
-    this.publicClient = createPublicClient(options);
+  public withPublicClient(publicClient: PublicClient) {
+    if (publicClient.chain?.id === undefined) throw new ChainNotSupportedError(publicClient.chain);
+    this.publicClients[publicClient.chain.id] = publicClient;
     return this;
   }
 
-  public withWalletConfig(options: WalletClientConfig) {
-    this.walletClient = createWalletClient(options);
+  public withWalletClient(walletClient: WalletClient) {
+    this.walletClient = walletClient;
     return this;
   }
 
@@ -121,7 +129,6 @@ export class ClientHelper {
     const account = privateKeyToAccount(privateKey);
     this.walletClient = createWalletClient({
       account,
-      chain: this.chain,
       transport: http(),
     });
     return this;
@@ -131,7 +138,6 @@ export class ClientHelper {
     const providerToUse = provider || window.ethereum;
     this.walletClient = createWalletClient({
       account,
-      chain: this.chain,
       transport: custom(providerToUse),
     });
     return this;
@@ -139,14 +145,10 @@ export class ClientHelper {
 
   public async withProvider(provider: any) {
     this.walletClient = createWalletClient({
-      chain: this.chain,
       transport: custom(provider),
     });
 
-    const [address] = await this.walletClient?.requestAddresses();
     this.walletClient = createWalletClient({
-      account: address,
-      chain: this.chain,
       transport: custom(provider),
     });
 

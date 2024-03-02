@@ -1,14 +1,14 @@
 import { isAddress } from 'viem';
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
-import { CONTRACT_ADDRESSES, SdkSupportedChainIds } from './contracts';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
+import { CONTRACT_ADDRESSES, SdkSupportedChainIds } from './contracts';
 
 export type ChainType = {
   readonly id: SdkSupportedChainIds;
   readonly name: 'Ethereum' | 'Base' | 'Optimism' | 'Arbitrum' | 'Avalanche' | 'Polygon' | 'BNBChain' | 'Sepolia';
   readonly icon: string;
   readonly color: string;
-  readonly openseaSlug: string;
+  readonly openseaSlug?: string;
   readonly isTestnet?: boolean;
   readonly enabled?: boolean;
 };

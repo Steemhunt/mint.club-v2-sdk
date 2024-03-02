@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon } from 'viem/chains';
-import { mintclub, MainnetChain, chainIdToString } from '../../src';
-import { createRandomAddress } from '../../src/utils/addresses';
+import { mintclub, MainnetChain, chainIdToString } from '../../../src';
+import { createRandomAddress } from '../../../src/utils/addresses';
 
 type ERC1155Token = {
   symbol: string;

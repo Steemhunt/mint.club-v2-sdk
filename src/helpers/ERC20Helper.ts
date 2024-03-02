@@ -2,11 +2,9 @@ import { bondContract, erc20Contract } from '../contracts';
 import { SymbolNotDefinedError, TokenAlreadyExistsError } from '../errors/sdk.errors';
 import { GenericWriteParams } from '../types';
 import { CreateERC20TokenParams } from '../types/bond.types';
+import { TokenHelperConstructorParams } from '../types/token.types';
 import { generateCreateArgs } from '../utils/bond';
 import { TokenHelper } from './TokenHelper';
-import { SellParams } from '../types/bond.types';
-import { BuyParams } from '../types/bond.types';
-import { TokenHelperConstructorParams } from '../types/token.types';
 
 export class ERC20Helper extends TokenHelper<'ERC20'> {
   constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {

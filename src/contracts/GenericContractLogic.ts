@@ -24,18 +24,19 @@ type GenericLogicConstructorParams<
 export class GenericContractLogic<
   A extends SupportedAbiType = SupportedAbiType,
   C extends ContractNames = ContractNames,
-> extends ClientHelper {
+> {
   private abi: A;
   private contractType: C;
   private chainId: SdkSupportedChainIds;
+  private clientHelper: ClientHelper;
 
   constructor(params: GenericLogicConstructorParams<A, C>) {
     const { chainId, type, abi } = params;
 
-    super(chainId, type);
     this.contractType = type;
     this.abi = abi;
     this.chainId = chainId;
+    this.clientHelper = new ClientHelper();
   }
 
   public read<
@@ -59,7 +60,9 @@ export class GenericContractLogic<
       address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
     }
 
-    return this.getPublicClient().readContract({
+    const publicClient = this.clientHelper.getPublicClient(this.chainId);
+
+    return publicClient.readContract({
       abi: this.abi,
       address,
       functionName,
@@ -71,9 +74,9 @@ export class GenericContractLogic<
     T extends ContractFunctionName<A, 'payable' | 'nonpayable'>,
     R extends ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
   >(params: GenericWriteParams<A, T, R, C>): Promise<TransactionReceipt> {
-    await this.initializeWallet();
+    await this.clientHelper.connectWallet();
 
-    const walletClient = this.getWalletClient();
+    const walletClient = this.clientHelper.getWalletClient();
 
     if (!walletClient) throw new Error('No wallet client found');
 
@@ -86,6 +89,7 @@ export class GenericContractLogic<
       address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
     }
     const simulationArgs = {
+      account: walletClient.account,
       abi: this.abi,
       address,
       functionName,
@@ -94,18 +98,16 @@ export class GenericContractLogic<
     } as unknown as SimulateContractParameters<A, T, R>;
 
     try {
-      const { request } = (await this.getPublicClient().simulateContract(simulationArgs)) as SimulateContractReturnType<
-        A,
-        T,
-        R
-      >;
+      const { request } = (await this.clientHelper
+        .getPublicClient(this.chainId)
+        .simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
 
       onRequestSignature?.();
       const tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
 
       onSigned?.(tx);
 
-      const receipt = await this.getPublicClient().waitForTransactionReceipt({
+      const receipt = await this.clientHelper.getPublicClient(this.chainId).waitForTransactionReceipt({
         hash: tx,
       });
 

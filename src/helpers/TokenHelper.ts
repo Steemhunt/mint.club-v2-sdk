@@ -28,7 +28,7 @@ export class TokenHelper<T extends TokenType> {
 
     this.chainId = chainId;
     this.tokenType = tokenType as T;
-    this.clientHelper = new ClientHelper(chainId);
+    this.clientHelper = new ClientHelper();
   }
 
   protected async getConnectedWalletAddress() {

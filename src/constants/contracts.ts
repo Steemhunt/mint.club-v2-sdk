@@ -89,4 +89,4 @@ type ExtractChainIds<T> = T extends { [key: string]: infer U }
 export type ContractNames = keyof typeof CONTRACT_ADDRESSES;
 export type SdkSupportedChainIds = ExtractChainIds<typeof CONTRACT_ADDRESSES>;
 export type TokenType = 'ERC20' | 'ERC1155';
-export type MainnetChain = ExcludeValue<SdkSupportedChainIds, 11155111>;
+export type MainnetChain = ExcludeValue<SdkSupportedChainIds, 11155111>; // sepolia and hardhat excluded
