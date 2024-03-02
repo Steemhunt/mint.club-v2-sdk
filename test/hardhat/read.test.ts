@@ -5,6 +5,8 @@ import { hardhat } from 'viem/chains';
 import { mintclub as sdk } from '../../src';
 import { MAX_STEPS, PROTOCOL_BENEFICIARY, wei } from '../utils';
 
+process.env.NODE_ENV = 'hardhat';
+
 const publicClient = await hre.viem.getPublicClient();
 
 // first wallet is used automatically to deploy
