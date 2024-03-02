@@ -31,9 +31,6 @@ describe('Hardhat ERC20', async () => {
     BOND: {
       [hardhat.id]: contract.address,
     },
-    ERC20: {
-      [hardhat.id]: ReserveToken.address,
-    },
   };
 
   const mintclub = sdk.withPublicClient(publicClient).withWalletClient(alice);
