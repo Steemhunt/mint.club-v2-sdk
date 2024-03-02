@@ -60,6 +60,10 @@ export class GenericContractLogic<
       address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
     }
 
+    if (process.env.NODE_ENV === 'hardhat') {
+      address = global?.mcv2Hardhat?.[this.contractType]?.[this.chainId]!;
+    }
+
     const publicClient = this.clientHelper.getPublicClient(this.chainId);
 
     return publicClient.readContract({
@@ -87,6 +91,10 @@ export class GenericContractLogic<
       address = params.tokenAddress;
     } else {
       address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
+    }
+
+    if (process.env.NODE_ENV === 'hardhat') {
+      address = global?.mcv2Hardhat?.[this.contractType]?.[this.chainId]!;
     }
 
     const simulationArgs = {

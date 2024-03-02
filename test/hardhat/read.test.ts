@@ -27,6 +27,15 @@ describe('Hardhat ERC20', async () => {
   // @ts-ignore
   const ReserveToken = await hre.viem.deployContract('TestToken', [wei(200000000, 9), 'Test Token', 'TEST', 18n]); // supply: 200M
 
+  global.mcv2Hardhat = {
+    BOND: {
+      [hardhat.id]: contract.address,
+    },
+    ERC20: {
+      [hardhat.id]: ReserveToken.address,
+    },
+  };
+
   const mintclub = sdk.withPublicClient(publicClient).withWalletClient(alice);
 
   test(`Read Alice's balance`, async () => {
