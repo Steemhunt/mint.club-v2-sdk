@@ -5,7 +5,7 @@
     "./src/**/*"
   ],
   "type": "module",
-  "version": "0.0.12-4",
+  "version": "0.0.12-5",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "module": "./dist/index.mjs",
