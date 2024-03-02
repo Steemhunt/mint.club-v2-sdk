@@ -1,4 +1,6 @@
-import { CurveType } from '.';
+import { CurveType, TradeType } from '.';
+import { TokenType } from '../exports';
+import { BuySellCommonParams } from './bond.types';
 import { HttpUrl, IpfsHashUrl } from './ipfs.types';
 
 export type ReserveToken = {
@@ -74,4 +76,40 @@ export type CreateTokenParams = CreateERC20TokenParams & {
 
 export type GenerateStepArgs = CreateTokenParams & {
   curveData: CurveParameter;
+};
+export type ApproveBondParams<T extends TokenType> = T extends 'ERC20'
+  ? {
+      tradeType: TradeType;
+      amountToSpend?: bigint;
+    }
+  : {
+      tradeType: TradeType;
+    };
+export type BondApprovedParams<T extends TokenType, TT extends TradeType = TradeType> = T extends 'ERC20'
+  ? {
+      walletAddress: `0x${string}`;
+      amountToSpend: bigint;
+      tradeType: TT;
+    }
+  : TT extends 'buy'
+    ? {
+        walletAddress: `0x${string}`;
+        amountToSpend: bigint;
+        tradeType: TT;
+      }
+    : TT extends 'sell'
+      ? {
+          walletAddress: `0x${string}`;
+          tradeType: TT;
+        }
+      : never;
+export type BuySellCommonParams = {
+  recipient?: `0x${string}`;
+  slippage?: number;
+};
+export type BuyParams = BuySellCommonParams & {
+  tokensToMint: bigint;
+};
+export type SellParams = BuySellCommonParams & {
+  tokensToBurn: bigint;
 };

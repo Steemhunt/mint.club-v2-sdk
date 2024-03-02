@@ -3,7 +3,10 @@ import { SymbolNotDefinedError, TokenAlreadyExistsError } from '../errors/sdk.er
 import { GenericWriteParams } from '../types';
 import { CreateERC20TokenParams } from '../types/bond.types';
 import { generateCreateArgs } from '../utils/bond';
-import { BuyParams, SellParams, TokenHelper, TokenHelperConstructorParams } from './TokenHelper';
+import { TokenHelper } from './TokenHelper';
+import { SellParams } from '../types/bond.types';
+import { BuyParams } from '../types/bond.types';
+import { TokenHelperConstructorParams } from '../types/token.types';
 
 export class ERC20Helper extends TokenHelper<'ERC20'> {
   constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
@@ -99,53 +102,6 @@ export class ERC20Helper extends TokenHelper<'ERC20'> {
       onRequestSignature,
       onSigned,
       onSuccess,
-    });
-  }
-
-  public async buy(params: BuyParams) {
-    const connectedAddress = await this.getConnectedWalletAddress();
-    const { recipient, tokensToMint } = params;
-
-    const bondApproved = await this.bondContractApproved({
-      walletAddress: connectedAddress,
-      amountToSpend: tokensToMint,
-      tradeType: 'buy',
-    });
-
-    if (!bondApproved) {
-      await this.approveBondContract({
-        tradeType: 'buy',
-        amountToSpend: tokensToMint,
-      });
-    }
-
-    return super.buy({
-      ...params,
-      recipient: recipient || connectedAddress,
-    });
-  }
-
-  public async sell(params: SellParams) {
-    const connectedAddress = await this.getConnectedWalletAddress();
-
-    const { recipient, tokensToBurn } = params;
-
-    const bondApproved = await this.bondContractApproved({
-      walletAddress: connectedAddress,
-      amountToSpend: tokensToBurn,
-      tradeType: 'sell',
-    });
-
-    if (!bondApproved) {
-      await this.approveBondContract({
-        tradeType: 'sell',
-        amountToSpend: tokensToBurn,
-      });
-    }
-
-    return super.sell({
-      ...params,
-      recipient: recipient || connectedAddress,
     });
   }
 }

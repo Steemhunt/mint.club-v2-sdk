@@ -1,60 +1,15 @@
 import { isAddress, maxUint256 } from 'viem';
 import { CONTRACT_ADDRESSES, SdkSupportedChainIds, TokenType } from '../constants/contracts';
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
+import { WalletNotConnectedError } from '../errors/sdk.errors';
 import { WRAPPED_NATIVE_TOKENS } from '../exports';
 import { TradeType } from '../types';
+import { ApproveBondParams, BondApprovedParams, BuyParams, SellParams } from '../types/bond.types';
+import { TokenHelperConstructorParams } from '../types/token.types';
 import { computeCreate2Address } from '../utils/addresses';
 import { ClientHelper } from './ClientHelper';
-import { WalletNotConnectedError } from '../errors/sdk.errors';
 
-export type TokenHelperConstructorParams = {
-  symbolOrAddress: string;
-  chainId: SdkSupportedChainIds;
-  tokenType: TokenType;
-};
-
-type BuySellCommonParams = {
-  recipient?: `0x${string}`;
-  slippage?: number;
-};
-
-export type BuyParams = BuySellCommonParams & {
-  tokensToMint: bigint;
-};
-
-export type SellParams = BuySellCommonParams & {
-  tokensToBurn: bigint;
-};
-
-type BondApprovedParams<T extends TokenType, TT extends TradeType = TradeType> = T extends 'ERC20'
-  ? {
-      walletAddress: `0x${string}`;
-      amountToSpend: bigint;
-      tradeType: TT;
-    }
-  : TT extends 'buy'
-    ? {
-        walletAddress: `0x${string}`;
-        amountToSpend: bigint;
-        tradeType: TT;
-      }
-    : TT extends 'sell'
-      ? {
-          walletAddress: `0x${string}`;
-          tradeType: TT;
-        }
-      : never;
-
-type BondApproveParams<T extends TokenType> = T extends 'ERC20'
-  ? {
-      tradeType: TradeType;
-      amountToSpend?: bigint;
-    }
-  : {
-      tradeType: TradeType;
-    };
-
-export class TokenHelper<T extends TokenType = TokenType> {
+export class TokenHelper<T extends TokenType> {
   private tokenAddress: `0x${string}`;
   protected clientHelper: ClientHelper;
   protected symbol?: string;
@@ -112,7 +67,7 @@ export class TokenHelper<T extends TokenType = TokenType> {
     return allowance >= amountToSpend;
   }
 
-  protected async approveBondContract(params: BondApproveParams<T>) {
+  protected async approveBondContract(params: ApproveBondParams<T>) {
     const { tradeType } = params;
     const tokenToCheck = await this.tokenToApprove(tradeType);
 
@@ -226,25 +181,57 @@ export class TokenHelper<T extends TokenType = TokenType> {
     });
   }
 
-  public async buy(params: BuyParams & { recipient: `0x${string}` }) {
+  public async buy(params: BuyParams) {
     const { tokensToMint, slippage = 0, recipient } = params;
+
+    const connectedAddress = await this.getConnectedWalletAddress();
+
+    const bondApproved = await this.bondContractApproved({
+      walletAddress: connectedAddress,
+      amountToSpend: tokensToMint,
+      tradeType: 'buy',
+    });
+
+    if (!bondApproved) {
+      await this.approveBondContract({
+        tradeType: 'buy',
+        amountToSpend: tokensToMint,
+      } as ApproveBondParams<T>);
+    }
+
     const [estimatedOutcome] = await this.getBuyEstimation(tokensToMint);
     const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
     return bondContract.network(this.chainId).write({
       functionName: 'mint',
-      args: [this.tokenAddress, tokensToMint, maxReserveAmount, recipient],
+      args: [this.tokenAddress, tokensToMint, maxReserveAmount, recipient || connectedAddress],
     });
   }
 
-  public async sell(params: SellParams & { recipient: `0x${string}` }) {
+  public async sell(params: SellParams) {
     const { tokensToBurn, slippage = 0, recipient } = params;
+
+    const connectedAddress = await this.getConnectedWalletAddress();
+
+    const bondApproved = await this.bondContractApproved({
+      walletAddress: connectedAddress,
+      amountToSpend: tokensToBurn,
+      tradeType: 'sell',
+    } as BondApprovedParams<T>);
+
+    if (!bondApproved) {
+      await this.approveBondContract({
+        tradeType: 'sell',
+        amountToSpend: tokensToBurn,
+      } as ApproveBondParams<T>);
+    }
+
     const [estimatedOutcome] = await this.getSellEstimation(tokensToBurn);
     const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
     return bondContract.network(this.chainId).write({
       functionName: 'burn',
-      args: [this.tokenAddress, tokensToBurn, maxReserveAmount, recipient],
+      args: [this.tokenAddress, tokensToBurn, maxReserveAmount, recipient || connectedAddress],
     });
   }
 }
