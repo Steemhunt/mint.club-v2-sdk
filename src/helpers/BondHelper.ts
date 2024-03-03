@@ -17,7 +17,6 @@ export class BondHelper {
   public getCreationFee() {
     return bondContract.network(this.chainId).read({
       functionName: 'creationFee',
-      args: [],
     });
   }
 }
