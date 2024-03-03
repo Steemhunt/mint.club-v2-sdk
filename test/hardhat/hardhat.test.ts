@@ -48,7 +48,7 @@ describe('Hardhat ERC20', async () => {
 
   // 2. test
 
-  const WONDERLAND_TOKEN = {
+  const WONDERLAND_TOKEN_CURVE = {
     name: 'Alice Token',
     symbol: 'WONDERLAND',
     reserveToken: {
@@ -65,7 +65,7 @@ describe('Hardhat ERC20', async () => {
     },
   } as const;
 
-  const BOB_TOKEN = {
+  const BOB_TOKEN_STEP = {
     name: 'Bob Token',
     symbol: 'BOB',
     reserveToken: {
@@ -109,7 +109,7 @@ describe('Hardhat ERC20', async () => {
     },
   };
 
-  const wonderlandTokenAddress = computeCreate2Address(hardhat.id, 'ERC20', WONDERLAND_TOKEN.symbol);
+  const wonderlandTokenAddress = computeCreate2Address(hardhat.id, 'ERC20', WONDERLAND_TOKEN_CURVE.symbol);
 
   describe('basic curveData', async () => {
     test(`Read Bob's balance`, async () => {
@@ -120,15 +120,15 @@ describe('Hardhat ERC20', async () => {
     test(`Alice creates a new ERC20 called ALICE with basic linear curve`, async () => {
       await mintclub
         .withWalletClient(alice)
-        .token(WONDERLAND_TOKEN.symbol)
+        .token(WONDERLAND_TOKEN_CURVE.symbol)
         .create({
-          ...WONDERLAND_TOKEN,
+          ...WONDERLAND_TOKEN_CURVE,
           debug: (simulationArgs: any) => {
             const { args, functionName, address } = simulationArgs;
             const [{ name, symbol }, { mintRoyalty, burnRoyalty, reserveToken, maxSupply, stepRanges, stepPrices }] =
               args;
-            expect(name).toEqual(WONDERLAND_TOKEN.name);
-            expect(symbol).toEqual(WONDERLAND_TOKEN.symbol);
+            expect(name).toEqual(WONDERLAND_TOKEN_CURVE.name);
+            expect(symbol).toEqual(WONDERLAND_TOKEN_CURVE.symbol);
 
             expect(functionName).toEqual('createToken');
 
@@ -150,12 +150,12 @@ describe('Hardhat ERC20', async () => {
         });
     });
 
-    test(`Check if ${WONDERLAND_TOKEN.symbol} token is created`, async () => {
+    test(`Check if ${WONDERLAND_TOKEN_CURVE.symbol} token is created`, async () => {
       const exists = await mintclub.token(wonderlandTokenAddress).exists();
       expect(exists).toEqual(true);
     });
 
-    test(`Check if ${WONDERLAND_TOKEN.symbol} token has correct data`, async () => {
+    test(`Check if ${WONDERLAND_TOKEN_CURVE.symbol} token has correct data`, async () => {
       const { reserveToken, burnRoyalty, mintRoyalty, creator } = await mintclub
         .token(wonderlandTokenAddress)
         .getTokenBond();
@@ -165,13 +165,13 @@ describe('Hardhat ERC20', async () => {
       expect(getAddress(creator, hardhat.id)).toEqual(getAddress(alice.account.address, hardhat.id));
     });
 
-    test(`Check Alice's creator allocation of 1 ${WONDERLAND_TOKEN.symbol}`, async () => {
+    test(`Check Alice's creator allocation of 1 ${WONDERLAND_TOKEN_CURVE.symbol}`, async () => {
       const balance = await mintclub.token(wonderlandTokenAddress).getBalanceOf(alice.account.address);
       // 1 creator free minting
       expect(balance).toEqual(wei(1, 18));
     });
 
-    test(`Alice tries to buy 10 more ${WONDERLAND_TOKEN.symbol}, but did not approve the BondContract`, async () => {
+    test(`Alice tries to buy 10 more ${WONDERLAND_TOKEN_CURVE.symbol}, but did not approve the BondContract`, async () => {
       await mintclub
         .withWalletClient(alice)
         .token(wonderlandTokenAddress)
@@ -227,7 +227,7 @@ describe('Hardhat ERC20', async () => {
         });
     });
 
-    test(`It goes through, and now she has 1,001 ${WONDERLAND_TOKEN.symbol}`, async () => {
+    test(`It goes through, and now she has 1,001 ${WONDERLAND_TOKEN_CURVE.symbol}`, async () => {
       const balance = await mintclub.token(wonderlandTokenAddress).getBalanceOf(alice.account.address);
       expect(balance).toEqual(wei(1001, 18));
     });
@@ -295,7 +295,7 @@ describe('Hardhat ERC20', async () => {
       });
     });
 
-    test(`Alice stabs Bob in the back and sells 500 ${WONDERLAND_TOKEN.symbol}`, async () => {
+    test(`Alice stabs Bob in the back and sells 500 ${WONDERLAND_TOKEN_CURVE.symbol}`, async () => {
       await mintclub
         .withWalletClient(alice)
         .token(wonderlandTokenAddress)
@@ -311,7 +311,7 @@ describe('Hardhat ERC20', async () => {
       expect(price).toEqual(wei(12, 16));
     });
 
-    test(`Alice now has 500 ${WONDERLAND_TOKEN.symbol}`, async () => {
+    test(`Alice now has 500 ${WONDERLAND_TOKEN_CURVE.symbol}`, async () => {
       const balance = await mintclub.token(wonderlandTokenAddress).getBalanceOf(alice.account.address);
       expect(balance).toEqual(wei(500, 18));
     });
@@ -321,14 +321,14 @@ describe('Hardhat ERC20', async () => {
     test(`Bob creates a new ERC20 called BOB with stepData`, async () => {
       await mintclub
         .withWalletClient(bob)
-        .token(BOB_TOKEN.symbol)
+        .token(BOB_TOKEN_STEP.symbol)
         .create({
-          ...BOB_TOKEN,
+          ...BOB_TOKEN_STEP,
           debug: (simulationArgs: any) => {
             const { args, functionName, address } = simulationArgs;
             const [{ name, symbol }, { mintRoyalty, burnRoyalty, reserveToken, stepRanges, stepPrices }] = args;
-            expect(name).toEqual(BOB_TOKEN.name);
-            expect(symbol).toEqual(BOB_TOKEN.symbol);
+            expect(name).toEqual(BOB_TOKEN_STEP.name);
+            expect(symbol).toEqual(BOB_TOKEN_STEP.symbol);
 
             expect(functionName).toEqual('createToken');
 
@@ -352,14 +352,14 @@ describe('Hardhat ERC20', async () => {
         });
     });
 
-    test(`Check if ${BOB_TOKEN.symbol} token is created`, async () => {
-      const exists = await mintclub.token(computeCreate2Address(hardhat.id, 'ERC20', BOB_TOKEN.symbol)).exists();
+    test(`Check if ${BOB_TOKEN_STEP.symbol} token is created`, async () => {
+      const exists = await mintclub.token(computeCreate2Address(hardhat.id, 'ERC20', BOB_TOKEN_STEP.symbol)).exists();
       expect(exists).toEqual(true);
     });
 
-    test(`Check if ${BOB_TOKEN.symbol} token has correct data`, async () => {
+    test(`Check if ${BOB_TOKEN_STEP.symbol} token has correct data`, async () => {
       const { reserveToken, burnRoyalty, mintRoyalty, creator } = await mintclub
-        .token(computeCreate2Address(hardhat.id, 'ERC20', BOB_TOKEN.symbol))
+        .token(computeCreate2Address(hardhat.id, 'ERC20', BOB_TOKEN_STEP.symbol))
         .getTokenBond();
       expect(getAddress(reserveToken, hardhat.id)).toEqual(getAddress(ReserveToken.address, hardhat.id));
       expect(burnRoyalty).toEqual(30);
