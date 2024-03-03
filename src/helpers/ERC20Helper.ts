@@ -1,5 +1,4 @@
 import { bondContract, erc20Contract } from '../contracts';
-import { SymbolNotDefinedError, TokenAlreadyExistsError } from '../errors/sdk.errors';
 import { CommonWriteParams } from '../types';
 import { CreateERC20TokenParams } from '../types/bond.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
@@ -35,7 +34,6 @@ export class ERC20Helper extends TokenHelper<'ERC20'> {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'bond',
-      args: [],
     });
   }
 
@@ -43,7 +41,6 @@ export class ERC20Helper extends TokenHelper<'ERC20'> {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'decimals',
-      args: [],
     });
   }
 
@@ -51,7 +48,6 @@ export class ERC20Helper extends TokenHelper<'ERC20'> {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'name',
-      args: [],
     });
   }
 
@@ -59,7 +55,6 @@ export class ERC20Helper extends TokenHelper<'ERC20'> {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'symbol',
-      args: [],
     });
   }
 
@@ -67,36 +62,19 @@ export class ERC20Helper extends TokenHelper<'ERC20'> {
     return erc20Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'totalSupply',
-      args: [],
     });
   }
-
   public async create(params: CreateERC20TokenParams & Omit<CommonWriteParams, 'value'>) {
-    const { onError, onRequestSignature, onSigned, onSuccess } = params;
-    if (!this.symbol) {
-      onError?.(new SymbolNotDefinedError());
-      return;
+    try {
+      const { args, fee } = await this.checkAndPrepareCreateArgs(params);
+      return bondContract.network(this.chainId).write({
+        ...params,
+        functionName: 'createToken',
+        args: [args.tokenParams, args.bondParams],
+        value: fee,
+      });
+    } catch (e) {
+      params.onError?.(e);
     }
-
-    const exists = await this.exists();
-
-    if (exists) {
-      onError?.(new TokenAlreadyExistsError());
-      return;
-    }
-
-    const args = generateCreateArgs({ ...params, tokenType: this.tokenType, symbol: this.symbol });
-
-    const fee = await this.getCreationFee();
-
-    return bondContract.network(this.chainId).write({
-      functionName: 'createToken',
-      args: [args.tokenParams, args.bondParams],
-      value: fee,
-      onError,
-      onRequestSignature,
-      onSigned,
-      onSuccess,
-    });
   }
 }

@@ -39,19 +39,22 @@ export function generateSteps(form: GenerateStepArgs) {
       finalMintingPrice,
     },
   } = form;
-  const stepPoints: Array<{ rangeTo: number; price: number }> = [];
+
+  const maxPrice = finalMintingPrice;
+  const startingPrice = initialMintingPrice;
+  const stepPoints: Array<{ x: number; y: number }> = [];
   const stepCount = curveType === CurveEnum.FLAT ? 1 : _stepCount;
 
   // here we need to calculate the extra step count if the starting price is 0
   let extraStepCount = 0;
 
-  if (initialMintingPrice === 0) {
+  if (startingPrice === 0) {
     extraStepCount = 1;
   }
 
   const deltaX = (maxSupply - creatorAllocation) / (stepCount + extraStepCount);
   const totalX = maxSupply - creatorAllocation - deltaX;
-  const totalY = finalMintingPrice - initialMintingPrice;
+  const totalY = maxPrice - startingPrice;
 
   /*
   In the EXPONENTIAL case, the formula used is y = startingPrice + a(x - creatorAllocation)^2, where "a" is the coefficient and "x" is the current step.
@@ -68,23 +71,23 @@ export function generateSteps(form: GenerateStepArgs) {
   const coefficientPower = totalY / Math.pow(totalX, exponent);
 
   for (let i = extraStepCount; i <= stepCount + extraStepCount; i++) {
-    let rangeTo = i * deltaX + creatorAllocation;
-    if (tokenType === 'ERC1155') rangeTo = Math.ceil(rangeTo);
-    let price: number;
+    let x = i * deltaX + creatorAllocation;
+    if (tokenType === 'ERC1155') x = Math.ceil(x);
+    let y: number;
 
     switch (curveType) {
       case CurveEnum.FLAT:
-        price = initialMintingPrice;
+        y = startingPrice;
         break;
       case CurveEnum.LINEAR:
         const stepPerPrice = totalY / totalX;
-        price = stepPerPrice * (rangeTo - creatorAllocation) + initialMintingPrice;
+        y = stepPerPrice * (x - creatorAllocation) + startingPrice;
         break;
       case CurveEnum.EXPONENTIAL:
-        price = initialMintingPrice + coefficientExponential * Math.pow(rangeTo - creatorAllocation, 2);
+        y = startingPrice + coefficientExponential * Math.pow(x - creatorAllocation, 2);
         break;
       case CurveEnum.LOGARITHMIC:
-        if (rangeTo - creatorAllocation === 0) price = initialMintingPrice;
+        if (x - creatorAllocation === 0) y = startingPrice;
         else {
           // OLD - using Math.log
           // y =
@@ -92,44 +95,44 @@ export function generateSteps(form: GenerateStepArgs) {
           //   coefficientLogarithmic * Math.log(x - creatorAllocation);
 
           // NEW - using Math.pow
-          price = initialMintingPrice + coefficientPower * Math.pow(rangeTo - creatorAllocation, exponent);
+          y = startingPrice + coefficientPower * Math.pow(x - creatorAllocation, exponent);
         }
         break;
       default:
-        price = 0;
+        y = 0;
     }
 
     // interval range: leading 0 of deltaX + 3
     // price: max price decimal count + 3
     const leadingZeros = countLeadingZeros(handleScientificNotation(deltaX));
     if (tokenType === 'ERC1155') {
-      rangeTo = Number(rangeTo.toFixed(0));
-    } else if (leadingZeros !== undefined) {
-      rangeTo = Number(rangeTo.toFixed(leadingZeros + 3));
+      x = Number(x.toFixed(0));
+    } else if (leadingZeros !== undefined && leadingZeros > 0) {
+      x = Number(x.toFixed(leadingZeros + 3));
     } else {
-      rangeTo = formatGraphPoint(rangeTo, maxSupply, 18);
+      x = formatGraphPoint(x, maxSupply, 18);
     }
 
-    price = formatGraphPoint(price, finalMintingPrice, reserveToken.decimals);
+    y = formatGraphPoint(y, maxPrice, reserveToken.decimals);
 
     // last point is used to ensure the max price is reached
     // x is the range, y is the price
     if (i === stepCount && curveType !== CurveEnum.FLAT) {
-      stepPoints.push({ rangeTo, price: finalMintingPrice });
+      stepPoints.push({ x, y: maxPrice });
     } else {
       // there are cases where y is negative (e.g. when the curve is logarithmic and the starting price is 0)
       // in those cases, we set y to 0
-      stepPoints.push({ rangeTo, price: Math.max(Math.min(price, finalMintingPrice), 0) });
+      stepPoints.push({ x, y: Math.min(y || 0, maxPrice) });
     }
   }
 
   // If the starting price is 0, call it again to set the first step to the first point
-  if (initialMintingPrice === 0) {
+  if (startingPrice === 0) {
     return generateSteps({
       ...form,
       curveData: {
         ...form.curveData,
-        initialMintingPrice: stepPoints[0].price,
+        initialMintingPrice: stepPoints[0].y,
       },
     });
   }
@@ -138,16 +141,18 @@ export function generateSteps(form: GenerateStepArgs) {
   let clonedPoints = structuredClone(stepPoints);
   // merge same ange points. price can be different, because user can change them. ignore the last point
   for (let i = 0; i < clonedPoints.length - 2; i++) {
-    if (clonedPoints[i].rangeTo === clonedPoints[i + 1].rangeTo) {
+    if (clonedPoints[i].x === clonedPoints[i + 1].x) {
       clonedPoints.splice(i, 1);
       mergeCount++;
       i--;
     }
   }
 
-  clonedPoints = uniqBy(clonedPoints, (point) => `${point.rangeTo}-${point.price}`);
+  const finalData = uniqBy(clonedPoints, (point) => `${point.x}-${point.y}`).map((point) => {
+    return { rangeTo: point.x, price: point.y };
+  });
 
-  return { stepData: clonedPoints, mergeCount };
+  return { stepData: finalData, mergeCount };
 }
 
 export function calculateArea(steps: { x: number; y: number }[], partialIndex?: number) {

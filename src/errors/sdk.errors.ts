@@ -1,4 +1,4 @@
-import { BaseError } from './base';
+import { BaseError, BaseErrorParameters } from './base';
 
 export class TokenAlreadyExistsError extends BaseError {
   constructor() {
@@ -11,14 +11,6 @@ export class TokenAlreadyExistsError extends BaseError {
 export class ChainNotSupportedError extends BaseError {
   constructor(chain: any) {
     super(`Chain ${chain} is not supported`);
-  }
-}
-
-export class WrongCreateParameterError extends BaseError {
-  constructor() {
-    super('Wrong parameters provided. Either curveData or stepData should be provided, not both', {
-      docsPath: 'docs/sdk/network/curve',
-    });
   }
 }
 
@@ -69,6 +61,15 @@ export class InvalidClientError extends BaseError {
   constructor() {
     super('Client with no chain was passed', {
       docsPath: 'docs/sdk/network/transactions/withPublicClient',
+    });
+  }
+}
+
+export class CreationError extends BaseError {
+  constructor(message: string, extra?: BaseErrorParameters) {
+    super(message, {
+      docsPath: 'docs/sdk/network/transactions/withPublicClient',
+      ...extra,
     });
   }
 }

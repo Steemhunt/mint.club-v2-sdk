@@ -38,7 +38,6 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'contractURI',
-      args: [],
     });
   }
 
@@ -46,7 +45,6 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'decimals',
-      args: [],
     });
   }
 
@@ -63,7 +61,6 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'name',
-      args: [],
     });
   }
 
@@ -79,7 +76,6 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'symbol',
-      args: [],
     });
   }
 
@@ -87,7 +83,6 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'totalSupply',
-      args: [],
     });
   }
 
@@ -107,13 +102,11 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     const reserveTokenName = await erc20Contract.network(this.chainId).read({
       tokenAddress: reserveToken.address,
       functionName: 'name',
-      args: [],
     });
 
     const reserveTokenSymbol = await erc20Contract.network(this.chainId).read({
       tokenAddress: reserveToken.address,
       functionName: 'symbol',
-      args: [],
     });
 
     const defaultExternalLink = `https://mint.club/nft/${chainString}/${this.symbol}`;
@@ -146,48 +139,30 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
       onError,
       onIpfsUploadStart: onIPFSUploadStart,
       onIpfsUploadComplete: onIPFSUploadComplete,
-      onRequestSignature,
-      onSigned,
-      onSuccess,
     } = params;
 
-    if (!this.symbol) {
-      onError?.(new SymbolNotDefinedError());
-      return;
+    try {
+      const { args, fee } = await this.checkAndPrepareCreateArgs(params);
+      const filebaseUsed = image instanceof File || video instanceof File;
+      if (filebaseUsed && !filebaseApiKey) {
+        onError?.(new FilebaseKeyNeededErrror());
+        return;
+      }
+
+      if (filebaseUsed) onIPFSUploadStart?.();
+      const uri = await this.uploadMetadata(params);
+      // double check the uploaded hash
+      IpfsHelper.validateIpfsHash(uri);
+      if (filebaseUsed) onIPFSUploadComplete?.();
+
+      return bondContract.network(this.chainId).write({
+        ...params,
+        functionName: 'createMultiToken',
+        args: [Object.assign(args.tokenParams, { uri }), args.bondParams],
+        value: fee,
+      });
+    } catch (e) {
+      onError?.(e);
     }
-
-    const exists = await this.exists();
-
-    if (exists) {
-      onError?.(new TokenAlreadyExistsError());
-      return;
-    }
-
-    const args = generateCreateArgs({ ...params, tokenType: this.tokenType, symbol: this.symbol });
-
-    const fee = await this.getCreationFee();
-
-    const filebaseUsed = image instanceof File || video instanceof File;
-
-    if (filebaseUsed && !filebaseApiKey) {
-      onError?.(new FilebaseKeyNeededErrror());
-      return;
-    }
-
-    if (filebaseUsed) onIPFSUploadStart?.();
-    const uri = await this.uploadMetadata(params);
-    // double check the uploaded hash
-    IpfsHelper.validateIpfsHash(uri);
-    if (filebaseUsed) onIPFSUploadComplete?.();
-
-    return bondContract.network(this.chainId).write({
-      functionName: 'createMultiToken',
-      args: [Object.assign(args.tokenParams, { uri }), args.bondParams],
-      value: fee,
-      onError,
-      onRequestSignature,
-      onSigned,
-      onSuccess,
-    });
   }
 }

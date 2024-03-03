@@ -1,7 +1,7 @@
 import { DOCUMENTATION_URL } from '../constants/links';
 import { getVersion } from '../utils';
 
-type BaseErrorParameters = {
+export type BaseErrorParameters = {
   docsPath?: string;
   docsSlug?: string;
   metaMessages?: string[];

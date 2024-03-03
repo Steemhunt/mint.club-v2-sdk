@@ -1,13 +1,21 @@
 import { isAddress, maxUint256 } from 'viem';
 import { CONTRACT_ADDRESSES, SdkSupportedChainIds, TokenType } from '../constants/contracts';
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
-import { WalletNotConnectedError } from '../errors/sdk.errors';
+import { SymbolNotDefinedError, TokenAlreadyExistsError, WalletNotConnectedError } from '../errors/sdk.errors';
 import { WRAPPED_NATIVE_TOKENS } from '../exports';
-import { TradeType } from '../types';
-import { ApproveBondParams, BondApprovedParams, BuyParams, SellParams } from '../types/bond.types';
+import { CommonWriteParams, TradeType } from '../types';
+import {
+  ApproveBondParams,
+  BondApprovedParams,
+  BuyParams,
+  CreateERC1155TokenParams,
+  CreateERC20TokenParams,
+  SellParams,
+} from '../types/bond.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
 import { computeCreate2Address } from '../utils/addresses';
 import { ClientHelper } from './ClientHelper';
+import { generateCreateArgs } from '../utils/bond';
 
 export class TokenHelper<T extends TokenType> {
   private tokenAddress: `0x${string}`;
@@ -95,7 +103,6 @@ export class TokenHelper<T extends TokenType> {
   protected getCreationFee() {
     return bondContract.network(this.chainId).read({
       functionName: 'creationFee',
-      args: [],
     });
   }
 
@@ -179,6 +186,25 @@ export class TokenHelper<T extends TokenType> {
       functionName: 'getReserveForToken',
       args: [this.tokenAddress, amount],
     });
+  }
+
+  protected async checkAndPrepareCreateArgs(
+    params: (CreateERC20TokenParams | CreateERC1155TokenParams) & Omit<CommonWriteParams, 'value'>,
+  ) {
+    if (!this.symbol) {
+      throw new SymbolNotDefinedError();
+    }
+
+    const exists = await this.exists();
+
+    if (exists) {
+      throw new TokenAlreadyExistsError();
+    }
+
+    const args = generateCreateArgs({ ...params, tokenType: this.tokenType, symbol: this.symbol });
+    const fee = await this.getCreationFee();
+
+    return { args, fee };
   }
 
   public async buy(params: BuyParams) {

@@ -26,6 +26,21 @@ export type AbiType<T extends ContractNames> = T extends 'BOND'
               ? typeof ONEINCH_ABI
               : never;
 
+export type TokenContractReadWriteArgs<
+  A extends Abi,
+  T extends ContractFunctionName<A, 'view' | 'pure'> | ContractFunctionName<A, 'payable' | 'nonpayable'>,
+  R extends ContractFunctionArgs<A, 'view' | 'pure', T> | ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
+  C extends ContractNames = ContractNames,
+> = (R extends readonly [] ? {} : { args: R }) &
+  (C extends 'ERC20' | 'ERC1155'
+    ? {
+        tokenAddress: `0x${string}`;
+        functionName: T;
+      }
+    : {
+        functionName: T;
+      });
+
 export type SupportedAbiType =
   | typeof BOND_ABI
   | typeof ERC20_ABI
@@ -49,17 +64,7 @@ export type GenericWriteParams<
   T extends ContractFunctionName<A, 'payable' | 'nonpayable'> = ContractFunctionName<A, 'payable' | 'nonpayable'>,
   R extends ContractFunctionArgs<A, 'payable' | 'nonpayable', T> = ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
   C extends ContractNames = ContractNames,
-> = (C extends 'ERC20' | 'ERC1155'
-  ? {
-      tokenAddress: `0x${string}`;
-      functionName: T;
-      args: R;
-    }
-  : {
-      functionName: T;
-      args: R;
-    }) &
-  CommonWriteParams;
+> = TokenContractReadWriteArgs<A, T, R, C> & CommonWriteParams;
 
 export type CurveType = 'LINEAR' | 'EXPONENTIAL' | 'LOGARITHMIC' | 'FLAT';
 

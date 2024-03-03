@@ -10,7 +10,7 @@ import {
 } from 'viem';
 import { CONTRACT_ADDRESSES, ContractNames, SdkSupportedChainIds } from '../exports';
 import { ClientHelper } from '../helpers/ClientHelper';
-import type { GenericWriteParams, SupportedAbiType } from '../types';
+import type { GenericWriteParams, SupportedAbiType, TokenContractReadWriteArgs } from '../types';
 
 type GenericLogicConstructorParams<
   A extends SupportedAbiType = SupportedAbiType,
@@ -42,15 +42,7 @@ export class GenericContractLogic<
   public read<
     T extends ContractFunctionName<A, 'view' | 'pure'>,
     R extends ContractFunctionArgs<A, 'view' | 'pure', T>,
-  >(
-    params: C extends 'ERC20' | 'ERC1155'
-      ? {
-          functionName: T;
-          args: R;
-          tokenAddress: `0x${string}`;
-        }
-      : { functionName: T; args: R },
-  ): Promise<ReadContractReturnType<A, T, R>> {
+  >(params: TokenContractReadWriteArgs<A, T, R, C>): Promise<ReadContractReturnType<A, T, R>> {
     const { functionName, args } = params;
     let address: `0x${string}`;
 
@@ -70,7 +62,7 @@ export class GenericContractLogic<
       abi: this.abi,
       address,
       functionName,
-      ...(args && { args }),
+      ...(args !== undefined && { args }),
     } as unknown as ReadContractParameters<A, T, R>) as Promise<ReadContractReturnType<A, T, R>>;
   }
 
