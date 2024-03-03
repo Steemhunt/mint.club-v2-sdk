@@ -68,7 +68,7 @@ export class InvalidClientError extends BaseError {
 export class CreationError extends BaseError {
   constructor(message: string, extra?: BaseErrorParameters) {
     super(message, {
-      docsPath: 'docs/sdk/network/transactions/withPublicClient',
+      docsPath: '/docs/sdk/network/token/create',
       ...extra,
     });
   }
@@ -77,7 +77,7 @@ export class CreationError extends BaseError {
 export class NoTokenAddressError extends BaseError {
   constructor() {
     super('Token address not provided', {
-      docsPath: 'docs/sdk/network/token',
+      docsPath: 'docs/sdk/network/create',
     });
   }
 }
@@ -85,7 +85,7 @@ export class NoTokenAddressError extends BaseError {
 export class BondInsufficientAllowanceError extends BaseError {
   constructor() {
     super('Bond contract does not have sufficient allowance. Please allow the contract using .approveBondContract', {
-      docsPath: 'docs/sdk/network/transactions',
+      docsPath: 'docs/sdk/network/token/approve',
     });
   }
 }

@@ -3,10 +3,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vocs dev",
+    "dev": "npm run link-sdk && vocs dev",
     "build": "vocs build",
     "preview": "vocs preview",
-    "deploy": "vercel build && vercel --prod"
+    "link-sdk": "npx bun link mint.club-v2-sdk",
+    "unlink-sdk": "npx bun unlink mint.club-v2-sdk && npx bun install mint.club-v2-sdk@latest",
+    "deploy": "npm run unlink-sdk && vercel build && vercel --prod"
   },
   "dependencies": {
     "@types/react": "latest",
@@ -17,7 +19,6 @@
     "vocs": "latest"
   },
   "devDependencies": {
-    "vercel": "^33.5.3",
-    "mint.club-v2-sdk": "link:mint.club-v2-sdk"
+    "vercel": "^33.5.3"
   }
 }

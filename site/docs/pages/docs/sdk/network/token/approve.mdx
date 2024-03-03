@@ -1,0 +1,121 @@
+---
+description: Allows the bonding curve contract to use user's tokens
+---
+
+# approve 
+
+Allows the bonding curve contract to use user's tokens. 
+
+:::tip[tip]
+Before user makes a [`buy`](/docs/sdk/network/token/buy) call, the bonding curve contract must be approved to use the asset's reserve token.
+
+The SDK will automatically fetch the reserve token address from the bonding curve contract and use it to approve the contract to use the user's tokens.
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub, wei } from 'mint.club-v2-sdk'
+ 
+await mintclub.network('ethereum').token('SYMBOL').approve({
+	tradeType: 'buy',
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+
+## Parameters
+
+
+### tradeType
+
+- Type: `buy` | `sell`
+
+Type of trade to approve the bonding curve contract to use the user's tokens.
+
+If `buy`, reserveToken will be approved. If `sell`, the token will be used.
+
+
+```ts twoslash [example.ts]
+import { mintclub, wei } from 'mint.club-v2-sdk'
+ 
+await mintclub.network('ethereum').token('SYMBOL').approve({
+	tradeType: 'buy',
+})
+```
+
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .approve({
+	  tradeType: 'buy',
+	  onSignatureRequest: () => {} // [!code focus]
+  })
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+
+Callback function for when the user is signs the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .approve({
+	  tradeType: 'buy',
+	  onSigned: (txHash) => {} // [!code focus]
+  })
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .approve({
+	  tradeType: 'buy',
+	  onSuccess: (receipt) => {} // [!code focus]
+  })
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .approve({
+	  tradeType: 'buy',
+	  onError: (error) => {} // [!code focus]
+  })
+```

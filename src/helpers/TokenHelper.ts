@@ -80,7 +80,7 @@ export class TokenHelper<T extends TokenType> {
     return allowance >= amountToSpend;
   }
 
-  public async approveBondContract(params: ApproveBondParams<T>) {
+  public async approve(params: ApproveBondParams<T>) {
     const { tradeType } = params;
     const tokenToCheck = await this.tokenToApprove(tradeType);
 

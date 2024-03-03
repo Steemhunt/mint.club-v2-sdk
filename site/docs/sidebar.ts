@@ -54,6 +54,22 @@ export const sidebar = {
                       link: '/docs/sdk/network/token/create',
                     },
                     {
+                      text: 'approve',
+                      link: '/docs/sdk/network/token/approve',
+                    },
+                    {
+                      text: 'buy',
+                      link: '/docs/sdk/network/token/buy',
+                    },
+                    {
+                      text: 'transfer',
+                      link: '/docs/sdk/network/token/transfer',
+                    },
+                    {
+                      text: 'getPriceForNextMint',
+                      link: '/docs/sdk/network/token/getPriceForNextMint',
+                    },
+                    {
                       text: 'getAllowance',
                       link: '/docs/sdk/network/token/getAllowance',
                     },
@@ -175,12 +191,12 @@ export const sidebar = {
                       link: '/docs/sdk/network/transactions/withAccount',
                     },
                     {
-                      text: 'withPublicConfig',
-                      link: '/docs/sdk/network/transactions/withPublicConfig',
+                      text: 'withPublicClient',
+                      link: '/docs/sdk/network/transactions/withPublicClient',
                     },
                     {
-                      text: 'withWalletConfig',
-                      link: '/docs/sdk/network/transactions/withWalletConfig',
+                      text: 'withWalletClient',
+                      link: '/docs/sdk/network/transactions/withWalletClient',
                     },
                     {
                       text: 'withPrivateKey',

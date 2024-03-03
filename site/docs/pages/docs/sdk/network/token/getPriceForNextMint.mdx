@@ -1,0 +1,22 @@
+---
+description: Returns the price for the next mint of the bond contract
+---
+
+# getPriceForNextMint 
+
+Returns the price for the next mint of the bond contract
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const nextMintPrice = await mintclub.network('ethereum').token('SYMBOL').getPriceForNextMint()
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns the price for the next mint of the bond contract
+

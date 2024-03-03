@@ -1,0 +1,133 @@
+---
+description: Transfers tokens to another user
+---
+
+# transfer 
+
+Transfers tokens to another user.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub, wei } from 'mint.club-v2-sdk'
+ 
+await mintclub.network('ethereum').token('SYMBOL').transfer({
+	amount: wei(1, 18),
+	recipient: '0x...'
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+
+## Parameters
+
+### amount
+
+- Type: `bigint`
+
+Amount to transfer
+
+```ts twoslash [example.ts]
+import { mintclub, wei } from 'mint.club-v2-sdk'
+ 
+await mintclub.network('ethereum').token('SYMBOL').transfer({
+	amount: wei(1, 18), // [!code focus]
+	recipient: '0x...'
+})
+```
+
+### recipient
+
+- Type: `'0x...${string}'`
+
+The address of the recipient
+
+
+```ts twoslash [example.ts]
+import { mintclub, wei } from 'mint.club-v2-sdk'
+ 
+await mintclub.network('ethereum').token('SYMBOL').transfer({
+	amount: wei(1, 18), 
+	recipient: '0x...' // [!code focus]
+})
+```
+
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .transfer({
+   	amount: wei(1, 18),
+	recipient: '0x...'
+	onSignatureRequest: () => {} // [!code focus]
+  })
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+
+Callback function for when the user is signs the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .transfer({
+   	amount: wei(1, 18),
+	recipient: '0x...'
+	onSigned: (txHash) => {} // [!code focus]
+  })
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .transfer({
+   	amount: wei(1, 18),
+	recipient: '0x...'
+	onSuccess: (receipt) => {} // [!code focus]
+  })
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .token('MINT')
+  .transfer({
+   	amount: wei(1, 18),
+	recipient: '0x...'
+	onError: (error) => {} // [!code focus]
+  })
+```

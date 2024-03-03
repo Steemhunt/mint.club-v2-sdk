@@ -1,22 +1,22 @@
 ---
-description: Mint.club SDK - withWalletConfig
+description: Mint.club SDK - withWalletClient
 ---
 
-# withWalletConfig
+# withWalletClient
 
 Override the configuration of default [`WalletClient`](/docs/sdk/network/transactions/getWalletClient) with a custom configuration.
 
 ## Usage
 
 :::note[Tip]
-The example below uses the `withWalletConfig` method to create a custom [`network`](/docs/sdk/network).
+The example below uses the `withWalletClient` method to create a custom [`network`](/docs/sdk/network).
 :::
 
 ```ts [example.ts]
 import { mintclub } from 'mint.club-v2-sdk';
 
 await mintclub
-  .withWalletConfig({ // [!code focus]
+  .withWalletClient({ // [!code focus]
     account: '0x...',  // [!code focus]
     chain: mee6, // [!code focus]
     transport: custom(window.mee6!) // [!code focus]

@@ -1,22 +1,22 @@
 ---
-description: Mint.club SDK - withPublicConfig
+description: Mint.club SDK - withPublicClient
 ---
 
-# withPublicConfig
+# withPublicClient
 
 Override the configuration of default [`PublicClient`](/docs/sdk/network/transactions/getPublicClient) with a custom configuration.
 
 ## Usage
 
 :::note[Tip]
-The example below uses the `withPublicConfig` method to create a custom [`network`](/docs/sdk/network).
+The example below uses the `withPublicClient` method to create a custom [`network`](/docs/sdk/network).
 :::
 
 ```ts [example.ts]
 import { mintclub } from 'mint.club-v2-sdk';
 
 await mintclub
-  .withPublicConfig({ // [!code focus]
+  .withPublicClient({ // [!code focus]
     chain: 'rick-morty-chain', // [!code focus]
     transport: http('https://rnm-mainnet.g.alchemy.com/v2/...') // [!code focus]
     ...

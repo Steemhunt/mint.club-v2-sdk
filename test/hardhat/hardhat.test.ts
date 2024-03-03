@@ -187,7 +187,7 @@ describe('Hardhat ERC20', async () => {
       await mintclub
         .withWalletClient(alice)
         .token(wonderlandTokenAddress)
-        .approveBondContract({
+        .approve({
           tradeType: 'buy',
           onSignatureRequest: assertTxSignature,
           onSuccess: assertTxSuccess,
@@ -260,7 +260,7 @@ describe('Hardhat ERC20', async () => {
       await mintclub
         .withWalletClient(bob)
         .token(wonderlandTokenAddress)
-        .approveBondContract({
+        .approve({
           tradeType: 'buy',
           onSignatureRequest: assertTxSignature,
           onSuccess: assertTxSuccess,
@@ -288,7 +288,7 @@ describe('Hardhat ERC20', async () => {
     });
 
     test(`Alice approves Bond to use her token`, async () => {
-      await mintclub.withWalletClient(alice).token(wonderlandTokenAddress).approveBondContract({
+      await mintclub.withWalletClient(alice).token(wonderlandTokenAddress).approve({
         tradeType: 'sell',
         onSignatureRequest: assertTxSignature,
         onSuccess: assertTxSuccess,
