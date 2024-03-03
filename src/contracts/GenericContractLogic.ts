@@ -8,9 +8,10 @@ import {
   TransactionReceipt,
   WriteContractParameters,
 } from 'viem';
-import { CONTRACT_ADDRESSES, ContractNames, SdkSupportedChainIds } from '../exports';
+import { ContractNames, SdkSupportedChainIds, getMintClubContractAddress } from '../exports';
 import { ClientHelper } from '../helpers/ClientHelper';
-import type { GenericWriteParams, SupportedAbiType, TokenContractReadWriteArgs } from '../types';
+import { SupportedAbiType } from '../types/abi.types';
+import { GenericWriteParams, TokenContractReadWriteArgs } from '../types/transactions.types';
 
 type GenericLogicConstructorParams<
   A extends SupportedAbiType = SupportedAbiType,
@@ -49,11 +50,7 @@ export class GenericContractLogic<
     if ('tokenAddress' in params) {
       address = params.tokenAddress;
     } else {
-      address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
-    }
-
-    if (process.env.NODE_ENV === 'hardhat') {
-      address = global?.mcv2Hardhat?.[this.contractType]?.[this.chainId]!;
+      address = getMintClubContractAddress(this.contractType, this.chainId);
     }
 
     const publicClient = this.clientHelper.getPublicClient(this.chainId);
@@ -76,20 +73,26 @@ export class GenericContractLogic<
 
     if (!walletClient) throw new Error('No wallet client found');
 
-    const { functionName, args, value, debug, onError, onRequestSignature, onSigned, onSuccess } = params;
+    const {
+      functionName,
+      args,
+      value,
+      debug,
+      onError,
+      onSignatureRequest: onSignatureRequest,
+      onSigned,
+      onSuccess,
+    } = params;
     let address: `0x${string}`;
 
     if ('tokenAddress' in params) {
       address = params.tokenAddress;
     } else {
-      address = CONTRACT_ADDRESSES[this.contractType][this.chainId];
-    }
-
-    if (process.env.NODE_ENV === 'hardhat') {
-      address = global?.mcv2Hardhat?.[this.contractType]?.[this.chainId]!;
+      address = getMintClubContractAddress(this.contractType, this.chainId);
     }
 
     const simulationArgs = {
+      account: walletClient.account,
       abi: this.abi,
       address,
       functionName,
@@ -104,7 +107,7 @@ export class GenericContractLogic<
         .getPublicClient(this.chainId)
         .simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
 
-      onRequestSignature?.();
+      onSignatureRequest?.();
       const tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
 
       onSigned?.(tx);

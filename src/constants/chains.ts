@@ -1,7 +1,7 @@
 import { isAddress } from 'viem';
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
-import { CONTRACT_ADDRESSES, SdkSupportedChainIds } from './contracts';
+import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
 
 export type ChainType = {
   readonly id: SdkSupportedChainIds;
@@ -20,7 +20,7 @@ export const CHAINS: Array<ChainType> = [
     icon: 'https://mint.club/assets/networks/ethereum@2x.png',
     color: '#627EEA',
     openseaSlug: 'ethereum',
-    enabled: isAddress(CONTRACT_ADDRESSES.BOND[mainnet.id]),
+    enabled: isAddress(getMintClubContractAddress('BOND', mainnet.id)),
   },
   {
     id: base.id,
@@ -28,7 +28,7 @@ export const CHAINS: Array<ChainType> = [
     icon: 'https://mint.club/assets/networks/base@2x.png',
     color: '#0052FF',
     openseaSlug: 'base',
-    enabled: isAddress(CONTRACT_ADDRESSES.BOND[base.id]),
+    enabled: isAddress(getMintClubContractAddress('BOND', base.id)),
   },
   {
     id: optimism.id,
@@ -36,7 +36,7 @@ export const CHAINS: Array<ChainType> = [
     icon: 'https://mint.club/assets/networks/optimism@2x.png',
     color: '#FF0420',
     openseaSlug: 'optimism',
-    enabled: isAddress(CONTRACT_ADDRESSES.BOND[optimism.id]),
+    enabled: isAddress(getMintClubContractAddress('BOND', optimism.id)),
   },
   {
     id: arbitrum.id,
@@ -44,7 +44,7 @@ export const CHAINS: Array<ChainType> = [
     icon: 'https://mint.club/assets/networks/arbitrum@2x.png',
     color: '#12AAFF',
     openseaSlug: 'arbitrum',
-    enabled: isAddress(CONTRACT_ADDRESSES.BOND[arbitrum.id]),
+    enabled: isAddress(getMintClubContractAddress('BOND', arbitrum.id)),
   },
   {
     id: avalanche.id,
@@ -52,7 +52,7 @@ export const CHAINS: Array<ChainType> = [
     icon: 'https://mint.club/assets/networks/avalanche@2x.png',
     color: '#E94143',
     openseaSlug: 'avalanche',
-    enabled: isAddress(CONTRACT_ADDRESSES.BOND[avalanche.id]),
+    enabled: isAddress(getMintClubContractAddress('BOND', avalanche.id)),
   },
   {
     id: polygon.id,
@@ -60,7 +60,7 @@ export const CHAINS: Array<ChainType> = [
     icon: 'https://mint.club/assets/networks/polygon@2x.png',
     color: '#8247E5',
     openseaSlug: 'matic',
-    enabled: isAddress(CONTRACT_ADDRESSES.BOND[polygon.id]),
+    enabled: isAddress(getMintClubContractAddress('BOND', polygon.id)),
   },
   {
     id: bsc.id,
@@ -68,7 +68,7 @@ export const CHAINS: Array<ChainType> = [
     icon: 'https://mint.club/assets/networks/bnb@2x.png',
     color: '#F0B90B',
     openseaSlug: 'bsc',
-    enabled: isAddress(CONTRACT_ADDRESSES.BOND[bsc.id]),
+    enabled: isAddress(getMintClubContractAddress('BOND', bsc.id)),
   },
   {
     id: sepolia.id,
@@ -76,7 +76,7 @@ export const CHAINS: Array<ChainType> = [
     icon: 'https://mint.club/assets/networks/ethereum@2x.png',
     color: '#627EEA',
     openseaSlug: 'sepolia',
-    enabled: isAddress(CONTRACT_ADDRESSES.BOND[sepolia.id]),
+    enabled: isAddress(getMintClubContractAddress('BOND', sepolia.id)),
     isTestnet: true,
   },
 ];

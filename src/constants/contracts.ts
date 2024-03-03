@@ -1,6 +1,6 @@
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
 
-export const CONTRACT_ADDRESSES = {
+const SDK_CONTRACT_ADDRESSES = {
   ERC20: {
     [mainnet.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [optimism.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
@@ -79,6 +79,19 @@ export const CONTRACT_ADDRESSES = {
   },
 } as const;
 
+export function getMintClubContractAddress(contractName: ContractNames, chainId: SdkSupportedChainIds) {
+  let contractAddress = SDK_CONTRACT_ADDRESSES[contractName][chainId];
+
+  if (process.env.NODE_ENV === 'hardhat') {
+    contractAddress = global.mcv2Hardhat?.[contractName]?.[chainId] as any;
+  }
+
+  if (!contractAddress) {
+    throw new Error(`Contract address for ${contractName} on chain ${chainId} not found`);
+  }
+  return contractAddress;
+}
+
 type ExcludeValue<T, V> = T extends V ? never : T;
 type ExtractChainIds<T> = T extends { [key: string]: infer U }
   ? U extends { [key: number]: any }
@@ -86,7 +99,7 @@ type ExtractChainIds<T> = T extends { [key: string]: infer U }
     : never
   : never;
 
-export type ContractNames = keyof typeof CONTRACT_ADDRESSES;
-export type SdkSupportedChainIds = ExtractChainIds<typeof CONTRACT_ADDRESSES>;
+export type ContractNames = keyof typeof SDK_CONTRACT_ADDRESSES;
+export type SdkSupportedChainIds = ExtractChainIds<typeof SDK_CONTRACT_ADDRESSES>;
 export type TokenType = 'ERC20' | 'ERC1155';
 export type MainnetChain = ExcludeValue<SdkSupportedChainIds, 11155111>; // sepolia and hardhat excluded

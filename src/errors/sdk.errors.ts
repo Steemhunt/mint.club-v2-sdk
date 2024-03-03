@@ -73,3 +73,19 @@ export class CreationError extends BaseError {
     });
   }
 }
+
+export class NoTokenAddressError extends BaseError {
+  constructor() {
+    super('Token address not provided', {
+      docsPath: 'docs/sdk/network/token',
+    });
+  }
+}
+
+export class BondInsufficientAllowanceError extends BaseError {
+  constructor() {
+    super('Bond contract does not have sufficient allowance. Please allow the contract using .approveBondContract', {
+      docsPath: 'docs/sdk/network/transactions',
+    });
+  }
+}

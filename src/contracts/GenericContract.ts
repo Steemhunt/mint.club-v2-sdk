@@ -11,7 +11,7 @@ import {
   ZAP_ABI,
   chainStringToId,
 } from '../exports';
-import { AbiType, SupportedAbiType } from '../types';
+import { AbiType, SupportedAbiType } from '../types/abi.types';
 import { GenericContractLogic } from './GenericContractLogic';
 
 declare global {

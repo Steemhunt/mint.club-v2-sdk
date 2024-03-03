@@ -1,30 +1,5 @@
 import { Abi, ContractFunctionArgs, ContractFunctionName, TransactionReceipt } from 'viem';
-import {
-  BOND_ABI,
-  ContractNames,
-  ERC1155_ABI,
-  ERC20_ABI,
-  LOCKER_ABI,
-  MERKLE_ABI,
-  ONEINCH_ABI,
-  ZAP_ABI,
-} from '../exports';
-
-export type AbiType<T extends ContractNames> = T extends 'BOND'
-  ? typeof BOND_ABI
-  : T extends 'ERC20'
-    ? typeof ERC20_ABI
-    : T extends 'ERC1155'
-      ? typeof ERC1155_ABI
-      : T extends 'LOCKER'
-        ? typeof LOCKER_ABI
-        : T extends 'MERKLE'
-          ? typeof MERKLE_ABI
-          : T extends 'ZAP'
-            ? typeof ZAP_ABI
-            : T extends 'ONEINCH'
-              ? typeof ONEINCH_ABI
-              : never;
+import { ContractNames } from '../exports';
 
 export type TokenContractReadWriteArgs<
   A extends Abi,
@@ -41,22 +16,16 @@ export type TokenContractReadWriteArgs<
         functionName: T;
       });
 
-export type SupportedAbiType =
-  | typeof BOND_ABI
-  | typeof ERC20_ABI
-  | typeof ERC1155_ABI
-  | typeof LOCKER_ABI
-  | typeof MERKLE_ABI
-  | typeof ZAP_ABI
-  | typeof ONEINCH_ABI;
-
-export type CommonWriteParams = {
-  value?: bigint;
+export type WriteTransactionCallbacks = {
   debug?: (args: any) => void;
-  onRequestSignature?: () => void;
+  onSignatureRequest?: () => void;
   onSigned?: (tx: `0x${string}`) => void;
   onSuccess?: (receipt: TransactionReceipt) => void;
   onError?: (error: unknown) => void;
+};
+
+export type CommonWriteParams = WriteTransactionCallbacks & {
+  value?: bigint;
 };
 
 export type GenericWriteParams<

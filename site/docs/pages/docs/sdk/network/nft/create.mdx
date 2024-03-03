@@ -541,9 +541,9 @@ await mintclub
 
 
 
-### onRequestSignature (optional)
+### onSignatureRequest (optional)
 
-- Type: `onRequestSignature?: () => void;`
+- Type: `onSignatureRequest?: () => void;`
 - Default: `undefined`
 
 Callback function for when the user is requested to sign the transaction.
@@ -558,7 +558,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18,
     }, 
-	onRequestSignature: () => {} // [!code focus]
+	onSignatureRequest: () => {} // [!code focus]
   })
 ```
 

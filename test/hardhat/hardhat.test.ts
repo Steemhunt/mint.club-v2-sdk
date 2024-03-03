@@ -1,16 +1,17 @@
+process.env.NODE_ENV = 'hardhat';
 import { describe, expect, test } from 'bun:test';
 import hre from 'hardhat';
-import { TransactionReceipt, checksumAddress } from 'viem';
+import { TransactionReceipt, checksumAddress, getAddress, maxUint256 } from 'viem';
 import { hardhat } from 'viem/chains';
 import { mintclub as sdk } from '../../src';
+import { computeCreate2Address } from '../../src/utils/addresses';
 import { MAX_STEPS, PROTOCOL_BENEFICIARY, wei } from '../utils';
-
-process.env.NODE_ENV = 'hardhat';
+import { BondInsufficientAllowanceError } from '../../src/errors/sdk.errors';
 
 const publicClient = await hre.viem.getPublicClient();
 
 // first wallet is used automatically to deploy
-const [_deployer, alice, bob] = await hre.viem.getWalletClients();
+const [alice, bob] = await hre.viem.getWalletClients();
 
 const TokenImplementation = await hre.viem.deployContract('MCV2_Token');
 const NFTImplementation = await hre.viem.deployContract('MCV2_MultiToken');
@@ -25,16 +26,15 @@ describe('Hardhat ERC20', async () => {
     MAX_STEPS.base,
   ]);
 
-  const contract = await hre.viem.getContractAt('MCV2_Bond', Bond.address);
-
   // @ts-ignore
-  const ReserveToken = await hre.viem.deployContract('TestToken', [wei(200000000, 9), 'Test Token', 'TEST', 18n]); // supply: 200M
+  const ReserveToken = await hre.viem.deployContract('TestToken', [wei(200_000_000, 18), 'Test Token', 'TEST', 18n]); // supply: 200M
 
-  global.mcv2Hardhat = {
-    BOND: {
-      [hardhat.id]: contract.address,
-    },
-  };
+  alice.writeContract({
+    abi: ReserveToken.abi,
+    address: ReserveToken.address,
+    functionName: 'transfer',
+    args: [bob.account.address, wei(100_000_000, 18)],
+  } as any);
 
   const mintclub = sdk.withPublicClient(publicClient);
 
@@ -48,54 +48,258 @@ describe('Hardhat ERC20', async () => {
 
   // 2. test
 
-  test(`Read Alice's balance`, async () => {
-    const balance = await mintclub.withWalletClient(alice).getNativeBalance();
-    expect(balance).toEqual(10000000000000000000000n);
-  });
+  const WONDERLAND_TOKEN = {
+    name: 'Alice Token',
+    symbol: 'WONDERLAND',
+    reserveToken: {
+      address: ReserveToken.address,
+      decimals: 18,
+    },
+    curveData: {
+      curveType: 'LINEAR',
+      stepCount: 10,
+      maxSupply: 10_000,
+      creatorAllocation: 1,
+      initialMintingPrice: 0.01,
+      finalMintingPrice: 1,
+    },
+  } as const;
 
-  test(`Read Bob's balance`, async () => {
-    const balance = await mintclub.withWalletClient(bob).getNativeBalance();
-    expect(balance).toEqual(10000000000000000000000n);
-  });
+  global.mcv2Hardhat = {
+    ERC20: {
+      [hardhat.id]: TokenImplementation.address,
+    },
 
-  test(`Alice creates a new ERC20 called ALICE with basic curveData`, async () => {
-    await mintclub.token('ALICE').create({
-      name: 'Alice Token',
-      reserveToken: {
-        address: ReserveToken.address,
-        decimals: 18,
-      },
-      curveData: {
-        curveType: 'LINEAR',
-        stepCount: 10,
-        maxSupply: 10000,
-        creatorAllocation: 1,
-        initialMintingPrice: 0.01,
-        finalMintingPrice: 1,
-      },
-      debug: (simulationArgs: any) => {
-        const { args, functionName, address } = simulationArgs;
-        const [{ name, symbol }, { mintRoyalty, burnRoyalty, reserveToken, maxSupply, stepRanges, stepPrices }] = args;
-        expect(name).toEqual('Alice Token');
-        expect(symbol).toEqual('ALICE');
+    ERC1155: {
+      [hardhat.id]: '0x',
+    },
 
-        expect(functionName).toEqual('createToken');
+    BOND: {
+      [hardhat.id]: Bond.address,
+    },
 
-        expect(address).toEqual(Bond.address);
-        expect(reserveToken).toEqual(ReserveToken.address);
-        expect(maxSupply).toEqual(wei(10000, 18));
+    ZAP: {
+      [hardhat.id]: '0x',
+    },
 
-        expect(stepRanges[0]).toEqual(wei(1, 18));
-        expect(stepPrices[0]).toEqual(0n);
+    LOCKER: {
+      [hardhat.id]: '0x',
+    },
 
-        expect(stepRanges[stepRanges.length - 1]).toEqual(wei(10000, 18));
-        expect(stepPrices[stepPrices.length - 1]).toEqual(wei(1, 18));
+    MERKLE: {
+      [hardhat.id]: '0x',
+    },
 
-        expect(mintRoyalty).toEqual(30); // default 0.03%
-        expect(burnRoyalty).toEqual(30); // default 0.03%
-      },
-      onRequestSignature: assertTxSignature,
-      onSuccess: assertTxSuccess,
+    ONEINCH: {
+      [hardhat.id]: '0x',
+    },
+  };
+
+  const wonderlandTokenAddress = computeCreate2Address(hardhat.id, 'ERC20', WONDERLAND_TOKEN.symbol);
+
+  describe('basic curveData', async () => {
+    test(`Read Bob's balance`, async () => {
+      const balance = await mintclub.withWalletClient(bob).getNativeBalance();
+      expect(balance).toEqual(10000000000000000000000n);
+    });
+
+    test(`Alice creates a new ERC20 called ALICE with basic linear curve`, async () => {
+      await mintclub
+        .withWalletClient(alice)
+        .token(WONDERLAND_TOKEN.symbol)
+        .create({
+          ...WONDERLAND_TOKEN,
+          debug: (simulationArgs: any) => {
+            const { args, functionName, address } = simulationArgs;
+            const [{ name, symbol }, { mintRoyalty, burnRoyalty, reserveToken, maxSupply, stepRanges, stepPrices }] =
+              args;
+            expect(name).toEqual(WONDERLAND_TOKEN.name);
+            expect(symbol).toEqual(WONDERLAND_TOKEN.symbol);
+
+            expect(functionName).toEqual('createToken');
+
+            expect(address).toEqual(Bond.address);
+            expect(reserveToken).toEqual(ReserveToken.address);
+            expect(maxSupply).toEqual(wei(10000, 18));
+
+            expect(stepRanges[0]).toEqual(wei(1, 18));
+            expect(stepPrices[0]).toEqual(0n);
+
+            expect(stepRanges[stepRanges.length - 1]).toEqual(wei(10000, 18));
+            expect(stepPrices[stepPrices.length - 1]).toEqual(wei(1, 18));
+
+            expect(mintRoyalty).toEqual(30); // default 0.03%
+            expect(burnRoyalty).toEqual(30); // default 0.03%
+          },
+          onSignatureRequest: assertTxSignature,
+          onSuccess: assertTxSuccess,
+        });
+    });
+
+    test(`Check if ${WONDERLAND_TOKEN.symbol} token is created`, async () => {
+      const exists = await mintclub.token(wonderlandTokenAddress).exists();
+      expect(exists).toEqual(true);
+    });
+
+    test(`Check if ${WONDERLAND_TOKEN.symbol} token has correct data`, async () => {
+      const { reserveToken, burnRoyalty, mintRoyalty, creator } = await mintclub
+        .token(wonderlandTokenAddress)
+        .getTokenBond();
+      expect(getAddress(reserveToken, hardhat.id)).toEqual(getAddress(ReserveToken.address, hardhat.id));
+      expect(burnRoyalty).toEqual(30);
+      expect(mintRoyalty).toEqual(30);
+      expect(getAddress(creator, hardhat.id)).toEqual(getAddress(alice.account.address, hardhat.id));
+    });
+
+    test(`Check Alice's creator allocation of 1 ${WONDERLAND_TOKEN.symbol}`, async () => {
+      const balance = await mintclub.token(wonderlandTokenAddress).getBalanceOf(alice.account.address);
+      // 1 creator free minting
+      expect(balance).toEqual(wei(1, 18));
+    });
+
+    test(`Alice tries to buy 10 more ${WONDERLAND_TOKEN.symbol}, but did not approve the BondContract`, async () => {
+      await mintclub
+        .withWalletClient(alice)
+        .token(wonderlandTokenAddress)
+        .buy({
+          amount: wei(10, 18),
+          onError: (e: any) => {
+            expect(e).toBeInstanceOf(BondInsufficientAllowanceError);
+          },
+        });
+    });
+
+    test(`So she approves it`, async () => {
+      await mintclub
+        .withWalletClient(alice)
+        .token(wonderlandTokenAddress)
+        .approveBondContract({
+          tradeType: 'buy',
+          onSignatureRequest: assertTxSignature,
+          onSuccess: assertTxSuccess,
+          debug: (simulation) => {
+            const {
+              args: [, amountApproved],
+            } = simulation;
+            expect(amountApproved).toEqual(maxUint256);
+          },
+          onError: (e: any) => {
+            expect(e).toBeInstanceOf(BondInsufficientAllowanceError);
+          },
+        });
+    });
+
+    test(`Bond contract's allowance for her reserveToken is maxUint256 now`, async () => {
+      const allowance = await mintclub.withWalletClient(alice).token(ReserveToken.address).getAllowance({
+        owner: alice.account.address,
+        spender: Bond.address,
+      });
+      expect(allowance).toEqual(maxUint256);
+    });
+
+    test(`Before she buys, token mint price is 0.01`, async () => {
+      const price = await mintclub.token(wonderlandTokenAddress).getPriceForNextMint();
+      expect(price).toEqual(wei(1, 16));
+    });
+
+    test(`She tries to buy 1000 tokens now`, async () => {
+      await mintclub
+        .withWalletClient(alice)
+        .token(wonderlandTokenAddress)
+        .buy({
+          amount: wei(1000, 18),
+          onSignatureRequest: assertTxSignature,
+          onSuccess: assertTxSuccess,
+        });
+    });
+
+    test(`It goes through, and now she has 1,001 ${WONDERLAND_TOKEN.symbol}`, async () => {
+      const balance = await mintclub.token(wonderlandTokenAddress).getBalanceOf(alice.account.address);
+      expect(balance).toEqual(wei(1001, 18));
+    });
+
+    test(`Bob has no tokens. He's sad`, async () => {
+      const balance = await mintclub.token(wonderlandTokenAddress).getBalanceOf(bob.account.address);
+      expect(balance).toEqual(0n);
+    });
+
+    test(`She gives one to bob`, async () => {
+      await mintclub.token(wonderlandTokenAddress).transfer({
+        recipient: bob.account.address,
+        amount: wei(1, 18),
+        onSignatureRequest: assertTxSignature,
+        onSuccess: assertTxSuccess,
+      });
+    });
+
+    test(`Bob is happy now`, async () => {
+      const balance = await mintclub.token(wonderlandTokenAddress).getBalanceOf(bob.account.address);
+      expect(balance).toEqual(wei(1, 18));
+    });
+
+    test(`Now the token mint price is 0.12`, async () => {
+      const price = await mintclub.token(wonderlandTokenAddress).getPriceForNextMint();
+      expect(price).toEqual(wei(12, 16));
+    });
+
+    test(`Bob feels thankful and he buys a 1,000 too`, async () => {
+      await mintclub
+        .withWalletClient(bob)
+        .token(wonderlandTokenAddress)
+        .approveBondContract({
+          tradeType: 'buy',
+          onSignatureRequest: assertTxSignature,
+          onSuccess: assertTxSuccess,
+          debug: (simulation) => {
+            const {
+              args: [, amountApproved],
+            } = simulation;
+            expect(amountApproved).toEqual(maxUint256);
+          },
+        });
+
+      await mintclub
+        .withWalletClient(bob)
+        .token(wonderlandTokenAddress)
+        .buy({
+          amount: wei(1000, 18),
+          onSignatureRequest: assertTxSignature,
+          onSuccess: assertTxSuccess,
+        });
+    });
+
+    test(`Now the token mint price is 0.23`, async () => {
+      const price = await mintclub.token(wonderlandTokenAddress).getPriceForNextMint();
+      expect(price).toEqual(wei(23, 16));
+    });
+
+    test(`Alice approves Bond to use her token`, async () => {
+      await mintclub.withWalletClient(alice).token(wonderlandTokenAddress).approveBondContract({
+        tradeType: 'sell',
+        onSignatureRequest: assertTxSignature,
+        onSuccess: assertTxSuccess,
+      });
+    });
+
+    test(`Alice stabs Bob in the back and sells 500 ${WONDERLAND_TOKEN.symbol}`, async () => {
+      await mintclub
+        .withWalletClient(alice)
+        .token(wonderlandTokenAddress)
+        .sell({
+          amount: wei(500, 18),
+          onSignatureRequest: assertTxSignature,
+          onSuccess: assertTxSuccess,
+        });
+    });
+
+    test(`Now the token mint price is down to 0.12`, async () => {
+      const price = await mintclub.token(wonderlandTokenAddress).getPriceForNextMint();
+      expect(price).toEqual(wei(12, 16));
+    });
+
+    test(`Alice now has 500 ${WONDERLAND_TOKEN.symbol}`, async () => {
+      const balance = await mintclub.token(wonderlandTokenAddress).getBalanceOf(alice.account.address);
+      expect(balance).toEqual(wei(500, 18));
     });
   });
 });

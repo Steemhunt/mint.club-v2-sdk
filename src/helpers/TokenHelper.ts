@@ -1,21 +1,26 @@
 import { isAddress, maxUint256 } from 'viem';
-import { CONTRACT_ADDRESSES, SdkSupportedChainIds, TokenType } from '../constants/contracts';
+import { SdkSupportedChainIds, TokenType, getMintClubContractAddress } from '../constants/contracts';
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
-import { SymbolNotDefinedError, TokenAlreadyExistsError, WalletNotConnectedError } from '../errors/sdk.errors';
+import {
+  BondInsufficientAllowanceError,
+  SymbolNotDefinedError,
+  TokenAlreadyExistsError,
+  WalletNotConnectedError,
+} from '../errors/sdk.errors';
 import { WRAPPED_NATIVE_TOKENS } from '../exports';
-import { CommonWriteParams, TradeType } from '../types';
 import {
   ApproveBondParams,
   BondApprovedParams,
-  BuyParams,
+  BuySellCommonParams,
   CreateERC1155TokenParams,
   CreateERC20TokenParams,
-  SellParams,
+  TransferCommonParams,
 } from '../types/bond.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
+import { CommonWriteParams, TradeType } from '../types/transactions.types';
 import { computeCreate2Address } from '../utils/addresses';
-import { ClientHelper } from './ClientHelper';
 import { generateCreateArgs } from '../utils/bond';
+import { ClientHelper } from './ClientHelper';
 
 export class TokenHelper<T extends TokenType> {
   private tokenAddress: `0x${string}`;
@@ -46,18 +51,18 @@ export class TokenHelper<T extends TokenType> {
   }
 
   protected async tokenToApprove(tradeType: TradeType) {
-    return tradeType === 'buy' ? this.getTokenAddress() : await this.getReserveTokenAddress();
+    return tradeType === 'buy' ? await this.getReserveTokenAddress() : this.getTokenAddress();
   }
 
   protected async bondContractApproved(params: BondApprovedParams<T>) {
     const { tradeType, walletAddress } = params;
-    const tokenToCheck = await this.tokenToApprove(tradeType);
+    const tokenToApprove = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155') {
       return erc1155Contract.network(this.chainId).read({
-        tokenAddress: tokenToCheck,
+        tokenAddress: tokenToApprove,
         functionName: 'isApprovedForAll',
-        args: [walletAddress, CONTRACT_ADDRESSES.BOND[this.chainId]],
+        args: [walletAddress, getMintClubContractAddress('BOND', this.chainId)],
       });
     }
 
@@ -67,23 +72,24 @@ export class TokenHelper<T extends TokenType> {
     }
 
     const allowance = await erc20Contract.network(this.chainId).read({
-      tokenAddress: tokenToCheck,
+      tokenAddress: tokenToApprove,
       functionName: 'allowance',
-      args: [walletAddress, CONTRACT_ADDRESSES.BOND[this.chainId]],
+      args: [walletAddress, getMintClubContractAddress('BOND', this.chainId)],
     });
 
     return allowance >= amountToSpend;
   }
 
-  protected async approveBondContract(params: ApproveBondParams<T>) {
+  public async approveBondContract(params: ApproveBondParams<T>) {
     const { tradeType } = params;
     const tokenToCheck = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155') {
       return erc1155Contract.network(this.chainId).write({
+        ...params,
         tokenAddress: tokenToCheck,
         functionName: 'setApprovalForAll',
-        args: [CONTRACT_ADDRESSES.BOND[this.chainId], true],
+        args: [getMintClubContractAddress('BOND', this.chainId), true],
       });
     } else {
       let amountToSpend = maxUint256;
@@ -93,9 +99,10 @@ export class TokenHelper<T extends TokenType> {
       }
 
       return erc20Contract.network(this.chainId).write({
+        ...params,
         tokenAddress: tokenToCheck,
         functionName: 'approve',
-        args: [CONTRACT_ADDRESSES.BOND[this.chainId], amountToSpend],
+        args: [getMintClubContractAddress('BOND', this.chainId), amountToSpend],
       });
     }
   }
@@ -207,57 +214,77 @@ export class TokenHelper<T extends TokenType> {
     return { args, fee };
   }
 
-  public async buy(params: BuyParams) {
-    const { tokensToMint, slippage = 0, recipient } = params;
+  public async buy(params: BuySellCommonParams) {
+    const { amount, slippage = 0, recipient, onError } = params;
+    try {
+      const connectedAddress = await this.getConnectedWalletAddress();
 
-    const connectedAddress = await this.getConnectedWalletAddress();
-
-    const bondApproved = await this.bondContractApproved({
-      walletAddress: connectedAddress,
-      amountToSpend: tokensToMint,
-      tradeType: 'buy',
-    });
-
-    if (!bondApproved) {
-      await this.approveBondContract({
+      const bondApproved = await this.bondContractApproved({
+        walletAddress: connectedAddress,
+        amountToSpend: amount,
         tradeType: 'buy',
-        amountToSpend: tokensToMint,
-      } as ApproveBondParams<T>);
+      });
+
+      if (!bondApproved) {
+        throw new BondInsufficientAllowanceError();
+      }
+
+      const [estimatedOutcome] = await this.getBuyEstimation(amount);
+      const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
+
+      return bondContract.network(this.chainId).write({
+        ...params,
+        functionName: 'mint',
+        args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
+      });
+    } catch (e) {
+      onError?.(e);
     }
-
-    const [estimatedOutcome] = await this.getBuyEstimation(tokensToMint);
-    const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
-
-    return bondContract.network(this.chainId).write({
-      functionName: 'mint',
-      args: [this.tokenAddress, tokensToMint, maxReserveAmount, recipient || connectedAddress],
-    });
   }
 
-  public async sell(params: SellParams) {
-    const { tokensToBurn, slippage = 0, recipient } = params;
+  public async sell(params: BuySellCommonParams) {
+    const { amount, slippage = 0, recipient } = params;
 
     const connectedAddress = await this.getConnectedWalletAddress();
 
     const bondApproved = await this.bondContractApproved({
       walletAddress: connectedAddress,
-      amountToSpend: tokensToBurn,
+      amountToSpend: amount,
       tradeType: 'sell',
     } as BondApprovedParams<T>);
 
     if (!bondApproved) {
-      await this.approveBondContract({
-        tradeType: 'sell',
-        amountToSpend: tokensToBurn,
-      } as ApproveBondParams<T>);
+      throw new BondInsufficientAllowanceError();
     }
 
-    const [estimatedOutcome] = await this.getSellEstimation(tokensToBurn);
+    const [estimatedOutcome] = await this.getSellEstimation(amount);
     const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
     return bondContract.network(this.chainId).write({
+      ...params,
       functionName: 'burn',
-      args: [this.tokenAddress, tokensToBurn, maxReserveAmount, recipient || connectedAddress],
+      args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
     });
+  }
+
+  public async transfer(params: TransferCommonParams) {
+    const { amount, recipient } = params;
+
+    if (this.tokenType === 'ERC20') {
+      return erc20Contract.network(this.chainId).write({
+        ...params,
+        tokenAddress: this.getTokenAddress(),
+        functionName: 'transfer',
+        args: [recipient, amount],
+      });
+    } else {
+      const connectedAddress = await this.getConnectedWalletAddress();
+      return erc1155Contract.network(this.chainId).write({
+        ...params,
+        tokenAddress: this.getTokenAddress(),
+        functionName: 'safeTransferFrom',
+        args: [connectedAddress, recipient, 0n, amount, '0x'],
+      });
+    }
   }
 }

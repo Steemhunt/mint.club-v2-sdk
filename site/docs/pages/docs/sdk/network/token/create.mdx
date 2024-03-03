@@ -310,9 +310,9 @@ await mintclub
 ```
 
 
-### onRequestSignature (optional)
+### onSignatureRequest (optional)
 
-- Type: `onRequestSignature?: () => void;`
+- Type: `onSignatureRequest?: () => void;`
 - Default: `undefined`
 
 Callback function for when the user is requested to sign the transaction.
@@ -328,7 +328,7 @@ await mintclub
       decimals: 18,
     }, 
     curveData,
-	onRequestSignature: () => {} // [!code focus]
+	onSignatureRequest: () => {} // [!code focus]
   })
 ```
 
