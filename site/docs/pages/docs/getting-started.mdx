@@ -71,7 +71,7 @@ import { mintclub } from 'mint.club-v2-sdk'
 
 // [!code focus]
 const result = await mintclub.network('base').token('CHICKEN').buy({ // [!code focus]
-	tokensToMint: 100n, // [!code focus]
+	amount: 100n, // [!code focus]
 	slippage: 0, // [!code focus]
 	recipient: '0x...' // [!code focus]
 }) // [!code focus]

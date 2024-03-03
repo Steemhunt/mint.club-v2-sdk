@@ -122,11 +122,11 @@ import { mintclub } from 'mint.club-v2-sdk'
 const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT');
 
 // buy
-const buyParams = { tokensToMint: 100n }
+const buyParams = { amount: 100n }
 await MortyMee6Nft.buy(buyParams)
 
 // sell
-const sellParams = { tokensToBurn: 100n }
+const sellParams = { amount: 100n }
 await MortyMee6Nft.sell(sellParams)
 ```
 
