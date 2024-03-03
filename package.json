@@ -25,7 +25,7 @@
   "scripts": {
     "docs:deploy": "",
     "build": "npm run purge && npx pkgroll",
-    "prepublishOnly": "npm version prerelease && git push && npm run build",
+    "prepublishOnly": "git push && npm run build",
     "purge": "npx rimraf ./dist",
     "test": "npx bun test",
     "test:watch": "npx bun test --watch",
