@@ -29,7 +29,8 @@
     "purge": "npx rimraf ./dist",
     "test": "npx bun test",
     "test:watch": "npx bun test --watch",
-    "hardhat": "NODE_ENV=hardhat npx bun test hardhat"
+    "hardhat": "NODE_ENV=hardhat npx bun test hardhat",
+    "hardhat:node": "npx hardhat node --fork https://eth-mainnet.g.alchemy.com/v2/<key>"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
@@ -42,9 +43,11 @@
     "@typescript-eslint/parser": "^7.1.0",
     "bun": "^1.0.25",
     "bun-types": "latest",
+    "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "hardhat": "^2.20.1",
+    "mocha": "^10.3.0",
     "pkgroll": "^2.0.1",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
