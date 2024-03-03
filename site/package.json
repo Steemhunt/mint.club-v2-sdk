@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm run link-sdk && vocs dev",
+    "dev": "vocs dev",
     "build": "vocs build",
     "preview": "vocs preview",
     "link-sdk": "npx npm link mint.club-v2-sdk",
     "unlink-sdk": "npx npm unlink mint.club-v2-sdk && npx bun install mint.club-v2-sdk@latest",
-    "deploy": "npm run unlink-sdk && vercel build && vercel --prod"
+    "deploy": "vercel build && vercel --prod"
   },
   "dependencies": {
     "@types/react": "latest",
