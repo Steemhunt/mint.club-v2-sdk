@@ -42,7 +42,7 @@ export const sidebar = {
             {
               text: 'network',
               link: '/docs/sdk/network',
-              collapsed: true,
+              collapsed: false,
               items: [
                 {
                   text: 'token',
