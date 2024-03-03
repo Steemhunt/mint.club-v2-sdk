@@ -47,7 +47,7 @@ export const sidebar = {
                 {
                   text: 'token',
                   link: '/docs/sdk/network/token',
-                  collapsed: true,
+                  collapsed: false,
                   items: [
                     {
                       text: 'create',
