@@ -65,6 +65,20 @@ describe('Hardhat ERC20', async () => {
     },
   } as const;
 
+  const BOB_TOKEN = {
+    name: 'Bob Token',
+    symbol: 'BOB',
+    reserveToken: {
+      address: ReserveToken.address,
+      decimals: 18,
+    },
+    stepData: [
+      { rangeTo: 100, price: 1 },
+      { rangeTo: 1000, price: 2 },
+      { rangeTo: 10000, price: 3 },
+    ],
+  };
+
   global.mcv2Hardhat = {
     ERC20: {
       [hardhat.id]: TokenImplementation.address,
@@ -300,6 +314,57 @@ describe('Hardhat ERC20', async () => {
     test(`Alice now has 500 ${WONDERLAND_TOKEN.symbol}`, async () => {
       const balance = await mintclub.token(wonderlandTokenAddress).getBalanceOf(alice.account.address);
       expect(balance).toEqual(wei(500, 18));
+    });
+  });
+
+  describe('stepData', async () => {
+    test(`Bob creates a new ERC20 called BOB with stepData`, async () => {
+      await mintclub
+        .withWalletClient(bob)
+        .token(BOB_TOKEN.symbol)
+        .create({
+          ...BOB_TOKEN,
+          debug: (simulationArgs: any) => {
+            const { args, functionName, address } = simulationArgs;
+            const [{ name, symbol }, { mintRoyalty, burnRoyalty, reserveToken, stepRanges, stepPrices }] = args;
+            expect(name).toEqual(BOB_TOKEN.name);
+            expect(symbol).toEqual(BOB_TOKEN.symbol);
+
+            expect(functionName).toEqual('createToken');
+
+            expect(address).toEqual(Bond.address);
+            expect(reserveToken).toEqual(ReserveToken.address);
+
+            expect(stepRanges[0]).toEqual(wei(100, 18));
+            expect(stepPrices[0]).toEqual(wei(1, 18));
+
+            expect(stepRanges[1]).toEqual(wei(1000, 18));
+            expect(stepPrices[1]).toEqual(wei(2, 18));
+
+            expect(stepRanges[2]).toEqual(wei(10000, 18));
+            expect(stepPrices[2]).toEqual(wei(3, 18));
+
+            expect(mintRoyalty).toEqual(30); // default 0.03%
+            expect(burnRoyalty).toEqual(30); // default 0.03%
+          },
+          onSignatureRequest: assertTxSignature,
+          onSuccess: assertTxSuccess,
+        });
+    });
+
+    test(`Check if ${BOB_TOKEN.symbol} token is created`, async () => {
+      const exists = await mintclub.token(computeCreate2Address(hardhat.id, 'ERC20', BOB_TOKEN.symbol)).exists();
+      expect(exists).toEqual(true);
+    });
+
+    test(`Check if ${BOB_TOKEN.symbol} token has correct data`, async () => {
+      const { reserveToken, burnRoyalty, mintRoyalty, creator } = await mintclub
+        .token(computeCreate2Address(hardhat.id, 'ERC20', BOB_TOKEN.symbol))
+        .getTokenBond();
+      expect(getAddress(reserveToken, hardhat.id)).toEqual(getAddress(ReserveToken.address, hardhat.id));
+      expect(burnRoyalty).toEqual(30);
+      expect(mintRoyalty).toEqual(30);
+      expect(getAddress(creator, hardhat.id)).toEqual(getAddress(bob.account.address, hardhat.id));
     });
   });
 });
