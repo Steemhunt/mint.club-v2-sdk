@@ -177,4 +177,3 @@ vocs.config.ts.timestamp-*
 
 artifacts/
 cache/
-cache/solidity-files-cache.json

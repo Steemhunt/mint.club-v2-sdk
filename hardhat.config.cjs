@@ -1,4 +1,3 @@
-require('dotenv').config();
 require('@nomicfoundation/hardhat-viem');
 require('@nomicfoundation/hardhat-toolbox');
 
@@ -27,13 +26,5 @@ module.exports = {
         version: '0.4.18', // For WETH mock contract
       },
     ],
-  },
-  networks: {
-    hardhat: {
-      chainId: 1,
-      forking: {
-        url: process.env.MAINNET_ALCHEMY_API,
-      },
-    },
   },
 };

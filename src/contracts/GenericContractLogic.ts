@@ -73,12 +73,6 @@ export class GenericContractLogic<
 
     if (!walletClient) throw new Error('No wallet client found');
 
-    const chainId = await walletClient.getChainId();
-
-    if (chainId !== this.chainId) {
-      await walletClient.switchChain({ id: this.chainId });
-    }
-
     const {
       functionName,
       args,
