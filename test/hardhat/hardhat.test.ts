@@ -1,4 +1,3 @@
-process.env.NODE_ENV = 'hardhat';
 import { describe, expect, test } from 'bun:test';
 import hre from 'hardhat';
 import { TransactionReceipt, checksumAddress, getAddress, maxUint256 } from 'viem';
@@ -8,10 +7,11 @@ import { computeCreate2Address } from '../../src/utils/addresses';
 import { MAX_STEPS, PROTOCOL_BENEFICIARY, wei } from '../utils';
 import { BondInsufficientAllowanceError } from '../../src/errors/sdk.errors';
 
-const publicClient = await hre.viem.getPublicClient();
+process.env.NODE_ENV = 'hardhat';
 
-// first wallet is used automatically to deploy
+const publicClient = await hre.viem.getPublicClient();
 const [alice, bob] = await hre.viem.getWalletClients();
+// first wallet is used automatically to deploy
 
 const TokenImplementation = await hre.viem.deployContract('MCV2_Token');
 const NFTImplementation = await hre.viem.deployContract('MCV2_MultiToken');
@@ -365,6 +365,8 @@ describe('Hardhat ERC20', async () => {
       expect(burnRoyalty).toEqual(30);
       expect(mintRoyalty).toEqual(30);
       expect(getAddress(creator, hardhat.id)).toEqual(getAddress(bob.account.address, hardhat.id));
+
+      process.env.NODE_ENV = 'test';
     });
   });
 });
