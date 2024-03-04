@@ -5,6 +5,7 @@ import { sidebar } from './docs/sidebar'
 export default defineConfig({
   head: (
     <>
+      <link rel="icon" href="https://mint.club/favicon.ico" type="image/x-icon" sizes="16x16" />
       <meta property="og:type" content="website" />
       <meta property="og:title" content="Mint.club V2 SDK Documentation" />
       <meta property="og:image" content="https://vocs.dev/api/og?logo=%logo&title=%title&description=%description" />
