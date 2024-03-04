@@ -29,8 +29,9 @@ export class ClientHelper {
   private walletClient?: WalletClient;
   // these are always defined, singleton
   private publicClients: Record<number, PublicClient<FallbackTransport> | PublicClient> = {};
+  private chainId?: SdkSupportedChainIds; // last chain id used
 
-  constructor() {
+  constructor(chainId?: SdkSupportedChainIds) {
     if (ClientHelper.instance) {
       return ClientHelper.instance;
     }
@@ -80,7 +81,9 @@ export class ClientHelper {
     return this.walletClient?.account?.address;
   }
 
-  public getPublicClient(id: number) {
+  public getPublicClient(id?: number) {
+    if (id === undefined) return this.publicClients[this.chainId as number];
+
     if (this.publicClients[id] !== undefined) return this.publicClients[id];
 
     const chain: Chain | undefined = Object.values(chains).find((chain) => chain.id === id);

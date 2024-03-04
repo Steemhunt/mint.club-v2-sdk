@@ -174,6 +174,7 @@ out
 dist
 
 vocs.config.ts.timestamp-*
+vocs.config.tsx.timestamp-*
 
 artifacts/
 cache/
