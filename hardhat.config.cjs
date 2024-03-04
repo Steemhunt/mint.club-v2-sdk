@@ -4,9 +4,8 @@ require('@nomicfoundation/hardhat-toolbox');
 module.exports = {
   // taken from mint.club-v2-contract
   paths: {
-    sources: './test/hardhat/contracts',
-    tests: './test/hardhat',
-    artifacts: './test/hardhat/artifacts',
+    sources: './contracts',
+    artifacts: './artifacts',
   },
   solidity: {
     compilers: [
