@@ -1,9 +1,9 @@
 const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+import { JSDOM } from 'jsdom';
 
 if (isNode) {
-  const { JSDOM } = require('jsdom');
   const { window } = new JSDOM('');
-  global.window = window;
+  (global as any).window = window;
 }
 
 import { MintClubSDK } from './MintClubSDK';
