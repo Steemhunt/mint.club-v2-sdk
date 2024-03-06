@@ -6,7 +6,7 @@
   ],
   "type": "module",
   "license": "BSD-3-Clause",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "module": "./dist/index.mjs",
