@@ -1,13 +1,6 @@
 import { CIDString, FilebaseClient } from '@filebase/client';
-import { api } from '../utils/api';
-import {
-  HttpUrl,
-  IpfsHashUrl,
-  MetadataUploadParams,
-  MintClubApiIpfsUploadReturnType,
-  NFTMetadata,
-} from '../types/ipfs.types';
-import { InvalidImageProvidedError } from '../errors/sdk.errors';
+import { FilebaseKeyNeededErrror, InvalidImageProvidedError } from '../errors/sdk.errors';
+import { HttpUrl, IpfsHashUrl, MetadataUploadParams, NFTMetadata } from '../types/ipfs.types';
 
 export class IpfsHelper {
   private static async addWithFilebase(apiKey: string, file: Blob): Promise<CIDString> {
@@ -15,15 +8,6 @@ export class IpfsHelper {
 
     const cid = await client.storeBlob(file, 'nft.png');
     return cid;
-  }
-
-  private static async addWithMintClubApi(formData: FormData): Promise<CIDString> {
-    const { hash } = await api
-      .post('ipfs/upload', {
-        body: formData,
-      })
-      .json<MintClubApiIpfsUploadReturnType>();
-    return hash;
   }
 
   public static isIpfsUrl(url: string) {
@@ -70,13 +54,13 @@ export class IpfsHelper {
     return valid;
   }
 
-  public static async add(file: Blob, apiKey?: string): Promise<CIDString> {
+  public static async add(file: Blob, apiKey?: string) {
+    if (!apiKey) {
+      throw new FilebaseKeyNeededErrror();
+    }
     if (apiKey) {
       return IpfsHelper.addWithFilebase(apiKey, file);
     }
-    const formData = new FormData();
-    formData.append('file', file);
-    return IpfsHelper.addWithMintClubApi(formData);
   }
 
   public static async uploadERC1155Metadata(data: MetadataUploadParams): Promise<IpfsHashUrl> {

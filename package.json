@@ -56,7 +56,6 @@
     "@filebase/client": "^0.0.5",
     "@types/lodash-es": "^4.17.12",
     "abitype": "^1.0.0",
-    "ky": "^1.2.2",
     "lodash": "^4.17.21",
     "viem": "latest"
   }
