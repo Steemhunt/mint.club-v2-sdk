@@ -12,6 +12,9 @@
   "module": "./dist/index.mjs",
   "typings": "./dist/index.d.mts",
   "homepage": "https://github.com/Steemhunt/mint.club-v2-sdk",
+  "browser": {
+    "module": "./dist/index.mjs"
+  },
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
