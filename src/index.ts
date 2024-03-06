@@ -1,6 +1,7 @@
-import { JSDOM } from 'jsdom';
+let JSDOM;
 
 if (typeof window === 'undefined') {
+  JSDOM = require('jsdom').JSDOM;
   const { window } = new JSDOM('');
   (global as any).window = window;
 }
