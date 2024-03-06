@@ -14,22 +14,6 @@ import * as chains from 'viem/chains';
 import { ChainNotSupportedError, NoEthereumProviderError, WalletNotConnectedError } from '../errors/sdk.errors';
 import { chainRPCFallbacks, DEFAULT_RANK_OPTIONS, SdkSupportedChainIds } from '../exports';
 
-declare global {
-  interface Window {
-    ethereum: any;
-    location: Location;
-  }
-}
-
-if (typeof window === 'undefined') {
-  global.window = {
-    location: {
-      href: '',
-      // Add other properties as needed
-    },
-  } as any;
-}
-
 export class ClientHelper {
   private static instance?: ClientHelper;
   private walletClient?: WalletClient;

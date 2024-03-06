@@ -1,10 +1,13 @@
-let JSDOM;
+(async () => {
+  if (typeof window === 'undefined') {
+    const jsdom = await import('jsdom');
+    const JSDOM = jsdom.JSDOM;
+    const { window } = new JSDOM('');
+    (global.window as any) = window as unknown as Window;
+  }
 
-if (typeof window === 'undefined') {
-  JSDOM = require('jsdom').JSDOM;
-  const { window } = new JSDOM('');
-  (global as any).window = window;
-}
+  // Place any code that depends on `global.window` here, inside the async IIFE.
+})();
 
 import { MintClubSDK } from './MintClubSDK';
 import {
