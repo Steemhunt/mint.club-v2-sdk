@@ -17,11 +17,17 @@ import { chainRPCFallbacks, DEFAULT_RANK_OPTIONS, SdkSupportedChainIds } from '.
 declare global {
   interface Window {
     ethereum: any;
+    location: Location;
   }
 }
 
 if (typeof window === 'undefined') {
-  global.window = {} as any;
+  global.window = {
+    location: {
+      href: '',
+      // Add other properties as needed
+    },
+  } as any;
 }
 
 export class ClientHelper {
