@@ -1,3 +1,11 @@
+const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+
+if (isNode) {
+  const { JSDOM } = require('jsdom');
+  const { window } = new JSDOM('');
+  global.window = window;
+}
+
 import { MintClubSDK } from './MintClubSDK';
 import {
   Abi,
