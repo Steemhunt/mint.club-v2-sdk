@@ -1,7 +1,6 @@
-const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
 import { JSDOM } from 'jsdom';
 
-if (isNode) {
+if (typeof window === 'undefined') {
   const { window } = new JSDOM('');
   (global as any).window = window;
 }
