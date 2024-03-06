@@ -33,9 +33,6 @@ Made with ☕
 ```bash
 npm i
 
-// link contracts
-ln -s ./node_modules/mint-club-v2/contracts ./contracts
-
 npx hardhat compile
 
 npm test

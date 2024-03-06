@@ -176,5 +176,6 @@ dist
 vocs.config.ts.timestamp-*
 vocs.config.tsx.timestamp-*
 
-artifacts/
+artifacts/*
+!artifacts/.gitkeep
 cache/
