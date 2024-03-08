@@ -10,16 +10,17 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "browser": "./dist/browser.js",
+  "browser": {
+    "./dist/index.mjs": "./dist/index.mjs",
+    "./dist/index.cjs": "./dist/index.cjs"
+  },
   "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+    "node": {
+      "import": "./dist/node.mjs",
+      "require": "./dist/node.cjs"
     },
-    "./browser": {
-      "import": "./dist/browser.mjs",
-      "require": "./dist/browser.cjs"
-    }
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.cjs"
   },
   "scripts": {
     "docs:deploy": "",

@@ -24,14 +24,14 @@ const config = [
     ],
   },
   {
-    input: 'src/browser.ts',
+    input: 'src/node.ts',
     output: [
       {
-        file: 'dist/cjs/browser.js',
+        file: 'dist/cjs/node.js',
         format: 'cjs',
       },
       {
-        file: 'dist/esm/browser.js',
+        file: 'dist/esm/node.js',
         format: 'es',
       },
     ],
