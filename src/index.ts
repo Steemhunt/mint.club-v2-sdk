@@ -51,5 +51,8 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
 
 export * from './exports';
 export * from './contracts';
+export * from './utils/bond';
+export * from './utils/graph';
+export * from './utils/trade';
 
 export const mintclub = new MintClubSDK();
