@@ -94,7 +94,7 @@ export function chainIdToString(chainId: number) {
 }
 
 export function chainStringToId(name: LowerCaseChainNames) {
-  const found = CHAINS.find((chain) => chain.name?.toLowerCase() === name.toLowerCase());
+  const found = CHAINS.find((chain) => chain?.name?.toLowerCase?.() === name?.toLowerCase?.());
 
   if (!found) throw new ChainNotSupportedError(name);
 
