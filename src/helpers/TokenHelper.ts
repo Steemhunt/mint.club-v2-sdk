@@ -126,6 +126,20 @@ export class TokenHelper<T extends TokenType> {
     });
   }
 
+  public async getReserveToken() {
+    const { reserveToken } = await this.getTokenBond();
+    const [name, symbol, decimals] = await Promise.all([
+      erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'name' }),
+      erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'symbol' }),
+      erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'decimals' }),
+    ]);
+    return {
+      name,
+      symbol,
+      decimals,
+    };
+  }
+
   public async getReserveTokenAddress() {
     const { reserveToken } = await this.getTokenBond();
     return reserveToken;
