@@ -54,7 +54,7 @@ export class TokenHelper<T extends TokenType> {
     return tradeType === 'buy' ? await this.getReserveTokenAddress() : this.getTokenAddress();
   }
 
-  protected async bondContractApproved(params: BondApprovedParams<T>) {
+  public async bondContractApproved(params: BondApprovedParams<T>) {
     const { tradeType, walletAddress } = params;
     const tokenToApprove = await this.tokenToApprove(tradeType);
 
