@@ -6,7 +6,7 @@ export type RPCList = {
   readonly rpcs: string[];
 };
 
-export const CHAINS: Array<RPCList> = [
+export const RPCS: Array<RPCList> = [
   {
     id: mainnet.id,
     rpcs: [
@@ -283,7 +283,7 @@ export function chainRPCFallbacks(
   },
 ) {
   return (
-    CHAINS.find((c) => c.id === chain.id)?.rpcs.map((rpc) =>
+    RPCS.find((c) => c.id === chain.id)?.rpcs.map((rpc) =>
       customTransport({
         rpc,
         fetchOptions,
