@@ -1,4 +1,5 @@
-import { cloneDeep } from 'lodash';
+import lodash from 'lodash';
+const { cloneDeep } = lodash;
 import { CreationError } from '../errors/sdk.errors';
 import { wei } from '../exports';
 import { CreateTokenParams } from '../types/bond.types';

@@ -1,4 +1,5 @@
-import { uniqBy } from 'lodash';
+import lodash from 'lodash';
+const { uniqBy } = lodash;
 import { countDecimals, countLeadingZeros, handleScientificNotation } from './numbers';
 import { GenerateStepArgs } from '../types/bond.types';
 
