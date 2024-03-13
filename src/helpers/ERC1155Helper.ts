@@ -5,7 +5,6 @@ import { CreateERC1155TokenParams } from '../types/bond.types';
 import { IpfsHashUrl, MetadataUploadParams } from '../types/ipfs.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
 import { CommonWriteParams } from '../types/transactions.types';
-import { generateCreateArgs } from '../utils/bond';
 import { IpfsHelper } from './IpfsHelper';
 import { TokenHelper } from './TokenHelper';
 

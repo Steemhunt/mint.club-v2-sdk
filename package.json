@@ -55,6 +55,6 @@
     "abitype": "^1.0.0",
     "jsdom": "^24.0.0",
     "lodash": "^4.17.21",
-    "viem": "latest"
+    "viem": "2.8.5"
   }
 }

@@ -1,21 +1,21 @@
-import { Chain, FallbackTransportConfig, HttpTransportConfig, custom, http } from 'viem';
-import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
+import { Chain, FallbackTransportConfig, HttpTransportConfig, http } from 'viem';
+import { arbitrum, avalanche, base, blast, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
 
 export type RPCList = {
   readonly id: number;
   readonly rpcs: string[];
 };
 
-export const RPC_CHAINS: Array<RPCList> = [
+export const CHAINS: Array<RPCList> = [
   {
     id: mainnet.id,
     rpcs: [
       'https://eth.drpc.org',
-      // 'https://eth.llamarpc.com',
+      'https://eth.llamarpc.com',
       'https://eth-mainnet.nodereal.io/v1/1659dfb40aa24bbb8153a677b98064d7',
-      'https://virginia.rpc.blxrbdn.com',
-      'https://singapore.rpc.blxrbdn.com',
-      'https://uk.rpc.blxrbdn.com',
+      // 'https://virginia.rpc.blxrbdn.com',
+      // 'https://singapore.rpc.blxrbdn.com',
+      // 'https://uk.rpc.blxrbdn.com',
       'https://rpc.ankr.com/eth',
       // 'https://eth-pokt.nodies.app',
       // 'https://ethereum.blockpi.network/v1/rpc/public',
@@ -39,7 +39,7 @@ export const RPC_CHAINS: Array<RPCList> = [
       'https://rpc.payload.de',
       'https://rpc.tornadoeth.cash/eth',
       'https://rpc.tornadoeth.cash/mev',
-      'https://rpc.lokibuilder.xyz/wallet',
+      // 'https://rpc.lokibuilder.xyz/wallet',
       'https://endpoints.omniatech.io/v1/eth/mainnet/public',
       // 'https://gateway.tenderly.co/public/mainnet',
       // 'https://mainnet.gateway.tenderly.co',
@@ -68,7 +68,10 @@ export const RPC_CHAINS: Array<RPCList> = [
   {
     id: base.id,
     rpcs: [
-      // 'https://base.llamarpc.com',
+      'https://base.drpc.org',
+      'https://base-mainnet.public.blastapi.io',
+      'https://base.publicnode.com',
+      'https://base.llamarpc.com',
       // 'https://base.blockpi.network/v1/rpc/public',
       // 'https://mainnet.base.org',
       // 'https://developer-access-mainnet.base.org',
@@ -78,19 +81,19 @@ export const RPC_CHAINS: Array<RPCList> = [
       // 'https://gateway.tenderly.co/public/base',
       'https://base.publicnode.com',
       'https://base-mainnet.public.blastapi.io',
-      'https://base.drpc.org',
       // 'https://base.api.onfinality.io/public',
       // 'https://rpc.notadegen.com/base',
       // 'https://base.meowrpc.com',
       // 'https://1rpc.io/base',
       // 'https://base-mainnet.diamondswap.org/rpc',
+      'https://base-mainnet.g.alchemy.com/v2/SRfSE9rBv5Foy3Qw9WQqUKTz1utLO37x',
     ],
   },
   {
     id: optimism.id,
     rpcs: [
       'https://optimism.drpc.org',
-      // 'https://optimism.llamarpc.com',
+      'https://optimism.llamarpc.com',
       // 'https://op-pokt.nodies.app',
       // 'https://api.zan.top/node/v1/opt/mainnet/public',
       'https://endpoints.omniatech.io/v1/op/mainnet/public',
@@ -113,7 +116,7 @@ export const RPC_CHAINS: Array<RPCList> = [
     id: arbitrum.id,
     rpcs: [
       'https://arbitrum.drpc.org',
-      // 'https://arbitrum.llamarpc.com',
+      'https://arbitrum.llamarpc.com',
       // 'https://rpc.tornadoeth.cash/arbitrum',
       'https://arbitrum.meowrpc.com',
       'https://arbitrum-one.public.blastapi.io',
@@ -135,10 +138,10 @@ export const RPC_CHAINS: Array<RPCList> = [
     id: polygon.id,
     rpcs: [
       'https://polygon.drpc.org',
-      // 'https://polygon.llamarpc.com',
+      'https://polygon.llamarpc.com',
       // 'https://polygon-pokt.nodies.app',
       // 'https://polygon.blockpi.network/v1/rpc/public',
-      'https://polygon.rpc.blxrbdn.com',
+      // 'https://polygon.rpc.blxrbdn.com',
       'https://rpc-mainnet.matic.quiknode.pro',
       'https://polygon-bor.publicnode.com',
       'https://polygon-mainnet.rpcfast.com?api_key=xbhWBI1Wkguk8SNMu1bvvLurPGLXmgwYeC4S6g2H7WdwFigZSmPWVZRxrskEQwIf',
@@ -167,8 +170,8 @@ export const RPC_CHAINS: Array<RPCList> = [
   {
     id: bsc.id,
     rpcs: [
-      // 'https://binance.llamarpc.com',
       'https://bsc-dataseed4.bnbchain.org',
+      'https://binance.llamarpc.com',
       'https://bsc-dataseed2.defibit.io',
       'https://bsc-dataseed3.defibit.io',
       'https://bsc-dataseed4.defibit.io',
@@ -183,7 +186,7 @@ export const RPC_CHAINS: Array<RPCList> = [
       'https://bsc-dataseed2.bnbchain.org',
       'https://bsc-dataseed.bnbchain.org',
       'https://bsc-dataseed1.bnbchain.org',
-      'https://bsc.rpc.blxrbdn.com',
+      // 'https://bsc.rpc.blxrbdn.com',
       'https://bsc.publicnode.com',
       'https://bsc-mainnet.public.blastapi.io',
       'https://bsc-mainnet.rpcfast.com?api_key=xbhWBI1Wkguk8SNMu1bvvLurPGLXmgwYeC4S6g2H7WdwFigZSmPWVZRxrskEQwIf',
@@ -227,6 +230,17 @@ export const RPC_CHAINS: Array<RPCList> = [
     ],
   },
   {
+    id: blast.id,
+    rpcs: [
+      // 'https://blast.din.dev/rpc',
+      'https://blast.gasswap.org',
+      'https://blast.blockpi.network/v1/rpc/public',
+      'https://rpc.blast.io',
+      'https://blastl2-mainnet.public.blastapi.io',
+      'https://rpc.ankr.com/blast',
+    ],
+  },
+  {
     id: sepolia.id,
     rpcs: [
       // 'https://gateway.tenderly.co/public/sepolia',
@@ -242,7 +256,7 @@ export const RPC_CHAINS: Array<RPCList> = [
       'https://rpc-sepolia.rockx.com',
       'https://rpc.sepolia.org',
       'https://rpc2.sepolia.org',
-      'https://sphinx.shardeum.org',
+      // 'https://sphinx.shardeum.org',
       // 'https://1rpc.io/sepolia',
       // 'https://api.zan.top/node/v1/eth/sepolia/public',
       // 'https://dapps.shardeum.org',
@@ -251,52 +265,39 @@ export const RPC_CHAINS: Array<RPCList> = [
   },
 ];
 
-function customTransport(params: { rpc?: string; chain: Chain; fetchOptions?: HttpTransportConfig['fetchOptions'] }) {
-  const { rpc, chain, fetchOptions } = params;
-  const transport = http(rpc, { fetchOptions })({ chain });
-  return custom(
-    {
-      async request({ method, params }) {
-        const response = await transport.request({ method, params });
-        return response;
-      },
-    },
-    {
-      key: rpc,
-      name: rpc,
-    },
-  );
+function customTransport(params: { rpc?: string; fetchOptions?: HttpTransportConfig['fetchOptions'] }) {
+  const { rpc, fetchOptions } = params;
+  return http(rpc, {
+    key: rpc,
+    name: rpc,
+    fetchOptions,
+    retryCount: 0,
+    timeout: 2_000,
+  });
 }
 
 export function chainRPCFallbacks(
   chain: Chain,
   fetchOptions: HttpTransportConfig['fetchOptions'] = {
-    headers: {
-      'Cache-Control': 'no-cache',
-    },
+    cache: 'no-store',
   },
 ) {
   return (
-    RPC_CHAINS.find((c) => c.id === chain.id)?.rpcs.map((rpc) =>
+    CHAINS.find((c) => c.id === chain.id)?.rpcs.map((rpc) =>
       customTransport({
         rpc,
-        chain,
         fetchOptions,
       }),
-    ) || [
-      customTransport({
-        chain,
-        fetchOptions,
-      }),
-    ]
+    ) || [http()]
   );
 }
 
 export const DEFAULT_RANK_OPTIONS: FallbackTransportConfig = {
+  retryCount: 0,
   rank: {
     interval: 100_000,
     sampleCount: 5,
-    timeout: 1_000,
+    timeout: 2_000,
     weights: {
       latency: 0.3,
       stability: 0.7,
