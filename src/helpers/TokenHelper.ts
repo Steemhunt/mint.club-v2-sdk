@@ -133,7 +133,9 @@ export class TokenHelper<T extends TokenType> {
       erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'symbol' }),
       erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'decimals' }),
     ]);
+
     return {
+      address: reserveToken,
       name,
       symbol,
       decimals,
