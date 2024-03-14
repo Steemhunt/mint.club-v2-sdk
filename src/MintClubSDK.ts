@@ -38,7 +38,7 @@ export class MintClubSDK {
   }
 
   public connectWallet() {
-    return new ClientHelper().connectWallet();
+    return new ClientHelper().connectWallet;
   }
 
   public withPublicClient(publicClient: PublicClient) {
