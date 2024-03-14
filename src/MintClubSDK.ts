@@ -37,6 +37,10 @@ export class MintClubSDK {
     });
   }
 
+  public connectWallet() {
+    return new ClientHelper().connectWallet();
+  }
+
   public withPublicClient(publicClient: PublicClient) {
     const chainId = publicClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
