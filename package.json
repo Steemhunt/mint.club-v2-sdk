@@ -6,7 +6,7 @@
   ],
   "type": "module",
   "license": "BSD-3-Clause",
-  "version": "0.0.40",
+  "version": "0.0.41",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
