@@ -18,11 +18,7 @@
     "browser": "./dist/index.mjs",
     "import": "./dist/index.mjs",
     "require": "./dist/index.cjs",
-    "types": "./dist/index.d.ts",
-    "node": {
-      "import": "./dist/node.mjs",
-      "require": "./dist/node.cjs"
-    }
+    "types": "./dist/index.d.ts"
   },
   "scripts": {
     "docs:deploy": "",
@@ -38,6 +34,7 @@
     "@nomicfoundation/hardhat-viem": "^2.0.0",
     "@openzeppelin/contracts": "^5.0.2",
     "@rollup/plugin-alias": "^5.1.0",
+    "@rollup/plugin-dynamic-import-vars": "^2.1.2",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/bun": "^1.0.8",
@@ -55,19 +52,13 @@
     "typescript": "5.4.2"
   },
   "dependencies": {
-    "@filebase/client": "^0.0.5",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/jsdom": "^21.1.6",
     "@types/lodash": "^4.14.202",
     "abitype": "^1.0.0",
     "jsdom": "^24.0.0",
     "lodash": "^4.17.21",
+    "mint.club-v2-filebase": "0.0.11",
     "viem": "2.8.5"
-  },
-  "overrides": {
-    "@aws-sdk/client-s3": "^3.4.28.0",
-    "@aws-sdk/lib-storage": "^3.4.28.0",
-    "@aws-sdk/client-sns": "^3.4.28.0",
-    "@aws-sdk/client-sqs": "^3.4.28.0",
-    "@aws-sdk/client-sts": "^3.4.28.0"
   }
 }

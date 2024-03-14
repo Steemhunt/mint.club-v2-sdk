@@ -1,4 +1,4 @@
-import { CIDString, FilebaseClient } from '@filebase/client';
+import { CIDString, FilebaseClient } from 'mint.club-v2-filebase';
 import { FilebaseKeyNeededErrror, InvalidImageProvidedError } from '../errors/sdk.errors';
 import { HttpUrl, IpfsHashUrl, MetadataUploadParams, NFTMetadata } from '../types/ipfs.types';
 

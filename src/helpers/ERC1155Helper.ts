@@ -1,5 +1,5 @@
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
-import { FilebaseKeyNeededErrror, SymbolNotDefinedError, TokenAlreadyExistsError } from '../errors/sdk.errors';
+import { FilebaseKeyNeededErrror } from '../errors/sdk.errors';
 import { CHAIN_MAP, chainIdToString } from '../exports';
 import { CreateERC1155TokenParams } from '../types/bond.types';
 import { IpfsHashUrl, MetadataUploadParams } from '../types/ipfs.types';
@@ -98,6 +98,8 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     const chainString = chainIdToString(this.chainId);
     const chainName = CHAIN_MAP[this.chainId].name;
 
+    console.log(data);
+
     const reserveTokenName = await erc20Contract.network(this.chainId).read({
       tokenAddress: reserveToken.address,
       functionName: 'name',
@@ -144,6 +146,7 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
       const { args, fee } = await this.checkAndPrepareCreateArgs(params);
       const filebaseUsed =
         image instanceof File || video instanceof File || image instanceof Blob || video instanceof Blob;
+      console.log('filebaseUsed', filebaseUsed, image, video);
       if (filebaseUsed && !filebaseApiKey) {
         onError?.(new FilebaseKeyNeededErrror());
         return;
