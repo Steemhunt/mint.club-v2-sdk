@@ -46,14 +46,11 @@ export class IpfsHelper {
 
     const matched = cidv0Pattern.test(hash) || cidv1Pattern.test(hash);
 
-    // only allow ipfs://hash and not ipfs://ipfs://
-    const valid = matched && hash.startsWith('ipfs://') && hash.indexOf('ipfs://', 7) === -1;
-
-    if (!valid) {
+    if (!matched) {
       throw new InvalidImageProvidedError();
     }
 
-    return valid;
+    return matched;
   }
 
   public static async add(file: Blob, apiKey?: string) {
