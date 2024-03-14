@@ -84,7 +84,7 @@ export class ClientHelper {
     });
   }
 
-  public getPublicClient(id?: number) {
+  public getPublicClient(id?: number): PublicClient {
     if (id === undefined) return this.publicClients[this.chainId as number];
 
     if (this.publicClients[id] !== undefined) return this.publicClients[id];

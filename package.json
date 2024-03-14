@@ -15,9 +15,14 @@
     "./dist/index.cjs": "./dist/index.cjs"
   },
   "exports": {
+    "browser": "./dist/index.mjs",
     "import": "./dist/index.mjs",
     "require": "./dist/index.cjs",
-    "types": "./dist/index.d.ts"
+    "types": "./dist/index.d.ts",
+    "node": {
+      "import": "./dist/node.mjs",
+      "require": "./dist/node.cjs"
+    }
   },
   "scripts": {
     "docs:deploy": "",
@@ -35,10 +40,10 @@
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@types/bun": "^1.0.8",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
     "bun": "^1.0.25",
-    "bun-types": "latest",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "hardhat": "^2.20.1",
@@ -47,7 +52,7 @@
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "5.4.2"
   },
   "dependencies": {
     "@filebase/client": "^0.0.5",
@@ -57,5 +62,12 @@
     "jsdom": "^24.0.0",
     "lodash": "^4.17.21",
     "viem": "2.8.5"
+  },
+  "overrides": {
+    "@aws-sdk/client-s3": "^3.4.28.0",
+    "@aws-sdk/lib-storage": "^3.4.28.0",
+    "@aws-sdk/client-sns": "^3.4.28.0",
+    "@aws-sdk/client-sqs": "^3.4.28.0",
+    "@aws-sdk/client-sts": "^3.4.28.0"
   }
 }

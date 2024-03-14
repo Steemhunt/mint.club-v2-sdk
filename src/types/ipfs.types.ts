@@ -16,8 +16,8 @@ export type MetadataUploadParams = {
   description: string;
   external_url: string;
   attributes?: { trait_type: string; value: string }[];
-  image: File | IpfsHashUrl | HttpUrl;
-  video?: File | IpfsHashUrl | HttpUrl;
+  image: File | Blob | IpfsHashUrl | HttpUrl;
+  video?: File | Blob | IpfsHashUrl | HttpUrl;
 };
 
 export type MintClubApiIpfsUploadReturnType = { hash: string };

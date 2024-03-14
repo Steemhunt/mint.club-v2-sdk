@@ -49,8 +49,8 @@ type IpfsHashProvided = {
 
 type FilebaseApiKeyProvided = {
   filebaseApiKey: string;
-  image: File;
-  video?: File;
+  image: File | Blob;
+  video?: File | Blob;
   onIpfsUploadStart?: () => void;
   onIpfsUploadComplete?: () => void;
 };
@@ -64,8 +64,8 @@ export type CreateERC1155TokenParams = CreateERC20TokenParams & {
       value: string;
     }[];
   };
-  image: File | IpfsHashUrl | HttpUrl;
-  video?: File | IpfsHashUrl | HttpUrl;
+  image: Blob | File | IpfsHashUrl | HttpUrl;
+  video?: Blob | File | IpfsHashUrl | HttpUrl;
 } & (IpfsHashProvided | FilebaseApiKeyProvided);
 
 export type CreateTokenParams = CreateERC20TokenParams & {

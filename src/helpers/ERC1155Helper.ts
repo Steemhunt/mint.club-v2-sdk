@@ -142,7 +142,8 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
 
     try {
       const { args, fee } = await this.checkAndPrepareCreateArgs(params);
-      const filebaseUsed = image instanceof File || video instanceof File;
+      const filebaseUsed =
+        image instanceof File || video instanceof File || image instanceof Blob || video instanceof Blob;
       if (filebaseUsed && !filebaseApiKey) {
         onError?.(new FilebaseKeyNeededErrror());
         return;
@@ -161,6 +162,7 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
         value: fee,
       });
     } catch (e) {
+      console.error(e);
       onError?.(e);
     }
   }

@@ -44,7 +44,9 @@ export class GenericContractLogic<
     T extends ContractFunctionName<A, 'view' | 'pure'>,
     R extends ContractFunctionArgs<A, 'view' | 'pure', T>,
   >(params: TokenContractReadWriteArgs<A, T, R, C>): Promise<ReadContractReturnType<A, T, R>> {
-    const { functionName, args } = params;
+    const { functionName } = params;
+
+    const args = 'args' in params ? params.args : undefined;
     let address: `0x${string}`;
 
     if ('tokenAddress' in params) {
@@ -59,7 +61,7 @@ export class GenericContractLogic<
       abi: this.abi,
       address,
       functionName,
-      ...(args !== undefined && { args }),
+      args,
     } as unknown as ReadContractParameters<A, T, R>) as Promise<ReadContractReturnType<A, T, R>>;
   }
 
@@ -73,16 +75,7 @@ export class GenericContractLogic<
 
     if (!walletClient) throw new Error('No wallet client found');
 
-    const {
-      functionName,
-      args,
-      value,
-      debug,
-      onError,
-      onSignatureRequest: onSignatureRequest,
-      onSigned,
-      onSuccess,
-    } = params;
+    const { functionName, value, debug, onError, onSignatureRequest: onSignatureRequest, onSigned, onSuccess } = params;
     let address: `0x${string}`;
 
     if ('tokenAddress' in params) {
@@ -90,6 +83,8 @@ export class GenericContractLogic<
     } else {
       address = getMintClubContractAddress(this.contractType, this.chainId);
     }
+
+    const args = 'args' in params ? params.args : undefined;
 
     const simulationArgs = {
       account: walletClient.account,

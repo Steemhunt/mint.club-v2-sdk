@@ -5,6 +5,7 @@ import { ClientHelper } from './helpers/ClientHelper';
 import { ERC1155Helper } from './helpers/ERC1155Helper';
 import { ERC20Helper } from './helpers/ERC20Helper';
 import { InvalidClientError } from './errors/sdk.errors';
+import { IpfsHelper } from './helpers/IpfsHelper';
 
 type NetworkReturnType = {
   token: (symbolOrAddress: string) => ERC20Helper;
@@ -37,6 +38,10 @@ export class MintClubSDK {
         });
       },
     });
+  }
+
+  public async uploadToIpfs(filebaseApiKey: string, file: Blob) {
+    return IpfsHelper.addWithFilebase(filebaseApiKey, file);
   }
 
   public withPublicClient(publicClient: PublicClient) {

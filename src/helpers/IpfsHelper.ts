@@ -3,7 +3,9 @@ import { FilebaseKeyNeededErrror, InvalidImageProvidedError } from '../errors/sd
 import { HttpUrl, IpfsHashUrl, MetadataUploadParams, NFTMetadata } from '../types/ipfs.types';
 
 export class IpfsHelper {
-  private static async addWithFilebase(apiKey: string, file: Blob): Promise<CIDString> {
+  public static async addWithFilebase(apiKey: string, file: Blob): Promise<CIDString> {
+    if (!apiKey) throw new FilebaseKeyNeededErrror();
+
     const client = new FilebaseClient({ token: apiKey });
 
     const cid = await client.storeBlob(file, 'nft.png');
@@ -68,7 +70,7 @@ export class IpfsHelper {
 
     let imageHash: IpfsHashUrl | HttpUrl, videoHash: IpfsHashUrl | HttpUrl;
 
-    if (image instanceof File) {
+    if (image instanceof File || image instanceof Blob) {
       const hash = await this.add(image, filebaseApiKey);
       imageHash = `ipfs://${hash}`;
     } else if (this.isHttpUrl(image)) {
@@ -87,7 +89,7 @@ export class IpfsHelper {
     };
 
     if (video !== undefined) {
-      if (video instanceof File) {
+      if (video instanceof File || video instanceof Blob) {
         const hash = await this.add(video, filebaseApiKey);
         videoHash = `ipfs://${hash}`;
       } else if (this.isHttpUrl(video)) {
