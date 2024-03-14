@@ -1,14 +1,12 @@
-import { CIDString, FilebaseClient } from 'mint.club-v2-filebase';
+import { CIDString, FilebaseClient } from '@filebase/client';
 import { FilebaseKeyNeededErrror, InvalidImageProvidedError } from '../errors/sdk.errors';
-import { HttpUrl, IpfsHashUrl, MetadataUploadParams, NFTMetadata } from '../types/ipfs.types';
 
 export class IpfsHelper {
-  public static async addWithFilebase(apiKey: string, file: Blob): Promise<CIDString> {
+  public static async addWithFilebase(apiKey: string, buffer: Blob): Promise<CIDString> {
     if (!apiKey) throw new FilebaseKeyNeededErrror();
 
     const client = new FilebaseClient({ token: apiKey });
-
-    const cid = await client.storeBlob(file, 'nft.png');
+    const cid = await client.storeBlob(buffer, 'image.png');
     return cid;
   }
 
@@ -51,60 +49,5 @@ export class IpfsHelper {
     }
 
     return matched;
-  }
-
-  public static async add(file: Blob, apiKey?: string) {
-    if (!apiKey) {
-      throw new FilebaseKeyNeededErrror();
-    }
-    if (apiKey) {
-      return IpfsHelper.addWithFilebase(apiKey, file);
-    }
-  }
-
-  public static async uploadERC1155Metadata(data: MetadataUploadParams): Promise<IpfsHashUrl> {
-    const { name, image, video, attributes = [], filebaseApiKey, description, external_url } = data;
-
-    let imageHash: IpfsHashUrl | HttpUrl, videoHash: IpfsHashUrl | HttpUrl;
-
-    if (image instanceof File || image instanceof Blob) {
-      const hash = await this.add(image, filebaseApiKey);
-      imageHash = `ipfs://${hash}`;
-    } else if (this.isHttpUrl(image)) {
-      imageHash = image;
-    } else {
-      this.validateIpfsHash(image);
-      imageHash = image;
-    }
-
-    const metadataParams: NFTMetadata = {
-      name,
-      description,
-      image: imageHash,
-      external_url,
-      attributes,
-    };
-
-    if (video !== undefined) {
-      if (video instanceof File || video instanceof Blob) {
-        const hash = await this.add(video, filebaseApiKey);
-        videoHash = `ipfs://${hash}`;
-      } else if (this.isHttpUrl(video)) {
-        videoHash = video;
-      } else {
-        this.validateIpfsHash(video);
-        videoHash = video;
-      }
-
-      metadataParams.animation_url = videoHash;
-    }
-
-    const metadata = JSON.stringify(metadataParams);
-
-    const file = new Blob([metadata]);
-
-    const jsonHash = await this.add(file, filebaseApiKey);
-
-    return `ipfs://${jsonHash}`;
   }
 }

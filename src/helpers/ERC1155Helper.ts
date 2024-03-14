@@ -1,8 +1,5 @@
-import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
-import { FilebaseKeyNeededErrror } from '../errors/sdk.errors';
-import { CHAIN_MAP, chainIdToString } from '../exports';
+import { bondContract, erc1155Contract } from '../contracts';
 import { CreateERC1155TokenParams } from '../types/bond.types';
-import { IpfsHashUrl, MetadataUploadParams } from '../types/ipfs.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
 import { CommonWriteParams } from '../types/transactions.types';
 import { IpfsHelper } from './IpfsHelper';
@@ -93,75 +90,21 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     });
   }
 
-  private async uploadMetadata(data: CreateERC1155TokenParams): Promise<IpfsHashUrl> {
-    const { name, reserveToken, image, metadata, video } = data;
-    const chainString = chainIdToString(this.chainId);
-    const chainName = CHAIN_MAP[this.chainId].name;
-
-    console.log(data);
-
-    const reserveTokenName = await erc20Contract.network(this.chainId).read({
-      tokenAddress: reserveToken.address,
-      functionName: 'name',
-    });
-
-    const reserveTokenSymbol = await erc20Contract.network(this.chainId).read({
-      tokenAddress: reserveToken.address,
-      functionName: 'symbol',
-    });
-
-    const defaultExternalLink = `https://mint.club/nft/${chainString}/${this.symbol}`;
-    const defaultDescription = [
-      `${name} (${this.symbol}) is a Bonding Curved ERC-1155 token created on mint.club.`,
-      `Backed by ${reserveTokenName} (${reserveTokenSymbol}) on ${chainName} chain.`,
-      defaultExternalLink,
-    ].join('\n\n');
-
-    const finalMetadata: MetadataUploadParams = {
-      name,
-      description: defaultDescription,
-      image,
-      video,
-      external_url: defaultExternalLink,
-    };
-
-    if (metadata?.description) finalMetadata.description = metadata.description;
-    if (metadata?.external_url) finalMetadata.external_url = metadata.external_url;
-    if (metadata?.attributes) finalMetadata.attributes = metadata.attributes;
-
-    return await IpfsHelper.uploadERC1155Metadata(finalMetadata);
-  }
-
   public async create(params: CreateERC1155TokenParams & Omit<CommonWriteParams, 'value'>) {
-    const {
-      image,
-      video,
-      filebaseApiKey,
-      onError,
-      onIpfsUploadStart: onIPFSUploadStart,
-      onIpfsUploadComplete: onIPFSUploadComplete,
-    } = params;
+    const { onError, metadataUrl } = params;
 
     try {
       const { args, fee } = await this.checkAndPrepareCreateArgs(params);
-      const filebaseUsed =
-        image instanceof File || video instanceof File || image instanceof Blob || video instanceof Blob;
-      console.log('filebaseUsed', filebaseUsed, image, video);
-      if (filebaseUsed && !filebaseApiKey) {
-        onError?.(new FilebaseKeyNeededErrror());
-        return;
-      }
 
-      if (filebaseUsed) onIPFSUploadStart?.();
-      const uri = await this.uploadMetadata(params);
       // double check the uploaded hash
-      IpfsHelper.validateIpfsHash(uri);
-      if (filebaseUsed) onIPFSUploadComplete?.();
+      if (metadataUrl.startsWith('ipfs://')) {
+        IpfsHelper.validateIpfsHash(metadataUrl);
+      }
 
       return bondContract.network(this.chainId).write({
         ...params,
         functionName: 'createMultiToken',
-        args: [Object.assign(args.tokenParams, { uri }), args.bondParams],
+        args: [Object.assign(args.tokenParams, { uri: metadataUrl }), args.bondParams],
         value: fee,
       });
     } catch (e) {

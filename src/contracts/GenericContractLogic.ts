@@ -56,6 +56,7 @@ export class GenericContractLogic<
     }
 
     const publicClient = this.clientHelper.getPublicClient(this.chainId);
+    console.log({ publicClient });
 
     return publicClient.readContract({
       abi: this.abi,

@@ -10,14 +10,19 @@ export type NFTMetadata = {
   attributes: { trait_type: string; value: string }[];
 };
 
+export type MediaUploadParams = {
+  filebaseApiKey: string;
+  media: Blob;
+};
+
 export type MetadataUploadParams = {
-  filebaseApiKey?: string;
+  filebaseApiKey: string;
+  image: IpfsHashUrl | HttpUrl;
   name: string;
-  description: string;
-  external_url: string;
+  description?: string;
+  external_url?: string;
   attributes?: { trait_type: string; value: string }[];
-  image: File | Blob | IpfsHashUrl | HttpUrl;
-  video?: File | Blob | IpfsHashUrl | HttpUrl;
+  video?: IpfsHashUrl | HttpUrl;
 };
 
 export type MintClubApiIpfsUploadReturnType = { hash: string };

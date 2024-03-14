@@ -52,13 +52,15 @@
     "typescript": "5.4.2"
   },
   "dependencies": {
+    "@filebase/client": "^0.0.5",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/jsdom": "^21.1.6",
     "@types/lodash": "^4.14.202",
     "abitype": "^1.0.0",
+    "aws-sdk": "^2.1578.0",
+    "formdata-node": "^6.0.3",
     "jsdom": "^24.0.0",
     "lodash": "^4.17.21",
-    "mint.club-v2-filebase": "0.0.11",
     "viem": "2.8.5"
   }
 }

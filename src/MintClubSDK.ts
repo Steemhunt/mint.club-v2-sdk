@@ -1,11 +1,12 @@
 import { PublicClient, WalletClient } from 'viem';
-import { SdkSupportedChainIds, LowerCaseChainNames, chainStringToId } from './exports';
+import { InvalidClientError } from './errors/sdk.errors';
+import { LowerCaseChainNames, SdkSupportedChainIds, chainStringToId } from './exports';
 import { BondHelper } from './helpers/BondHelper';
 import { ClientHelper } from './helpers/ClientHelper';
 import { ERC1155Helper } from './helpers/ERC1155Helper';
 import { ERC20Helper } from './helpers/ERC20Helper';
-import { InvalidClientError } from './errors/sdk.errors';
 import { IpfsHelper } from './helpers/IpfsHelper';
+import { IpfsHashUrl, MediaUploadParams, MetadataUploadParams, NFTMetadata } from './types/ipfs.types';
 
 type NetworkReturnType = {
   token: (symbolOrAddress: string) => ERC20Helper;
@@ -40,10 +41,6 @@ export class MintClubSDK {
     });
   }
 
-  public async uploadToIpfs(filebaseApiKey: string, file: Blob) {
-    return IpfsHelper.addWithFilebase(filebaseApiKey, file);
-  }
-
   public withPublicClient(publicClient: PublicClient) {
     const chainId = publicClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
@@ -72,5 +69,43 @@ export class MintClubSDK {
     const clientHelper = new ClientHelper();
 
     return this.withClientHelper(clientHelper, chainId);
+  }
+
+  public async uploadMediaToIpfs(params: MediaUploadParams) {
+    const { filebaseApiKey, media } = params;
+    const hash = await IpfsHelper.addWithFilebase(filebaseApiKey, media);
+    return `ipfs://${hash}`;
+  }
+
+  public async uploadMetadataToIpfs(data: MetadataUploadParams): Promise<IpfsHashUrl> {
+    const { filebaseApiKey, name, image, video, description, external_url, attributes } = data;
+
+    const defaultExternalLink = `https://mint.club`;
+    const defaultDescription = [
+      `A Bonding Curved ERC-1155 token powered by mint.club bonding curve protocol.`,
+      defaultExternalLink,
+    ].join('\n\n');
+
+    const finalMetadata: NFTMetadata = {
+      name,
+      description: defaultDescription,
+      image,
+      external_url: defaultExternalLink,
+      attributes: [],
+    };
+
+    if (video) {
+      finalMetadata.animation_url = video;
+    }
+
+    if (description) finalMetadata.description = description;
+    if (external_url) finalMetadata.external_url = external_url;
+    if (attributes) finalMetadata.attributes = attributes;
+
+    const metadata = JSON.stringify(finalMetadata);
+    const metadataBuffer = new Blob([metadata], { type: 'application/json' });
+    const jsonHash = await IpfsHelper.addWithFilebase(filebaseApiKey, metadataBuffer);
+
+    return `ipfs://${jsonHash}`;
   }
 }

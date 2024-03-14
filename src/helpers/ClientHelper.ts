@@ -98,20 +98,20 @@ export class ClientHelper {
       transport: fallback(chainRPCFallbacks(chain), DEFAULT_RANK_OPTIONS),
     }) as PublicClient<FallbackTransport>;
 
-    (this.publicClients[id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
-      const error = response.error;
-      const errorName = error?.name;
-      const isErrorResponse = response.status === 'error';
-      const name = response.transport.config.name;
+    // (this.publicClients[id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
+    //   const error = response.error;
+    //   const errorName = error?.name;
+    //   const isErrorResponse = response.status === 'error';
+    //   const name = response.transport.config.name;
 
-      if (isErrorResponse) {
-        console.error(`[RPC FAILED ${errorName}] - ${name}\n${error?.stack}`);
-      }
+    //   if (isErrorResponse) {
+    //     console.error(`[RPC FAILED ${errorName}] - ${name}\n${error?.stack}`);
+    //   }
 
-      if (!response.response && response.status === 'success') {
-        throw new Error('Empty RPC Response');
-      }
-    });
+    //   if (!response.response && response.status === 'success') {
+    //     throw new Error('Empty RPC Response');
+    //   }
+    // });
 
     return this.publicClients[id];
   }

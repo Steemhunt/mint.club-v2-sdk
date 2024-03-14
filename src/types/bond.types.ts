@@ -1,5 +1,5 @@
 import { TokenType } from '../exports';
-import { HttpUrl, IpfsHashUrl } from './ipfs.types';
+import { HttpUrl, IpfsHashUrl, MetadataUploadParams } from './ipfs.types';
 import { CurveType, TradeType, WriteTransactionCallbacks } from './transactions.types';
 
 export type ReserveToken = {
@@ -39,34 +39,9 @@ export type CreateERC20TokenParams = {
   sellRoyalty?: number;
 } & (WithCurveData | WithStepData);
 
-type IpfsHashProvided = {
-  filebaseApiKey?: never;
-  image: IpfsHashUrl;
-  video?: IpfsHashUrl;
-  onIpfsUploadStart?: never;
-  onIpfsUploadComplete?: never;
-};
-
-type FilebaseApiKeyProvided = {
-  filebaseApiKey: string;
-  image: File | Blob;
-  video?: File | Blob;
-  onIpfsUploadStart?: () => void;
-  onIpfsUploadComplete?: () => void;
-};
-
 export type CreateERC1155TokenParams = CreateERC20TokenParams & {
-  metadata?: {
-    description?: string;
-    external_url?: string;
-    attributes?: {
-      trait_type: string;
-      value: string;
-    }[];
-  };
-  image: Blob | File | IpfsHashUrl | HttpUrl;
-  video?: Blob | File | IpfsHashUrl | HttpUrl;
-} & (IpfsHashProvided | FilebaseApiKeyProvided);
+  metadataUrl: IpfsHashUrl | HttpUrl;
+};
 
 export type CreateTokenParams = CreateERC20TokenParams & {
   tokenType: 'ERC20' | 'ERC1155';

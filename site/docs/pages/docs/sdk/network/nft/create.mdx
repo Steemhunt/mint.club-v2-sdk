@@ -35,7 +35,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18, 
     }, 
-    image:  'ipfs://...' | 'https://...' | File,
+    image:  'ipfs://...' | 'https://...' | Buffer,
 	curveData,
   })
 ```
@@ -52,7 +52,7 @@ await mintclub
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
       decimals: 18, 
     }, 
-    image:  'ipfs://...' | 'https://...' | File,
+    image:  'ipfs://...' | 'https://...' | Buffer,
 	stepData, 
   })
 ```
@@ -79,9 +79,6 @@ export const curveData = {
 
 :::
 
-:::warning[NOTE]
-If you pass a `File` instance, you will also need to pass a [`filebaseApiKey`](#filebaseapikey-conditionally-required) as a parameter.
-:::
 
 ## Return Value
 
@@ -137,14 +134,10 @@ await mintclub
 
 ### image
 
-- Type: `File` | `'ipfs://${string}'` | `'https://${string}'`
+- Type: `Buffer` | `'ipfs://${string}'` | `'https://${string}'`
 
-The image to use for the nft. You can pass a `File` instance, an `IPFS Hash`, or a `URL`.
+The image to use for the nft. You can pass a `Buffer`, an `IPFS Hash`, or a `URL`.
 
-
-:::warning[NOTE]
-If you pass a `File` instance, you will also need to pass a [`filebaseApiKey`](#filebaseapikey-conditionally-required) as a parameter.
-:::
 
 :::code-group
 
@@ -160,7 +153,7 @@ await mintclub
     }, 
     filebaseApiKey: '[Your Filebase API KEY]' // [!code focus]
     image: URL.createObjectURL('...') // [!code focus]
-    // or a File instance when using in node.js // [!code focus]
+    // or a Buffer instance when using in node.js // [!code focus]
     curveData,
   })
 ```
@@ -183,13 +176,15 @@ await mintclub
 :::
 
 
-### filebaseApiKey (conditionally required)
+### filebaseApiKey
 
 - Type: `string`
 
 
 :::tip[Filebase]
 [Filebase](https://filebase.com/) is a free, decentralized storage solution that is used to store the media files of the nft.
+
+It is needed to upload image and metadata to IPFS. You can get your API key for free from [Filebase](https://filebase.com/).
 :::
 
 
@@ -397,12 +392,10 @@ await mintclub
 
 ### video (optional)
 
-- Type: `File` | `'ipfs://${string}'` | `'https://${string}'`
+- Type: `Buffer` | `'ipfs://${string}'` | `'https://${string}'`
 - Default: `undefined`
 
-The animation to use for the nft. You can pass a `File` instance, an `IPFS Hash`, or a `URL`.
-
-If you pass a `File` instance, you will also need to pass a [`filebaseApiKey`](#filebaseapikey-conditionally-required)
+The animation to use for the nft. You can pass a `Buffer`, an `IPFS Hash`, or a `URL`.
 
 ```ts
 await mintclub
@@ -418,7 +411,7 @@ await mintclub
     curveData,
     filebaseApiKey: '[Your Filebase API KEY]' // [!code focus]
     video: URL.createObjectURL('...') // [!code focus]
-    // or a File instance when using in node.js // [!code focus]
+    // or a Buffer instance when using in node.js // [!code focus]
   })
 ```
 
@@ -490,7 +483,7 @@ await mintclub
 
 Callback function for when the media starts to upload to IPFS.
 
-This callback function will only be invoked when you pass a `File` instance for the `image` or `video` parameter along with the filebaseApiKey.
+This callback function will only be invoked when you pass a `Buffer` for the `image` or `video` parameter.
 
 :::warning[NOTE]
 This will not be called when you pass an IPFS Hash or a URL
@@ -519,7 +512,7 @@ await mintclub
 
 Callback function for when the media upload to IPFS is complete.
 
-This callback function will only be invoked when you pass a `File` instance for the `image` or `video` parameter along with the filebaseApiKey.
+This callback function will only be invoked when you pass a `Buffer` for the `image` or `video` parameter along with the filebaseApiKey.
 
 :::warning[NOTE]
 This will not be called when you pass an IPFS Hash or a URL
