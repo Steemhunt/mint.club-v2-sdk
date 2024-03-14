@@ -58,6 +58,12 @@ export class ClientHelper {
   }
 
   public async account() {
+    if (!this.walletClient && window?.ethereum !== undefined) {
+      this.walletClient = createWalletClient({
+        transport: custom(window.ethereum),
+      });
+    }
+
     const accounts = await this.walletClient?.getAddresses();
     return accounts?.[0] || null;
   }
