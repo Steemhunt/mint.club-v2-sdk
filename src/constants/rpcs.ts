@@ -86,7 +86,6 @@ export const RPCS: Array<RPCList> = [
       // 'https://base.meowrpc.com',
       // 'https://1rpc.io/base',
       // 'https://base-mainnet.diamondswap.org/rpc',
-      'https://base-mainnet.g.alchemy.com/v2/SRfSE9rBv5Foy3Qw9WQqUKTz1utLO37x',
     ],
   },
   {
@@ -131,7 +130,6 @@ export const RPCS: Array<RPCList> = [
       'https://arbitrum.blockpi.network/v1/rpc/public',
       // 'https://arb-mainnet.g.alchemy.com/v2/demo',
       'https://1rpc.io/arb',
-      'https://arb-mainnet.g.alchemy.com/v2/654scodAkt2_QjvbCk8oPbAV6wJHoR8j',
     ],
   },
   {
