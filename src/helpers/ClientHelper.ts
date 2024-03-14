@@ -27,20 +27,6 @@ export class ClientHelper {
     }
 
     ClientHelper.instance = this;
-
-    // when constructed, check if user is already connected
-    this.walletClient = createWalletClient({
-      transport: custom(window.ethereum),
-    });
-
-    this.walletClient.getAddresses().then((accounts) => {
-      if (accounts.length > 0 && this.walletClient) {
-        this.walletClient = createWalletClient({
-          account: accounts[0],
-          transport: custom(this.walletClient.transport),
-        });
-      }
-    });
   }
 
   public async connect() {
