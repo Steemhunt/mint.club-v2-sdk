@@ -30,7 +30,7 @@ export class ClientHelper {
   }
 
   public async connect() {
-    if (this.walletClient?.account) return;
+    if (this.walletClient?.account) return this.walletClient.account.address;
 
     if (this.walletClient) {
       const [address] = await this.walletClient?.requestAddresses();
@@ -38,6 +38,7 @@ export class ClientHelper {
         account: address,
         transport: custom(this.walletClient.transport),
       });
+      return address;
     } else {
       if (window.ethereum === undefined) throw new NoEthereumProviderError();
       this.walletClient = createWalletClient({
@@ -48,6 +49,7 @@ export class ClientHelper {
         account: address,
         transport: custom(window.ethereum),
       });
+      return address;
     }
   }
 
