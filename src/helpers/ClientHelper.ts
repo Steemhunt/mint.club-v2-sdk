@@ -29,7 +29,7 @@ export class ClientHelper {
     ClientHelper.instance = this;
   }
 
-  public async connectWallet() {
+  public async connect() {
     if (this.walletClient?.account) return;
 
     if (this.walletClient) {
@@ -51,13 +51,17 @@ export class ClientHelper {
     }
   }
 
+  public async disconnect() {
+    this.walletClient = undefined;
+  }
+
   public async getNativeBalance(params?: { walletAddress: `0x${string}`; chainId: number }) {
     const { walletAddress, chainId } = params || {};
     if (chainId !== undefined && walletAddress)
       return this.getPublicClient(chainId).getBalance({ address: walletAddress });
 
-    await this.connectWallet();
-    const address = await this.getConnectedAddress();
+    await this.connect();
+    const address = await this.getAddress();
     const connectedChain = this.walletClient?.chain?.id;
 
     if (!address || connectedChain === undefined) throw new WalletNotConnectedError();
@@ -67,7 +71,7 @@ export class ClientHelper {
     });
   }
 
-  public async getConnectedAddress() {
+  public async getAddress() {
     return this.walletClient?.account?.address;
   }
 

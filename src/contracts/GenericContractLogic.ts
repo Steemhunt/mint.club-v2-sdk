@@ -67,7 +67,7 @@ export class GenericContractLogic<
     T extends ContractFunctionName<A, 'payable' | 'nonpayable'>,
     R extends ContractFunctionArgs<A, 'payable' | 'nonpayable', T>,
   >(params: GenericWriteParams<A, T, R, C>): Promise<TransactionReceipt> {
-    await this.clientHelper.connectWallet();
+    await this.clientHelper.connect();
 
     const walletClient = this.clientHelper.getWalletClient();
 

@@ -13,6 +13,8 @@ type NetworkReturnType = {
 } & ClientHelper;
 
 export class MintClubSDK {
+  public wallet = new ClientHelper();
+
   private withClientHelper(clientHelper: ClientHelper, chainId: SdkSupportedChainIds) {
     return Object.assign(clientHelper, {
       token: (symbolOrAddress: string) => {
@@ -35,10 +37,6 @@ export class MintClubSDK {
         });
       },
     });
-  }
-
-  public connectWallet() {
-    return new ClientHelper().connectWallet();
   }
 
   public withPublicClient(publicClient: PublicClient) {
