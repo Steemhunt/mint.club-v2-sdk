@@ -45,7 +45,7 @@ export class TokenHelper<T extends TokenType> {
   }
 
   protected async getConnectedWalletAddress() {
-    const connectedAddress = this.clientHelper.account;
+    const connectedAddress = await this.clientHelper.account();
     if (!connectedAddress) throw new WalletNotConnectedError();
     return connectedAddress;
   }

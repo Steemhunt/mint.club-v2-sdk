@@ -69,8 +69,9 @@ export class ClientHelper {
     this.walletClient = undefined;
   }
 
-  public get account() {
-    return this.walletClient?.account?.address;
+  public async account() {
+    const accounts = await this.walletClient?.getAddresses();
+    return accounts?.[0] || null;
   }
 
   public async getNativeBalance(params?: { walletAddress: `0x${string}`; chainId: number }) {
@@ -79,7 +80,7 @@ export class ClientHelper {
       return this.getPublicClient(chainId).getBalance({ address: walletAddress });
 
     await this.connect();
-    const address = this.account;
+    const address = await this.account();
     const connectedChain = this.walletClient?.chain?.id;
 
     if (!address || connectedChain === undefined) throw new WalletNotConnectedError();
