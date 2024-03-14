@@ -32,6 +32,15 @@ export class ClientHelper {
     this.walletClient = createWalletClient({
       transport: custom(window.ethereum),
     });
+
+    this.walletClient.getAddresses().then((accounts) => {
+      if (accounts.length > 0 && this.walletClient) {
+        this.walletClient = createWalletClient({
+          account: accounts[0],
+          transport: custom(this.walletClient.transport),
+        });
+      }
+    });
   }
 
   public async connect() {
@@ -60,7 +69,7 @@ export class ClientHelper {
     this.walletClient = undefined;
   }
 
-  public get address() {
+  public get account() {
     return this.walletClient?.account?.address;
   }
 
@@ -70,7 +79,7 @@ export class ClientHelper {
       return this.getPublicClient(chainId).getBalance({ address: walletAddress });
 
     await this.connect();
-    const address = this.address;
+    const address = this.account;
     const connectedChain = this.walletClient?.chain?.id;
 
     if (!address || connectedChain === undefined) throw new WalletNotConnectedError();
