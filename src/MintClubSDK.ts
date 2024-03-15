@@ -11,7 +11,7 @@ import { IpfsHashUrl, MediaUploadParams, MetadataUploadParams, NFTMetadata } fro
 type NetworkReturnType = {
   token: (symbolOrAddress: string) => ERC20Helper;
   nft: (symbolOrAddress: string) => ERC1155Helper;
-  bond: () => BondHelper;
+  bond: BondHelper;
 } & ClientHelper;
 
 export class MintClubSDK {
@@ -33,11 +33,9 @@ export class MintClubSDK {
         });
       },
 
-      bond: () => {
-        return new BondHelper({
-          chainId,
-        });
-      },
+      bond: new BondHelper({
+        chainId,
+      }),
     });
   }
 

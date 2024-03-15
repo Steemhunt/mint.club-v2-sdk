@@ -6,8 +6,23 @@ export class IpfsHelper {
     if (!apiKey) throw new FilebaseKeyNeededErrror();
 
     const client = new FilebaseClient({ token: apiKey });
-    const cid = await client.storeBlob(blob, 'image.png');
+    const filename = blob.name;
+    const cid = await client.storeBlob(blob, filename);
     return cid;
+  }
+
+  public static ipfsHashToGatewayUrl(hash: string, gateway = 'https://cf-ipfs.com/ipfs/') {
+    if (hash.includes('ipfs://')) {
+      hash = hash.replace('ipfs://', '');
+    }
+    return `${gateway}${hash}`;
+  }
+
+  public static ipfsUrlToHash(url: string, gateway = 'https://cf-ipfs.com/ipfs/') {
+    if (url.startsWith(gateway)) {
+      return url.split('/').pop();
+    }
+    return url;
   }
 
   public static isIpfsUrl(url: string) {

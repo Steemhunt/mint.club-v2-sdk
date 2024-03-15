@@ -14,6 +14,9 @@ import * as chains from 'viem/chains';
 import { ChainNotSupportedError, NoEthereumProviderError, WalletNotConnectedError } from '../errors/sdk.errors';
 import { chainRPCFallbacks, DEFAULT_RANK_OPTIONS, SdkSupportedChainIds } from '../exports';
 
+const MCV2_WALLET_STATE_LOCALSTORAGE = 'mcv2_wallet_state';
+type WalletState = 'connected' | 'disconnected' | 'none';
+
 export class ClientHelper {
   private static instance?: ClientHelper;
   private walletClient?: WalletClient;
@@ -29,35 +32,62 @@ export class ClientHelper {
     ClientHelper.instance = this;
   }
 
-  public async connect() {
-    if (this.walletClient?.account) return this.walletClient.account.address;
+  public async connect(provider?: any) {
+    let addressToReturn: `0x${string}` | null = null;
+    if (this.walletClient?.account) addressToReturn = this.walletClient.account.address;
 
     if (this.walletClient) {
       const [address] = await this.walletClient?.requestAddresses();
       this.walletClient = createWalletClient({
         account: address,
-        transport: custom(this.walletClient.transport),
+        transport: custom(provider ?? this.walletClient.transport),
       });
-      return address;
+      addressToReturn = address;
     } else {
       if (window.ethereum === undefined) throw new NoEthereumProviderError();
       this.walletClient = createWalletClient({
-        transport: custom(window.ethereum),
+        transport: custom(provider ?? window.ethereum),
       });
       const [address] = await this.walletClient?.requestAddresses();
       this.walletClient = createWalletClient({
         account: address,
-        transport: custom(window.ethereum),
+        transport: custom(provider ?? window.ethereum),
       });
-      return address;
+      addressToReturn = address;
     }
+
+    if (addressToReturn) this.walletState = 'connected';
+
+    return addressToReturn;
+  }
+
+  private get walletState() {
+    return (window?.localStorage?.getItem(MCV2_WALLET_STATE_LOCALSTORAGE) ?? 'none') as WalletState;
+  }
+
+  private set walletState(newState: WalletState) {
+    window?.localStorage?.setItem(MCV2_WALLET_STATE_LOCALSTORAGE, newState);
+  }
+
+  public async change() {
+    await this.walletClient?.request({
+      method: 'wallet_requestPermissions',
+      params: [
+        {
+          eth_accounts: {},
+        },
+      ],
+    });
   }
 
   public async disconnect() {
     this.walletClient = undefined;
+    this.walletState = 'disconnected';
   }
 
   public async account() {
+    if (this.walletState === 'disconnected') return null;
+
     if (!this.walletClient && window?.ethereum !== undefined) {
       this.walletClient = createWalletClient({
         transport: custom(window.ethereum),
@@ -98,20 +128,11 @@ export class ClientHelper {
       transport: fallback(chainRPCFallbacks(chain), DEFAULT_RANK_OPTIONS),
     }) as PublicClient<FallbackTransport>;
 
-    // (this.publicClients[id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
-    //   const error = response.error;
-    //   const errorName = error?.name;
-    //   const isErrorResponse = response.status === 'error';
-    //   const name = response.transport.config.name;
-
-    //   if (isErrorResponse) {
-    //     console.error(`[RPC FAILED ${errorName}] - ${name}\n${error?.stack}`);
-    //   }
-
-    //   if (!response.response && response.status === 'success') {
-    //     throw new Error('Empty RPC Response');
-    //   }
-    // });
+    (this.publicClients[id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
+      if (!response.response && response.status === 'success') {
+        throw new Error('Empty RPC Response');
+      }
+    });
 
     return this.publicClients[id];
   }

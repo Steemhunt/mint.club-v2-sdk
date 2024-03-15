@@ -13,4 +13,4 @@ export * from './constants/chains';
 export * from './constants/contracts';
 export * from './constants/error-dictionary/contract-errors';
 export * from './constants/tokens';
-export * from './utils';
+export * from './utils/numbers';

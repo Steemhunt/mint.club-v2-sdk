@@ -1,23 +1,16 @@
 import { formatUnits, parseUnits } from 'viem';
 
-export function commify(x?: number | string | null) {
-  if (x === null || x === undefined) return '';
-  else if (x === 0) return '0';
-
+export function commify(x: number | string) {
   const parts = x.toString().split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return parts.join('.');
 }
 
-export function uncommify(str?: string | number | null) {
-  if (!str) return '';
-  if (typeof str === 'number') return str.toString().replace(/,/g, '');
-  return str.replace(/,/g, '');
+export function uncommify(str: string) {
+  return str.toString().replace(/,/g, '');
 }
 
-export function handleScientificNotation(num?: number | string | null) {
-  if (num === undefined || num === null) return '';
-
+export function handleScientificNotation(num: number | string) {
   const str = num?.toString();
   if (str?.includes('e')) {
     const [coefficient, exponent] = str.split('e');
@@ -34,7 +27,7 @@ export function handleScientificNotation(num?: number | string | null) {
   return str;
 }
 
-export function countLeadingZeros(num?: number | string) {
+export function countLeadingZeros(num: number | string) {
   const stringValue = handleScientificNotation(num?.toString());
   if (!stringValue || !stringValue?.includes('.')) return 0;
   const [, decimalPart] = stringValue.split('.');
@@ -43,7 +36,7 @@ export function countLeadingZeros(num?: number | string) {
   return leadingZeros;
 }
 
-export function getValueAfterLeadingZeros(num?: number) {
+export function getValueAfterLeadingZeros(num: number) {
   const numStr = handleScientificNotation(num?.toString());
 
   if (!numStr) return;
@@ -57,7 +50,8 @@ export function getValueAfterLeadingZeros(num?: number) {
 
 export function countDecimals(value: number | string) {
   const numStr = handleScientificNotation(value?.toString());
-  return numStr?.split('.')?.[1]?.length || 0;
+  const length = numStr?.split('.')?.[1]?.length;
+  return length ?? 0;
 }
 
 export function toFixed(value: number, t: number) {
@@ -69,13 +63,12 @@ export function wei(num: number | string, decimals = 18) {
   return parseUnits(stringified, decimals);
 }
 
-export function toNumber(num: bigint | undefined, decimals: number | undefined) {
-  if (!num || decimals === undefined) return 0;
+export function toNumber(num: bigint, decimals: number) {
   return Number(formatUnits(num, decimals));
 }
 
 export function shortenNumber(num: number | string, prefix = '') {
-  num = Number(num?.toString().replaceAll(',', ''));
+  num = Number(num.toString().replaceAll(',', ''));
 
   if (num >= 1_000_000_000_000) {
     return `${prefix}${toFixed(num / 1_000_000_000_000, 2)}T`;
@@ -98,8 +91,7 @@ export function shortenNumber(num: number | string, prefix = '') {
   );
 }
 
-export function applyDecimals(num?: string | number | null) {
-  if (!num) return '0';
+export function applyDecimals(num: string | number) {
   const toNum = Number(num);
 
   let decimalPlaces;

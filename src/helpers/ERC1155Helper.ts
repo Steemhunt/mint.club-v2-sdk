@@ -90,6 +90,14 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     });
   }
 
+  public async getImageUri() {
+    const jsonHash = await this.getUri();
+    const metadataIpfsUrl = IpfsHelper.ipfsHashToGatewayUrl(jsonHash);
+    const { image } = await fetch(metadataIpfsUrl).then((res) => res.json());
+    const imageIpfsUrl = IpfsHelper.ipfsHashToGatewayUrl(image);
+    return imageIpfsUrl;
+  }
+
   public async create(params: CreateERC1155TokenParams & Omit<CommonWriteParams, 'value'>) {
     const { onError, metadataUrl } = params;
 

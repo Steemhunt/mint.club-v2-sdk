@@ -18,6 +18,11 @@ export type TokenContractReadWriteArgs<
 
 export type WriteTransactionCallbacks = {
   debug?: (args: any) => void;
+
+  onAllowanceSignatureRequest?: () => void;
+  onAllowanceSigned?: () => void;
+  onAllowanceSuccess?: (receipt: TransactionReceipt) => void;
+
   onSignatureRequest?: () => void;
   onSigned?: (tx: `0x${string}`) => void;
   onSuccess?: (receipt: TransactionReceipt) => void;

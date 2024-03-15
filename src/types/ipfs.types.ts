@@ -4,7 +4,7 @@ export type HttpUrl = `http://${string}` | `https://${string}`;
 export type NFTMetadata = {
   name: string;
   description: string;
-  image: string;
+  image: IpfsHashUrl | HttpUrl;
   animation_url?: string;
   external_url: string;
   attributes: { trait_type: string; value: string }[];

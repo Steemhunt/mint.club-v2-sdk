@@ -1,13 +1,7 @@
 import { Chain, isAddress, maxUint256 } from 'viem';
 import { SdkSupportedChainIds, TokenType, getMintClubContractAddress } from '../constants/contracts';
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
-import {
-  BondInsufficientAllowanceError,
-  ChainNotSupportedError,
-  SymbolNotDefinedError,
-  TokenAlreadyExistsError,
-  WalletNotConnectedError,
-} from '../errors/sdk.errors';
+import { SymbolNotDefinedError, TokenAlreadyExistsError, WalletNotConnectedError } from '../errors/sdk.errors';
 import { WRAPPED_NATIVE_TOKENS, getChain } from '../exports';
 import {
   ApproveBondParams,
@@ -61,9 +55,9 @@ export class TokenHelper<T extends TokenType> {
     const { tradeType, walletAddress } = params;
     const tokenToApprove = await this.tokenToApprove(tradeType);
 
-    if (this.tokenType === 'ERC1155') {
+    if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
       return erc1155Contract.network(this.chainId).read({
-        tokenAddress: tokenToApprove,
+        tokenAddress: this.tokenAddress,
         functionName: 'isApprovedForAll',
         args: [walletAddress, getMintClubContractAddress('BOND', this.chainId)],
       });
@@ -84,13 +78,16 @@ export class TokenHelper<T extends TokenType> {
   }
 
   public async approve(params: ApproveBondParams<T>) {
-    const { tradeType } = params;
+    const { tradeType, onAllowanceSignatureRequest, onAllowanceSigned, onError, onAllowanceSuccess } = params;
     const tokenToCheck = await this.tokenToApprove(tradeType);
 
-    if (this.tokenType === 'ERC1155') {
+    if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
       return erc1155Contract.network(this.chainId).write({
         ...params,
-        tokenAddress: tokenToCheck,
+        onSignatureRequest: onAllowanceSignatureRequest,
+        onSigned: onAllowanceSigned,
+        onSuccess: onAllowanceSuccess,
+        tokenAddress: this.tokenAddress,
         functionName: 'setApprovalForAll',
         args: [getMintClubContractAddress('BOND', this.chainId), true],
       });
@@ -103,6 +100,9 @@ export class TokenHelper<T extends TokenType> {
 
       return erc20Contract.network(this.chainId).write({
         ...params,
+        onSignatureRequest: onAllowanceSignatureRequest,
+        onSigned: onAllowanceSigned,
+        onSuccess: onAllowanceSuccess,
         tokenAddress: tokenToCheck,
         functionName: 'approve',
         args: [getMintClubContractAddress('BOND', this.chainId), amountToSpend],
@@ -245,7 +245,12 @@ export class TokenHelper<T extends TokenType> {
       });
 
       if (!bondApproved) {
-        throw new BondInsufficientAllowanceError();
+        const [estimation, royalty] = await this.getBuyEstimation(amount);
+        return this.approve({
+          ...params,
+          tradeType: 'buy',
+          amountToSpend: estimation + royalty,
+        } as ApproveBondParams<T>);
       }
 
       const [estimatedOutcome] = await this.getBuyEstimation(amount);
@@ -262,7 +267,7 @@ export class TokenHelper<T extends TokenType> {
   }
 
   public async sell(params: BuySellCommonParams) {
-    const { amount, slippage = 0, recipient } = params;
+    const { amount, slippage = 0, recipient, onError } = params;
 
     const connectedAddress = await this.getConnectedWalletAddress();
 
@@ -273,7 +278,11 @@ export class TokenHelper<T extends TokenType> {
     } as BondApprovedParams<T>);
 
     if (!bondApproved) {
-      throw new BondInsufficientAllowanceError();
+      return this.approve({
+        ...params,
+        tradeType: 'sell',
+        amountToSpend: amount,
+      } as ApproveBondParams<T>);
     }
 
     const [estimatedOutcome] = await this.getSellEstimation(amount);
