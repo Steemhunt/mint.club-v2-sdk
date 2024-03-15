@@ -129,7 +129,7 @@ export class ClientHelper {
     }) as PublicClient<FallbackTransport>;
 
     (this.publicClients[id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
-      if ((!response.response || response.response === '0x') && response.status === 'success') {
+      if (!response.response && response.status === 'success') {
         throw new Error('Empty RPC Response');
       }
     });
