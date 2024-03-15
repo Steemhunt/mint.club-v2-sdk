@@ -21,7 +21,7 @@ export class ClientHelper {
   private publicClients: Record<number, PublicClient<FallbackTransport> | PublicClient> = {};
   private chainId?: SdkSupportedChainIds; // last chain id used
 
-  constructor(chainId?: SdkSupportedChainIds) {
+  constructor() {
     if (ClientHelper.instance) {
       return ClientHelper.instance;
     }
@@ -150,10 +150,6 @@ export class ClientHelper {
   }
 
   public async withProvider(provider: any) {
-    this.walletClient = createWalletClient({
-      transport: custom(provider),
-    });
-
     this.walletClient = createWalletClient({
       transport: custom(provider),
     });

@@ -2,11 +2,11 @@ import { CIDString, FilebaseClient } from '@filebase/client';
 import { FilebaseKeyNeededErrror, InvalidImageProvidedError } from '../errors/sdk.errors';
 
 export class IpfsHelper {
-  public static async addWithFilebase(apiKey: string, buffer: Blob): Promise<CIDString> {
+  public static async addWithFilebase(apiKey: string, blob: Blob): Promise<CIDString> {
     if (!apiKey) throw new FilebaseKeyNeededErrror();
 
     const client = new FilebaseClient({ token: apiKey });
-    const cid = await client.storeBlob(buffer, 'image.png');
+    const cid = await client.storeBlob(blob, 'image.png');
     return cid;
   }
 

@@ -2,6 +2,7 @@ import { isAddress } from 'viem';
 import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
 import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
+import * as chains from 'viem/chains';
 
 export type ChainType = {
   readonly id: SdkSupportedChainIds;
@@ -99,6 +100,15 @@ export function chainStringToId(name: LowerCaseChainNames) {
   if (!found) throw new ChainNotSupportedError(name);
 
   return found.id;
+}
+
+export function getChain(chainId: SdkSupportedChainIds) {
+  const chain = Object.values(chains).find((c) => c.id === chainId);
+
+  if (!chain) {
+    throw new ChainNotSupportedError(chainId);
+  }
+  return chain;
 }
 
 type ChainMapType = Record<SdkSupportedChainIds, ChainType>;

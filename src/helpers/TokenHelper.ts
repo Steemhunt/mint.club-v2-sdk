@@ -1,13 +1,14 @@
-import { isAddress, maxUint256 } from 'viem';
+import { Chain, isAddress, maxUint256 } from 'viem';
 import { SdkSupportedChainIds, TokenType, getMintClubContractAddress } from '../constants/contracts';
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
 import {
   BondInsufficientAllowanceError,
+  ChainNotSupportedError,
   SymbolNotDefinedError,
   TokenAlreadyExistsError,
   WalletNotConnectedError,
 } from '../errors/sdk.errors';
-import { WRAPPED_NATIVE_TOKENS } from '../exports';
+import { WRAPPED_NATIVE_TOKENS, getChain } from '../exports';
 import {
   ApproveBondParams,
   BondApprovedParams,
@@ -27,6 +28,7 @@ export class TokenHelper<T extends TokenType> {
   protected clientHelper: ClientHelper;
   protected symbol?: string;
   protected tokenType: T;
+  protected chain: Chain;
   protected chainId: SdkSupportedChainIds;
 
   constructor(params: TokenHelperConstructorParams) {
@@ -39,6 +41,7 @@ export class TokenHelper<T extends TokenType> {
       this.symbol = symbolOrAddress;
     }
 
+    this.chain = getChain(chainId);
     this.chainId = chainId;
     this.tokenType = tokenType as T;
     this.clientHelper = new ClientHelper();
