@@ -78,7 +78,7 @@ export class TokenHelper<T extends TokenType> {
   }
 
   public async approve(params: ApproveBondParams<T>) {
-    const { tradeType, onAllowanceSignatureRequest, onAllowanceSigned, onError, onAllowanceSuccess } = params;
+    const { tradeType, onAllowanceSignatureRequest, onAllowanceSigned, onAllowanceSuccess } = params;
     const tokenToCheck = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
@@ -238,23 +238,22 @@ export class TokenHelper<T extends TokenType> {
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
 
+      const [estimatedOutcome, royalty] = await this.getBuyEstimation(amount);
+      const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n + royalty;
+
       const bondApproved = await this.bondContractApproved({
         walletAddress: connectedAddress,
-        amountToSpend: amount,
+        amountToSpend: maxReserveAmount,
         tradeType: 'buy',
       });
 
       if (!bondApproved) {
-        const [estimation, royalty] = await this.getBuyEstimation(amount);
         return this.approve({
           ...params,
           tradeType: 'buy',
-          amountToSpend: estimation + royalty,
+          amountToSpend: maxReserveAmount,
         } as ApproveBondParams<T>);
       }
-
-      const [estimatedOutcome] = await this.getBuyEstimation(amount);
-      const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
       return bondContract.network(this.chainId).write({
         ...params,
@@ -267,9 +266,12 @@ export class TokenHelper<T extends TokenType> {
   }
 
   public async sell(params: BuySellCommonParams) {
-    const { amount, slippage = 0, recipient, onError } = params;
+    const { amount, slippage = 0, recipient } = params;
 
     const connectedAddress = await this.getConnectedWalletAddress();
+
+    const [estimatedOutcome, royalty] = await this.getSellEstimation(amount);
+    const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n + royalty;
 
     const bondApproved = await this.bondContractApproved({
       walletAddress: connectedAddress,
@@ -284,9 +286,6 @@ export class TokenHelper<T extends TokenType> {
         amountToSpend: amount,
       } as ApproveBondParams<T>);
     }
-
-    const [estimatedOutcome] = await this.getSellEstimation(amount);
-    const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
     return bondContract.network(this.chainId).write({
       ...params,
