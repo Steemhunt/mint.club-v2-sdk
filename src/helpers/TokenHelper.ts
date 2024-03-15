@@ -271,7 +271,7 @@ export class TokenHelper<T extends TokenType> {
     const connectedAddress = await this.getConnectedWalletAddress();
 
     const [estimatedOutcome, royalty] = await this.getSellEstimation(amount);
-    const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n + royalty;
+    const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n - royalty;
 
     const bondApproved = await this.bondContractApproved({
       walletAddress: connectedAddress,
