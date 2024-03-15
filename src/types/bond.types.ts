@@ -56,6 +56,7 @@ export type ApproveBondParams<T extends TokenType> = (T extends 'ERC20'
   ? {
       tradeType: TradeType;
       amountToSpend?: bigint;
+      allowanceAmount?: bigint;
     }
   : {
       tradeType: TradeType;

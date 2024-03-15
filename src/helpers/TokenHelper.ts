@@ -94,8 +94,8 @@ export class TokenHelper<T extends TokenType> {
     } else {
       let amountToSpend = maxUint256;
 
-      if ('amountToSpend' in params && params?.amountToSpend !== undefined) {
-        amountToSpend = params.amountToSpend;
+      if ('allowanceAmount' in params && params?.allowanceAmount !== undefined) {
+        amountToSpend = params.allowanceAmount;
       }
 
       return erc20Contract.network(this.chainId).write({
