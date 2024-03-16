@@ -150,6 +150,10 @@ export const sidebar = {
               link: '/docs/sdk/network/token/transfer',
             },
             {
+              text: 'exists',
+              link: '/docs/sdk/network/token/exists',
+            },
+            {
               text: 'getDetail',
               link: '/docs/sdk/network/token/getDetail',
             },
@@ -207,6 +211,10 @@ export const sidebar = {
             {
               text: 'transfer',
               link: '/docs/sdk/network/nft/transfer',
+            },
+            {
+              text: 'exists',
+              link: '/docs/sdk/network/nft/exists',
             },
             {
               text: 'getDetail',

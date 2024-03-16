@@ -1,0 +1,22 @@
+---
+description: Checks if NFT exists
+---
+
+# exists 
+
+Checks if NFT exists.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+await mintclub.network('ethereum').nft('SYMBOL').exists()
+```
+
+## Return Value
+
+`Promise<boolean>`
+
+Returns a promise that resolves to `true` or `false`
+
