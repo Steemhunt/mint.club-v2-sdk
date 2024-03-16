@@ -101,7 +101,7 @@ export class ClientHelper {
   public async getNativeBalance(params?: { walletAddress: `0x${string}`; chainId: number }) {
     const { walletAddress, chainId } = params || {};
     if (chainId !== undefined && walletAddress)
-      return this.getPublicClient(chainId).getBalance({ address: walletAddress });
+      return this._getPublicClient(chainId).getBalance({ address: walletAddress });
 
     await this.connect();
     const address = await this.account();
@@ -109,15 +109,13 @@ export class ClientHelper {
 
     if (!address || connectedChain === undefined) throw new WalletNotConnectedError();
 
-    return this.getPublicClient(connectedChain).getBalance({
+    return this._getPublicClient(connectedChain).getBalance({
       address,
     });
   }
 
-  public getPublicClient(_id?: number): PublicClient {
-    const id: number | undefined = _id ?? this.chainId;
-
-    if (id !== undefined && this.publicClients[id] !== undefined) return this.publicClients[id];
+  public _getPublicClient(id: number): PublicClient {
+    if (this.publicClients[id] !== undefined) return this.publicClients[id];
 
     const chain: Chain | undefined = Object.values(chains).find((chain) => chain.id === id);
 

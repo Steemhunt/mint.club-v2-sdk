@@ -58,7 +58,7 @@ export class GenericContractLogic<
       address = getMintClubContractAddress(this.contractType, this.chainId);
     }
 
-    const publicClient = this.clientHelper.getPublicClient(this.chainId);
+    const publicClient = this.clientHelper._getPublicClient(this.chainId);
 
     return publicClient.readContract({
       abi: this.abi,
@@ -112,7 +112,7 @@ export class GenericContractLogic<
       debug?.(simulationArgs);
 
       const { request } = (await this.clientHelper
-        .getPublicClient(this.chainId)
+        ._getPublicClient(this.chainId)
         .simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
 
       onSignatureRequest?.();
@@ -120,7 +120,7 @@ export class GenericContractLogic<
 
       onSigned?.(tx);
 
-      const receipt = await this.clientHelper.getPublicClient(this.chainId).waitForTransactionReceipt({
+      const receipt = await this.clientHelper._getPublicClient(this.chainId).waitForTransactionReceipt({
         hash: tx,
       });
 

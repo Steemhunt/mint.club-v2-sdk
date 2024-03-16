@@ -20,7 +20,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "typeRoots": ["bun-types", "./types/index.d.ts", "./node_modules/@types"]
+    "typeRoots": ["bun-types", "./types/index.d.ts"]
   },
   "exclude": ["./dist", "./node_modules", "./site"]
 }

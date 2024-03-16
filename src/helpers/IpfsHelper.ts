@@ -7,8 +7,7 @@ export class IpfsHelper {
     if (!apiKey) throw new FilebaseKeyNeededErrror();
 
     const client = new FilebaseClient({ token: apiKey });
-    const filename = blob.name;
-    const cid = await client.storeBlob(blob, filename);
+    const cid = await client.storeBlob(blob);
     return cid;
   }
 

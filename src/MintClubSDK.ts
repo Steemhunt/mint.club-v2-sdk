@@ -7,18 +7,16 @@ import { ERC1155Helper } from './helpers/ERC1155Helper';
 import { ERC20Helper } from './helpers/ERC20Helper';
 import { IpfsHelper } from './helpers/IpfsHelper';
 
-type NetworkReturnType = {
-  token: (symbolOrAddress: string) => ERC20Helper;
-  nft: (symbolOrAddress: string) => ERC1155Helper;
-  bond: BondHelper;
-} & ClientHelper;
-
 export class MintClubSDK {
   public wallet = new ClientHelper();
   public ipfs = new IpfsHelper();
 
   private withClientHelper(clientHelper: ClientHelper, chainId: SdkSupportedChainIds) {
     return Object.assign(clientHelper, {
+      getPublicClient(): PublicClient {
+        return clientHelper._getPublicClient(chainId);
+      },
+
       token: (symbolOrAddress: string) => {
         return new ERC20Helper({
           symbolOrAddress,
@@ -39,14 +37,14 @@ export class MintClubSDK {
     });
   }
 
-  public withPublicClient(publicClient: PublicClient) {
+  public withPublicClient(publicClient: PublicClient): ReturnType<typeof this.network> {
     const chainId = publicClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
     const clientHelper = new ClientHelper().withPublicClient(publicClient);
     return this.withClientHelper(clientHelper, chainId as SdkSupportedChainIds);
   }
 
-  public withWalletClient(walletClient: WalletClient) {
+  public withWalletClient(walletClient: WalletClient): ReturnType<typeof this.network> {
     const chainId = walletClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
     if (walletClient.chain?.id === undefined) throw new InvalidClientError();
@@ -55,7 +53,9 @@ export class MintClubSDK {
     return this.withClientHelper(clientHelper, chainId as SdkSupportedChainIds);
   }
 
-  public network(id: SdkSupportedChainIds | LowerCaseChainNames): NetworkReturnType {
+  public network(
+    id: SdkSupportedChainIds | LowerCaseChainNames,
+  ): Omit<ReturnType<typeof this.withClientHelper> & ClientHelper, '_getPublicClient'> {
     let chainId: SdkSupportedChainIds;
 
     if (typeof id === 'string') {
