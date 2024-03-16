@@ -1,0 +1,187 @@
+---
+description: Upload a ERC-1155 Metadata to IPFS 
+---
+
+# uploadMetadata 
+
+Upload a ERC-1155 Metadata to IPFS. 
+
+:::tip[Tip]
+You need to have a Filebase API key to use this function. 
+
+Refer to [getting a filebase API Key](/docs/sdk/ipfs#getting-an-api-key).
+:::
+
+## Usage
+
+```ts [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.ipfs.uploadMetadata({ 
+	filebaseApiKey: 'YOUR API KEY', 
+	image: 'ipfs://...',
+	name: 'My NFT',
+	description: 'My NFT description',
+	external_url: 'https://mint.club',
+	attributes: [{ trait_type: 'rarity', value: 'legendary' }],
+	video: 'ipfs://...'
+}) 
+```
+
+:::warning[Good to know]
+You could also pass a `http` url to the `image` and `video` parameters, if you want to change the content and "reveal" the NFT afterwards.
+:::
+
+## Return Value
+
+`Promise<'ipfs://${string}'>`
+
+Returns a promise that resolves to a string containing the IPFS hash of the uploaded file.
+
+
+## Parameters
+
+- Type: `MetadataUploadParams`
+
+```ts
+type MetadataUploadParams = {
+  filebaseApiKey: string;
+  image: IpfsHashUrl | HttpUrl;
+  name: string;
+  description?: string;
+  external_url?: string;
+  attributes?: { trait_type: string; value: string }[];
+  video?: IpfsHashUrl | HttpUrl;
+};
+```
+
+
+### filebaseApiKey
+
+- Type: `string`
+
+Filebase API key.
+
+```ts
+await mintclub.ipfs.uploadMetadata({ 
+	filebaseApiKey: 'YOUR API KEY', // [!code focus]
+	image: 'ipfs://...',
+	name: 'My NFT',
+	description: 'My NFT description',
+	external_url: 'https://mint.club',
+	attributes: [{ trait_type: 'rarity', value: 'legendary' }],
+	video: 'ipfs://...'
+}) 
+```
+
+### image
+
+- Type: `IpfsHashUrl` | `HttpUrl`
+
+A url to the image file.
+
+```ts
+await mintclub.ipfs.uploadMetadata({ 
+	filebaseApiKey: 'YOUR API KEY', 
+	image: 'ipfs://...', // [!code focus]
+	name: 'My NFT',
+	description: 'My NFT description',
+	external_url: 'https://mint.club',
+	attributes: [{ trait_type: 'rarity', value: 'legendary' }],
+	video: 'ipfs://...'
+}) 
+```
+
+### name
+
+- Type: `string`
+
+A collection name for the NFT.
+
+```ts
+await mintclub.ipfs.uploadMetadata({ 
+	filebaseApiKey: 'YOUR API KEY', 
+	image: 'ipfs://...',
+	name: 'My NFT', // [!code focus]
+	description: 'My NFT description',
+	external_url: 'https://mint.club',
+	attributes: [{ trait_type: 'rarity', value: 'legendary' }],
+	video: 'ipfs://...'
+}) 
+```
+
+### description
+
+- Type: `string`
+
+A description for the NFT.
+
+```ts
+await mintclub.ipfs.uploadMetadata({ 
+	filebaseApiKey: 'YOUR API KEY', 
+	image: 'ipfs://...', 
+	name: 'My NFT',
+	description: 'My NFT description', // [!code focus]
+	external_url: 'https://mint.club',
+	attributes: [{ trait_type: 'rarity', value: 'legendary' }],
+	video: 'ipfs://...'
+}) 
+```
+
+### external_url (optional)
+
+- Type: `string`
+- Default: `https://mint.club`
+
+A external url for the NFT. 
+
+```ts
+await mintclub.ipfs.uploadMetadata({ 
+	filebaseApiKey: 'YOUR API KEY', 
+	image: 'ipfs://...', 
+	name: 'My NFT',
+	description: 'My NFT description',
+	external_url: 'https://mint.club', // [!code focus]
+	attributes: [{ trait_type: 'rarity', value: 'legendary' }],
+	video: 'ipfs://...'
+}) 
+```
+
+### attributes (optional)
+
+- Type: `{ trait_type: string; value: string }[]`
+- Default: `[]`
+
+A external url for the NFT. 
+
+```ts
+await mintclub.ipfs.uploadMetadata({ 
+	filebaseApiKey: 'YOUR API KEY', 
+	image: 'ipfs://...', 
+	name: 'My NFT',
+	description: 'My NFT description',
+	external_url: 'https://mint.club',
+	attributes: [{ trait_type: 'rarity', value: 'legendary' }], // [!code focus]
+	video: 'ipfs://...'
+}) 
+```
+
+### video (optional)
+
+- Type: `IpfsHashUrl` | `HttpUrl`
+- Default: `undefined`
+
+A url to the video file if needed.
+
+```ts
+await mintclub.ipfs.uploadMetadata({ 
+	filebaseApiKey: 'YOUR API KEY', 
+	image: 'ipfs://...', 
+	name: 'My NFT',
+	description: 'My NFT description',
+	external_url: 'https://mint.club',
+	attributes: [{ trait_type: 'rarity', value: 'legendary' }],
+	video: 'ipfs://...' // [!code focus]
+}) 
+```
+

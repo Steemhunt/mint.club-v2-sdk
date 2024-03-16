@@ -1,0 +1,30 @@
+---
+description: Returns tokens created by a user
+---
+
+# getTokensByCreator 
+
+Returns tokens created by a user.
+
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const tokens = await mintclub.network('ethereum').bond.getTokensByCreator(`0x...`)
+```
+
+## Return Value
+
+`Promise<readonly '0x${string}'[]>`
+
+Returns tokens created by a user.
+
+## Parameters
+
+### walletAddress
+
+- Type: `'0x${string}'`  
+
+The address of a user

@@ -233,7 +233,11 @@ export class TokenHelper<T extends TokenType> {
     return { args, fee };
   }
 
-  public async buy(params: BuySellCommonParams) {
+  public async buy(
+    params: BuySellCommonParams & {
+      allowanceAmount?: bigint;
+    },
+  ) {
     const { amount, slippage = 0, recipient, onError } = params;
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
@@ -252,7 +256,7 @@ export class TokenHelper<T extends TokenType> {
           ...params,
           tradeType: 'buy',
           amountToSpend: maxReserveAmount,
-        } as ApproveBondParams<T>);
+        } as ApproveBondParams<T, 'buy'>);
       }
 
       return bondContract.network(this.chainId).write({
@@ -265,7 +269,11 @@ export class TokenHelper<T extends TokenType> {
     }
   }
 
-  public async sell(params: BuySellCommonParams) {
+  public async sell(
+    params: BuySellCommonParams & {
+      allowanceAmount?: T extends 'ERC20' ? bigint : never;
+    },
+  ) {
     const { amount, slippage = 0, recipient } = params;
 
     const connectedAddress = await this.getConnectedWalletAddress();
@@ -284,7 +292,7 @@ export class TokenHelper<T extends TokenType> {
         ...params,
         tradeType: 'sell',
         amountToSpend: amount,
-      } as ApproveBondParams<T>);
+      } as ApproveBondParams<T, 'sell'>);
     }
 
     return bondContract.network(this.chainId).write({

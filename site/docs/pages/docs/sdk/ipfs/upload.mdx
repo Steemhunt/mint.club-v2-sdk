@@ -1,0 +1,65 @@
+---
+description: Upload a file to the IPFS
+---
+
+# upload 
+
+Upload a file to IPFS.
+
+:::tip[Tip]
+You need to have a Filebase API key to use this function. 
+
+Refer to [getting a filebase API Key](/docs/sdk/ipfs#getting-an-api-key).
+:::
+
+:::warning[Good to know]
+You would use this function to upload an image/video to the IPFS, then use the returned hash to create the [metdata](/docs/sdk/ipfs/uploadMetadata) for the NFT.
+:::
+
+## Usage
+
+```ts [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const imageOrVideo = URL.createObjectURL(...);
+ 
+await mintclub.ipfs.upload({ // [!code focus]
+	filebaseApiKey: 'YOUR API KEY', // [!code focus]
+	media: imageOrVideo // [!code focus]
+}) // [!code focus]
+```
+
+
+## Return Value
+
+`Promise<'ipfs://${string}'>`
+
+Returns a promise that resolves to a string containing the IPFS hash of the uploaded file.
+
+
+## Parameters
+
+### filebaseApiKey
+
+- Type: `string`
+
+Filebase API key.
+
+```ts [example.ts]
+await mintclub.ipfs.upload({ 
+	filebaseApiKey: 'YOUR API KEY', // [!code focus]
+	media: file 
+}) 
+```
+### media
+
+- Type: `Blob`
+
+A file to upload to the IPFS.
+
+```ts [example.ts]
+await mintclub.ipfs.upload({ 
+	filebaseApiKey: 'YOUR API KEY', 
+	media: file // [!code focus]
+}) 
+```

@@ -1,0 +1,50 @@
+---
+description: Converts IPFS hash to an accessible http url 
+---
+
+# hashToGatewayUrl 
+
+Converts IPFS hash to an accessible http url. 
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const httpUrl = mintclub.ipfs.hashToGatewayUrl('ipfs://somehashvalue') 
+
+// const Image = () => <img src={httpUrl} alt="ipfs image" />
+```
+
+## Return Value
+
+`Promise<'https://...'>`
+
+Returns a promise that resolves to a http url.
+
+
+## Parameters
+
+### hash
+
+- Type: `IpfsHashUrl`
+
+A valid IPFS hash url.
+
+```ts
+const httpUrl = mintclub.ipfs.hashToGatewayUrl('ipfs://somehashvalue')  // [!code focus]
+```
+
+### gateway (optional)
+
+- Type: `HttpUrl`
+- Default: `'https://cf-ipfs.com/ipfs/'`
+
+A valid ipfs gateway url.
+
+```ts
+const httpUrl = mintclub.ipfs.hashToGatewayUrl(
+	'ipfs://somehashvalue',
+	'https://cf-ipfs.com/ipfs/'  // [!code focus]
+)
+```

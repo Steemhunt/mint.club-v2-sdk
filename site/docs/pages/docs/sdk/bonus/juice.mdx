@@ -1,0 +1,48 @@
+---
+description: Getting the most juice out of the SDK 
+---
+
+# Getting the most juice out of the SDK 
+
+The Mint Club SDK internally uses the [`viem@2.7.16`](https://viem.sh/docs/clients/public) to make read/write calls. 
+
+This means that you can access both the `public` and `wallet` clients to make read/write calls.
+
+Using Public/Wallet Client opens up a lot of possibilities for you to explore outside of the SDK boxes.
+
+For example
+
+- you can use the `publicClient` to read [`block data`](/docs/sdk/network/getPublicClient#publicclient),
+- you can use the `walletClient` to [`sign a message`](/docs/sdk/network/getWalletClient#walletclient)
+- and much more.
+
+
+
+::::steps
+
+### Using the PublicClient
+
+:::note
+Mint Club SDK's [getPublicClient](/docs/sdk/network/getPublicClient)
+:::
+
+### Using the WalletClient
+
+:::note
+Mint Club SDK's [getWalletClient](/docs/sdk/network/getWalletClient)
+:::
+
+### Overriding PublicClient config
+
+:::note
+Mint Club SDK's [withPublicClient](/docs/sdk/network/withPublicClient)
+:::
+
+### Overriding WalletClient config
+
+:::note
+Mint Club SDK's [withWalletClient](/docs/sdk/network/withWalletClient)
+:::
+
+
+::::

@@ -1,0 +1,102 @@
+---
+description: Using a custom wallet provider
+---
+
+# Custom providers
+
+If you're using this SDK in a browser environment where your users will be signing transactions, the SDK will try to use the `window.ethereum` provider by default. 
+
+However, you might want to use a custom wallet kit like [`web3modal`](https://web3modal.com/) or [`rainbowkit`](https://www.rainbowkit.com/) along with [`wagmi`](https://wagmi.sh).
+
+## Using a custom provider
+
+For example, you might be using `web3modal` + `wagmi` to manage wallet connections.
+
+You can use the [`withAccount`](/docs/sdk/network/withAccount) method to override the provider.
+
+:::code-group
+
+```ts [example.ts]
+import { mintclub, wei } from 'mint.club-v2-sdk'
+import { useAccount } from 'wagmi' // [!code focus]
+
+function App() {
+	const account = useAccount() // [!code focus]
+
+	mintclub.network('ethereum')
+	.withAccount(account) // [!code focus]
+	.token('SYMBOL')
+	.buy({
+		amount: wei(1, 18),
+	})
+}
+```
+
+```ts [config.ts]
+import { http, createConfig } from 'wagmi'
+import { mainnet, sepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [mainnet, sepolia],
+  transports: {
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
+  },
+})
+```
+
+:::
+
+
+
+## Other use cases
+
+There are cases where you might want to use a custom provider or use the SDK in a non-browser environment to sign the transaction.
+
+::::steps
+
+### Using a custom provider
+
+:::note
+Signing transactions [withProvider](/docs/sdk/network/withProvider) using a custom provider
+:::
+
+### Using a private key
+
+:::note
+Signing transactions [withPrivateKey](/docs/sdk/network/withPrivateKey) using a private key
+:::
+
+### Using an account
+
+:::note
+Signing transactions [withAccount](/docs/sdk/network/withAccount) using a custom account
+:::
+
+
+### Using the PublicClient
+
+:::note
+Mint Club SDK's [getPublicClient](/docs/sdk/network/getPublicClient)
+:::
+
+### Using the WalletClient
+
+:::note
+Mint Club SDK's [getWalletClient](/docs/sdk/network/getWalletClient)
+:::
+
+### Overriding PublicClient config
+
+:::note
+Mint Club SDK's [withPublicClient](/docs/sdk/network/withPublicClient)
+:::
+
+### Overriding WalletClient config
+
+:::note
+Mint Club SDK's [withWalletClient](/docs/sdk/network/withWalletClient)
+:::
+
+
+::::

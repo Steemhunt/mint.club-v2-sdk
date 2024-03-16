@@ -1,0 +1,34 @@
+---
+description: Converts a gateway url to an ipfsHash 
+---
+
+# gatewayUrlToHash 
+
+Converts a gateway url to an ipfsHash. 
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const ipfsHash = mintclub.ipfs.gatewayUrlToHash('https://cf.ipfs.com/ipfs/somehashvalue')  // [!code focus]
+```
+
+
+## Return Value
+
+`Promise<IpfsHashUrl>`
+
+Returns a valid IPFS hash url `ipfs://{somehashvalue}`.
+
+## Parameters
+
+### url
+
+- Type: `HttpUrl`
+
+A valid ipfs gateway url.
+
+```ts
+const ipfsHash = mintclub.ipfs.gatewayUrlToHash('https://cf.ipfs.com/ipfs/somehashvalue')  // [!code focus]
+```

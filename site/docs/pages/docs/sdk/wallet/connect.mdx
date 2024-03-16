@@ -1,0 +1,35 @@
+---
+description: Requests the user to connect their wallet to the application. 
+---
+
+# connect 
+
+Requests the user to connect their wallet to the application. 
+
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const address = await mintclub.wallet.connect(); // [!code focus]
+// uses window.ethereum by default // [!code focus]
+// you can also pass a different provider as an argument // [!code focus]
+// const okexWallet = await mintclub.wallet.connect(window.okex);  // [!code focus]
+```
+
+## Return Value
+
+`Promise<'0x${string}'>`
+
+Returns a promise that resolves to a connected address.
+
+
+## Parameters
+
+### provider (optional)
+
+- Type: `any`
+- Default: `window.ethereum`
+
+By default, the function will use the `window.ethereum` object to connect to the wallet. If you want to use a different provider, you can pass it as an argument to the function.

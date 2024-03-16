@@ -1,0 +1,24 @@
+---
+description: Requests the user to connect to a different wallet account. 
+---
+
+# change 
+
+Requests the user to connect to a different wallet account. 
+
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+await mintclub.wallet.change(); // [!code focus]
+
+const connectedAddress = await mintclub.wallet.account();
+```
+
+## Return Value
+
+`Promise<void>`
+
+

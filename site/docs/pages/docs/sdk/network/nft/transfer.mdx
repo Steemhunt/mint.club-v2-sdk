@@ -1,24 +1,19 @@
 ---
-description: Allows the bonding curve contract to use user's tokens
+description: Transfers NFTs to another user
 ---
 
-# approve 
+# transfer 
 
-Allows the bonding curve contract to use user's tokens. 
-
-:::tip[tip]
-Before user makes a [`buy`](/docs/sdk/network/token/buy) call, the bonding curve contract must be approved to use the asset's reserve token.
-
-The SDK will automatically fetch the reserve token address from the bonding curve contract and use it to approve the contract to use the user's tokens.
-:::
+Transfers NFTs to another user.
 
 ## Usage
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
  
-await mintclub.network('ethereum').token('SYMBOL').approve({
-	tradeType: 'buy',
+await mintclub.network('ethereum').nft('SYMBOL').transfer({
+	amount: wei(1, 18),
+	recipient: '0x...'
 })
 ```
 
@@ -31,21 +26,34 @@ Returns a promise that resolves to a `TransactionReceipt` object when the transa
 
 ## Parameters
 
+### amount
 
-### tradeType
+- Type: `bigint`
 
-- Type: `buy` | `sell`
+Amount to transfer
 
-Type of trade to approve the bonding curve contract to use the user's tokens.
+```ts twoslash [example.ts]
+import { mintclub, wei } from 'mint.club-v2-sdk'
+ 
+await mintclub.network('ethereum').nft('SYMBOL').transfer({
+	amount: wei(1, 18), // [!code focus]
+	recipient: '0x...'
+})
+```
 
-If `buy`, reserveToken will be approved. If `sell`, the token will be used.
+### recipient
+
+- Type: `'0x...${string}'`
+
+The address of the recipient
 
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
  
-await mintclub.network('ethereum').token('SYMBOL').approve({
-	tradeType: 'buy',
+await mintclub.network('ethereum').nft('SYMBOL').transfer({
+	amount: wei(1, 18), 
+	recipient: '0x...' // [!code focus]
 })
 ```
 
@@ -60,10 +68,11 @@ Callback function for when the user is requested to sign the transaction.
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
-  .approve({
-	  tradeType: 'buy',
-	  onSignatureRequest: () => {} // [!code focus]
+  .nft('MINT')
+  .transfer({
+   	amount: wei(1, 18),
+	recipient: '0x...'
+	onSignatureRequest: () => {} // [!code focus]
   })
 ```
 
@@ -78,10 +87,11 @@ Callback function for when the user is signs the transaction.
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
-  .approve({
-	  tradeType: 'buy',
-	  onSigned: (txHash) => {} // [!code focus]
+  .nft('MINT')
+  .transfer({
+   	amount: wei(1, 18),
+	recipient: '0x...'
+	onSigned: (txHash) => {} // [!code focus]
   })
 ```
 
@@ -96,10 +106,11 @@ Callback function for when the transaction is successful.
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
-  .approve({
-	  tradeType: 'buy',
-	  onSuccess: (receipt) => {} // [!code focus]
+  .nft('MINT')
+  .transfer({
+   	amount: wei(1, 18),
+	recipient: '0x...'
+	onSuccess: (receipt) => {} // [!code focus]
   })
 ```
 
@@ -113,9 +124,10 @@ Callback function for when the transaction fails. This also includes when the us
 ```ts
 await mintclub
   .network('ethereum')
-  .token('MINT')
-  .approve({
-	  tradeType: 'buy',
-	  onError: (error) => {} // [!code focus]
+  .nft('MINT')
+  .transfer({
+   	amount: wei(1, 18),
+	recipient: '0x...'
+	onError: (error) => {} // [!code focus]
   })
 ```

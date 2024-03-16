@@ -1,0 +1,30 @@
+---
+description: Returns tokens created by the reserve token
+---
+
+# getTokensByReserveToken 
+
+Returns tokens created by the reserve token.
+
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const tokens = await mintclub.network('ethereum').bond.getTokensByReserveToken(`0x...`)
+```
+
+## Return Value
+
+`Promise<readonly '0x${string}'[]>`
+
+Returns tokens created by the reserve token.
+
+## Parameters
+
+### reserveTokenAddress
+
+- Type: `'0x${string}'`  
+
+The address of the reserve token

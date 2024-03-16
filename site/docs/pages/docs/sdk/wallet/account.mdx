@@ -1,0 +1,24 @@
+---
+description: Returns a promise that resolves to a connected address. 
+---
+
+# account 
+
+Returns a promise that resolves to a connected address. 
+
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const connectedAddress = await mintclub.wallet.account(); // [!code focus]
+```
+
+## Return Value
+
+`Promise<'0x${string}' | null>`
+
+Returns a promise that resolves to a connected address or null if not connected.
+
+

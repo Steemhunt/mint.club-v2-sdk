@@ -6,10 +6,12 @@ showLogo: true
 ---
 
 import { HomePage } from 'vocs/components'
+import pkg from '../../../package.json'
 
 <HomePage.Root>
   <HomePage.Logo className="aspect-square" />
   <HomePage.Tagline className="text-primary font-bold">Mint Club V2 SDK</HomePage.Tagline>
+  <div className='text-primary font-bold'>Lastet version: v{pkg.version}</div>
   <HomePage.Description>Create and Trade Bonding Curve Tokens / NFTs with Automated Liquidity</HomePage.Description>
   <HomePage.Buttons>
     <HomePage.Button href="/docs/getting-started" variant="accent">
@@ -110,7 +112,7 @@ await MortyMee6Nft.create({
     finalMintingPrice: 0.1, // ending price, 0.1 WETH
     creatorAllocation: 100, // initial supply to the deployer
   },
-  image: 'ipfs://...' // [!code highlight]
+  metadataUrl: 'ipfs://...' // [!code highlight]
 })
 ```
 

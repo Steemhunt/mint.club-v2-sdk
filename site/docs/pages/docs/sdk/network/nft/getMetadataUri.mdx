@@ -1,0 +1,21 @@
+---
+description: Returns the metadata url of the nft.
+---
+
+# getMetadataUri
+
+Returns the metadata url of the nft.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const url = await mintclub.network('ethereum').nft('SYMBOL').getMetadataUri()
+```
+
+## Return Value
+
+`Promise<string>`
+
+Returns the metadata url of the nft.

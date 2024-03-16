@@ -36,26 +36,114 @@ export const sidebar = {
           link: '/docs/sdk/introduction',
         },
         {
+          text: '👛 wallet',
+          collapsed: true,
+          items: [
+            {
+              text: 'connect',
+              link: '/docs/sdk/wallet/connect',
+            },
+            {
+              text: 'disconnect',
+              link: '/docs/sdk/wallet/disconnect',
+            },
+            {
+              text: 'change',
+              link: '/docs/sdk/wallet/change',
+            },
+            {
+              text: 'account',
+              link: '/docs/sdk/wallet/account',
+            },
+            {
+              text: 'getNativeBalance',
+              link: '/docs/sdk/wallet/getNativeBalance',
+            },
+            {
+              text: 'Using a custom wallet provider',
+              link: '/docs/sdk/wallet/custom',
+            },
+          ],
+        },
+
+        {
+          text: '📦 ipfs',
+          collapsed: true,
+          items: [
+            {
+              text: 'Getting Started',
+              link: '/docs/sdk/ipfs',
+            },
+            {
+              text: 'upload',
+              link: '/docs/sdk/ipfs/upload',
+            },
+            {
+              text: 'uploadMetadata',
+              link: '/docs/sdk/ipfs/uploadMetadata',
+            },
+            {
+              text: 'hashToGatewayUrl',
+              link: '/docs/sdk/ipfs/hashToGatewayUrl',
+            },
+            {
+              text: 'gatewayUrlToHash',
+              link: '/docs/sdk/ipfs/gatewayUrlToHash',
+            },
+          ],
+        },
+
+        {
           text: '🌐 network',
           link: '/docs/sdk/network',
-          collapsed: false,
+          collapsed: true,
+          items: [
+            {
+              text: 'getPublicClient',
+              link: '/docs/sdk/network/getPublicClient',
+            },
+            {
+              text: 'getWalletClient',
+              link: '/docs/sdk/network/getWalletClient',
+            },
+            {
+              text: 'withAccount',
+              link: '/docs/sdk/network/withAccount',
+            },
+            {
+              text: 'withPublicClient',
+              link: '/docs/sdk/network/withPublicClient',
+            },
+            {
+              text: 'withWalletClient',
+              link: '/docs/sdk/network/withWalletClient',
+            },
+            {
+              text: 'withPrivateKey',
+              link: '/docs/sdk/network/withPrivateKey',
+            },
+            {
+              text: 'withProvider',
+              link: '/docs/sdk/network/withProvider',
+            },
+          ],
         },
         {
           text: '🪙 token',
           link: '/docs/sdk/network/token',
-          collapsed: false,
+          collapsed: true,
           items: [
             {
               text: 'create',
               link: '/docs/sdk/network/token/create',
             },
             {
-              text: 'approve',
-              link: '/docs/sdk/network/token/approve',
-            },
-            {
               text: 'buy',
               link: '/docs/sdk/network/token/buy',
+            },
+            {
+              text: 'sell',
+              link: '/docs/sdk/network/token/sell',
             },
             {
               text: 'transfer',
@@ -105,6 +193,26 @@ export const sidebar = {
               link: '/docs/sdk/network/nft/create',
             },
             {
+              text: 'buy',
+              link: '/docs/sdk/network/nft/buy',
+            },
+            {
+              text: 'sell',
+              link: '/docs/sdk/network/nft/sell',
+            },
+            {
+              text: 'transfer',
+              link: '/docs/sdk/network/nft/transfer',
+            },
+            {
+              text: 'getMetadataUri',
+              link: '/docs/sdk/network/nft/getMetadataUri',
+            },
+            {
+              text: 'getImageUri',
+              link: '/docs/sdk/network/nft/getImageUri',
+            },
+            {
               text: 'getBalanceOf',
               link: '/docs/sdk/network/nft/getBalanceOf',
             },
@@ -140,10 +248,6 @@ export const sidebar = {
               text: 'getTotalSupply',
               link: '/docs/sdk/network/nft/getTotalSupply',
             },
-            {
-              text: 'getUri',
-              link: '/docs/sdk/network/nft/getUri',
-            },
           ],
         },
         {
@@ -154,6 +258,14 @@ export const sidebar = {
               text: 'getCreationFee',
               link: '/docs/sdk/network/bond/getCreationFee',
             },
+            {
+              text: 'getTokensByReserveToken',
+              link: '/docs/sdk/network/bond/getTokensByReserveToken',
+            },
+            {
+              text: 'getTokensByCreator',
+              link: '/docs/sdk/network/bond/getTokensByCreator',
+            },
           ],
         },
         {
@@ -162,57 +274,29 @@ export const sidebar = {
           collapsed: true,
         },
         {
-          text: '🔒lockup',
+          text: '🔒 lockup',
           link: '/docs/sdk/network/lockup',
           collapsed: true,
         },
         {
-          text: '📝 Transactions',
-          link: '/docs/sdk/network/transactions',
+          text: '🎁 bonus',
           collapsed: true,
           items: [
             {
-              text: 'Introduction',
-              link: '/docs/sdk/network/transactions',
-            },
-            {
-              text: 'getPublicClient',
-              link: '/docs/sdk/network/transactions/getPublicClient',
-            },
-            {
-              text: 'getWalletClient',
-              link: '/docs/sdk/network/transactions/getWalletClient',
-            },
-            {
-              text: 'withAccount',
-              link: '/docs/sdk/network/transactions/withAccount',
-            },
-            {
-              text: 'withPublicClient',
-              link: '/docs/sdk/network/transactions/withPublicClient',
-            },
-            {
-              text: 'withWalletClient',
-              link: '/docs/sdk/network/transactions/withWalletClient',
-            },
-            {
-              text: 'withPrivateKey',
-              link: '/docs/sdk/network/transactions/withPrivateKey',
-            },
-            {
-              text: 'withProvider',
-              link: '/docs/sdk/network/transactions/withProvider',
+              text: 'Getting the most juice 🧃',
+              link: '/docs/sdk/bonus/juice',
             },
             {
               text: 'TransactionReceipt',
-              link: '/docs/sdk/network/transactions/receipt',
+              link: '/docs/sdk/bonus/receipt',
             },
             {
               text: 'RPCs',
-              link: '/docs/sdk/network/transactions/rpcs',
+              link: '/docs/sdk/bonus/rpcs',
             },
           ],
         },
+
         // Any additional items or categories should follow the same pattern
       ],
     },

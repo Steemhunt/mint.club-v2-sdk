@@ -1,0 +1,32 @@
+---
+description: Returns user's native balance
+---
+
+# getNativeBalance 
+
+Returns user's native balance.
+
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const balance = await mintclub.wallet.getNativeBalance(); // [!code focus]
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns a promise that resolves to user's native balance.
+
+
+## Parameters
+
+### params (optional)
+
+- Type: `{ walletAddress: '0x${string}', chainId: number }`
+- Default: `user's connected wallet address and chainId`
+
+By default, it returns the native balance of the current user. You can pass the user's address to get the native balance of another user.

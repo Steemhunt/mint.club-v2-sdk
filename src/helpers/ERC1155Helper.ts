@@ -6,6 +6,8 @@ import { IpfsHelper } from './IpfsHelper';
 import { TokenHelper } from './TokenHelper';
 
 export class ERC1155Helper extends TokenHelper<'ERC1155'> {
+  private ipfsHelper = new IpfsHelper();
+
   constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
     super({
       ...params,
@@ -82,7 +84,7 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
     });
   }
 
-  public getUri() {
+  public getMetadataUri() {
     return erc1155Contract.network(this.chainId).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'uri',
@@ -91,11 +93,10 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
   }
 
   public async getImageUri() {
-    const jsonHash = await this.getUri();
-    const metadataIpfsUrl = IpfsHelper.ipfsHashToGatewayUrl(jsonHash);
+    const jsonHash = await this.getMetadataUri();
+    const metadataIpfsUrl = this.ipfsHelper.hashToGatewayUrl(jsonHash);
     const { image } = await fetch(metadataIpfsUrl).then((res) => res.json());
-    const imageIpfsUrl = IpfsHelper.ipfsHashToGatewayUrl(image);
-    return imageIpfsUrl;
+    return image;
   }
 
   public async create(params: CreateERC1155TokenParams & Omit<CommonWriteParams, 'value'>) {
@@ -106,7 +107,7 @@ export class ERC1155Helper extends TokenHelper<'ERC1155'> {
 
       // double check the uploaded hash
       if (metadataUrl.startsWith('ipfs://')) {
-        IpfsHelper.validateIpfsHash(metadataUrl);
+        this.ipfsHelper.validateIpfsHash(metadataUrl);
       }
 
       return bondContract.network(this.chainId).write({

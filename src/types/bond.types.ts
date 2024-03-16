@@ -52,15 +52,24 @@ export type GenerateStepArgs = CreateTokenParams & {
   curveData: CurveParameter;
 };
 
-export type ApproveBondParams<T extends TokenType> = (T extends 'ERC20'
-  ? {
-      tradeType: TradeType;
+export type ApproveBondParams<T extends TokenType, TT extends TradeType = TradeType> = (TT extends 'buy'
+  ? // for buy allowance amount can always exist
+    {
+      tradeType: TT;
       amountToSpend?: bigint;
       allowanceAmount?: bigint;
     }
-  : {
-      tradeType: TradeType;
-    }) &
+  : T extends 'ERC20'
+    ? {
+        tradeType: TT;
+        amountToSpend?: bigint;
+        allowanceAmount?: bigint;
+      }
+    : {
+        // for ERC1155 sell, allowance amount is either true or false
+        tradeType: TT;
+        amountToSpend?: bigint;
+      }) &
   WriteTransactionCallbacks;
 
 export type BondApprovedParams<T extends TokenType, TT extends TradeType = TradeType> = T extends 'ERC20'

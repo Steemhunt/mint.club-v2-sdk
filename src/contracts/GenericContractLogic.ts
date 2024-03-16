@@ -82,7 +82,8 @@ export class GenericContractLogic<
       const walletClient = this.clientHelper.getWalletClient();
 
       if (!walletClient) {
-        return this.clientHelper.connect();
+        this.clientHelper.connect();
+        return;
       }
 
       let address: `0x${string}`;
@@ -131,6 +132,7 @@ export class GenericContractLogic<
         Object.assign(e, { functionName, args, simulationArgs, value });
       }
       onError?.(e);
+      return;
     }
   }
 }

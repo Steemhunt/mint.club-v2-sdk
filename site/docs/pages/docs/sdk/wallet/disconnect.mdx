@@ -1,0 +1,29 @@
+---
+description: Disconnects the user's wallet from the application.
+---
+
+# disconnect 
+
+Disconnects the user's wallet from the application.
+
+:::tip[Tip]
+It's actually not possible to "disconnect" a user from their wallet programmatically.
+
+To fully disconnect, the user will have to manually disconnect through their wallet.
+
+The SDK shallowly disconnects the wallet from the application and maintains the user's wallet connection status in the `localstorage`. 
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+await mintclub.wallet.disconnect(); // [!code focus]
+```
+
+## Return Value
+
+`void`
+
+

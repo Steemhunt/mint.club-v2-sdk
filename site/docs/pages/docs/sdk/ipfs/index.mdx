@@ -1,0 +1,34 @@
+---
+description: Using IPFS with Mint.club SDK
+---
+
+# Getting Started 
+
+Mint.club SDK internally uses [`@filebase/client`](https://www.npmjs.com/package/@filebase/client) to upload files to IPFS.
+
+:::success[Filebase]
+[Filebase](https://filebase.com/) is a free, decentralized storage solution that is used to store the media files of the nft.
+
+It is needed to upload image and metadata to IPFS. You can get your API key for free from [Filebase](https://filebase.com/).
+:::
+
+:::warning[Tip]
+IPFS functions should be called in the server side so that the API key is not exposed to the client side.
+:::
+
+
+## What is IPFS?
+
+IPFS is a protocol and network designed to create a content-addressable, peer-to-peer method of storing and sharing hypermedia in a distributed file system. IPFS is a distributed system for storing and accessing files, websites, applications, and data. It is a peer-to-peer system that allows you to store and access files from any device, anywhere in the world.
+
+
+## Why Filebase?
+
+It's free & simple to use 😄
+
+
+## Getting an API Key
+
+To get an API key, you need to sign up on [Filebase](https://filebase.com/) and create a new bucket.
+
+After you have created a bucket, you can go to the [console](https://console.filebase.com/) and generate a new API key for your bucket.
