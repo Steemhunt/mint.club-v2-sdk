@@ -150,6 +150,10 @@ export const sidebar = {
               link: '/docs/sdk/network/token/transfer',
             },
             {
+              text: 'getDetail',
+              link: '/docs/sdk/network/token/getDetail',
+            },
+            {
               text: 'getPriceForNextMint',
               link: '/docs/sdk/network/token/getPriceForNextMint',
             },
@@ -203,6 +207,10 @@ export const sidebar = {
             {
               text: 'transfer',
               link: '/docs/sdk/network/nft/transfer',
+            },
+            {
+              text: 'getDetail',
+              link: '/docs/sdk/network/nft/getDetail',
             },
             {
               text: 'getMetadataUri',

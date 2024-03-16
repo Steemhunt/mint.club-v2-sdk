@@ -11,7 +11,7 @@ function testAll(cb: (network: LowerCaseChainNames) => void) {
 describe('Bond Contract', () => {
   testAll((network) => {
     test(`${network} - getCreationFee`, async () => {
-      const creationFee = await mintclub.network(network).bond().getCreationFee();
+      const creationFee = await mintclub.network(network).bond.getCreationFee();
       expect(creationFee).toEqual(getCreationFee(network));
     });
   });

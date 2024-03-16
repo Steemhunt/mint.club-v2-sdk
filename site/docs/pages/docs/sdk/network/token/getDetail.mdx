@@ -1,0 +1,63 @@
+---
+description: Returns the token detail
+---
+
+# getDetail 
+
+Returns the token detail
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const detail = await mintclub.network('ethereum').token('SYMBOL').getDetail()
+//       ^?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+## Return Value
+
+`Promise<object>`
+
+Returns the token detail
+
+```ts
+{
+    mintRoyalty: number;
+    burnRoyalty: number;
+    info: {
+        creator: `0x${string}`;
+        token: `0x${string}`;
+        decimals: number;
+        symbol: string;
+        name: string;
+        createdAt: number;
+        currentSupply: bigint;
+        maxSupply: bigint;
+        priceForNextMint: bigint;
+        reserveToken: `0x${string}`;
+        reserveDecimals: number;
+        reserveSymbol: string;
+        reserveName: string;
+        reserveBalance: bigint;
+    };
+    steps: readonly {
+		rangeTo: bigint;
+		price: bigint;
+    }[];
+}
+```
