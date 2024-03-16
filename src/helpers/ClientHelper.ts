@@ -114,27 +114,27 @@ export class ClientHelper {
     });
   }
 
-  public getPublicClient(id?: number): PublicClient {
-    if (id === undefined) return this.publicClients[this.chainId as number];
+  public getPublicClient(_id?: number): PublicClient {
+    const id: number | undefined = _id ?? this.chainId;
 
-    if (this.publicClients[id] !== undefined) return this.publicClients[id];
+    if (id !== undefined && this.publicClients[id] !== undefined) return this.publicClients[id];
 
     const chain: Chain | undefined = Object.values(chains).find((chain) => chain.id === id);
 
     if (!chain) throw new ChainNotSupportedError(id);
 
-    this.publicClients[id] = createPublicClient({
+    this.publicClients[chain.id] = createPublicClient({
       chain,
       transport: fallback(chainRPCFallbacks(chain), DEFAULT_RANK_OPTIONS),
     }) as PublicClient<FallbackTransport>;
 
-    (this.publicClients[id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
+    (this.publicClients[chain.id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
       if (!response.response && response.status === 'success') {
         throw new Error('Empty RPC Response');
       }
     });
 
-    return this.publicClients[id];
+    return this.publicClients[chain.id];
   }
 
   public getWalletClient() {
