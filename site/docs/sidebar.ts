@@ -75,6 +75,10 @@ export const sidebar = {
               link: '/docs/sdk/ipfs',
             },
             {
+              text: 'add',
+              link: '/docs/sdk/ipfs/add',
+            },
+            {
               text: 'upload',
               link: '/docs/sdk/ipfs/upload',
             },

@@ -1,0 +1,55 @@
+---
+description: add a file to the IPFS
+---
+
+# add
+
+add a file to IPFS.
+
+:::tip[Tip]
+You need to have a Filebase API key to use this function. 
+
+Refer to [getting a filebase API Key](/docs/sdk/ipfs#getting-an-api-key).
+:::
+
+:::warning[add vs upload]
+`add` returns the IPFS hash of the file 
+
+`upload` returns the url with the protocol `ipfs://`.
+:::
+
+:::success 
+`add` is used in [`createAirdrop`](/docs/sdk/airdrop/createAirdrop) example
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const imageOrVideo = new Blob(['file'], { type: 'image/png' });
+
+const hash = await mintclub.ipfs.add('YOUR API KEY', imageOrVideo); // [!code focus]
+```
+
+
+## Return Value
+
+`Promise<string>`
+
+Returns a promise that resolves to a hash of the file added to the IPFS.
+
+
+## Parameters
+
+### filebaseApiKey
+
+- Type: `string`
+
+Filebase API key.
+
+### blob
+
+- Type: `Blob`
+
+A file to add to the IPFS.

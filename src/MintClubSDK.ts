@@ -8,11 +8,13 @@ import { ERC20 } from './helpers/ERC20Helper';
 import { Ipfs } from './helpers/IpfsHelper';
 import { Airdrop } from './helpers/AirdropHelper';
 import { Lockup } from './helpers/LockupHelper';
+import { Utils } from './helpers/UtilsHelper';
 
 export class MintClubSDK {
   // chain agnostic
   public wallet = new Client();
   public ipfs = new Ipfs();
+  public utils = new Utils();
 
   public network(id: SdkSupportedChainIds | LowerCaseChainNames): Omit<
     ReturnType<typeof this.withClientHelper> & Client,
