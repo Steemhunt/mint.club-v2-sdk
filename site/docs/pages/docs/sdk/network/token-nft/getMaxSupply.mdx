@@ -1,0 +1,21 @@
+---
+description: Returns the max supply of the token.
+---
+
+# getMaxSupply 
+
+Returns the max supply of the token.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const maxSupply = await mintclub.network('ethereum').token('SYMBOL').getMaxSupply()
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns the max supply of the token.
