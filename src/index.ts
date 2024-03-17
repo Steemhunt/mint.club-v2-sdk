@@ -1,3 +1,16 @@
+import {
+  arbitrum,
+  avalanche,
+  avalancheFuji,
+  base,
+  blast,
+  blastSepolia,
+  bsc,
+  mainnet,
+  optimism,
+  polygon,
+  sepolia,
+} from 'viem/chains';
 import { MintClubSDK } from './MintClubSDK';
 import {
   Abi,
@@ -39,14 +52,17 @@ export const supportedChains = [
 ] as const;
 
 export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainIds> = {
-  ethereum: 1,
-  sepolia: 11155111,
-  bnbchain: 56,
-  polygon: 137,
-  arbitrum: 42161,
-  optimism: 10,
-  avalanche: 43114,
-  base: 8453,
+  ethereum: mainnet.id,
+  sepolia: sepolia.id,
+  bnbchain: bsc.id,
+  polygon: polygon.id,
+  arbitrum: arbitrum.id,
+  optimism: optimism.id,
+  avalanche: avalanche.id,
+  base: base.id,
+  blast: blast.id,
+  blastsepolia: blastSepolia.id,
+  avalanchefuji: avalancheFuji.id,
 };
 
 export * from './exports';

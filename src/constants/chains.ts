@@ -1,12 +1,35 @@
 import { isAddress } from 'viem';
-import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
+import {
+  avalancheFuji,
+  arbitrum,
+  avalanche,
+  base,
+  blast,
+  blastSepolia,
+  bsc,
+  mainnet,
+  optimism,
+  polygon,
+  sepolia,
+} from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
 import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
 import * as chains from 'viem/chains';
 
 export type ChainType = {
   readonly id: SdkSupportedChainIds;
-  readonly name: 'Ethereum' | 'Base' | 'Optimism' | 'Arbitrum' | 'Avalanche' | 'Polygon' | 'BNBChain' | 'Sepolia';
+  readonly name:
+    | 'Ethereum'
+    | 'Base'
+    | 'Blast'
+    | 'Optimism'
+    | 'Arbitrum'
+    | 'Avalanche'
+    | 'Polygon'
+    | 'BNBChain'
+    | 'Sepolia'
+    | 'AvalancheFuji'
+    | 'BlastSepolia';
   readonly icon: string;
   readonly color: string;
   readonly openseaSlug?: string;
@@ -30,6 +53,14 @@ export const CHAINS: Array<ChainType> = [
     color: '#0052FF',
     openseaSlug: 'base',
     enabled: isAddress(getMintClubContractAddress('BOND', base.id)),
+  },
+  {
+    id: blast.id,
+    name: 'Blast',
+    icon: 'https://mint.club/assets/networks/blast@2x.png',
+    color: '#FCFC03',
+    openseaSlug: 'blast',
+    enabled: isAddress(getMintClubContractAddress('BOND', blast.id)),
   },
   {
     id: optimism.id,
@@ -78,6 +109,24 @@ export const CHAINS: Array<ChainType> = [
     color: '#627EEA',
     openseaSlug: 'sepolia',
     enabled: isAddress(getMintClubContractAddress('BOND', sepolia.id)),
+    isTestnet: true,
+  },
+  {
+    id: blastSepolia.id,
+    name: 'BlastSepolia',
+    icon: 'https://mint.club/assets/networks/blast@2x.png',
+    color: '#FCFC03',
+    openseaSlug: 'blast-sepolia',
+    enabled: isAddress(getMintClubContractAddress('BOND', blastSepolia.id)),
+    isTestnet: true,
+  },
+  {
+    id: avalancheFuji.id,
+    name: 'AvalancheFuji',
+    icon: 'https://mint.club/assets/networks/avalanche@2x.png',
+    color: '#E94143',
+    openseaSlug: 'avalanche-fuji',
+    enabled: isAddress(getMintClubContractAddress('BOND', avalancheFuji.id)),
     isTestnet: true,
   },
 ];

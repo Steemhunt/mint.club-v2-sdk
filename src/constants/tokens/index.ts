@@ -1,8 +1,23 @@
-import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
+import {
+  arbitrum,
+  avalanche,
+  avalancheFuji,
+  base,
+  blast,
+  blastSepolia,
+  bsc,
+  mainnet,
+  optimism,
+  polygon,
+  sepolia,
+} from 'viem/chains';
 import { SdkSupportedChainIds } from '../contracts';
 import { ARBITRUM_TOKENS } from './arbitrum';
 import { AVALANCHE_TOKENS } from './avalanche';
+import { AVALANCHE_FUJI_TOKENS } from './avalanche-fuji';
 import { BASE_TOKENS } from './base';
+import { BLAST_TOKENS } from './blast';
+import { BLAST_SEPOLIA_TOKENS } from './blast-sepolia';
 import { BSC_TOKENS } from './bsc';
 import { MAINNET_TOKENS } from './mainnet';
 import { OPTIMISM_TOKENS } from './optimism';
@@ -19,6 +34,9 @@ export const COINGECKO_NETWORK_IDS = {
   [polygon.id]: 'polygon-pos',
   [bsc.id]: 'binance-smart-chain',
   [sepolia.id]: 'ethereum', // sepolia not supported by coingecko API
+  [blast.id]: 'ethereum', // blast not supported by coingecko API
+  [blastSepolia.id]: 'ethereum', // blast sepolia not supported by coingecko API
+  [avalancheFuji.id]: 'ethereum', // avalanche-fuji not supported by coingecko API
 } as const satisfies Partial<Record<SdkSupportedChainIds, string>>;
 
 export type BaseToken = {
@@ -36,7 +54,7 @@ export type WrappedToken = {
   image: string;
   tokenAddress: `0x${string}`;
   nativeSymbol: string;
-  oneInchSymbol: 'USDT' | 'USDbC';
+  oneInchSymbol: 'USDT' | 'USDbC' | 'USDB';
   decimals: number;
 };
 
@@ -97,6 +115,27 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
+  [blast.id]: {
+    image: 'https://mint.club/assets/tokens/large/blast.png',
+    tokenAddress: '0x4300000000000000000000000000000000000004',
+    nativeSymbol: 'ETH',
+    oneInchSymbol: 'USDB',
+    decimals: 18,
+  },
+  [blastSepolia.id]: {
+    image: 'https://mint.club/assets/tokens/large/blast.png',
+    tokenAddress: '0x4200000000000000000000000000000000000023',
+    nativeSymbol: 'ETH',
+    oneInchSymbol: 'USDB',
+    decimals: 18,
+  },
+  [avalancheFuji.id]: {
+    image: 'https://mint.club/assets/tokens/large/avalanche.png',
+    tokenAddress: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c',
+    nativeSymbol: 'AVAX',
+    oneInchSymbol: 'USDT',
+    decimals: 18,
+  },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
@@ -109,7 +148,10 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [polygon.id]: POLYGON_TOKENS,
   [bsc.id]: BSC_TOKENS,
   [base.id]: BASE_TOKENS,
+  [blast.id]: BLAST_TOKENS,
+  [blastSepolia.id]: BLAST_SEPOLIA_TOKENS,
   [sepolia.id]: SEPOLIA_TOKENS,
+  [avalancheFuji.id]: AVALANCHE_FUJI_TOKENS,
 };
 
 export type TokenChain = keyof typeof TOKENS;

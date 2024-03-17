@@ -1,4 +1,16 @@
-import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
+import {
+  arbitrum,
+  avalanche,
+  avalancheFuji,
+  base,
+  blast,
+  blastSepolia,
+  bsc,
+  mainnet,
+  optimism,
+  polygon,
+  sepolia,
+} from 'viem/chains';
 
 const SDK_CONTRACT_ADDRESSES = {
   ERC20: {
@@ -10,6 +22,9 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [base.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [sepolia.id]: '0x749bA94344521727f55a3007c777FbeB5F52C2Eb',
+    [blast.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
+    [blastSepolia.id]: '0x37F540de37afE8bDf6C722d87CB019F30e5E406a',
+    [avalancheFuji.id]: '0xAD5a113ee65F30269f7558f96483126B1FB60c4E',
   },
 
   ERC1155: {
@@ -21,6 +36,9 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [base.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [sepolia.id]: '0x3cABE5125C5D8922c5f38c5b779F6E96F563cdc0',
+    [blast.id]: '0x5DaE94e149CF2112Ec625D46670047814aA9aC2a',
+    [blastSepolia.id]: '0x4bF67e5C9baD43DD89dbe8fCAD3c213C868fe881',
+    [avalancheFuji.id]: '0xB43826E079dFB2e2b48a0a473Efc7F1fe6391763',
   },
 
   BOND: {
@@ -32,6 +50,9 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [base.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [sepolia.id]: '0x8dce343A86Aa950d539eeE0e166AFfd0Ef515C0c',
+    [blast.id]: '0x621c335b4BD8f2165E120DC70d3AfcAfc6628681',
+    [blastSepolia.id]: '0x5dfA75b0185efBaEF286E80B847ce84ff8a62C2d',
+    [avalancheFuji.id]: '0x20fBC8a650d75e4C2Dab8b7e85C27135f0D64e89',
   },
 
   ZAP: {
@@ -43,6 +64,9 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [base.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [sepolia.id]: '0x1Bf3183acc57571BecAea0E238d6C3A4d00633da',
+    [blast.id]: '0x06FD26c092Db44E5491abB7cDC580CE24D93030c',
+    [blastSepolia.id]: '0x40c7DC399e01029a51cAb316f8Bca7D20DE31bad',
+    [avalancheFuji.id]: '0x60432191893c4F742205a2C834817a1891feC435',
   },
 
   LOCKER: {
@@ -54,6 +78,9 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [base.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [sepolia.id]: '0x7c204B1B03A88D24088941068f6DFC809f2fd022',
+    [blast.id]: '0x3Fd5B4DcDa968C8e22898523f5343177F94ccfd1',
+    [blastSepolia.id]: '0x2c6B3fe4D6de27363cFEC95f703889EaF6b770fB',
+    [avalancheFuji.id]: '0x789771E410527691729e54A84103594ee6Be6C3C',
   },
 
   MERKLE: {
@@ -65,6 +92,9 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
     [base.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
     [sepolia.id]: '0x0CD940395566d509168977Cf10E5296302efA57A',
+    [blast.id]: '0x29b0E6D2C2884aEa3FB4CB5dD1C7002A8E10c724',
+    [blastSepolia.id]: '0xCbb23973235feA43E62C41a0c67717a92a2467f2',
+    [avalancheFuji.id]: '0x6d1f4ecd17ddA7fb39C56Da566b66d63f06671d9',
   },
 
   ONEINCH: {
@@ -76,6 +106,9 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0x0AdDd25a91563696D8567Df78D5A01C9a991F9B8',
     [base.id]: '0x0AdDd25a91563696D8567Df78D5A01C9a991F9B8',
     [sepolia.id]: '0x',
+    [blast.id]: '0x',
+    [blastSepolia.id]: '0x',
+    [avalancheFuji.id]: '0x',
   },
 } as const;
 
@@ -102,4 +135,7 @@ type ExtractChainIds<T> = T extends { [key: string]: infer U }
 export type ContractNames = keyof typeof SDK_CONTRACT_ADDRESSES;
 export type SdkSupportedChainIds = ExtractChainIds<typeof SDK_CONTRACT_ADDRESSES>;
 export type TokenType = 'ERC20' | 'ERC1155';
-export type MainnetChain = ExcludeValue<SdkSupportedChainIds, 11155111>; // sepolia and hardhat excluded
+export type MainnetChain = ExcludeValue<
+  SdkSupportedChainIds,
+  typeof sepolia.id | typeof blastSepolia.id | typeof avalancheFuji.id
+>;
