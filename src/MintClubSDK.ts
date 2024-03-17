@@ -10,8 +10,33 @@ import { Airdrop } from './helpers/AirdropHelper';
 import { Lockup } from './helpers/LockupHelper';
 
 export class MintClubSDK {
+  // chain agnostic
   public wallet = new Client();
   public ipfs = new Ipfs();
+
+  public network(id: SdkSupportedChainIds | LowerCaseChainNames): Omit<
+    ReturnType<typeof this.withClientHelper> & Client,
+    '_getPublicClient'
+  > & {
+    getPublicClient: () => PublicClient;
+    token: (symbolOrAddress: string) => ERC20;
+    nft: (symbolOrAddress: string) => ERC1155;
+    airdrop: Airdrop;
+    lockup: Lockup;
+    bond: Bond;
+  } {
+    let chainId: SdkSupportedChainIds;
+
+    if (typeof id === 'string') {
+      chainId = chainStringToId(id);
+    } else {
+      chainId = id;
+    }
+
+    const clientHelper = new Client();
+
+    return this.withClientHelper(clientHelper, chainId);
+  }
 
   private withClientHelper(clientHelper: Client, chainId: SdkSupportedChainIds) {
     return Object.assign(clientHelper, {
@@ -53,27 +78,5 @@ export class MintClubSDK {
     const clientHelper = new Client().withWalletClient(walletClient);
 
     return this.withClientHelper(clientHelper, chainId as SdkSupportedChainIds);
-  }
-
-  public network(id: SdkSupportedChainIds | LowerCaseChainNames): Omit<
-    ReturnType<typeof this.withClientHelper> & Client,
-    '_getPublicClient'
-  > & {
-    getPublicClient: () => PublicClient;
-    token: (symbolOrAddress: string) => ERC20;
-    nft: (symbolOrAddress: string) => ERC1155;
-    bond: Bond;
-  } {
-    let chainId: SdkSupportedChainIds;
-
-    if (typeof id === 'string') {
-      chainId = chainStringToId(id);
-    } else {
-      chainId = id;
-    }
-
-    const clientHelper = new Client();
-
-    return this.withClientHelper(clientHelper, chainId);
   }
 }
