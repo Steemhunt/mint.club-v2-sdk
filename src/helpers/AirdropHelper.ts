@@ -1,6 +1,7 @@
 import { airdropContract } from '../contracts';
 import { SdkSupportedChainIds } from '../exports';
 import { CreateAirdropParams } from '../types/airdrop.types';
+import { WriteTransactionCallbacks } from '../types/transactions.types';
 import { api, baseFetcher } from '../utils/api';
 
 export const EMPTY_ROOT = '0x0000000000000000000000000000000000000000000000000000000000000000';
@@ -108,8 +109,8 @@ export class Airdrop {
     return merkleProof;
   }
 
-  public async getIsWhitelisted(params: { airdropId: number; account: `0x${string}`; merkleRoot: `0x${string}` }) {
-    const { airdropId, account, merkleRoot } = params;
+  public async getIsWhitelisted(airdropId: number, account: `0x${string}`) {
+    const { merkleRoot } = await this.getAirdropById(airdropId);
 
     if (merkleRoot === EMPTY_ROOT) return Promise.resolve(true);
 
@@ -119,24 +120,39 @@ export class Airdrop {
     });
   }
 
-  public async claimAirdrop(airdropId: number) {
+  public async claimAirdrop(
+    params: {
+      airdropId: number;
+    } & WriteTransactionCallbacks,
+  ) {
+    const { airdropId } = params;
+
     return airdropContract.network(this.chainId).write({
+      ...params,
       functionName: 'claim',
       args: [BigInt(airdropId), await this.getMerkleProof(airdropId)],
     });
   }
 
-  public createAirdrop(params: CreateAirdropParams) {
+  public createAirdrop(params: CreateAirdropParams & WriteTransactionCallbacks) {
     const { token, isERC20, amountPerClaim, walletCount, startTime, endTime, merkleRoot, title, ipfsCID } = params;
 
     return airdropContract.network(this.chainId).write({
+      ...params,
       functionName: 'createDistribution',
       args: [token, isERC20, amountPerClaim, walletCount, startTime, endTime, merkleRoot, title, ipfsCID],
     });
   }
 
-  public cancelAirdrop(airdropId: number) {
+  public cancelAirdrop(
+    params: {
+      airdropId: number;
+    } & WriteTransactionCallbacks,
+  ) {
+    const { airdropId } = params;
+
     return airdropContract.network(this.chainId).write({
+      ...params,
       functionName: 'refund',
       args: [BigInt(airdropId)],
     });

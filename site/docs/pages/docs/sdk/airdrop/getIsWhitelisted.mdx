@@ -1,0 +1,34 @@
+---
+description: Checks is user is whitelisted for the airdrop 
+---
+
+# getIsClaimed 
+
+Checks is user is whitelisted for the airdrop.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const whitelisted = await mintclub.network('base').airdrop.getIsWhitelisted(1, '0x...') 
+```
+
+
+## Return Value
+
+`Promise<boolean>`
+
+## Parameters
+
+### id
+
+- Type: `number`
+
+Airdrop id.
+
+### address
+
+- Type: `'0x${string}'`
+
+User address.

@@ -1,0 +1,29 @@
+---
+description: Checks is airdrop is public or not 
+---
+
+# getIsWhitelistOnly 
+
+Checks is airdrop is public or not.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const isPublic = await mintclub.network('base').airdrop.getIsWhitelistOnly(1) 
+```
+
+
+
+## Return Value
+
+`Promise<boolean>`
+
+## Parameters
+
+### id
+
+- Type: `number`
+
+Airdrop id.

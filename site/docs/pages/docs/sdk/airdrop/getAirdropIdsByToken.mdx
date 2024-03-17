@@ -1,18 +1,18 @@
 ---
-description: Get airdrop ids by owner address
+description: Get airdrop ids by token 
 ---
 
-# getAirdropIdsByOwner 
+# getAirdropIdsByToken 
 
-Get airdrop ids by owner address.
+Get airdrop ids by token address.
 
 ## Usage
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
 
-const ids = await mintclub.network('base').airdrop.getAirdropIdsByOwner({
-	owner: '0x...',
+const ids = await mintclub.network('base').airdrop.getAirdropIdsByToken({
+	token: '0x...',
 	start: 0,
 	end: 1000
 }) 
@@ -27,11 +27,11 @@ const ids = await mintclub.network('base').airdrop.getAirdropIdsByOwner({
 
 - Type: `object`
 
-### owner
+### token
 
 - Type: `'0x${string}'`
 
-Owner address.
+Token address.
 
 ### start (optional)
 
