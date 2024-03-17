@@ -12,13 +12,13 @@ export class Airdrop {
     this.chainId = chainId;
   }
 
-  public getDistributionCount() {
+  public getTotalAirdropCount() {
     return airdropContract.network(this.chainId).read({
       functionName: 'distributionCount',
     });
   }
 
-  public async getDistribution(distributionId: number) {
+  public async getAirdropById(airdropId: number) {
     const [
       token,
       isERC20,
@@ -34,7 +34,7 @@ export class Airdrop {
       ipfsCID,
     ] = await airdropContract.network(this.chainId).read({
       functionName: 'distributions',
-      args: [BigInt(distributionId)],
+      args: [BigInt(airdropId)],
     });
 
     return {
@@ -53,21 +53,21 @@ export class Airdrop {
     };
   }
 
-  public getAmountClaimed(distributionId: number) {
+  public getAmountClaimed(airdropId: number) {
     return airdropContract.network(this.chainId).read({
       functionName: 'getAmountClaimed',
-      args: [BigInt(distributionId)],
+      args: [BigInt(airdropId)],
     });
   }
 
-  public getAmountLeft(distributionId: number) {
+  public getAmountLeft(airdropId: number) {
     return airdropContract.network(this.chainId).read({
       functionName: 'getAmountLeft',
-      args: [BigInt(distributionId)],
+      args: [BigInt(airdropId)],
     });
   }
 
-  public getDistributionIdsByOwner(params: { owner: `0x${string}`; start?: bigint; end?: bigint }) {
+  public getAirdropIdsByOwner(params: { owner: `0x${string}`; start?: bigint; end?: bigint }) {
     const { owner, start = 0n, end = 1000n } = params;
     return airdropContract.network(this.chainId).read({
       functionName: 'getDistributionIdsByOwner',
@@ -75,7 +75,7 @@ export class Airdrop {
     });
   }
 
-  public getDistributionIdsByToken(params: { token: `0x${string}`; start?: bigint; end?: bigint }) {
+  public getAirdropIdsByToken(params: { token: `0x${string}`; start?: bigint; end?: bigint }) {
     const { token, start = 0n, end = 1000n } = params;
     return airdropContract.network(this.chainId).read({
       functionName: 'getDistributionIdsByToken',
@@ -83,22 +83,22 @@ export class Airdrop {
     });
   }
 
-  public getIsClaimed(distributionId: number, account: `0x${string}`) {
+  public getIsClaimed(airdropId: number, account: `0x${string}`) {
     return airdropContract.network(this.chainId).read({
       functionName: 'isClaimed',
-      args: [BigInt(distributionId), account],
+      args: [BigInt(airdropId), account],
     });
   }
 
-  public getIsWhtelistOnly(distributionId: number) {
+  public getIsWhitelistOnly(airdropId: number) {
     return airdropContract.network(this.chainId).read({
       functionName: 'isWhitelistOnly',
-      args: [BigInt(distributionId)],
+      args: [BigInt(airdropId)],
     });
   }
 
-  public async getMerkleProof(distributionId: number) {
-    const { ipfsCID } = await this.getDistribution(distributionId);
+  public async getMerkleProof(airdropId: number) {
+    const { ipfsCID } = await this.getAirdropById(airdropId);
     const merkleProof = await api
       .get(`ipfs/whitelist?cid=${ipfsCID}`)
       .json<`0x${string}`[]>()
@@ -108,25 +108,25 @@ export class Airdrop {
     return merkleProof;
   }
 
-  public async getIsWhitelisted(params: { distributionId: number; account: `0x${string}`; merkleRoot: `0x${string}` }) {
-    const { distributionId, account, merkleRoot } = params;
+  public async getIsWhitelisted(params: { airdropId: number; account: `0x${string}`; merkleRoot: `0x${string}` }) {
+    const { airdropId, account, merkleRoot } = params;
 
     if (merkleRoot === EMPTY_ROOT) return Promise.resolve(true);
 
     return airdropContract.network(this.chainId).read({
       functionName: 'isWhitelisted',
-      args: [BigInt(distributionId), account, await this.getMerkleProof(distributionId)],
+      args: [BigInt(airdropId), account, await this.getMerkleProof(airdropId)],
     });
   }
 
-  public async claim(distributionId: number) {
+  public async claimAirdrop(airdropId: number) {
     return airdropContract.network(this.chainId).write({
       functionName: 'claim',
-      args: [BigInt(distributionId), await this.getMerkleProof(distributionId)],
+      args: [BigInt(airdropId), await this.getMerkleProof(airdropId)],
     });
   }
 
-  public createDistribution(params: CreateAirdropParams) {
+  public createAirdrop(params: CreateAirdropParams) {
     const { token, isERC20, amountPerClaim, walletCount, startTime, endTime, merkleRoot, title, ipfsCID } = params;
 
     return airdropContract.network(this.chainId).write({
@@ -135,10 +135,10 @@ export class Airdrop {
     });
   }
 
-  public refund(distributionId: number) {
+  public cancelAirdrop(airdropId: number) {
     return airdropContract.network(this.chainId).write({
       functionName: 'refund',
-      args: [BigInt(distributionId)],
+      args: [BigInt(airdropId)],
     });
   }
 }

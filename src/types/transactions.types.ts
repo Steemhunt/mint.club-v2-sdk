@@ -1,5 +1,5 @@
 import { Abi, ContractFunctionArgs, ContractFunctionName, TransactionReceipt } from 'viem';
-import { ContractNames } from '../exports';
+import { ContractNames, TokenType } from '../exports';
 
 export type TokenContractReadWriteArgs<
   A extends Abi,
@@ -28,6 +28,13 @@ export type WriteTransactionCallbacks = {
   onSuccess?: (receipt: TransactionReceipt) => void;
   onError?: (error: unknown) => void;
 };
+
+export type ApproveParams<T extends TokenType> = T extends 'ERC20'
+  ? {
+      allowanceAmount?: bigint;
+      amountToSpend?: bigint;
+    }
+  : {};
 
 export type CommonWriteParams = WriteTransactionCallbacks & {
   value?: bigint;

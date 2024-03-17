@@ -1,6 +1,6 @@
 import MerkleTree from 'merkletreejs';
 import { Chain, isAddress, keccak256, maxUint256 } from 'viem';
-import { SdkSupportedChainIds, TokenType, getMintClubContractAddress } from '../constants/contracts';
+import { ContractNames, SdkSupportedChainIds, TokenType, getMintClubContractAddress } from '../constants/contracts';
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
 import {
   AirdropContainsInvalidWalletError,
@@ -18,7 +18,7 @@ import {
   TransferCommonParams,
 } from '../types/bond.types';
 import { TokenCreateAirdropParams, TokenHelperConstructorParams } from '../types/token.types';
-import { CommonWriteParams, TradeType } from '../types/transactions.types';
+import { ApproveParams, CommonWriteParams, TradeType, WriteTransactionCallbacks } from '../types/transactions.types';
 import { wei } from '../utils';
 import { computeCreate2Address } from '../utils/addresses';
 import { generateCreateArgs } from '../utils/bond';
@@ -65,7 +65,8 @@ export class Token<T extends TokenType> {
   }
 
   public async bondContractApproved(params: BondApprovedParams<T>) {
-    const { tradeType, walletAddress } = params;
+    const walletAddress = await this.getConnectedWalletAddress();
+    const { tradeType } = params;
     const tokenToApprove = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
@@ -88,6 +89,57 @@ export class Token<T extends TokenType> {
     });
 
     return allowance >= amountToSpend;
+  }
+
+  private async contractIsApproved(params: ApproveParams<T>, contract: ContractNames) {
+    const connectedAddress = await this.getConnectedWalletAddress();
+    if (this.tokenType === 'ERC1155') {
+      return erc1155Contract.network(this.chainId).read({
+        ...params,
+        tokenAddress: this.tokenAddress,
+        functionName: 'isApprovedForAll',
+        args: [connectedAddress, getMintClubContractAddress(contract, this.chainId)],
+      });
+    } else {
+      let amountToSpend = maxUint256;
+
+      if ('allowanceAmount' in params && params?.allowanceAmount !== undefined) {
+        amountToSpend = params.allowanceAmount;
+      }
+
+      const allowance = await erc20Contract.network(this.chainId).read({
+        ...params,
+        tokenAddress: this.tokenAddress,
+        functionName: 'allowance',
+        args: [connectedAddress, getMintClubContractAddress(contract, this.chainId)],
+      });
+
+      return allowance >= amountToSpend;
+    }
+  }
+
+  private approveContract(params: ApproveParams<T> & WriteTransactionCallbacks, contract: ContractNames) {
+    if (this.tokenType === 'ERC1155') {
+      return erc1155Contract.network(this.chainId).write({
+        ...params,
+        tokenAddress: this.tokenAddress,
+        functionName: 'setApprovalForAll',
+        args: [getMintClubContractAddress(contract, this.chainId), true],
+      });
+    } else {
+      let amountToSpend = maxUint256;
+
+      if ('allowanceAmount' in params && params?.allowanceAmount !== undefined) {
+        amountToSpend = params.allowanceAmount;
+      }
+
+      return erc20Contract.network(this.chainId).write({
+        ...params,
+        tokenAddress: this.tokenAddress,
+        functionName: 'approve',
+        args: [getMintClubContractAddress(contract, this.chainId), amountToSpend],
+      });
+    }
   }
 
   private async approveBond(params: ApproveBondParams<T>) {
@@ -254,7 +306,6 @@ export class Token<T extends TokenType> {
     const { amount, slippage = 0, recipient, onError } = params;
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
-
       const [estimatedOutcome, royalty] = await this.getBuyEstimation(amount);
       const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n + royalty;
 
@@ -287,52 +338,59 @@ export class Token<T extends TokenType> {
       allowanceAmount?: T extends 'ERC20' ? bigint : never;
     },
   ) {
-    const { amount, slippage = 0, recipient } = params;
+    const { amount, slippage = 0, recipient, onError } = params;
 
-    const connectedAddress = await this.getConnectedWalletAddress();
+    try {
+      const connectedAddress = await this.getConnectedWalletAddress();
+      const [estimatedOutcome, royalty] = await this.getSellEstimation(amount);
+      const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n - royalty;
 
-    const [estimatedOutcome, royalty] = await this.getSellEstimation(amount);
-    const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n - royalty;
-
-    const bondApproved = await this.bondContractApproved({
-      walletAddress: connectedAddress,
-      amountToSpend: amount,
-      tradeType: 'sell',
-    } as BondApprovedParams<T>);
-
-    if (!bondApproved) {
-      return this.approveBond({
-        ...params,
-        tradeType: 'sell',
+      const bondApproved = await this.bondContractApproved({
+        walletAddress: connectedAddress,
         amountToSpend: amount,
-      } as ApproveBondParams<T, 'sell'>);
-    }
+        tradeType: 'sell',
+      } as BondApprovedParams<T>);
 
-    return bondContract.network(this.chainId).write({
-      ...params,
-      functionName: 'burn',
-      args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
-    });
+      if (!bondApproved) {
+        return this.approveBond({
+          ...params,
+          tradeType: 'sell',
+          amountToSpend: amount,
+        } as ApproveBondParams<T, 'sell'>);
+      }
+
+      return bondContract.network(this.chainId).write({
+        ...params,
+        functionName: 'burn',
+        args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
+      });
+    } catch (e) {
+      onError?.(e);
+    }
   }
 
   public async transfer(params: TransferCommonParams) {
-    const { amount, recipient } = params;
+    const { amount, recipient, onError } = params;
 
-    if (this.tokenType === 'ERC20') {
-      return erc20Contract.network(this.chainId).write({
-        ...params,
-        tokenAddress: this.getTokenAddress(),
-        functionName: 'transfer',
-        args: [recipient, amount],
-      });
-    } else {
-      const connectedAddress = await this.getConnectedWalletAddress();
-      return erc1155Contract.network(this.chainId).write({
-        ...params,
-        tokenAddress: this.getTokenAddress(),
-        functionName: 'safeTransferFrom',
-        args: [connectedAddress, recipient, 0n, amount, '0x'],
-      });
+    try {
+      if (this.tokenType === 'ERC20') {
+        return erc20Contract.network(this.chainId).write({
+          ...params,
+          tokenAddress: this.getTokenAddress(),
+          functionName: 'transfer',
+          args: [recipient, amount],
+        });
+      } else {
+        const connectedAddress = await this.getConnectedWalletAddress();
+        return erc1155Contract.network(this.chainId).write({
+          ...params,
+          tokenAddress: this.getTokenAddress(),
+          functionName: 'safeTransferFrom',
+          args: [connectedAddress, recipient, 0n, amount, '0x'],
+        });
+      }
+    } catch (e) {
+      onError?.(e);
     }
   }
 
@@ -357,7 +415,25 @@ export class Token<T extends TokenType> {
     const amountPerClaim = wei(_amountPerClaim, decimals);
 
     const totalAmount = BigInt(amountPerClaim) * BigInt(walletCount);
-    // TODO: check allowance
+
+    const approved = await this.contractIsApproved(
+      {
+        allowanceAmount: totalAmount,
+        amountToSpend: totalAmount,
+      },
+      'MERKLE',
+    );
+
+    if (!approved) {
+      return this.approveContract(
+        {
+          ...params,
+          allowanceAmount: totalAmount,
+          amountToSpend: totalAmount,
+        },
+        'MERKLE',
+      );
+    }
 
     const leaves = wallets.map((address) => keccak256(address));
     const tree = new MerkleTree(leaves, keccak256, {
@@ -369,7 +445,7 @@ export class Token<T extends TokenType> {
     const blob = new Blob([json], { type: 'application/json' });
     const ipfsCID = await this.ipfsHelper.add(filebaseApiKey, blob);
 
-    return this.airdropHelper.createDistribution({
+    return this.airdropHelper.createAirdrop({
       token: this.tokenAddress,
       isERC20,
       amountPerClaim,

@@ -6,6 +6,8 @@ import { Client } from './helpers/ClientHelper';
 import { ERC1155 } from './helpers/ERC1155Helper';
 import { ERC20 } from './helpers/ERC20Helper';
 import { Ipfs } from './helpers/IpfsHelper';
+import { Airdrop } from './helpers/AirdropHelper';
+import { Lockup } from './helpers/LockupHelper';
 
 export class MintClubSDK {
   public wallet = new Client();
@@ -31,9 +33,9 @@ export class MintClubSDK {
         });
       },
 
-      bond: new Bond({
-        chainId,
-      }),
+      airdrop: new Airdrop(chainId),
+      lockup: new Lockup(chainId),
+      bond: new Bond(chainId),
     });
   }
 

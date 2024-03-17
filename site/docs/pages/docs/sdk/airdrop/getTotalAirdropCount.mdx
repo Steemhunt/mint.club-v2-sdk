@@ -1,0 +1,22 @@
+---
+description: Gets the total airdrop count created on the protocol 
+---
+
+# getTotalAirdropCount 
+
+Gets the total airdrop count created on the protocol. 
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const count = mintclub.network('base').getTotalAirdropCount() 
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns a promise that resolves to the total airdrop count created on the protocol.
+

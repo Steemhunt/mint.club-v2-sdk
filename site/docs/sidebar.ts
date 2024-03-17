@@ -291,13 +291,87 @@ export const sidebar = {
         },
         {
           text: '🪂 airdrop',
-          link: '/docs/sdk/network/airdrop',
           collapsed: true,
+          items: [
+            {
+              text: 'claimAirdrop',
+              link: '/docs/sdk/airdrop/claimAirdrop',
+            },
+            {
+              text: 'createAirdrop',
+              link: '/docs/sdk/airdrop/createAirdrop',
+            },
+            {
+              text: 'cancelAirdrop',
+              link: '/docs/sdk/airdrop/cancelAirdrop',
+            },
+            {
+              text: 'getTotalAirdropCount',
+              link: '/docs/sdk/airdrop/getTotalAirdropCount',
+            },
+            {
+              text: 'getAirdropById',
+              link: '/docs/sdk/airdrop/getAirdropById',
+            },
+            {
+              text: 'getAmountClaimed',
+              link: '/docs/sdk/airdrop/getAmountClaimed',
+            },
+            {
+              text: 'getAmountLeft',
+              link: '/docs/sdk/airdrop/getAmountLeft',
+            },
+            {
+              text: 'getAirdropIdsByOwner',
+              link: '/docs/sdk/airdrop/getAirdropIdsByOwner',
+            },
+            {
+              text: 'getAirdropIdsByToken',
+              link: '/docs/sdk/airdrop/getAirdropIdsByToken',
+            },
+            {
+              text: 'getIsClaimed',
+              link: '/docs/sdk/airdrop/getIsClaimed',
+            },
+            {
+              text: 'getIsWhitelistOnly',
+              link: '/docs/sdk/airdrop/getIsWhitelistOnly',
+            },
+            {
+              text: 'getIsWhitelisted',
+              link: '/docs/sdk/airdrop/getIsWhitelisted',
+            },
+          ],
         },
         {
           text: '🔒 lockup',
-          link: '/docs/sdk/network/lockup',
           collapsed: true,
+          items: [
+            {
+              text: 'createLockUp',
+              link: '/docs/sdk/lockup/createLockUp',
+            },
+            {
+              text: 'unlock',
+              link: '/docs/sdk/lockup/unlock',
+            },
+            {
+              text: 'getTotalLockUpCount',
+              link: '/docs/sdk/lockup/getTotalLockUpCount',
+            },
+            {
+              text: 'getLockUpIdsByReceiver',
+              link: '/docs/sdk/lockup/getLockUpIdsByReceiver',
+            },
+            {
+              text: 'getLockUpIdsByToken',
+              link: '/docs/sdk/lockup/getLockUpIdsByToken',
+            },
+            {
+              text: 'getLockUpById',
+              link: '/docs/sdk/lockup/getLockUpById',
+            },
+          ],
         },
         {
           text: '🎁 bonus',

@@ -1,4 +1,5 @@
 import { SdkSupportedChainIds, TokenType } from '../exports';
+import { WriteTransactionCallbacks } from './transactions.types';
 
 export type TokenHelperConstructorParams = {
   symbolOrAddress: string;
@@ -13,4 +14,4 @@ export type TokenCreateAirdropParams = {
   startTime?: Date;
   endTime: Date;
   filebaseApiKey: string;
-};
+} & WriteTransactionCallbacks;

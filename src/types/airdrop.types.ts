@@ -1,9 +1,3 @@
-import { SdkSupportedChainIds } from '../exports';
-
-export type AirdropHelperConstructorParams = {
-  chainId: SdkSupportedChainIds;
-};
-
 export type CreateAirdropParams = {
   token: `0x${string}`;
   isERC20: boolean;
