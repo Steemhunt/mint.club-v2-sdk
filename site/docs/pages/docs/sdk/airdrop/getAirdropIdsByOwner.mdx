@@ -1,0 +1,49 @@
+---
+description: Get airdrop ids by owner 
+---
+
+# getAirdropIdsByOwner 
+
+Get airdrop ids by owner address.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const ids = await mintclub.network('base').airdrop.getAirdropIdsByOwner({
+	owner: '0x...',
+	start: 0,
+	end: 1000
+}) 
+```
+
+
+
+## Return Value
+
+`Promise<bigint[]>`
+
+## Parameters
+
+- Type: `object`
+
+### owner
+
+- Type: `'0x${string}'`
+
+Owner address.
+
+### start (optional)
+
+- Type: `number`
+- Default: `0`
+
+Start index.
+
+### end (optional)
+
+- Type: `number`
+- Default: `1000`
+
+End index.

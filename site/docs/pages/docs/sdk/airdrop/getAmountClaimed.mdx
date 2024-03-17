@@ -1,0 +1,29 @@
+---
+description: Get amount claimed for airdrop 
+---
+
+# getAmountClaimed 
+
+Get amount claimed for airdrop.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const amount = await mintclub.network('base').airdrop.getAmountClaimed(1) 
+```
+
+
+
+## Return Value
+
+`Promise<bigint>`
+
+## Parameters
+
+### id
+
+- Type: `number`
+
+Airdrop id.

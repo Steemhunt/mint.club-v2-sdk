@@ -1,0 +1,63 @@
+---
+description: Get airdrop detail by id
+---
+
+# getAirdropById 
+
+Get airdrop detail by id.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const detail = await mintclub.network('base').airdrop.getAirdropById(1) 
+//     ^?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+## Return Value
+
+`Promise<AirdropDetail>`
+
+```ts
+{
+	token: `0x${string}`;
+	isERC20: boolean;
+	walletCount: number;
+	claimCount: number;
+	amountPerClaim: bigint;
+	startTime: number;
+	endTime: number;
+	owner: `0x${string}`;
+	refundedAt: number;
+	merkleRoot: `0x${string}`;
+	title: string;
+	ipfsCID: string;
+}
+```
+
+
+## Parameters
+
+### id
+
+- Type: `number`
+
+Airdrop id.

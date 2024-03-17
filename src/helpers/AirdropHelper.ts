@@ -67,19 +67,19 @@ export class Airdrop {
     });
   }
 
-  public getAirdropIdsByOwner(params: { owner: `0x${string}`; start?: bigint; end?: bigint }) {
-    const { owner, start = 0n, end = 1000n } = params;
+  public getAirdropIdsByOwner(params: { owner: `0x${string}`; start?: number; end?: number }) {
+    const { owner, start = 0, end = 1000 } = params;
     return airdropContract.network(this.chainId).read({
       functionName: 'getDistributionIdsByOwner',
-      args: [owner, start, end],
+      args: [owner, BigInt(start), BigInt(end)],
     });
   }
 
-  public getAirdropIdsByToken(params: { token: `0x${string}`; start?: bigint; end?: bigint }) {
-    const { token, start = 0n, end = 1000n } = params;
+  public getAirdropIdsByToken(params: { token: `0x${string}`; start?: number; end?: number }) {
+    const { token, start = 0, end = 1000 } = params;
     return airdropContract.network(this.chainId).read({
       functionName: 'getDistributionIdsByToken',
-      args: [token, start, end],
+      args: [token, BigInt(start), BigInt(end)],
     });
   }
 

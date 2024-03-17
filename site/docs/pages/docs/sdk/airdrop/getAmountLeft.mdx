@@ -1,0 +1,29 @@
+---
+description: Get amount left for airdrop 
+---
+
+# getAmountLeft 
+
+Get amount left for airdrop.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const amount = await mintclub.network('base').airdrop.getAmountLeft(1) 
+```
+
+
+
+## Return Value
+
+`Promise<bigint>`
+
+## Parameters
+
+### id
+
+- Type: `number`
+
+Airdrop id.
