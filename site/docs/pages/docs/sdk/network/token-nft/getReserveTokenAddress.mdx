@@ -1,0 +1,22 @@
+---
+description: Returns the reserve token address of the token
+---
+
+# getTokenAddress 
+
+Returns the reserve token address of the token
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const reserveTokenAddress = await mintclub.network('ethereum').token('SYMBOL').getReserveTokenAddress()
+```
+
+## Return Value
+
+`Promise<'0x${string}'>`
+
+Returns the reserve token address of the token
+

@@ -3,7 +3,7 @@ import { FilebaseKeyNeededErrror, InvalidImageProvidedError } from '../errors/sd
 import { IpfsHashUrl, MediaUploadParams, MetadataUploadParams, NFTMetadata } from '../types/ipfs.types';
 
 export class Ipfs {
-  private async add(apiKey: string, blob: Blob): Promise<CIDString> {
+  public async add(apiKey: string, blob: Blob): Promise<CIDString> {
     if (!apiKey) throw new FilebaseKeyNeededErrror();
 
     const client = new FilebaseClient({ token: apiKey });

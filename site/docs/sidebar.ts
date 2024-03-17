@@ -129,143 +129,148 @@ export const sidebar = {
           ],
         },
         {
-          text: '🪙 token',
-          link: '/docs/sdk/network/token',
+          text: '💎 token & nft',
           collapsed: true,
           items: [
             {
-              text: 'create',
-              link: '/docs/sdk/network/token/create',
+              text: '🪙 token',
+              link: '/docs/sdk/network/token',
+              collapsed: true,
+              items: [
+                {
+                  text: 'create',
+                  link: '/docs/sdk/network/token/create',
+                },
+                {
+                  text: 'approve',
+                  link: '/docs/sdk/network/token/approve',
+                },
+                {
+                  text: 'getAllowance',
+                  link: '/docs/sdk/network/token/getAllowance',
+                },
+              ],
             },
             {
-              text: 'buy',
-              link: '/docs/sdk/network/token/buy',
+              text: '🖼️ nft',
+              link: '/docs/sdk/network/nft',
+              collapsed: true,
+              items: [
+                {
+                  text: 'create',
+                  link: '/docs/sdk/network/nft/create',
+                },
+                {
+                  text: 'approve',
+                  link: '/docs/sdk/network/nft/approve',
+                },
+                {
+                  text: 'getMetadataUri',
+                  link: '/docs/sdk/network/nft/getMetadataUri',
+                },
+                {
+                  text: 'getImageUri',
+                  link: '/docs/sdk/network/nft/getImageUri',
+                },
+                {
+                  text: 'getBalanceOfBatch',
+                  link: '/docs/sdk/network/nft/getBalanceOfBatch',
+                },
+                {
+                  text: 'getContractURI',
+                  link: '/docs/sdk/network/nft/getContractURI',
+                },
+                {
+                  text: 'getIsApprovedForAll',
+                  link: '/docs/sdk/network/nft/getIsApprovedForAll',
+                },
+                {
+                  text: 'getSupportsInterface',
+                  link: '/docs/sdk/network/nft/getSupportsInterface',
+                },
+              ],
             },
             {
-              text: 'sell',
-              link: '/docs/sdk/network/token/sell',
-            },
-            {
-              text: 'transfer',
-              link: '/docs/sdk/network/token/transfer',
-            },
-            {
-              text: 'exists',
-              link: '/docs/sdk/network/token/exists',
-            },
-            {
-              text: 'getDetail',
-              link: '/docs/sdk/network/token/getDetail',
-            },
-            {
-              text: 'getPriceForNextMint',
-              link: '/docs/sdk/network/token/getPriceForNextMint',
-            },
-            {
-              text: 'getAllowance',
-              link: '/docs/sdk/network/token/getAllowance',
-            },
-            {
-              text: 'getBalanceOf',
-              link: '/docs/sdk/network/token/getBalanceOf',
-            },
-            {
-              text: 'getBondAddress',
-              link: '/docs/sdk/network/token/getBondAddress',
-            },
-            {
-              text: 'getDecimals',
-              link: '/docs/sdk/network/token/getDecimals',
-            },
-            {
-              text: 'getName',
-              link: '/docs/sdk/network/token/getName',
-            },
-            {
-              text: 'getSymbol',
-              link: '/docs/sdk/network/token/getSymbol',
-            },
-            {
-              text: 'getTotalSupply',
-              link: '/docs/sdk/network/token/getTotalSupply',
+              text: '🔗 common',
+              collapsed: true,
+              items: [
+                {
+                  text: 'buy',
+                  link: '/docs/sdk/network/token-nft/buy',
+                },
+                {
+                  text: 'sell',
+                  link: '/docs/sdk/network/token-nft/sell',
+                },
+                {
+                  text: 'transfer',
+                  link: '/docs/sdk/network/token-nft/transfer',
+                },
+                {
+                  text: 'exists',
+                  link: '/docs/sdk/network/token-nft/exists',
+                },
+                {
+                  text: 'getBuyEstimation',
+                  link: '/docs/sdk/network/token-nft/getBuyEstimation',
+                },
+                {
+                  text: 'getSellEstimation',
+                  link: '/docs/sdk/network/token-nft/getSellEstimation',
+                },
+                {
+                  text: 'getDetail',
+                  link: '/docs/sdk/network/token-nft/getDetail',
+                },
+                {
+                  text: 'getSteps',
+                  link: '/docs/sdk/network/token-nft/getSteps',
+                },
+                {
+                  text: 'getPriceForNextMint',
+                  link: '/docs/sdk/network/token-nft/getPriceForNextMint',
+                },
+                {
+                  text: 'getBalanceOf',
+                  link: '/docs/sdk/network/token-nft/getBalanceOf',
+                },
+                {
+                  text: 'getTokenAddress',
+                  link: '/docs/sdk/network/token-nft/getTokenAddress',
+                },
+                {
+                  text: 'getReserveTokenAddress',
+                  link: '/docs/sdk/network/token-nft/getReserveTokenAddress',
+                },
+                {
+                  text: 'getBondAddress',
+                  link: '/docs/sdk/network/token-nft/getBondAddress',
+                },
+                {
+                  text: 'getDecimals',
+                  link: '/docs/sdk/network/token-nft/getDecimals',
+                },
+                {
+                  text: 'getName',
+                  link: '/docs/sdk/network/token-nft/getName',
+                },
+                {
+                  text: 'getSymbol',
+                  link: '/docs/sdk/network/token-nft/getSymbol',
+                },
+                {
+                  text: 'getTotalSupply',
+                  link: '/docs/sdk/network/token-nft/getTotalSupply',
+                },
+                {
+                  text: 'getMaxSupply',
+                  link: '/docs/sdk/network/token-nft/getMaxSupply',
+                },
+              ],
             },
           ],
         },
-        {
-          text: '🖼️ nft',
-          link: '/docs/sdk/network/nft',
-          collapsed: true,
-          items: [
-            {
-              text: 'create',
-              link: '/docs/sdk/network/nft/create',
-            },
-            {
-              text: 'buy',
-              link: '/docs/sdk/network/nft/buy',
-            },
-            {
-              text: 'sell',
-              link: '/docs/sdk/network/nft/sell',
-            },
-            {
-              text: 'transfer',
-              link: '/docs/sdk/network/nft/transfer',
-            },
-            {
-              text: 'exists',
-              link: '/docs/sdk/network/nft/exists',
-            },
-            {
-              text: 'getDetail',
-              link: '/docs/sdk/network/nft/getDetail',
-            },
-            {
-              text: 'getMetadataUri',
-              link: '/docs/sdk/network/nft/getMetadataUri',
-            },
-            {
-              text: 'getImageUri',
-              link: '/docs/sdk/network/nft/getImageUri',
-            },
-            {
-              text: 'getBalanceOf',
-              link: '/docs/sdk/network/nft/getBalanceOf',
-            },
-            {
-              text: 'getBalanceOfBatch',
-              link: '/docs/sdk/network/nft/getBalanceOfBatch',
-            },
-            {
-              text: 'getContractURI',
-              link: '/docs/sdk/network/nft/getContractURI',
-            },
-            {
-              text: 'getDecimals',
-              link: '/docs/sdk/network/nft/getDecimals',
-            },
-            {
-              text: 'getIsApprovedForAll',
-              link: '/docs/sdk/network/nft/getIsApprovedForAll',
-            },
-            {
-              text: 'getName',
-              link: '/docs/sdk/network/nft/getName',
-            },
-            {
-              text: 'getSupportsInterface',
-              link: '/docs/sdk/network/nft/getSupportsInterface',
-            },
-            {
-              text: 'getSymbol',
-              link: '/docs/sdk/network/nft/getSymbol',
-            },
-            {
-              text: 'getTotalSupply',
-              link: '/docs/sdk/network/nft/getTotalSupply',
-            },
-          ],
-        },
+
         {
           text: '📈 bond',
           collapsed: true,

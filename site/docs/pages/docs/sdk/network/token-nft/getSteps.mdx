@@ -1,0 +1,22 @@
+---
+description: Returns the step data for the token
+---
+
+# getSteps 
+
+Returns the step data for the token
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const steps = await mintclub.network('ethereum').token('SYMBOL').getSteps()
+```
+
+## Return Value
+
+`Promise<readonly {
+	rangeTo: bigint
+	price: bigint
+}[]>`

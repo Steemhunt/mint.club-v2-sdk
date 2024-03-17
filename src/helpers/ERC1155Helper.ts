@@ -2,12 +2,9 @@ import { bondContract, erc1155Contract } from '../contracts';
 import { CreateERC1155TokenParams } from '../types/bond.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
 import { CommonWriteParams } from '../types/transactions.types';
-import { Ipfs } from './IpfsHelper';
 import { Token } from './TokenHelper';
 
 export class ERC1155 extends Token<'ERC1155'> {
-  private ipfsHelper = new Ipfs();
-
   constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
     super({
       ...params,
@@ -29,6 +26,13 @@ export class ERC1155 extends Token<'ERC1155'> {
       tokenAddress: this.getTokenAddress(),
       functionName: 'balanceOfBatch',
       args: [walletAddresses, ids],
+    });
+  }
+
+  public getBondAddress() {
+    return erc1155Contract.network(this.chainId).read({
+      tokenAddress: this.getTokenAddress(),
+      functionName: 'bond',
     });
   }
 
@@ -120,5 +124,15 @@ export class ERC1155 extends Token<'ERC1155'> {
       console.error(e);
       onError?.(e);
     }
+  }
+
+  public async approve(params: { spender: `0x${string}`; approved: boolean } & CommonWriteParams) {
+    const { spender, approved } = params;
+    return erc1155Contract.network(this.chainId).write({
+      ...params,
+      tokenAddress: this.getTokenAddress(),
+      functionName: 'setApprovalForAll',
+      args: [spender, approved],
+    });
   }
 }

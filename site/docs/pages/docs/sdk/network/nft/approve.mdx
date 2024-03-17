@@ -1,0 +1,131 @@
+---
+description: Approves NFT allowance for a spender
+---
+
+# approve 
+
+Approves NFT allowance for a spender.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub, wei } from 'mint.club-v2-sdk'
+ 
+await mintclub.network('ethereum').nft('SYMBOL').approve({
+	approved: true,
+	spender: '0x...'
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+
+## Parameters
+
+### approved
+
+- Type: `boolean`
+
+```ts twoslash [example.ts]
+import { mintclub, wei } from 'mint.club-v2-sdk'
+ 
+await mintclub.network('ethereum').nft('SYMBOL').approve({
+	approved: true, // [!code focus]
+	spender: '0x...'
+})
+```
+
+### spender
+
+- Type: `'0x...${string}'`
+
+The address of the spender
+
+
+```ts twoslash [example.ts]
+import { mintclub, wei } from 'mint.club-v2-sdk'
+ 
+await mintclub.network('ethereum').nft('SYMBOL').approve({
+	approved: true, 
+	spender: '0x...' // [!code focus]
+})
+```
+
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .nft('MINT')
+  .approve({
+   	approved: true,
+	spender: '0x...'
+	onSignatureRequest: () => {} // [!code focus]
+  })
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+
+Callback function for when the user is signs the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .nft('MINT')
+  .approve({
+   	approved: true,
+	spender: '0x...'
+	onSigned: (txHash) => {} // [!code focus]
+  })
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .nft('MINT')
+  .approve({
+   	approved: true,
+	spender: '0x...'
+	onSuccess: (receipt) => {} // [!code focus]
+  })
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub
+  .network('ethereum')
+  .nft('MINT')
+  .approve({
+   	approved: true,
+	spender: '0x...'
+	onError: (error) => {} // [!code focus]
+  })
+```

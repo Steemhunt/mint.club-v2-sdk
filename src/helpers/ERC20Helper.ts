@@ -64,6 +64,16 @@ export class ERC20 extends Token<'ERC20'> {
     });
   }
 
+  public async approve(params: { spender: `0x${string}`; amount: bigint } & CommonWriteParams) {
+    const { spender, amount } = params;
+    return erc20Contract.network(this.chainId).write({
+      ...params,
+      tokenAddress: this.getTokenAddress(),
+      functionName: 'approve',
+      args: [spender, amount],
+    });
+  }
+
   public async create(params: CreateERC20TokenParams & Omit<CommonWriteParams, 'value'>) {
     try {
       const { args, fee } = await this.checkAndPrepareCreateArgs(params);

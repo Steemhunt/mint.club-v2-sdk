@@ -1,0 +1,22 @@
+---
+description: Returns the token address of the token
+---
+
+# getTokenAddress 
+
+Returns the token address of the token
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const tokenAddress = await mintclub.network('ethereum').token('SYMBOL').getTokenAddress()
+```
+
+## Return Value
+
+`Promise<'0x${string}'>`
+
+Returns the token address of the token
+

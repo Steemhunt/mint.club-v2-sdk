@@ -1,7 +1,13 @@
-import { Chain, isAddress, maxUint256 } from 'viem';
+import MerkleTree from 'merkletreejs';
+import { Chain, isAddress, keccak256, maxUint256 } from 'viem';
 import { SdkSupportedChainIds, TokenType, getMintClubContractAddress } from '../constants/contracts';
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
-import { SymbolNotDefinedError, TokenAlreadyExistsError, WalletNotConnectedError } from '../errors/sdk.errors';
+import {
+  AirdropContainsInvalidWalletError,
+  SymbolNotDefinedError,
+  TokenAlreadyExistsError,
+  WalletNotConnectedError,
+} from '../errors/sdk.errors';
 import { WRAPPED_NATIVE_TOKENS, getChain } from '../exports';
 import {
   ApproveBondParams,
@@ -11,15 +17,20 @@ import {
   CreateERC20TokenParams,
   TransferCommonParams,
 } from '../types/bond.types';
-import { TokenHelperConstructorParams } from '../types/token.types';
+import { TokenCreateAirdropParams, TokenHelperConstructorParams } from '../types/token.types';
 import { CommonWriteParams, TradeType } from '../types/transactions.types';
+import { wei } from '../utils';
 import { computeCreate2Address } from '../utils/addresses';
 import { generateCreateArgs } from '../utils/bond';
+import { Airdrop } from './AirdropHelper';
 import { Client } from './ClientHelper';
+import { Ipfs } from './IpfsHelper';
 
 export class Token<T extends TokenType> {
   private tokenAddress: `0x${string}`;
   protected clientHelper: Client;
+  protected airdropHelper: Airdrop;
+  protected ipfsHelper: Ipfs;
   protected symbol?: string;
   protected tokenType: T;
   protected chain: Chain;
@@ -39,6 +50,8 @@ export class Token<T extends TokenType> {
     this.chainId = chainId;
     this.tokenType = tokenType as T;
     this.clientHelper = new Client();
+    this.ipfsHelper = new Ipfs();
+    this.airdropHelper = new Airdrop(this.chainId);
   }
 
   protected async getConnectedWalletAddress() {
@@ -77,7 +90,7 @@ export class Token<T extends TokenType> {
     return allowance >= amountToSpend;
   }
 
-  public async approve(params: ApproveBondParams<T>) {
+  private async approveBond(params: ApproveBondParams<T>) {
     const { tradeType, onAllowanceSignatureRequest, onAllowanceSigned, onAllowanceSuccess } = params;
     const tokenToCheck = await this.tokenToApprove(tradeType);
 
@@ -252,7 +265,7 @@ export class Token<T extends TokenType> {
       });
 
       if (!bondApproved) {
-        return this.approve({
+        return this.approveBond({
           ...params,
           tradeType: 'buy',
           amountToSpend: maxReserveAmount,
@@ -288,7 +301,7 @@ export class Token<T extends TokenType> {
     } as BondApprovedParams<T>);
 
     if (!bondApproved) {
-      return this.approve({
+      return this.approveBond({
         ...params,
         tradeType: 'sell',
         amountToSpend: amount,
@@ -321,5 +334,51 @@ export class Token<T extends TokenType> {
         args: [connectedAddress, recipient, 0n, amount, '0x'],
       });
     }
+  }
+
+  public async createAirdrop(params: TokenCreateAirdropParams) {
+    const { title, filebaseApiKey, wallets, amountPerClaim: _amountPerClaim, startTime, endTime } = params;
+
+    if (wallets.some((address) => !isAddress(address))) {
+      throw new AirdropContainsInvalidWalletError();
+    }
+
+    const isERC20 = this.tokenType === 'ERC20';
+    const walletCount = wallets.length;
+    let decimals = 0;
+
+    if (this.tokenType === 'ERC20') {
+      decimals = await erc20Contract.network(this.chainId).read({
+        tokenAddress: this.getTokenAddress(),
+        functionName: 'decimals',
+      });
+    }
+
+    const amountPerClaim = wei(_amountPerClaim, decimals);
+
+    const totalAmount = BigInt(amountPerClaim) * BigInt(walletCount);
+    // TODO: check allowance
+
+    const leaves = wallets.map((address) => keccak256(address));
+    const tree = new MerkleTree(leaves, keccak256, {
+      sortPairs: true,
+    });
+    const merkleRoot = `0x${tree.getRoot().toString('hex')}` as const;
+
+    const json = JSON.stringify(wallets, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const ipfsCID = await this.ipfsHelper.add(filebaseApiKey, blob);
+
+    return this.airdropHelper.createDistribution({
+      token: this.tokenAddress,
+      isERC20,
+      amountPerClaim,
+      walletCount,
+      startTime: startTime ? Math.floor(startTime.getTime() / 1000) : 0,
+      endTime: Math.floor(endTime.getTime() / 1000),
+      merkleRoot,
+      title,
+      ipfsCID,
+    });
   }
 }

@@ -1,0 +1,40 @@
+---
+description: Returns the estimated output amount of the token for the given input amount of the token.
+---
+
+# getSellEstimation 
+
+Returns the estimated output amount of the token for the given input amount of the token.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+ 
+const [estimation, royalty] = await mintclub.network('ethereum').token('SYMBOL').getSellEstimation(1n)
+```
+
+## Parameters
+
+### amount
+
+- Type: `bigint`
+
+The input amount of the token.
+
+## Return Value
+
+`Promise<[estimatedOutcome: bigint, royalty: bigint]>`
+
+### estimatedOutcome
+
+- Type: `bigint`
+
+Estimated output amount of the token for the given input amount of the token.
+
+### royalty
+
+- Type: `bigint`
+
+Royalty amount given to the creator of the token.
+

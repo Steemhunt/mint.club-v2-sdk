@@ -89,3 +89,11 @@ export class BondInsufficientAllowanceError extends BaseError {
     });
   }
 }
+
+export class AirdropContainsInvalidWalletError extends BaseError {
+  constructor() {
+    super('Airdrop contains invalid wallet', {
+      docsPath: 'docs/sdk/network/token/createAirdrop',
+    });
+  }
+}
