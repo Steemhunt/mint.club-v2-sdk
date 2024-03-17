@@ -1,4 +1,4 @@
-import { Chain, PublicClient, isAddress, maxUint256 } from 'viem';
+import { Chain, isAddress, maxUint256 } from 'viem';
 import { SdkSupportedChainIds, TokenType, getMintClubContractAddress } from '../constants/contracts';
 import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
 import { SymbolNotDefinedError, TokenAlreadyExistsError, WalletNotConnectedError } from '../errors/sdk.errors';
