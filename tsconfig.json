@@ -10,7 +10,6 @@
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
     "declaration": true,
     "moduleResolution": "node",
     "outDir": "./dist",
@@ -20,7 +19,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "typeRoots": ["bun-types", "./types/index.d.ts"]
+    "typeRoots": ["./types/index.d.ts"]
   },
   "exclude": ["./dist", "./node_modules", "./site"]
 }

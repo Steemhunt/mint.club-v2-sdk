@@ -130,7 +130,6 @@ export const sidebar = {
         },
         {
           text: '🪙 token',
-          link: '/docs/sdk/network/token',
           collapsed: true,
           items: [
             {
@@ -193,7 +192,6 @@ export const sidebar = {
         },
         {
           text: '🖼️ nft',
-          link: '/docs/sdk/network/nft',
           collapsed: true,
           items: [
             {

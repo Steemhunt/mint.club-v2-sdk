@@ -53,9 +53,15 @@ export class MintClubSDK {
     return this.withClientHelper(clientHelper, chainId as SdkSupportedChainIds);
   }
 
-  public network(
-    id: SdkSupportedChainIds | LowerCaseChainNames,
-  ): Omit<ReturnType<typeof this.withClientHelper> & Client, '_getPublicClient'> {
+  public network(id: SdkSupportedChainIds | LowerCaseChainNames): Omit<
+    ReturnType<typeof this.withClientHelper> & Client,
+    '_getPublicClient'
+  > & {
+    getPublicClient: () => PublicClient;
+    token: (symbolOrAddress: string) => ERC20;
+    nft: (symbolOrAddress: string) => ERC1155;
+    bond: Bond;
+  } {
     let chainId: SdkSupportedChainIds;
 
     if (typeof id === 'string') {
