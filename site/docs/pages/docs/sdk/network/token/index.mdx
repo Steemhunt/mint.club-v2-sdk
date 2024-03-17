@@ -1,0 +1,29 @@
+# `token` [ERC-20 token introduction]
+
+`token` represents fungible ERC-20 tokens.
+
+All the `read calls` are prepended with `get` and all the other calls are `write calls` that requires the user to sign the transaction.
+
+```ts twoslash [app.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const symbolOrAddress: string = 'CHICKEN'
+// [!code focus]
+// @noErrors
+mintclub.network('base').token(symbolOrAddress). // [!code focus]
+//                                              ^|
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
