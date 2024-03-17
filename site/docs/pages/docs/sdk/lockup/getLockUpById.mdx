@@ -1,0 +1,58 @@
+---
+description: Get lockup detail by id
+---
+
+# getLockUpById 
+
+Get lockup detail by id.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const detail = await mintclub.network('base').lockup.getLockUpById(1) 
+//     ^?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+## Return Value
+
+`Promise<LockUpDetail>`
+
+```ts
+{
+	token: `0x${string}`;
+	isERC20: boolean;
+	unlockTime: number;
+	unlocked: boolean;
+	amount: bigint;
+	receiver: `0x${string}`;
+	title: string;
+}
+```
+
+
+## Parameters
+
+### id
+
+- Type: `number`
+
+LockUp id.

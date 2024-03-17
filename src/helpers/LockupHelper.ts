@@ -32,11 +32,23 @@ export class Lockup {
     });
   }
 
-  public getLockUpById(lockUpId: number) {
-    return lockupContract.network(this.chainId).read({
-      functionName: 'lockUps',
-      args: [BigInt(lockUpId)],
-    });
+  public async getLockUpById(lockUpId: number) {
+    const [token, isERC20, unlockTime, unlocked, amount, receiver, title] = await lockupContract
+      .network(this.chainId)
+      .read({
+        functionName: 'lockUps',
+        args: [BigInt(lockUpId)],
+      });
+
+    return {
+      token,
+      isERC20,
+      unlockTime,
+      unlocked,
+      amount,
+      receiver,
+      title,
+    };
   }
 
   public createLockUp(params: CreateLockUpParams & WriteTransactionCallbacks) {

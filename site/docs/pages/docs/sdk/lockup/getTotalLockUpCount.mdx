@@ -1,0 +1,22 @@
+---
+description: Gets the total lockup count created on the protocol 
+---
+
+# getTotalAirdropCount 
+
+Gets the total lockup count created on the protocol. 
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const count = mintclub.network('base').lockup.getTotalLockUpCount() 
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns a promise that resolves to the total lockup count created on the protocol.
+

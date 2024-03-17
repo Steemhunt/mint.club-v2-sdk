@@ -1,0 +1,48 @@
+---
+description: Get lockup ids by token address
+---
+
+# getLockUpIdsByToken 
+
+Get lockup ids by token address.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const ids = await mintclub.network('base').lockup.getLockUpIdsByToken({
+	token: '0x...',
+	start: 0,
+	end: 1000
+}) 
+```
+
+
+## Return Value
+
+`Promise<bigint[]>`
+
+## Parameters
+
+- Type: `object`
+
+### token
+
+- Type: `'0x${string}'`
+
+Token address.
+
+### start (optional)
+
+- Type: `number`
+- Default: `0`
+
+Start index.
+
+### end (optional)
+
+- Type: `number`
+- Default: `1000`
+
+End index.

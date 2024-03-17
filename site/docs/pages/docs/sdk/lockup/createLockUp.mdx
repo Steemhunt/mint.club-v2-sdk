@@ -1,0 +1,245 @@
+---
+description: Create a lockup for a token 
+---
+
+# createLockUp 
+
+Create a lockup for a token.
+
+:::tip[tip]
+Before user makes a `createLockUp` call, the lockup contract must be `approved` to use the token to lockup.
+
+:::success
+The SDK will automatically check if the lockup contract is approved to use the asset. If not approved, it will prompt the user to sign an approval transaction. 
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').lockup.createLockUp({
+	title: 'Test Lock Up',
+	token: '0x...',
+	isERC20: true,
+	amount: 1000000000000000n,
+	unlockTime: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
+	receiver: '0x...',
+}) 
+```
+
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+
+## Parameters
+
+### title 
+
+- Type: `string`
+
+The title of the lockup.
+
+```ts 
+await mintclub.network('base').lockup.createLockUp({
+	title: 'Test Lock Up', // [!code focus]
+	token: '0x...',
+	isERC20: true,
+	amount: 1000000000000000n,
+	unlockTime: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
+	receiver: '0x...',
+}) 
+```
+
+
+### token
+
+- Type: `'0x${string}'`
+
+The address of the token to be locked.
+
+```ts 
+await mintclub.network('base').lockup.createLockUp({
+	title: 'Test Lock Up', 
+	token: '0x...', // [!code focus]
+	isERC20: true,
+	amount: 1000000000000000n,
+	unlockTime: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
+	receiver: '0x...',
+}) 
+```
+
+### isERC20
+
+- Type: `boolean`
+
+If the token is an ERC20 token.
+
+```ts 
+await mintclub.network('base').lockup.createLockUp({
+	title: 'Test Lock Up', 
+	token: '0x...',
+	isERC20: true, // [!code focus]
+	amount: 1000000000000000n,
+	unlockTime: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
+	receiver: '0x...',
+}) 
+```
+
+### amount
+
+- Type: `bigint`
+
+The amount of tokens to be locked.
+
+```ts 
+await mintclub.network('base').lockup.createLockUp({
+	title: 'Test Lock Up', 
+	token: '0x...', 
+	isERC20: true,
+	amount: 1000000000000000n, // [!code focus]
+	unlockTime: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
+	receiver: '0x...',
+}) 
+```
+
+### unlockTime
+
+- Type: `number`
+
+The end time of the lockup in seconds. 
+
+:::warning
+In seconds, **Not milliseconds**.
+:::
+
+
+```ts 
+await mintclub.network('base').lockup.createLockUp({
+	title: 'Test Lock Up', 
+	token: '0x...', 
+	isERC20: true,
+	amount: 1000000000000000n, 
+	unlockTime: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // [!code focus]
+	receiver: '0x...',
+}) 
+```
+
+### receiver
+
+- Type: `'0x${string}'`
+
+The receiver of tokens after the lockup period ends.
+
+```ts 
+await mintclub.network('base').lockup.createLockUp({
+	title: 'Test Lock Up', 
+	token: '0x...', 
+	isERC20: true,
+	amount: 1000000000000000n, 
+	unlockTime: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
+	receiver: '0x...', // [!code focus]
+}) 
+```
+
+
+### onAllowanceSignatureRequest (optional)
+
+- Type: `onAllowanceSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the approval transaction.
+
+```ts
+await mintclub.network('base').lockup.createLockUp({
+	 onAllowanceSignatureRequest: () => {} // [!code focus]
+})
+```
+
+
+### onAllowanceSigned (optional)
+
+- Type: `onAllowanceSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+
+Callback function for when the user is signs the approval transaction.
+
+```ts
+await mintclub.network('base').lockup.createLockUp({
+	 onAllowanceSigned: (txHash) => {} // [!code focus]
+})
+```
+
+### onAllowanceSuccess (optional)
+
+- Type: `onAllowanceSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+
+Callback function for when the approval transaction is successful.
+
+```ts
+await mintclub.network('base').lockup.createLockUp({
+     onAllowanceSuccess: (receipt) => {} // [!code focus]
+})
+```
+
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').lockup.createLockUp({
+	 onSignatureRequest: () => {} // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+
+Callback function for when the user is signs the transaction.
+
+```ts
+await mintclub.network('base').lockup.createLockUp({
+	 onSigned: (txHash) => {} // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').lockup.createLockUp({
+     onSuccess: (receipt) => {} // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').lockup.createLockUp({
+	  onError: (error) => {} // [!code focus]
+})
+```

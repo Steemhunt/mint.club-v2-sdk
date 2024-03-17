@@ -1,0 +1,48 @@
+---
+description: Get lockup ids by reciever address
+---
+
+# getLockUpIdsByReceiver 
+
+Get lockup ids by reciever address.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const ids = await mintclub.network('base').lockup.getLockUpIdsByReceiver({
+	receiver: '0x...',
+	start: 0,
+	end: 1000
+}) 
+```
+
+
+## Return Value
+
+`Promise<bigint[]>`
+
+## Parameters
+
+- Type: `object`
+
+### receiver
+
+- Type: `'0x${string}'`
+
+Reciever address.
+
+### start (optional)
+
+- Type: `number`
+- Default: `0`
+
+Start index.
+
+### end (optional)
+
+- Type: `number`
+- Default: `1000`
+
+End index.

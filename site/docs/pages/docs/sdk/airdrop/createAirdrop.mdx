@@ -6,10 +6,17 @@ description: Create an airdrop
 
 Create an airdrop.
 
-:::tip[Tip]
+:::warning[Tip]
 You will need to upload the list of wallets to IPFS and get the CID.
 
 Refer to [getting a filebase API Key](/docs/sdk/ipfs#getting-an-api-key).
+:::
+
+:::tip[tip]
+Before user makes a `createAirdrop` call, the airdrop contract must be `approved` to use the token to airdrop.
+
+:::success
+The SDK will automatically check if the airdrop contract is approved to use the asset. If not approved, it will prompt the user to sign an approval transaction. 
 :::
 
 ## Usage
@@ -21,7 +28,7 @@ const wallets = [
 	'0x...',
 	'0x...',
 	'0x...',
-] as const
+] as `0x${string}`[]
 
 const json = JSON.stringify(wallets, null, 2);
 const blob = new Blob([json], { type: 'application/json' });
@@ -51,18 +58,256 @@ Returns a promise that resolves to a `TransactionReceipt` object when the transa
 
 ## Parameters
 
-### id
+### title 
+
+- Type: `string`
+
+The title of the airdrop.
+
+```ts 
+await mintclub.network('base').airdrop.createAirdrop({
+	title: 'Test Airdrop', // [!code focus]
+	token: '0x...',
+	isERC20: true,
+	amountPerClaim: 1000000000000000n,
+	walletCount: wallets.length,
+	startTime: Math.floor(Date.now() / 1000),
+	endTime: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7),
+	merkleRoot,
+	ipfsCID
+}) 
+```
+
+
+### token
+
+- Type: `'0x${string}'`
+
+The address of the token to be airdropped.
+
+```ts 
+await mintclub.network('base').airdrop.createAirdrop({
+	title: 'Test Airdrop', 
+	token: '0x...', // [!code focus]
+	isERC20: true,
+	amountPerClaim: 1000000000000000n,
+	walletCount: wallets.length,
+	startTime: Math.floor(Date.now() / 1000),
+	endTime: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7),
+	merkleRoot,
+	ipfsCID
+}) 
+```
+
+### isERC20
+
+- Type: `boolean`
+
+If the token is an ERC20 token.
+
+```ts 
+await mintclub.network('base').airdrop.createAirdrop({
+	title: 'Test Airdrop', 
+	token: '0x...', 
+	isERC20: true, // [!code focus]
+	amountPerClaim: 1000000000000000n,
+	walletCount: wallets.length,
+	startTime: Math.floor(Date.now() / 1000),
+	endTime: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7),
+	merkleRoot,
+	ipfsCID
+}) 
+```
+
+### amountPerClaim
+
+- Type: `bigint`
+
+The amount of tokens to be airdropped per claim.
+
+```ts 
+await mintclub.network('base').airdrop.createAirdrop({
+	title: 'Test Airdrop', 
+	token: '0x...', 
+	isERC20: true,
+	amountPerClaim: 1000000000000000n, // [!code focus]
+	walletCount: wallets.length,
+	startTime: Math.floor(Date.now() / 1000),
+	endTime: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7),
+	merkleRoot,
+	ipfsCID
+}) 
+```
+
+### walletCount
 
 - Type: `number`
 
-Amount to transfer
+The number of wallets to be airdropped to. 
 
-```ts twoslash [example.ts]
-import { mintclub, wei } from 'mint.club-v2-sdk'
- 
+:::tip[Tip]
+If you set this less than the actual number of wallets in the merkleRoot, the airdrop will become **first come first serve**.
+:::
+
+```ts 
 await mintclub.network('base').airdrop.createAirdrop({
-	airdropId: 1 // [!code focus]
-	
+	title: 'Test Airdrop', 
+	token: '0x...', 
+	isERC20: true,
+	amountPerClaim: 1000000000000000n, 
+	walletCount: wallets.length, // [!code focus]
+	startTime: Math.floor(Date.now() / 1000),
+	endTime: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7),
+	merkleRoot,
+	ipfsCID
+}) 
+```
+
+### startTime
+
+- Type: `number`
+
+The start time of the airdrop in seconds. 
+
+:::warning
+In seconds, **Not milliseconds**.
+:::
+
+```ts 
+await mintclub.network('base').airdrop.createAirdrop({
+	title: 'Test Airdrop', 
+	token: '0x...', 
+	isERC20: true,
+	amountPerClaim: 1000000000000000n, 
+	walletCount: wallets.length,
+	startTime: Math.floor(Date.now() / 1000), // [!code focus]
+	endTime: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7),
+	merkleRoot,
+	ipfsCID
+}) 
+```
+
+
+### endTime
+
+- Type: `number`
+
+The end time of the airdrop in seconds. 
+
+:::warning
+In seconds, **Not milliseconds**.
+:::
+
+```ts 
+await mintclub.network('base').airdrop.createAirdrop({
+	title: 'Test Airdrop', 
+	token: '0x...', 
+	isERC20: true,
+	amountPerClaim: 1000000000000000n, 
+	walletCount: wallets.length,
+	startTime: Math.floor(Date.now() / 1000), 
+	endTime: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7), // [!code focus]
+	merkleRoot,
+	ipfsCID
+}) 
+```
+
+### merkleRoot
+
+- Type: `'0x${string}'`
+
+
+The merkle root of the wallets to be airdropped to.
+
+```ts
+const merkleRoot = await mintclub.utils.generateMerkleRoot(wallets); // [!code focus]
+
+await mintclub.network('base').airdrop.createAirdrop({
+	title: 'Test Airdrop', 
+	token: '0x...', 
+	isERC20: true,
+	amountPerClaim: 1000000000000000n, 
+	walletCount: wallets.length,
+	startTime: Math.floor(Date.now() / 1000), 
+	endTime: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7),
+	merkleRoot, // [!code focus]
+	ipfsCID
+}) 
+```
+
+### ipfsCID
+
+- Type: `string`
+
+The IPFS CID of the wallets JSON.
+
+```ts 
+import { mintclub } from 'mint.club-v2-sdk'
+
+const wallets = [
+	'0x...',
+	'0x...',
+	'0x...',
+] as `0x${string}`[]
+
+const json = JSON.stringify(wallets, null, 2);
+const blob = new Blob([json], { type: 'application/json' });
+const ipfsCID = await mintclub.ipfs.add('YOUR API KEY', blob); // [!code focus]
+
+await mintclub.network('base').airdrop.createAirdrop({
+	title: 'Test Airdrop',
+	token: '0x...',
+	isERC20: true,
+	amountPerClaim: 1000000000000000n,
+	walletCount: wallets.length,
+	startTime: Math.floor(Date.now() / 1000),
+	endTime: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7),
+	merkleRoot,
+	ipfsCID // [!code focus]
+}) 
+```
+
+
+
+### onAllowanceSignatureRequest (optional)
+
+- Type: `onAllowanceSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the approval transaction.
+
+```ts
+await mintclub.network('base').airdrop.createAirdrop({
+	 onAllowanceSignatureRequest: () => {} // [!code focus]
+})
+```
+
+
+### onAllowanceSigned (optional)
+
+- Type: `onAllowanceSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+
+Callback function for when the user is signs the approval transaction.
+
+```ts
+await mintclub.network('base').airdrop.createAirdrop({
+	 onAllowanceSigned: (txHash) => {} // [!code focus]
+})
+```
+
+### onAllowanceSuccess (optional)
+
+- Type: `onAllowanceSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+
+Callback function for when the approval transaction is successful.
+
+```ts
+await mintclub.network('base').airdrop.createAirdrop({
+     onAllowanceSuccess: (receipt) => {} // [!code focus]
 })
 ```
 
@@ -76,9 +321,8 @@ Callback function for when the user is requested to sign the transaction.
 
 ```ts
 await mintclub.network('base').airdrop.createAirdrop({
-	airdropId: 1,
-	onSignatureRequest: () => {} // [!code focus]
-  })
+	 onSignatureRequest: () => {} // [!code focus]
+})
 ```
 
 ### onSigned (optional)
@@ -91,9 +335,8 @@ Callback function for when the user is signs the transaction.
 
 ```ts
 await mintclub.network('base').airdrop.createAirdrop({
-	airdropId: 1,
-	onSigned: (txHash) => {} // [!code focus]
-  })
+	 onSigned: (txHash) => {} // [!code focus]
+})
 ```
 
 ### onSuccess (optional)
@@ -106,9 +349,8 @@ Callback function for when the transaction is successful.
 
 ```ts
 await mintclub.network('base').airdrop.createAirdrop({
-	airdropId: 1,
-	onSuccess: (receipt) => {} // [!code focus]
-  })
+     onSuccess: (receipt) => {} // [!code focus]
+})
 ```
 
 ### onError (optional)
@@ -120,7 +362,6 @@ Callback function for when the transaction fails. This also includes when the us
 
 ```ts
 await mintclub.network('base').airdrop.createAirdrop({
-	airdropId: 1,
-	onError: (error) => {} // [!code focus]
-  })
+	  onError: (error) => {} // [!code focus]
+})
 ```
