@@ -5,7 +5,7 @@ export type BondHelperConstructorParams = {
   chainId: SdkSupportedChainIds;
 };
 
-export class BondHelper {
+export class Bond {
   protected chainId: SdkSupportedChainIds;
 
   constructor(params: BondHelperConstructorParams) {

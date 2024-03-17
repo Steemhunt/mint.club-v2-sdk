@@ -2,11 +2,11 @@ import { bondContract, erc1155Contract } from '../contracts';
 import { CreateERC1155TokenParams } from '../types/bond.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
 import { CommonWriteParams } from '../types/transactions.types';
-import { IpfsHelper } from './IpfsHelper';
-import { TokenHelper } from './TokenHelper';
+import { Ipfs } from './IpfsHelper';
+import { Token } from './TokenHelper';
 
-export class ERC1155Helper extends TokenHelper<'ERC1155'> {
-  private ipfsHelper = new IpfsHelper();
+export class ERC1155 extends Token<'ERC1155'> {
+  private ipfsHelper = new Ipfs();
 
   constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
     super({

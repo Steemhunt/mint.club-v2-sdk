@@ -2,9 +2,9 @@ import { bondContract, erc20Contract } from '../contracts';
 import { CreateERC20TokenParams } from '../types/bond.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
 import { CommonWriteParams } from '../types/transactions.types';
-import { TokenHelper } from './TokenHelper';
+import { Token } from './TokenHelper';
 
-export class ERC20Helper extends TokenHelper<'ERC20'> {
+export class ERC20 extends Token<'ERC20'> {
   constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
     super({
       ...params,

@@ -2,7 +2,7 @@ import { CIDString, FilebaseClient } from '@filebase/client';
 import { FilebaseKeyNeededErrror, InvalidImageProvidedError } from '../errors/sdk.errors';
 import { IpfsHashUrl, MediaUploadParams, MetadataUploadParams, NFTMetadata } from '../types/ipfs.types';
 
-export class IpfsHelper {
+export class Ipfs {
   private async add(apiKey: string, blob: Blob): Promise<CIDString> {
     if (!apiKey) throw new FilebaseKeyNeededErrror();
 

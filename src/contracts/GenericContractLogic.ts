@@ -10,7 +10,7 @@ import {
   WriteContractParameters,
 } from 'viem';
 import { ContractNames, SdkSupportedChainIds, getChain, getMintClubContractAddress } from '../exports';
-import { ClientHelper } from '../helpers/ClientHelper';
+import { Client } from '../helpers/ClientHelper';
 import { SupportedAbiType } from '../types/abi.types';
 import { GenericWriteParams, TokenContractReadWriteArgs } from '../types/transactions.types';
 
@@ -30,7 +30,7 @@ export class GenericContractLogic<
   private abi: A;
   private contractType: C;
   private chainId: SdkSupportedChainIds;
-  private clientHelper: ClientHelper;
+  private clientHelper: Client;
   private chain: Chain;
 
   constructor(params: GenericLogicConstructorParams<A, C>) {
@@ -40,7 +40,7 @@ export class GenericContractLogic<
     this.abi = abi;
     this.chainId = chainId;
     this.chain = getChain(chainId);
-    this.clientHelper = new ClientHelper();
+    this.clientHelper = new Client();
   }
 
   public read<

@@ -17,19 +17,19 @@ import { chainRPCFallbacks, DEFAULT_RANK_OPTIONS, SdkSupportedChainIds } from '.
 const MCV2_WALLET_STATE_LOCALSTORAGE = 'mcv2_wallet_state';
 type WalletState = 'connected' | 'disconnected' | 'none';
 
-export class ClientHelper {
-  private static instance?: ClientHelper;
+export class Client {
+  private static instance?: Client;
   private walletClient?: WalletClient;
   // these are always defined, singleton
   private publicClients: Record<number, PublicClient<FallbackTransport> | PublicClient> = {};
   private chainId?: SdkSupportedChainIds; // last chain id used
 
   constructor() {
-    if (ClientHelper.instance) {
-      return ClientHelper.instance;
+    if (Client.instance) {
+      return Client.instance;
     }
 
-    ClientHelper.instance = this;
+    Client.instance = this;
   }
 
   public async connect(provider?: any) {

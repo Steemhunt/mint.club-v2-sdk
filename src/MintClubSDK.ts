@@ -1,37 +1,37 @@
 import { PublicClient, WalletClient } from 'viem';
 import { InvalidClientError } from './errors/sdk.errors';
 import { LowerCaseChainNames, SdkSupportedChainIds, chainStringToId } from './exports';
-import { BondHelper } from './helpers/BondHelper';
-import { ClientHelper } from './helpers/ClientHelper';
-import { ERC1155Helper } from './helpers/ERC1155Helper';
-import { ERC20Helper } from './helpers/ERC20Helper';
-import { IpfsHelper } from './helpers/IpfsHelper';
+import { Bond } from './helpers/BondHelper';
+import { Client } from './helpers/ClientHelper';
+import { ERC1155 } from './helpers/ERC1155Helper';
+import { ERC20 } from './helpers/ERC20Helper';
+import { Ipfs } from './helpers/IpfsHelper';
 
 export class MintClubSDK {
-  public wallet = new ClientHelper();
-  public ipfs = new IpfsHelper();
+  public wallet = new Client();
+  public ipfs = new Ipfs();
 
-  private withClientHelper(clientHelper: ClientHelper, chainId: SdkSupportedChainIds) {
+  private withClientHelper(clientHelper: Client, chainId: SdkSupportedChainIds) {
     return Object.assign(clientHelper, {
       getPublicClient(): PublicClient {
         return clientHelper._getPublicClient(chainId);
       },
 
       token: (symbolOrAddress: string) => {
-        return new ERC20Helper({
+        return new ERC20({
           symbolOrAddress,
           chainId,
         });
       },
 
       nft: (symbolOrAddress: string) => {
-        return new ERC1155Helper({
+        return new ERC1155({
           symbolOrAddress,
           chainId,
         });
       },
 
-      bond: new BondHelper({
+      bond: new Bond({
         chainId,
       }),
     });
@@ -40,7 +40,7 @@ export class MintClubSDK {
   public withPublicClient(publicClient: PublicClient): ReturnType<typeof this.network> {
     const chainId = publicClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
-    const clientHelper = new ClientHelper().withPublicClient(publicClient);
+    const clientHelper = new Client().withPublicClient(publicClient);
     return this.withClientHelper(clientHelper, chainId as SdkSupportedChainIds);
   }
 
@@ -48,14 +48,14 @@ export class MintClubSDK {
     const chainId = walletClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
     if (walletClient.chain?.id === undefined) throw new InvalidClientError();
-    const clientHelper = new ClientHelper().withWalletClient(walletClient);
+    const clientHelper = new Client().withWalletClient(walletClient);
 
     return this.withClientHelper(clientHelper, chainId as SdkSupportedChainIds);
   }
 
   public network(
     id: SdkSupportedChainIds | LowerCaseChainNames,
-  ): Omit<ReturnType<typeof this.withClientHelper> & ClientHelper, '_getPublicClient'> {
+  ): Omit<ReturnType<typeof this.withClientHelper> & Client, '_getPublicClient'> {
     let chainId: SdkSupportedChainIds;
 
     if (typeof id === 'string') {
@@ -64,7 +64,7 @@ export class MintClubSDK {
       chainId = id;
     }
 
-    const clientHelper = new ClientHelper();
+    const clientHelper = new Client();
 
     return this.withClientHelper(clientHelper, chainId);
   }

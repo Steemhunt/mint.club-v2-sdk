@@ -15,11 +15,11 @@ import { TokenHelperConstructorParams } from '../types/token.types';
 import { CommonWriteParams, TradeType } from '../types/transactions.types';
 import { computeCreate2Address } from '../utils/addresses';
 import { generateCreateArgs } from '../utils/bond';
-import { ClientHelper } from './ClientHelper';
+import { Client } from './ClientHelper';
 
-export class TokenHelper<T extends TokenType> {
+export class Token<T extends TokenType> {
   private tokenAddress: `0x${string}`;
-  protected clientHelper: ClientHelper;
+  protected clientHelper: Client;
   protected symbol?: string;
   protected tokenType: T;
   protected chain: Chain;
@@ -38,7 +38,7 @@ export class TokenHelper<T extends TokenType> {
     this.chain = getChain(chainId);
     this.chainId = chainId;
     this.tokenType = tokenType as T;
-    this.clientHelper = new ClientHelper();
+    this.clientHelper = new Client();
   }
 
   protected async getConnectedWalletAddress() {
