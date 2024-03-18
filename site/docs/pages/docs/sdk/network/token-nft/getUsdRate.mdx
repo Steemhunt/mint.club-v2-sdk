@@ -16,21 +16,9 @@ const usdRate = await mintclub.network('ethereum').token('SYMBOL').getUsdRate(10
 
 ## Return Value
 
-`Promise<[estimatedOutcome: bigint, royalty: bigint]>`
+`Promise<number>`
 
-
-### estimatedOutcome
-
-- Type: `bigint`
-
-Estimated output amount of the token for the given input amount of the token.
-
-### royalty
-
-- Type: `bigint`
-
-Royalty amount given to the creator of the token.
-
+The estimated UsdRate from OneInch spot aggregator Contract.
 
 ## Parameters
 
