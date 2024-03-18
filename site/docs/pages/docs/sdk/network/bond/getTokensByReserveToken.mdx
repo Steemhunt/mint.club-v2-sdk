@@ -12,7 +12,11 @@ Returns tokens created by the reserve token.
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
  
-const tokens = await mintclub.network('ethereum').bond.getTokensByReserveToken(`0x...`)
+const tokens = await mintclub.network('ethereum').bond.getTokensByReserveToken({
+	reserveToken: `0x...`,
+	start: 0,
+	end: 1000
+})
 ```
 
 ## Return Value
@@ -28,3 +32,23 @@ Returns tokens created by the reserve token.
 - Type: `'0x${string}'`  
 
 The address of the reserve token
+
+### start (optional)
+
+- Type: `number`
+- Default: `0`
+
+Start index.
+
+### end (optional)
+
+- Type: `number`
+- Default: `1000`
+
+End index.
+
+:::warning[Note]
+Note that passing 0 and 100 does **NOT** mean that it will fetch the first 100. 
+
+It means that it will check and return the ids from 0 to 100.
+:::

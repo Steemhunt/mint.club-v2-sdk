@@ -38,11 +38,17 @@ Owner address.
 - Type: `number`
 - Default: `0`
 
-Start index.
+Start id. 
 
 ### end (optional)
 
 - Type: `number`
 - Default: `1000`
 
-End index.
+End id.
+
+:::warning[Note]
+Note that passing 0 and 100 does **NOT** mean that it will fetch the first 100. 
+
+It means that it will check and return the ids from 0 to 100.
+:::
