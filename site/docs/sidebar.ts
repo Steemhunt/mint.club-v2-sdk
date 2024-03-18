@@ -223,6 +223,10 @@ export const sidebar = {
                   link: '/docs/sdk/network/token-nft/getSellEstimation',
                 },
                 {
+                  text: 'getUsdRate',
+                  link: '/docs/sdk/network/token-nft/getUsdRate',
+                },
+                {
                   text: 'getDetail',
                   link: '/docs/sdk/network/token-nft/getDetail',
                 },

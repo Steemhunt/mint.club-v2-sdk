@@ -1,19 +1,18 @@
 ---
-description: Returns the estimated output amount of the token for the given input amount of the token.
+description: Returns the estimated UsdRate from OneInch spot aggregator Contract.
 ---
 
-# getBuyEstimation 
+# getUsdRate 
 
-Returns the estimated output amount of the token for the given input amount of the token.
+Returns the estimated UsdRate from OneInch spot aggregator Contract.
 
 ## Usage
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
  
-const [estimation, royalty] = await mintclub.network('ethereum').token('SYMBOL').getBuyEstimation(1n)
+const usdRate = await mintclub.network('ethereum').token('SYMBOL').getUsdRate(100)
 ```
-
 
 ## Return Value
 
@@ -35,8 +34,9 @@ Royalty amount given to the creator of the token.
 
 ## Parameters
 
-### amount
+### amount (optional)
 
-- Type: `bigint`
+- Type: `number`
+- Default: `1`
 
-The input amount of the token.
+The amount of the token to be converted to USD. If not provided, the default value is `1`.

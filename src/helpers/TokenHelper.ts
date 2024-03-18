@@ -25,11 +25,14 @@ import { generateCreateArgs } from '../utils/bond';
 import { Airdrop } from './AirdropHelper';
 import { Client } from './ClientHelper';
 import { Ipfs } from './IpfsHelper';
+import { OneInch } from './OneInchHelper';
+import { isFalse } from '../utils/logic';
 
 export class Token<T extends TokenType> {
   private tokenAddress: `0x${string}`;
   protected clientHelper: Client;
   protected airdropHelper: Airdrop;
+  protected oneinch: OneInch;
   protected ipfsHelper: Ipfs;
   protected symbol?: string;
   protected tokenType: T;
@@ -51,6 +54,7 @@ export class Token<T extends TokenType> {
     this.tokenType = tokenType as T;
     this.clientHelper = new Client();
     this.ipfsHelper = new Ipfs();
+    this.oneinch = new OneInch(chainId);
     this.airdropHelper = new Airdrop(this.chainId);
   }
 
@@ -217,6 +221,17 @@ export class Token<T extends TokenType> {
 
   public getTokenAddress() {
     return this.tokenAddress;
+  }
+
+  public async getUsdRate(amount = 1) {
+    const rate = await this.oneinch.getUsdRate({
+      tokenAddress: this.tokenAddress,
+      tokenDecimals: this.tokenType === 'ERC20' ? 18 : 0,
+    });
+
+    if (isFalse(rate)) return null;
+
+    return rate * amount;
   }
 
   public getDetail() {

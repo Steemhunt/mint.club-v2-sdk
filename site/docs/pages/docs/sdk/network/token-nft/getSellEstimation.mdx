@@ -14,14 +14,6 @@ import { mintclub } from 'mint.club-v2-sdk'
 const [estimation, royalty] = await mintclub.network('ethereum').token('SYMBOL').getSellEstimation(1n)
 ```
 
-## Parameters
-
-### amount
-
-- Type: `bigint`
-
-The input amount of the token.
-
 ## Return Value
 
 `Promise<[estimatedOutcome: bigint, royalty: bigint]>`
@@ -38,3 +30,11 @@ Estimated output amount of the token for the given input amount of the token.
 
 Royalty amount given to the creator of the token.
 
+
+## Parameters
+
+### amount
+
+- Type: `bigint`
+
+The input amount of the token.
