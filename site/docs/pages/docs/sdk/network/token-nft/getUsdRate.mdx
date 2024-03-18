@@ -23,14 +23,17 @@ const usdRate = await mintclub.network('ethereum').token('0x...').getUsdRate(100
 
 ## Return Value
 
-`Promise<{
-	usdRate: number,
-	stableCoin: {
+```ts
+Promise<
+{
+	usdRate: null | number,
+	stableCoin: null | {
 		address: '0x${string}',
 		symbol: string,
 		decimals: number
 	}
-} | null>`
+}>
+```
 
 The estimated UsdRate and stable coin used from OneInch spot aggregator Contract. 
 

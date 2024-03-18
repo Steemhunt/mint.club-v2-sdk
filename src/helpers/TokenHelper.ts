@@ -229,7 +229,7 @@ export class Token<T extends TokenType> {
       tokenDecimals: this.tokenType === 'ERC20' ? 18 : 0,
     });
 
-    if (isFalse(rateData)) return null;
+    if (isFalse(rateData)) return { usdRate: null, stableCoin: null };
     const { rate, stableCoin } = rateData;
 
     return { usdRate: rate * amount, stableCoin };
