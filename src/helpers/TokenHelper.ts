@@ -224,14 +224,15 @@ export class Token<T extends TokenType> {
   }
 
   public async getUsdRate(amount = 1) {
-    const rate = await this.oneinch.getUsdRate({
+    const rateData = await this.oneinch.getUsdRate({
       tokenAddress: this.tokenAddress,
       tokenDecimals: this.tokenType === 'ERC20' ? 18 : 0,
     });
 
-    if (isFalse(rate)) return null;
+    if (isFalse(rateData)) return null;
+    const { rate, stableCoin } = rateData;
 
-    return rate * amount;
+    return { usdRate: rate * amount, stableCoin };
   }
 
   public getDetail() {
