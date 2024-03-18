@@ -1,4 +1,3 @@
-import 'web-streams-polyfill/polyfill';
 import {
   arbitrum,
   avalanche,

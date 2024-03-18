@@ -60,10 +60,8 @@
     "aws-sdk": "^2.1578.0",
     "jsdom": "^24.0.0",
     "ky": "^1.2.2",
-    "ky-universal": "^0.12.0",
     "lodash": "^4.17.21",
     "merkletreejs": "^0.3.11",
-    "viem": "2.8.5",
-    "web-streams-polyfill": "^4.0.0"
+    "viem": "2.8.5"
   }
 }
