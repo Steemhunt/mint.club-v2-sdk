@@ -16,9 +16,11 @@ const usdRate = await mintclub.network('ethereum').token('SYMBOL').getUsdRate(10
 
 ## Return Value
 
-`Promise<number>`
+`Promise<number | null>`
 
-The estimated UsdRate from OneInch spot aggregator Contract.
+The estimated UsdRate from OneInch spot aggregator Contract. 
+
+Returns null if the aggregator contract does not exist on the chain.
 
 ## Parameters
 
