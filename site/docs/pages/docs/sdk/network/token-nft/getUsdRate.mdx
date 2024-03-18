@@ -8,10 +8,17 @@ Returns the estimated UsdRate from OneInch spot aggregator Contract.
 
 ## Usage
 
+:::tip[Tip]
+For mint tokens, you can pass the symbol of the token as a parameter in `token`.
+
+If it's not a mint token, you should pass the token address.
+:::
+
+
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
  
-const usdRate = await mintclub.network('ethereum').token('SYMBOL').getUsdRate(100)
+const usdRate = await mintclub.network('ethereum').token('0x...').getUsdRate(100)
 ```
 
 ## Return Value
