@@ -15,13 +15,15 @@
     "./dist/index.cjs": "./dist/index.cjs"
   },
   "exports": {
-    "browser": "./dist/index.mjs",
-    "import": "./dist/index.mjs",
-    "require": "./dist/index.cjs",
-    "types": "./dist/index.d.ts",
-    "node": {
-      "require": "./dist/node.cjs",
-      "import": "./dist/node.mjs"
+    ".": {
+      "node": {
+        "import": "./dist/node.mjs",
+        "require": "./dist/node.cjs"
+      },
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
     }
   },
   "scripts": {
