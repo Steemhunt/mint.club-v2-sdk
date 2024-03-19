@@ -69,8 +69,7 @@ export class Token<T extends TokenType> {
   }
 
   public async bondContractApproved(params: BondApprovedParams<T>) {
-    const walletAddress = await this.getConnectedWalletAddress();
-    const { tradeType } = params;
+    const { tradeType, walletAddress } = params;
     const tokenToApprove = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
