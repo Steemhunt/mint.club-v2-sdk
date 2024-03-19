@@ -1,0 +1,18 @@
+# Debugging Write Calls
+
+Write calls has an optional `debug` function that can be used to debug the write calls. 
+
+It is a callback function that returns the arugment data of the write call.
+
+```ts
+await mintclub
+.network('base')
+.nft(symbol)
+.create({
+	...
+	debug: (data: any) => { 
+		console.log(data);
+	}
+});
+```
+

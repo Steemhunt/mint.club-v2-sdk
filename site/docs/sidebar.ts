@@ -397,6 +397,10 @@ export const sidebar = {
               text: 'RPCs',
               link: '/docs/sdk/bonus/rpcs',
             },
+            {
+              text: 'Debugging',
+              link: '/docs/sdk/bonus/debugging',
+            },
           ],
         },
 
