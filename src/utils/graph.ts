@@ -73,7 +73,7 @@ export function generateSteps(form: GenerateStepArgs) {
 
   for (let i = extraStepCount; i <= stepCount + extraStepCount; i++) {
     let x = i * deltaX + creatorAllocation;
-    if (tokenType === 'ERC1155') x = Math.ceil(x);
+    if (tokenType === 'ERC1155') x = Math.max(Math.ceil(x), 1);
     let y: number;
 
     switch (curveType) {
