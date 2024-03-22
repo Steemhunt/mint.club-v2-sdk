@@ -44,7 +44,11 @@ export function generateSteps(form: GenerateStepArgs) {
   const maxPrice = finalMintingPrice;
   const startingPrice = initialMintingPrice;
   const stepPoints: Array<{ x: number; y: number }> = [];
-  const stepCount = curveType === CurveEnum.FLAT ? 1 : _stepCount;
+  let stepCount = curveType === CurveEnum.FLAT ? 1 : _stepCount;
+
+  if (tokenType === 'ERC1155' && stepCount > maxSupply) {
+    stepCount = maxSupply;
+  }
 
   // here we need to calculate the extra step count if the starting price is 0
   let extraStepCount = 0;
@@ -107,7 +111,7 @@ export function generateSteps(form: GenerateStepArgs) {
     // price: max price decimal count + 3
     const leadingZeros = countLeadingZeros(handleScientificNotation(deltaX));
     if (tokenType === 'ERC1155') {
-      x = Math.max(Number(x.toFixed(0)), 1);
+      x = Number(x.toFixed(0));
     } else if (leadingZeros !== undefined && leadingZeros > 0) {
       x = Number(x.toFixed(leadingZeros + 3));
     } else {
