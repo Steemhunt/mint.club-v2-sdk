@@ -101,8 +101,8 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
   };
 
   const bondParams = {
-    mintRoyalty: buyRoyalty * 1_000,
-    burnRoyalty: sellRoyalty * 1_000,
+    mintRoyalty: buyRoyalty * 100,
+    burnRoyalty: sellRoyalty * 100,
     reserveToken: reserveToken.address,
     maxSupply: stepRanges[stepRanges.length - 1],
     stepRanges,
@@ -127,7 +127,8 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
 //       curveType: 'EXPONENTIAL',
 //       finalMintingPrice: 0.1,
 //       initialMintingPrice: 0.001,
-//       maxSupply: 1000,
+//       maxSupply: 1000
+
 //       stepCount: 10,
 //       creatorAllocation: 0,
 //     },
