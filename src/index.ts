@@ -71,5 +71,6 @@ export * from './utils/bond';
 export * from './utils/addresses';
 export * from './utils/graph';
 export * from './utils/trade';
+export * from './utils/strings';
 
 export const mintclub = new MintClubSDK();

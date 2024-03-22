@@ -1,4 +1,5 @@
 import { formatUnits, parseUnits } from 'viem';
+import { getSubscriptCharacter } from './strings';
 
 export function commify(x: number | string) {
   const parts = x.toString().split('.');
@@ -33,7 +34,7 @@ export function countLeadingZeros(num: number | string) {
   const [, decimalPart] = stringValue.split('.');
   // Count the leading zeros in the decimal part
   const leadingZeros = decimalPart ? decimalPart.match(/^0*/)?.[0]?.length : 0;
-  return leadingZeros;
+  return leadingZeros ?? 0;
 }
 
 export function getValueAfterLeadingZeros(num: number) {
@@ -124,4 +125,29 @@ export function applyDecimals(num: string | number) {
 export function precisionRound(number: number, precision: number) {
   const factor = Math.pow(10, precision);
   return Math.round(number * factor) / factor;
+}
+
+export function getSubscriptNumber(params: {
+  number: string | number;
+  allowedLeadingZeros?: number;
+  maxDecimals?: number;
+  shorten?: boolean;
+  valueLength?: number;
+}) {
+  const { number, maxDecimals = 18, allowedLeadingZeros = 3 } = params;
+
+  const leadingZeros = countLeadingZeros(Number(number));
+  const valueAfterZeros = getValueAfterLeadingZeros(Number(number));
+
+  if (number?.toString().includes('e+') || Number(number) >= 1 || leadingZeros <= allowedLeadingZeros) {
+    return shortenNumber(number, '');
+  }
+
+  let numberToDisplay;
+
+  numberToDisplay = Number(number).toFixed(maxDecimals);
+  numberToDisplay = applyDecimals(handleScientificNotation(number));
+  numberToDisplay = commify(numberToDisplay);
+
+  return ['0.0', getSubscriptCharacter(leadingZeros), valueAfterZeros].join('');
 }
