@@ -71,7 +71,7 @@ export function generateSteps(form: GenerateStepArgs) {
   const exponent = 0.5; // This can be adjusted to control the curve steepness
   const coefficientPower = totalY / Math.pow(totalX, exponent);
 
-  for (let i = 1; i <= stepCount + extraStepCount; i++) {
+  for (let i = extraStepCount; i <= stepCount + extraStepCount; i++) {
     let x = i * deltaX + creatorAllocation;
     if (tokenType === 'ERC1155') x = Math.ceil(x);
     let y: number;
