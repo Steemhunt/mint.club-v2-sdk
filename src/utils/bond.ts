@@ -41,19 +41,33 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
 
     stepData = generatedSteps;
 
+    // we shift the y values to the right
+    const cloned = cloneDeep(generatedSteps);
+    for (let i = cloned.length - 1; i > 0; i--) {
+      cloned[i].price = cloned[i - 1].price;
+    }
+    // remove the first element as it is not needed
+    cloned.shift();
+    stepData = cloned;
+
     if (creatorAllocation > 0) {
-      // we shift the y values to the right
-      const cloned = cloneDeep(generatedSteps);
-      for (let i = cloned.length - 1; i > 0; i--) {
-        cloned[i].price = cloned[i - 1].price;
-      }
-      // remove the first element as it is not needed
-      cloned.shift();
-      cloned.unshift({ rangeTo: creatorAllocation, price: 0 });
-      stepData = cloned;
+      stepRanges.unshift(wei(creatorAllocation, tokenType === 'ERC20' ? 18 : 0));
+      stepPrices.unshift(0n);
     }
   } else {
     stepData = _stepData;
+  }
+
+  if (curveData) {
+    if (stepData[0].price !== curveData.initialMintingPrice) {
+      throw new CreationError(`Generated step data's initial price does not match your desired value.`, {
+        metaMessages: ['Please try a different step count'],
+      });
+    } else if (stepData[stepData.length - 1].price !== curveData.finalMintingPrice) {
+      throw new CreationError(`Generated step data's final price does not match your desired value.`, {
+        metaMessages: ['Please try a different step count'],
+      });
+    }
   }
 
   stepData.forEach(({ rangeTo, price }) => {
@@ -99,3 +113,25 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
 
   return { tokenParams, bondParams };
 }
+
+// console.log(
+//   generateCreateArgs({
+//     name: 'abc',
+//     reserveToken: {
+//       address: '0x123',
+//       decimals: 18,
+//     },
+//     buyRoyalty: 0.05,
+//     sellRoyalty: 0.05,
+//     symbol: 'abc',
+//     tokenType: 'ERC1155',
+//     curveData: {
+//       curveType: 'EXPONENTIAL',
+//       finalMintingPrice: 0.1,
+//       initialMintingPrice: 0.001,
+//       maxSupply: 1000,
+//       stepCount: 10,
+//       creatorAllocation: 0,
+//     },
+//   }),
+// );

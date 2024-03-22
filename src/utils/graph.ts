@@ -14,13 +14,13 @@ export const graphTypes = [CurveEnum.FLAT, CurveEnum.LINEAR, CurveEnum.EXPONENTI
 
 // interval range: max supply decimal count + 3
 // price: starting price decimal count + 3
-export function formatGraphPoint(value: number, relativeValue: number, maxDecimalPoints?: number) {
-  const relativeValueDecimalCount = countDecimals(relativeValue) + 3;
+export function formatGraphPoint(value: number, maxDecimalPoints?: number) {
+  const maxWeiDecimals = 18;
   let formattedValue;
-  if (maxDecimalPoints !== undefined && relativeValueDecimalCount > maxDecimalPoints) {
+  if (maxDecimalPoints !== undefined && maxWeiDecimals > maxDecimalPoints) {
     formattedValue = Number(value?.toFixed(maxDecimalPoints));
   } else {
-    formattedValue = Number(value?.toFixed(relativeValueDecimalCount));
+    formattedValue = Number(value?.toFixed(maxWeiDecimals));
   }
   // it should format the value, not return 0
   if (value !== 0 && formattedValue === 0) return value;
@@ -53,7 +53,7 @@ export function generateSteps(form: GenerateStepArgs) {
   // here we need to calculate the extra step count if the starting price is 0
   let extraStepCount = 0;
 
-  if (startingPrice === 0) {
+  if (startingPrice === 0 || creatorAllocation > 0) {
     extraStepCount = 1;
   }
 
@@ -86,10 +86,10 @@ export function generateSteps(form: GenerateStepArgs) {
         break;
       case CurveEnum.LINEAR:
         const stepPerPrice = totalY / totalX;
-        y = stepPerPrice * (x - creatorAllocation) + startingPrice;
+        y = stepPerPrice * (x - extraStepCount - creatorAllocation) + startingPrice;
         break;
       case CurveEnum.EXPONENTIAL:
-        y = startingPrice + coefficientExponential * Math.pow(x - creatorAllocation, 2);
+        y = startingPrice + coefficientExponential * Math.pow(x - extraStepCount - creatorAllocation, 2);
         break;
       case CurveEnum.LOGARITHMIC:
         if (x - creatorAllocation === 0) y = startingPrice;
@@ -100,7 +100,7 @@ export function generateSteps(form: GenerateStepArgs) {
           //   coefficientLogarithmic * Math.log(x - creatorAllocation);
 
           // NEW - using Math.pow
-          y = startingPrice + coefficientPower * Math.pow(x - creatorAllocation, exponent);
+          y = startingPrice + coefficientPower * Math.pow(x - extraStepCount - creatorAllocation, exponent);
         }
         break;
       default:
@@ -115,10 +115,11 @@ export function generateSteps(form: GenerateStepArgs) {
     } else if (leadingZeros !== undefined && leadingZeros > 0) {
       x = Number(x.toFixed(leadingZeros + 3));
     } else {
-      x = formatGraphPoint(x, maxSupply, 18);
+      x = formatGraphPoint(x, 18); // mint club generates 18 decimals
     }
 
-    y = formatGraphPoint(y, maxPrice, reserveToken.decimals);
+    y = Math.max(Math.min(y, maxPrice), initialMintingPrice);
+    y = formatGraphPoint(y, reserveToken.decimals);
 
     // last point is used to ensure the max price is reached
     // x is the range, y is the price
@@ -144,7 +145,7 @@ export function generateSteps(form: GenerateStepArgs) {
 
   let mergeCount = 0;
   let clonedPoints = structuredClone(stepPoints);
-  // merge same ange points. price can be different, because user can change them. ignore the last point
+  // merge same range points. price can be different, because user can change them. ignore the last point
   for (let i = 0; i < clonedPoints.length - 2; i++) {
     if (clonedPoints[i].x === clonedPoints[i + 1].x) {
       clonedPoints.splice(i, 1);
