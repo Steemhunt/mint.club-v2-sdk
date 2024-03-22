@@ -54,11 +54,7 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
       stepRanges.unshift(wei(creatorAllocation, tokenType === 'ERC20' ? 18 : 0));
       stepPrices.unshift(0n);
     }
-  } else {
-    stepData = _stepData;
-  }
 
-  if (curveData) {
     if (stepData[0].price !== curveData.initialMintingPrice) {
       throw new CreationError(`Generated step data's initial price does not match your desired value.`, {
         metaMessages: ['Please try a different step count'],
@@ -68,6 +64,8 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
         metaMessages: ['Please try a different step count'],
       });
     }
+  } else {
+    stepData = _stepData;
   }
 
   stepData.forEach(({ rangeTo, price }) => {
