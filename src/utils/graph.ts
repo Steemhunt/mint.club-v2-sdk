@@ -73,7 +73,7 @@ export function generateSteps(form: GenerateStepArgs) {
 
   for (let i = extraStepCount; i <= stepCount + extraStepCount; i++) {
     let x = i * deltaX + creatorAllocation;
-    if (tokenType === 'ERC1155') x = Math.max(Math.ceil(x), 1);
+    if (tokenType === 'ERC1155') x = Math.ceil(x);
     let y: number;
 
     switch (curveType) {
@@ -107,7 +107,7 @@ export function generateSteps(form: GenerateStepArgs) {
     // price: max price decimal count + 3
     const leadingZeros = countLeadingZeros(handleScientificNotation(deltaX));
     if (tokenType === 'ERC1155') {
-      x = Number(x.toFixed(0));
+      x = Math.max(Number(x.toFixed(0)), 1);
     } else if (leadingZeros !== undefined && leadingZeros > 0) {
       x = Number(x.toFixed(leadingZeros + 3));
     } else {
