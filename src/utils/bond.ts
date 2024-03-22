@@ -55,13 +55,15 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
       stepPrices.unshift(0n);
     }
 
-    if (stepData[0].price !== curveData.initialMintingPrice) {
+    if (tokenType === 'ERC1155' && maxSupply === 1) {
+      stepData = [{ rangeTo: 1, price: curveData.finalMintingPrice }];
+    } else if (stepData[0].price !== curveData.initialMintingPrice) {
       throw new CreationError(`Generated step data's initial price does not match your desired value.`, {
-        metaMessages: ['Please try a different step count'],
+        metaMessages: ['Please try a different step count', JSON.stringify(stepData)],
       });
     } else if (stepData[stepData.length - 1].price !== curveData.finalMintingPrice) {
       throw new CreationError(`Generated step data's final price does not match your desired value.`, {
-        metaMessages: ['Please try a different step count'],
+        metaMessages: ['Please try a different step count', JSON.stringify(stepData)],
       });
     }
   } else {
@@ -74,6 +76,7 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
         metaMessages: ['Please double check the step data'],
       });
     }
+
     stepRanges.push(wei(rangeTo, tokenType === 'ERC20' ? 18 : 0));
     stepPrices.push(wei(price, reserveToken.decimals));
   });
@@ -87,8 +90,28 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
     }
   }
 
+  if (tokenType === 'ERC1155') {
+    // merge same range points
+    for (let i = 0; i < stepRanges.length; i++) {
+      if (stepRanges[i] === stepRanges[i + 1]) {
+        stepRanges.splice(i, 1);
+        stepPrices.splice(i, 1);
+        i--;
+      }
+    }
+  }
+
   if (stepRanges.length === 0 || stepPrices.length === 0 || stepRanges.length !== stepPrices.length) {
     throw new CreationError('Invalid step data. Please double check the step data');
+  } else if (creatorAllocation === 0 && stepPrices.some((price) => price === 0n)) {
+    throw new CreationError(
+      'Your parameters may be too extreme to generate a valid curve. Please change parameters, such as stepCount.',
+    );
+  } else if (creatorAllocation > 0) {
+    const weiAllocation = wei(creatorAllocation, tokenType === 'ERC20' ? 18 : 0);
+    if (stepRanges[0] !== weiAllocation) {
+      throw new CreationError('Creator allocation does not match the first step range. Try different parameters');
+    }
   }
 
   const tokenParams: {
@@ -125,12 +148,11 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
 //     tokenType: 'ERC1155',
 //     curveData: {
 //       curveType: 'EXPONENTIAL',
-//       finalMintingPrice: 0.1,
+//       finalMintingPrice: 1,
 //       initialMintingPrice: 0.001,
-//       maxSupply: 1000
-
-//       stepCount: 10,
-//       creatorAllocation: 0,
+//       maxSupply: 1,
+//       stepCount: 30,
+//       creatorAllocation: 1,
 //     },
 //   }),
 // );

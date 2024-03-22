@@ -46,14 +46,15 @@ export function generateSteps(form: GenerateStepArgs) {
   const stepPoints: Array<{ x: number; y: number }> = [];
   let stepCount = curveType === CurveEnum.FLAT ? 1 : _stepCount;
 
-  if (tokenType === 'ERC1155' && stepCount > maxSupply) {
-    stepCount = maxSupply;
-  }
-
   // here we need to calculate the extra step count if the starting price is 0
   let extraStepCount = 0;
 
-  if (startingPrice === 0 || creatorAllocation > 0) {
+  if (startingPrice === 0) {
+    extraStepCount = 1;
+  }
+
+  if (tokenType === 'ERC1155' && stepCount > maxSupply) {
+    stepCount = Math.max(maxSupply, 2);
     extraStepCount = 1;
   }
 
@@ -131,6 +132,8 @@ export function generateSteps(form: GenerateStepArgs) {
       stepPoints.push({ x, y: Math.min(y || 0, maxPrice) });
     }
   }
+
+  console.log({ stepPoints });
 
   // If the starting price is 0, call it again to set the first step to the first point
   if (startingPrice === 0) {
