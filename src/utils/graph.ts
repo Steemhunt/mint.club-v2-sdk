@@ -133,7 +133,7 @@ export function generateSteps(form: GenerateStepArgs) {
     }
   }
 
-  console.log({ stepPoints });
+  // console.log({ stepPoints });
 
   // If the starting price is 0, call it again to set the first step to the first point
   if (startingPrice === 0) {
