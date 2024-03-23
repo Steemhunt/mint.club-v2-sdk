@@ -12,7 +12,7 @@ import {
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import * as chains from 'viem/chains';
-import { ChainNotSupportedError, WalletNotConnectedError } from '../errors/sdk.errors';
+import { ChainNotSupportedError, NoEthereumProviderError, WalletNotConnectedError } from '../errors/sdk.errors';
 import { chainRPCFallbacks, DEFAULT_RANK_OPTIONS } from '../exports';
 
 const MCV2_WALLET_STATE_LOCALSTORAGE = 'mcv2_wallet_state';
@@ -35,6 +35,7 @@ export class Client {
   private getDefaultProvider() {
     // const noopProvider = { request: () => null } as unknown as EIP1193Provider;
     // const provider = typeof window !== 'undefined' ? window.ethereum! : noopProvider;
+    if (typeof window.ethereum === 'undefined') throw new NoEthereumProviderError();
 
     return window?.ethereum;
   }
