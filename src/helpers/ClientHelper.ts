@@ -33,10 +33,10 @@ export class Client {
   }
 
   private getDefaultProvider() {
-    const noopProvider = { request: () => null } as unknown as EIP1193Provider;
-    const provider = typeof window !== 'undefined' ? window.ethereum! : noopProvider;
+    // const noopProvider = { request: () => null } as unknown as EIP1193Provider;
+    // const provider = typeof window !== 'undefined' ? window.ethereum! : noopProvider;
 
-    return provider;
+    return window?.ethereum;
   }
 
   public isPrivateKey() {
