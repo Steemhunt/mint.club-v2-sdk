@@ -3,26 +3,17 @@
     "lib": ["ESNext", "DOM"],
     "module": "esnext",
     "target": "esnext",
-
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "outDir": "./dist",
+    "declarationDir": "./dist/types",
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-
-    "jsx": "react-jsx",
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-
-    // "allowJs": true,
-    "declaration": true,
-    "moduleResolution": "node",
-
-    "outDir": "./dist",
-    "declarationDir": "./dist/types",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
+    "allowJs": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
-  },
-  "exclude": ["./dist", "*/node_modules/*", "./site*"]
+    "declaration": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true
+  }
 }
