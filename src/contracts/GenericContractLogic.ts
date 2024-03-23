@@ -97,37 +97,18 @@ export class GenericContractLogic<
     }
 
     try {
-      let walletClient = this.clientHelper.getWalletClient();
+      const walletClient = this.clientHelper.getWalletClient();
+      const isPrivateKey = this.clientHelper.isPrivateKey();
 
-      const isNodeOrPrivateKey = this.clientHelper.isPrivateKey() || typeof window === 'undefined';
-
-      if (isNodeOrPrivateKey) {
-        if (!walletClient) {
-          throw new WalletNotConnectedError();
-        }
-
-        walletClient = walletClient;
-      } else {
-        await this.clientHelper.connect();
-        walletClient = this.clientHelper.getWalletClient();
-      }
-
-      if (!walletClient || !walletClient.account) {
+      if (isPrivateKey && !walletClient?.account) {
+        throw new WalletNotConnectedError();
+      } else if (!walletClient || !walletClient.account) {
         await this.clientHelper.connect();
         return;
-      }
-
-      if (!isNodeOrPrivateKey) {
+      } else if (!isPrivateKey) {
         await walletClient.addChain({ chain: this.chain });
         await walletClient.switchChain({ id: this.chainId });
-        walletClient.chain = this.chain;
       }
-
-      const client = createWalletClient({
-        chain: this.chain,
-        account: walletClient.account,
-        transport: fallback(chainRPCFallbacks(this.chain), DEFAULT_RANK_OPTIONS),
-      }).extend(publicActions);
 
       simulationArgs = {
         chain: this.chain,
@@ -141,10 +122,24 @@ export class GenericContractLogic<
 
       debug?.(simulationArgs);
 
-      const { request } = (await client.simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
+      let tx: `0x${string}` | undefined;
 
-      onSignatureRequest?.();
-      const tx = await client.writeContract(request as WriteContractParameters<A, T, R>);
+      if (isPrivateKey) {
+        const client = createWalletClient({
+          chain: this.chain,
+          account: walletClient.account,
+          transport: fallback(chainRPCFallbacks(this.chain), DEFAULT_RANK_OPTIONS),
+        }).extend(publicActions);
+        const { request } = (await client.simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
+        onSignatureRequest?.();
+        tx = await client.writeContract(request as WriteContractParameters<A, T, R>);
+      } else {
+        const { request } = (await this.clientHelper
+          ._getPublicClient(this.chainId)
+          .simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
+        onSignatureRequest?.();
+        tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
+      }
 
       onSigned?.(tx);
 
