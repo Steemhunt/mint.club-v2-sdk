@@ -8,8 +8,19 @@ import {
   SimulateContractReturnType,
   TransactionReceipt,
   WriteContractParameters,
+  createWalletClient,
+  fallback,
+  publicActions,
 } from 'viem';
-import { ContractNames, SdkSupportedChainIds, getChain, getMintClubContractAddress } from '../exports';
+import { WalletNotConnectedError } from '../errors/sdk.errors';
+import {
+  ContractNames,
+  DEFAULT_RANK_OPTIONS,
+  SdkSupportedChainIds,
+  chainRPCFallbacks,
+  getChain,
+  getMintClubContractAddress,
+} from '../exports';
 import { Client } from '../helpers/ClientHelper';
 import { SupportedAbiType } from '../types/abi.types';
 import { GenericWriteParams, TokenContractReadWriteArgs } from '../types/transactions.types';
@@ -75,29 +86,48 @@ export class GenericContractLogic<
     const { functionName, value, debug, onError, onSignatureRequest: onSignatureRequest, onSigned, onSuccess } = params;
 
     let args, simulationArgs;
+    args = 'args' in params ? params.args : undefined;
+
+    let address: `0x${string}`;
+
+    if ('tokenAddress' in params) {
+      address = params.tokenAddress;
+    } else {
+      address = getMintClubContractAddress(this.contractType, this.chainId);
+    }
 
     try {
-      await this.clientHelper.connect();
+      let walletClient = this.clientHelper.getWalletClient();
 
-      const walletClient = this.clientHelper.getWalletClient();
+      const isNodeOrPrivateKey = this.clientHelper.isPrivateKey() || typeof window === 'undefined';
 
-      if (!walletClient) {
-        this.clientHelper.connect();
+      if (isNodeOrPrivateKey) {
+        if (!walletClient) {
+          throw new WalletNotConnectedError();
+        }
+
+        walletClient = walletClient;
+      } else {
+        await this.clientHelper.connect();
+        walletClient = this.clientHelper.getWalletClient();
+      }
+
+      if (!walletClient || !walletClient.account) {
+        await this.clientHelper.connect();
         return;
       }
 
-      let address: `0x${string}`;
-
-      if ('tokenAddress' in params) {
-        address = params.tokenAddress;
-      } else {
-        address = getMintClubContractAddress(this.contractType, this.chainId);
+      if (!isNodeOrPrivateKey) {
+        await walletClient.addChain({ chain: this.chain });
+        await walletClient.switchChain({ id: this.chainId });
+        walletClient.chain = this.chain;
       }
 
-      await walletClient.addChain({ chain: this.chain });
-      await walletClient.switchChain({ id: this.chainId });
-
-      args = 'args' in params ? params.args : undefined;
+      const client = createWalletClient({
+        chain: this.chain,
+        account: walletClient.account,
+        transport: fallback(chainRPCFallbacks(this.chain), DEFAULT_RANK_OPTIONS),
+      }).extend(publicActions);
 
       simulationArgs = {
         chain: this.chain,
@@ -111,12 +141,10 @@ export class GenericContractLogic<
 
       debug?.(simulationArgs);
 
-      const { request } = (await this.clientHelper
-        ._getPublicClient(this.chainId)
-        .simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
+      const { request } = (await client.simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
 
       onSignatureRequest?.();
-      const tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
+      const tx = await client.writeContract(request as WriteContractParameters<A, T, R>);
 
       onSigned?.(tx);
 

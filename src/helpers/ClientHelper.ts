@@ -3,16 +3,17 @@ import {
   createPublicClient,
   createWalletClient,
   custom,
+  EIP1193Provider,
   fallback,
   FallbackTransport,
-  http,
+  PrivateKeyAccount,
   PublicClient,
   WalletClient,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import * as chains from 'viem/chains';
-import { ChainNotSupportedError, NoEthereumProviderError, WalletNotConnectedError } from '../errors/sdk.errors';
-import { chainRPCFallbacks, DEFAULT_RANK_OPTIONS, SdkSupportedChainIds } from '../exports';
+import { ChainNotSupportedError, WalletNotConnectedError } from '../errors/sdk.errors';
+import { chainRPCFallbacks, DEFAULT_RANK_OPTIONS } from '../exports';
 
 const MCV2_WALLET_STATE_LOCALSTORAGE = 'mcv2_wallet_state';
 type WalletState = 'connected' | 'disconnected' | 'none';
@@ -22,7 +23,6 @@ export class Client {
   private walletClient?: WalletClient;
   // these are always defined, singleton
   private publicClients: Record<number, PublicClient<FallbackTransport> | PublicClient> = {};
-  private chainId?: SdkSupportedChainIds; // last chain id used
 
   constructor() {
     if (Client.instance) {
@@ -32,9 +32,25 @@ export class Client {
     Client.instance = this;
   }
 
+  private getDefaultProvider() {
+    const noopProvider = { request: () => null } as unknown as EIP1193Provider;
+    const provider = typeof window !== 'undefined' ? window.ethereum! : noopProvider;
+
+    return provider;
+  }
+
+  public isPrivateKey() {
+    return (this.walletClient?.account as PrivateKeyAccount)?.source === 'privateKey';
+  }
+
   public async connect(provider?: any) {
     let addressToReturn: `0x${string}` | null = null;
-    if (this.walletClient?.account) addressToReturn = this.walletClient.account.address;
+
+    if (this.walletClient?.account || this.isPrivateKey()) {
+      if (this.walletClient?.account?.address) {
+        addressToReturn = this.walletClient?.account?.address!;
+      }
+    }
 
     if (this.walletClient) {
       const [address] = await this.walletClient?.requestAddresses();
@@ -44,14 +60,13 @@ export class Client {
       });
       addressToReturn = address;
     } else {
-      if (window.ethereum === undefined) throw new NoEthereumProviderError();
       this.walletClient = createWalletClient({
-        transport: custom(provider ?? window.ethereum),
+        transport: custom(provider ?? this.getDefaultProvider()),
       });
       const [address] = await this.walletClient?.requestAddresses();
       this.walletClient = createWalletClient({
         account: address,
-        transport: custom(provider ?? window.ethereum),
+        transport: custom(provider ?? this.getDefaultProvider()),
       });
       addressToReturn = address;
     }
@@ -153,14 +168,14 @@ export class Client {
   public withPrivateKey(privateKey: `0x${string}`) {
     const account = privateKeyToAccount(privateKey);
     this.walletClient = createWalletClient({
+      transport: fallback(chainRPCFallbacks(chains.mainnet), DEFAULT_RANK_OPTIONS),
       account,
-      transport: http(),
     });
     return this;
   }
 
   public withAccount(account: `0x${string}`, provider?: any) {
-    const providerToUse = provider || window.ethereum;
+    const providerToUse = provider || this.getDefaultProvider();
     this.walletClient = createWalletClient({
       account,
       transport: custom(providerToUse),
