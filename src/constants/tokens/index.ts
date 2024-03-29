@@ -11,7 +11,7 @@ import {
   polygon,
   sepolia,
 } from 'viem/chains';
-import { SdkSupportedChainIds } from '../contracts';
+import { SdkSupportedChainIds, degen } from '../contracts';
 import { ARBITRUM_TOKENS } from './arbitrum';
 import { AVALANCHE_TOKENS } from './avalanche';
 import { AVALANCHE_FUJI_TOKENS } from './avalanche-fuji';
@@ -23,6 +23,7 @@ import { MAINNET_TOKENS } from './mainnet';
 import { OPTIMISM_TOKENS } from './optimism';
 import { POLYGON_TOKENS } from './polygon';
 import { SEPOLIA_TOKENS } from './sepolia';
+import { DEGEN_TOKENS } from './degen';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
 export const COINGECKO_NETWORK_IDS = {
@@ -54,7 +55,7 @@ export type WrappedToken = {
   image: string;
   tokenAddress: `0x${string}`;
   nativeSymbol: string;
-  oneInchSymbol: 'USDT' | 'USDbC' | 'USDB';
+  oneInchSymbol: 'USDT' | 'USDC' | 'USDbC' | 'USDB';
   decimals: number;
 };
 
@@ -136,6 +137,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
+  [degen.id]: {
+    image: 'https://mint.club/assets/tokens/large/degen.png',
+    tokenAddress: '0xEb54dACB4C2ccb64F8074eceEa33b5eBb38E5387',
+    nativeSymbol: 'DEGEN',
+    oneInchSymbol: 'USDC',
+    decimals: 18,
+  },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
@@ -152,6 +160,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [blastSepolia.id]: BLAST_SEPOLIA_TOKENS,
   [sepolia.id]: SEPOLIA_TOKENS,
   [avalancheFuji.id]: AVALANCHE_FUJI_TOKENS,
+  [degen.id]: DEGEN_TOKENS,
 };
 
 export type TokenChain = keyof typeof TOKENS;

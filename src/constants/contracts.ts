@@ -1,3 +1,4 @@
+import { defineChain } from 'viem';
 import {
   arbitrum,
   avalanche,
@@ -12,6 +13,21 @@ import {
   sepolia,
 } from 'viem/chains';
 
+export const degen = defineChain({
+  id: 666666666,
+  name: 'Degen',
+  nativeCurrency: {
+    name: 'Degen',
+    symbol: 'DEGEN',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.degen.tips', 'https://nitrorpc-degen-mainnet-1.t.conduit.xyz'],
+    },
+  },
+});
+
 const SDK_CONTRACT_ADDRESSES = {
   ERC20: {
     [mainnet.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
@@ -25,6 +41,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blast.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
     [blastSepolia.id]: '0x37F540de37afE8bDf6C722d87CB019F30e5E406a',
     [avalancheFuji.id]: '0xAD5a113ee65F30269f7558f96483126B1FB60c4E',
+    [degen.id]: '0xaF987E88bf30581F7074E628c894A3FCbf4EE12e',
   },
 
   ERC1155: {
@@ -39,6 +56,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blast.id]: '0x5DaE94e149CF2112Ec625D46670047814aA9aC2a',
     [blastSepolia.id]: '0x4bF67e5C9baD43DD89dbe8fCAD3c213C868fe881',
     [avalancheFuji.id]: '0xB43826E079dFB2e2b48a0a473Efc7F1fe6391763',
+    [degen.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
   },
 
   BOND: {
@@ -53,6 +71,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blast.id]: '0x621c335b4BD8f2165E120DC70d3AfcAfc6628681',
     [blastSepolia.id]: '0x5dfA75b0185efBaEF286E80B847ce84ff8a62C2d',
     [avalancheFuji.id]: '0x20fBC8a650d75e4C2Dab8b7e85C27135f0D64e89',
+    [degen.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
   },
 
   ZAP: {
@@ -67,6 +86,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blast.id]: '0x06FD26c092Db44E5491abB7cDC580CE24D93030c',
     [blastSepolia.id]: '0x40c7DC399e01029a51cAb316f8Bca7D20DE31bad',
     [avalancheFuji.id]: '0x60432191893c4F742205a2C834817a1891feC435',
+    [degen.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
   },
 
   LOCKER: {
@@ -81,6 +101,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blast.id]: '0x3Fd5B4DcDa968C8e22898523f5343177F94ccfd1',
     [blastSepolia.id]: '0x2c6B3fe4D6de27363cFEC95f703889EaF6b770fB',
     [avalancheFuji.id]: '0x789771E410527691729e54A84103594ee6Be6C3C',
+    [degen.id]: '0xF44939c1613143ad587c79602182De7DcF593e33',
   },
 
   MERKLE: {
@@ -95,6 +116,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blast.id]: '0x29b0E6D2C2884aEa3FB4CB5dD1C7002A8E10c724',
     [blastSepolia.id]: '0xCbb23973235feA43E62C41a0c67717a92a2467f2',
     [avalancheFuji.id]: '0x6d1f4ecd17ddA7fb39C56Da566b66d63f06671d9',
+    [degen.id]: '0x5DaE94e149CF2112Ec625D46670047814aA9aC2a',
   },
 
   ONEINCH: {
@@ -109,6 +131,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blast.id]: '0x',
     [blastSepolia.id]: '0x',
     [avalancheFuji.id]: '0x',
+    [degen.id]: '0x',
   },
 } as const;
 

@@ -26,6 +26,7 @@ import {
   ONEINCH_ABI,
   TOKENS,
   ZAP_ABI,
+  degen,
 } from './exports';
 
 export const abis: Record<ContractNames, Abi> = {
@@ -57,6 +58,7 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   bnbchain: bsc.id,
   polygon: polygon.id,
   arbitrum: arbitrum.id,
+  degen: degen.id,
   optimism: optimism.id,
   avalanche: avalanche.id,
   base: base.id,

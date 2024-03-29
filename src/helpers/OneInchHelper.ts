@@ -13,7 +13,7 @@ import {
   sepolia,
 } from 'viem/chains';
 import { oneInchContract } from '../contracts';
-import { SdkSupportedChainIds, toNumber } from '../exports';
+import { SdkSupportedChainIds, degen, toNumber } from '../exports';
 
 export type USDValueOptions = {
   tokenAddress: `0x${string}`;
@@ -61,6 +61,7 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [blast.id]: { address: '0x', symbol: '', decimals: 0n },
     [blastSepolia.id]: { address: '0x', symbol: '', decimals: 0n },
     [avalancheFuji.id]: { address: '0x', symbol: '', decimals: 0n },
+    [degen.id]: { address: '0x', symbol: '', decimals: 0n },
   };
 
 export class OneInch {

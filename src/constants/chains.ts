@@ -13,7 +13,7 @@ import {
   sepolia,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
-import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
+import { degen, getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
 import * as chains from 'viem/chains';
 
 export type ChainType = {
@@ -22,6 +22,7 @@ export type ChainType = {
     | 'Ethereum'
     | 'Base'
     | 'Blast'
+    | 'Degen'
     | 'Optimism'
     | 'Arbitrum'
     | 'Avalanche'
@@ -69,6 +70,14 @@ export const CHAINS: Array<ChainType> = [
     color: '#FF0420',
     openseaSlug: 'optimism',
     enabled: isAddress(getMintClubContractAddress('BOND', optimism.id)),
+  },
+  {
+    id: degen.id,
+    name: 'Degen',
+    icon: '/assets/networks/degen@2x.png',
+    color: '#A36EFD',
+    openseaSlug: 'degen',
+    enabled: isAddress(getMintClubContractAddress('BOND', degen.id)),
   },
   {
     id: arbitrum.id,
