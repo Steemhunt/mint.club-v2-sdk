@@ -13,7 +13,7 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 import * as chains from 'viem/chains';
 import { ChainNotSupportedError, NoEthereumProviderError, WalletNotConnectedError } from '../errors/sdk.errors';
-import { chainRPCFallbacks, DEFAULT_RANK_OPTIONS } from '../exports';
+import { chainIdToViemChain, chainRPCFallbacks, DEFAULT_RANK_OPTIONS, SdkSupportedChainIds } from '../exports';
 
 const MCV2_WALLET_STATE_LOCALSTORAGE = 'mcv2_wallet_state';
 type WalletState = 'connected' | 'disconnected' | 'none';
@@ -133,7 +133,8 @@ export class Client {
   public _getPublicClient(id: number): PublicClient {
     if (this.publicClients[id] !== undefined) return this.publicClients[id];
 
-    const chain: Chain | undefined = Object.values(chains).find((chain) => chain.id === id);
+    const chain: Chain | undefined =
+      Object.values(chains).find((chain) => chain.id === id) ?? chainIdToViemChain(id as SdkSupportedChainIds);
 
     if (!chain) throw new ChainNotSupportedError(id);
 

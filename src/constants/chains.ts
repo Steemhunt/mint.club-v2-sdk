@@ -36,6 +36,7 @@ export type ChainType = {
   readonly openseaSlug?: string;
   readonly isTestnet?: boolean;
   readonly enabled?: boolean;
+  readonly chain: chains.Chain;
 };
 
 export const CHAINS: Array<ChainType> = [
@@ -46,6 +47,7 @@ export const CHAINS: Array<ChainType> = [
     color: '#627EEA',
     openseaSlug: 'ethereum',
     enabled: isAddress(getMintClubContractAddress('BOND', mainnet.id)),
+    chain: mainnet,
   },
   {
     id: base.id,
@@ -54,6 +56,7 @@ export const CHAINS: Array<ChainType> = [
     color: '#0052FF',
     openseaSlug: 'base',
     enabled: isAddress(getMintClubContractAddress('BOND', base.id)),
+    chain: base,
   },
   {
     id: blast.id,
@@ -62,6 +65,7 @@ export const CHAINS: Array<ChainType> = [
     color: '#FCFC03',
     openseaSlug: 'blast',
     enabled: isAddress(getMintClubContractAddress('BOND', blast.id)),
+    chain: blast,
   },
   {
     id: optimism.id,
@@ -70,6 +74,7 @@ export const CHAINS: Array<ChainType> = [
     color: '#FF0420',
     openseaSlug: 'optimism',
     enabled: isAddress(getMintClubContractAddress('BOND', optimism.id)),
+    chain: optimism,
   },
   {
     id: degen.id,
@@ -78,6 +83,7 @@ export const CHAINS: Array<ChainType> = [
     color: '#A36EFD',
     openseaSlug: 'degen',
     enabled: isAddress(getMintClubContractAddress('BOND', degen.id)),
+    chain: degen,
   },
   {
     id: arbitrum.id,
@@ -86,6 +92,7 @@ export const CHAINS: Array<ChainType> = [
     color: '#12AAFF',
     openseaSlug: 'arbitrum',
     enabled: isAddress(getMintClubContractAddress('BOND', arbitrum.id)),
+    chain: arbitrum,
   },
   {
     id: avalanche.id,
@@ -94,6 +101,7 @@ export const CHAINS: Array<ChainType> = [
     color: '#E94143',
     openseaSlug: 'avalanche',
     enabled: isAddress(getMintClubContractAddress('BOND', avalanche.id)),
+    chain: avalanche,
   },
   {
     id: polygon.id,
@@ -102,6 +110,7 @@ export const CHAINS: Array<ChainType> = [
     color: '#8247E5',
     openseaSlug: 'matic',
     enabled: isAddress(getMintClubContractAddress('BOND', polygon.id)),
+    chain: polygon,
   },
   {
     id: bsc.id,
@@ -110,6 +119,7 @@ export const CHAINS: Array<ChainType> = [
     color: '#F0B90B',
     openseaSlug: 'bsc',
     enabled: isAddress(getMintClubContractAddress('BOND', bsc.id)),
+    chain: bsc,
   },
   {
     id: sepolia.id,
@@ -119,6 +129,7 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'sepolia',
     enabled: isAddress(getMintClubContractAddress('BOND', sepolia.id)),
     isTestnet: true,
+    chain: sepolia,
   },
   {
     id: blastSepolia.id,
@@ -128,7 +139,9 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'blast-sepolia',
     enabled: isAddress(getMintClubContractAddress('BOND', blastSepolia.id)),
     isTestnet: true,
+    chain: blastSepolia,
   },
+
   {
     id: avalancheFuji.id,
     name: 'AvalancheFuji',
@@ -137,8 +150,13 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'avalanche-fuji',
     enabled: isAddress(getMintClubContractAddress('BOND', avalancheFuji.id)),
     isTestnet: true,
+    chain: avalancheFuji,
   },
 ];
+
+export function chainIdToViemChain(chainId: SdkSupportedChainIds) {
+  return CHAINS.find((chain) => chain.id === chainId)?.chain;
+}
 
 export type LowerCaseChainNames = (typeof CHAINS)[number]['name'] extends infer X
   ? X extends string
@@ -161,11 +179,12 @@ export function chainStringToId(name: LowerCaseChainNames) {
 }
 
 export function getChain(chainId: SdkSupportedChainIds) {
-  const chain = Object.values(chains).find((c) => c.id === chainId);
+  let chain = Object.values(chains).find((c) => c.id === chainId) ?? CHAINS.find((c) => c.id === chainId)?.chain;
 
   if (!chain) {
     throw new ChainNotSupportedError(chainId);
   }
+
   return chain;
 }
 
