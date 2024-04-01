@@ -75,16 +75,4 @@ export * from './utils/graph';
 export * from './utils/trade';
 export * from './utils/strings';
 
-if (typeof window === 'undefined') {
-  import('jsdom').then((jsdom) => {
-    const JSDOM = jsdom.JSDOM;
-    const { window } = new JSDOM('', {
-      url: 'https://mint.club',
-    });
-    (global.window as any) = window;
-    global.navigator = window.navigator;
-    global.document = window.document;
-  });
-}
-
 export const mintclub = new MintClubSDK();
