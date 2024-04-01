@@ -10,23 +10,22 @@ import { Airdrop } from './helpers/AirdropHelper';
 import { Lockup } from './helpers/LockupHelper';
 import { Utils } from './helpers/UtilsHelper';
 
+type NetworkReturnType = Omit<Client, '_getPublicClient'> & {
+  getPublicClient: () => PublicClient;
+  token: (symbolOrAddress: string) => ERC20;
+  nft: (symbolOrAddress: string) => ERC1155;
+  airdrop: Airdrop;
+  lockup: Lockup;
+  bond: Bond;
+};
+
 export class MintClubSDK {
   // chain agnostic
   public wallet = new Client();
   public ipfs = new Ipfs();
   public utils = new Utils();
 
-  public network(id: SdkSupportedChainIds | LowerCaseChainNames): Omit<
-    ReturnType<typeof this.withClientHelper> & Client,
-    '_getPublicClient'
-  > & {
-    getPublicClient: () => PublicClient;
-    token: (symbolOrAddress: string) => ERC20;
-    nft: (symbolOrAddress: string) => ERC1155;
-    airdrop: Airdrop;
-    lockup: Lockup;
-    bond: Bond;
-  } {
+  public network(id: SdkSupportedChainIds | LowerCaseChainNames): NetworkReturnType {
     let chainId: SdkSupportedChainIds;
 
     if (typeof id === 'string') {
@@ -66,14 +65,14 @@ export class MintClubSDK {
     });
   }
 
-  public withPublicClient(publicClient: PublicClient): ReturnType<typeof this.network> {
+  public withPublicClient(publicClient: PublicClient): NetworkReturnType {
     const chainId = publicClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
     const clientHelper = new Client().withPublicClient(publicClient);
     return this.withClientHelper(clientHelper, chainId as SdkSupportedChainIds);
   }
 
-  public withWalletClient(walletClient: WalletClient): ReturnType<typeof this.network> {
+  public withWalletClient(walletClient: WalletClient): NetworkReturnType {
     const chainId = walletClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
     if (walletClient.chain?.id === undefined) throw new InvalidClientError();
