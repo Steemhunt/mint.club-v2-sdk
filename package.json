@@ -15,16 +15,10 @@
     "./dist/index.cjs": "./dist/index.cjs"
   },
   "exports": {
-    ".": {
-      "node": {
-        "import": "./dist/node.mjs",
-        "require": "./dist/node.cjs"
-      },
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    }
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.cjs",
+    "default": "./dist/index.mjs",
+    "types": "./dist/index.d.ts"
   },
   "scripts": {
     "docs:deploy": "",
