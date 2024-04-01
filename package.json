@@ -18,12 +18,14 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
-      "default": "./dist/index.mjs"
+      "default": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
     },
     "./node": {
       "import": "./dist/node.mjs",
       "require": "./dist/node.cjs",
-      "default": "./dist/node.cjs"
+      "default": "./dist/node.cjs",
+      "types": "./dist/index.d.ts"
     }
   },
   "scripts": {
