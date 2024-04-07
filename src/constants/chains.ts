@@ -79,7 +79,7 @@ export const CHAINS: Array<ChainType> = [
   {
     id: degen.id,
     name: 'Degen',
-    icon: '/assets/networks/degen@2x.png',
+    icon: 'https://mint.club/assets/networks/degen@2x.png',
     color: '#A36EFD',
     openseaSlug: 'degen',
     enabled: isAddress(getMintClubContractAddress('BOND', degen.id)),
