@@ -82,11 +82,11 @@ export class Client {
       return 'none' as WalletState;
     }
 
-    return (window?.localStorage.getItem(MCV2_WALLET_STATE_LOCALSTORAGE) ?? 'none') as WalletState;
+    return (window?.localStorage?.getItem?.(MCV2_WALLET_STATE_LOCALSTORAGE) ?? 'none') as WalletState;
   }
 
   private set walletState(newState: WalletState) {
-    window?.localStorage?.setItem(MCV2_WALLET_STATE_LOCALSTORAGE, newState);
+    window?.localStorage?.setItem?.(MCV2_WALLET_STATE_LOCALSTORAGE, newState);
   }
 
   public async change() {
