@@ -103,7 +103,7 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
 
   if (stepRanges.length === 0 || stepPrices.length === 0 || stepRanges.length !== stepPrices.length) {
     throw new CreationError('Invalid step data. Please double check the step data');
-  } else if (creatorAllocation === 0 && stepPrices.some((price) => price === 0n)) {
+  } else if (stepData === undefined && creatorAllocation === 0 && stepPrices.some((price) => price === 0n)) {
     throw new CreationError(
       'Your parameters may be too extreme to generate a valid curve. Please change parameters, such as stepCount.',
     );

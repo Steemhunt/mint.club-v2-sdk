@@ -78,7 +78,11 @@ export class Client {
   }
 
   private get walletState() {
-    return (window?.localStorage?.getItem(MCV2_WALLET_STATE_LOCALSTORAGE) ?? 'none') as WalletState;
+    if (typeof window === 'undefined') {
+      return 'none' as WalletState;
+    }
+
+    return (window?.localStorage.getItem(MCV2_WALLET_STATE_LOCALSTORAGE) ?? 'none') as WalletState;
   }
 
   private set walletState(newState: WalletState) {
