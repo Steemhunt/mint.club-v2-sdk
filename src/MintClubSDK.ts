@@ -65,19 +65,19 @@ export class MintClubSDK {
     });
   }
 
-  public withPublicClient(publicClient: PublicClient): NetworkReturnType {
+  public withPublicClient(publicClient: PublicClient): MintClubSDK {
     const chainId = publicClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
     const clientHelper = new Client().withPublicClient(publicClient);
-    return this.withClientHelper(clientHelper, chainId as SdkSupportedChainIds);
+    return this;
   }
 
-  public withWalletClient(walletClient: WalletClient): NetworkReturnType {
+  public withWalletClient(walletClient: WalletClient): MintClubSDK {
     const chainId = walletClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
     if (walletClient.chain?.id === undefined) throw new InvalidClientError();
     const clientHelper = new Client().withWalletClient(walletClient);
 
-    return this.withClientHelper(clientHelper, chainId as SdkSupportedChainIds);
+    return this;
   }
 }
