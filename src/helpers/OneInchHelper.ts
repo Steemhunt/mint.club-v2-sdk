@@ -4,6 +4,7 @@ import {
   avalanche,
   avalancheFuji,
   base,
+  baseSepolia,
   blast,
   blastSepolia,
   bsc,
@@ -57,6 +58,7 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
       symbol: 'USDBC',
       decimals: 6n,
     }, // USDBC
+    [baseSepolia.id]: { address: '0x', symbol: '', decimals: 0n },
     [sepolia.id]: { address: '0x', symbol: '', decimals: 0n },
     [blast.id]: { address: '0x', symbol: '', decimals: 0n },
     [blastSepolia.id]: { address: '0x', symbol: '', decimals: 0n },

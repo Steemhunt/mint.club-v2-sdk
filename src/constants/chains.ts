@@ -11,6 +11,7 @@ import {
   optimism,
   polygon,
   sepolia,
+  baseSepolia,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
 import { degen, getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
@@ -29,6 +30,7 @@ export type ChainType = {
     | 'Polygon'
     | 'BNBChain'
     | 'Sepolia'
+    | 'BaseSepolia'
     | 'AvalancheFuji'
     | 'BlastSepolia';
   readonly icon: string;
@@ -132,6 +134,16 @@ export const CHAINS: Array<ChainType> = [
     chain: sepolia,
   },
   {
+    id: baseSepolia.id,
+    name: 'BaseSepolia',
+    icon: 'https://mint.club/assets/networks/base@2x.png',
+    color: '#0052FF',
+    openseaSlug: 'base-sepolia',
+    enabled: isAddress(getMintClubContractAddress('BOND', baseSepolia.id)),
+    isTestnet: true,
+    chain: sepolia,
+  },
+  {
     id: blastSepolia.id,
     name: 'BlastSepolia',
     icon: 'https://mint.club/assets/networks/blast@2x.png',
@@ -178,7 +190,7 @@ export function chainStringToId(name: LowerCaseChainNames) {
   return found.id;
 }
 
-export function getChain(chainId: SdkSupportedChainIds) {
+export function getChain(chainId: SdkSupportedChainIds): chains.Chain {
   let chain = Object.values(chains).find((c) => c.id === chainId) ?? CHAINS.find((c) => c.id === chainId)?.chain;
 
   if (!chain) {

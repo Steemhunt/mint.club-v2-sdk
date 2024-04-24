@@ -3,6 +3,7 @@ import {
   avalanche,
   avalancheFuji,
   base,
+  baseSepolia,
   blast,
   blastSepolia,
   bsc,
@@ -50,11 +51,13 @@ export const supportedChains = [
   'optimism',
   'avalanche',
   'base',
+  'basesepolia',
 ] as const;
 
 export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainIds> = {
   ethereum: mainnet.id,
   sepolia: sepolia.id,
+  basesepolia: baseSepolia.id,
   bnbchain: bsc.id,
   polygon: polygon.id,
   arbitrum: arbitrum.id,

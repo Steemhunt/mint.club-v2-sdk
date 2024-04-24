@@ -3,6 +3,7 @@ import {
   avalanche,
   avalancheFuji,
   base,
+  baseSepolia,
   blast,
   blastSepolia,
   bsc,
@@ -24,6 +25,7 @@ import { OPTIMISM_TOKENS } from './optimism';
 import { POLYGON_TOKENS } from './polygon';
 import { SEPOLIA_TOKENS } from './sepolia';
 import { DEGEN_TOKENS } from './degen';
+import { BASE_SEPOLIA_TOKENS } from './base-sepolia';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
 export const COINGECKO_NETWORK_IDS = {
@@ -116,6 +118,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
+  [baseSepolia.id]: {
+    image: 'https://mint.club/assets/tokens/large/eth.png',
+    tokenAddress: '0x4200000000000000000000000000000000000006',
+    nativeSymbol: 'ETH',
+    oneInchSymbol: 'USDT',
+    decimals: 18,
+  },
   [blast.id]: {
     image: 'https://mint.club/assets/tokens/large/blast.png',
     tokenAddress: '0x4300000000000000000000000000000000000004',
@@ -159,6 +168,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [blast.id]: BLAST_TOKENS,
   [blastSepolia.id]: BLAST_SEPOLIA_TOKENS,
   [sepolia.id]: SEPOLIA_TOKENS,
+  [baseSepolia.id]: BASE_SEPOLIA_TOKENS,
   [avalancheFuji.id]: AVALANCHE_FUJI_TOKENS,
   [degen.id]: DEGEN_TOKENS,
 };
