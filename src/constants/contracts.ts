@@ -13,6 +13,23 @@ import {
   polygon,
   sepolia,
 } from 'viem/chains';
+export const cyberTestnet = defineChain({
+  id: 111557560,
+  name: 'Cyber Testnet',
+  nativeCurrency: {
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://cyber-testnet.alt.technology/'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Explorer', url: 'https://testnet.cyberscan.co/' },
+  },
+});
 
 export const degen = defineChain({
   id: 666666666,
@@ -44,6 +61,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blastSepolia.id]: '0x37F540de37afE8bDf6C722d87CB019F30e5E406a',
     [avalancheFuji.id]: '0xAD5a113ee65F30269f7558f96483126B1FB60c4E',
     [degen.id]: '0xaF987E88bf30581F7074E628c894A3FCbf4EE12e',
+    [cyberTestnet.id]: '0x37F540de37afE8bDf6C722d87CB019F30e5E406a',
   },
 
   ERC1155: {
@@ -60,6 +78,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [baseSepolia.id]: '0x4bF67e5C9baD43DD89dbe8fCAD3c213C868fe881',
     [avalancheFuji.id]: '0xB43826E079dFB2e2b48a0a473Efc7F1fe6391763',
     [degen.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
+    [cyberTestnet.id]: '0x4bF67e5C9baD43DD89dbe8fCAD3c213C868fe881',
   },
 
   BOND: {
@@ -76,6 +95,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blastSepolia.id]: '0x5dfA75b0185efBaEF286E80B847ce84ff8a62C2d',
     [avalancheFuji.id]: '0x20fBC8a650d75e4C2Dab8b7e85C27135f0D64e89',
     [degen.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
+    [cyberTestnet.id]: '0x5dfA75b0185efBaEF286E80B847ce84ff8a62C2d',
   },
 
   ZAP: {
@@ -92,6 +112,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blastSepolia.id]: '0x40c7DC399e01029a51cAb316f8Bca7D20DE31bad',
     [avalancheFuji.id]: '0x60432191893c4F742205a2C834817a1891feC435',
     [degen.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
+    [cyberTestnet.id]: '0x40c7DC399e01029a51cAb316f8Bca7D20DE31bad',
   },
 
   LOCKER: {
@@ -108,6 +129,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blastSepolia.id]: '0x2c6B3fe4D6de27363cFEC95f703889EaF6b770fB',
     [avalancheFuji.id]: '0x789771E410527691729e54A84103594ee6Be6C3C',
     [degen.id]: '0xF44939c1613143ad587c79602182De7DcF593e33',
+    [cyberTestnet.id]: '0x2c6B3fe4D6de27363cFEC95f703889EaF6b770fB',
   },
 
   MERKLE: {
@@ -124,6 +146,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blastSepolia.id]: '0xCbb23973235feA43E62C41a0c67717a92a2467f2',
     [avalancheFuji.id]: '0x6d1f4ecd17ddA7fb39C56Da566b66d63f06671d9',
     [degen.id]: '0x5DaE94e149CF2112Ec625D46670047814aA9aC2a',
+    [cyberTestnet.id]: '0xCbb23973235feA43E62C41a0c67717a92a2467f2',
   },
 
   ONEINCH: {
@@ -140,6 +163,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blastSepolia.id]: '0x',
     [avalancheFuji.id]: '0x',
     [degen.id]: '0x',
+    [cyberTestnet.id]: '0x',
   },
 } as const;
 

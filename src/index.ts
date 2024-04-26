@@ -28,6 +28,7 @@ import {
   TOKENS,
   ZAP_ABI,
   degen,
+  cyberTestnet,
 } from './exports';
 
 export const abis: Record<ContractNames, Abi> = {
@@ -68,6 +69,7 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   blast: blast.id,
   blastsepolia: blastSepolia.id,
   avalanchefuji: avalancheFuji.id,
+  cybertestnet: cyberTestnet.id,
 };
 
 export * from './exports';

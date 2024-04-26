@@ -12,7 +12,7 @@ import {
   polygon,
   sepolia,
 } from 'viem/chains';
-import { SdkSupportedChainIds, degen } from '../contracts';
+import { SdkSupportedChainIds, cyberTestnet, degen } from '../contracts';
 import { ARBITRUM_TOKENS } from './arbitrum';
 import { AVALANCHE_TOKENS } from './avalanche';
 import { AVALANCHE_FUJI_TOKENS } from './avalanche-fuji';
@@ -26,6 +26,7 @@ import { POLYGON_TOKENS } from './polygon';
 import { SEPOLIA_TOKENS } from './sepolia';
 import { DEGEN_TOKENS } from './degen';
 import { BASE_SEPOLIA_TOKENS } from './base-sepolia';
+import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
 export const COINGECKO_NETWORK_IDS = {
@@ -153,6 +154,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
+  [cyberTestnet.id]: {
+    image: 'https://mint.club/assets/tokens/large/eth.png',
+    tokenAddress: '0xf760686C2b40F7C526D040b979641293D2F55816',
+    nativeSymbol: 'ETH',
+    oneInchSymbol: 'USDC',
+    decimals: 18,
+  },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
@@ -171,6 +179,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [baseSepolia.id]: BASE_SEPOLIA_TOKENS,
   [avalancheFuji.id]: AVALANCHE_FUJI_TOKENS,
   [degen.id]: DEGEN_TOKENS,
+  [cyberTestnet.id]: CYBER_TESTNET_TOKENS,
 };
 
 export type TokenChain = keyof typeof TOKENS;
