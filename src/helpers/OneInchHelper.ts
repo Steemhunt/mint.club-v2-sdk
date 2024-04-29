@@ -8,6 +8,7 @@ import {
   blast,
   blastSepolia,
   bsc,
+  klaytn,
   mainnet,
   optimism,
   polygon,
@@ -65,6 +66,7 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [avalancheFuji.id]: { address: '0x', symbol: '', decimals: 0n },
     [degen.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyberTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
+    [klaytn.id]: { address: '0x', symbol: '', decimals: 0n },
   };
 
 export class OneInch {

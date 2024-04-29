@@ -7,6 +7,8 @@ import {
   blast,
   blastSepolia,
   bsc,
+  klaytn,
+  klaytnBaobab,
   mainnet,
   optimism,
   polygon,
@@ -30,6 +32,7 @@ export type ChainType = {
     | 'Polygon'
     | 'BNBChain'
     | 'Sepolia'
+    | 'Klaytn'
     | 'BaseSepolia'
     | 'AvalancheFuji'
     | 'BlastSepolia'
@@ -176,6 +179,26 @@ export const CHAINS: Array<ChainType> = [
     isTestnet: true,
     chain: cyberTestnet,
   },
+  {
+    id: klaytn.id,
+    name: 'Klaytn',
+    icon: 'https://mint.club/assets/networks/klaytn@2x.png',
+    color: '#C82812',
+    openseaSlug: 'klaytn',
+    enabled: isAddress(getMintClubContractAddress('BOND', klaytn.id)),
+    isTestnet: true,
+    chain: klaytn,
+  },
+  // {
+  //   id: klaytnBaobab.id,
+  //   name: 'KlaytnBaobab',
+  //   icon: 'https://mint.club/assets/networks/klaytn@2x.png',
+  //   color: '#C82812',
+  //   openseaSlug: 'klaytn',
+  //   enabled: isAddress(getMintClubContractAddress('BOND', klaytnBaobab.id)),
+  //   isTestnet: true,
+  //   chain: klaytnBaobab,
+  // },
 ];
 
 export function chainIdToViemChain(chainId: SdkSupportedChainIds) {

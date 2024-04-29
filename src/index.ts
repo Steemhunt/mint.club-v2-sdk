@@ -11,6 +11,7 @@ import {
   optimism,
   polygon,
   sepolia,
+  klaytn,
 } from 'viem/chains';
 import { MintClubSDK } from './MintClubSDK';
 import {
@@ -53,6 +54,7 @@ export const supportedChains = [
   'avalanche',
   'base',
   'basesepolia',
+  'klaytn',
 ] as const;
 
 export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainIds> = {
@@ -70,6 +72,7 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   blastsepolia: blastSepolia.id,
   avalanchefuji: avalancheFuji.id,
   cybertestnet: cyberTestnet.id,
+  klaytn: klaytn.id,
 };
 
 export * from './exports';

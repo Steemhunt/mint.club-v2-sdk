@@ -7,6 +7,7 @@ import {
   blast,
   blastSepolia,
   bsc,
+  klaytn,
   mainnet,
   optimism,
   polygon,
@@ -27,6 +28,7 @@ import { SEPOLIA_TOKENS } from './sepolia';
 import { DEGEN_TOKENS } from './degen';
 import { BASE_SEPOLIA_TOKENS } from './base-sepolia';
 import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
+import { KLAYTN_TOKENS } from './klaytn';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
 export const COINGECKO_NETWORK_IDS = {
@@ -161,6 +163,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
+  [klaytn.id]: {
+    image: 'https://mint.club/assets/tokens/large/klaytn.png',
+    tokenAddress: '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A',
+    nativeSymbol: 'KLAY',
+    oneInchSymbol: 'USDC',
+    decimals: 6,
+  },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
@@ -180,6 +189,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [avalancheFuji.id]: AVALANCHE_FUJI_TOKENS,
   [degen.id]: DEGEN_TOKENS,
   [cyberTestnet.id]: CYBER_TESTNET_TOKENS,
+  [klaytn.id]: KLAYTN_TOKENS,
 };
 
 export type TokenChain = keyof typeof TOKENS;

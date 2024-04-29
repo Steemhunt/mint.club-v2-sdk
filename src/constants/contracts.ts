@@ -7,6 +7,7 @@ import {
   baseSepolia,
   blast,
   blastSepolia,
+  klaytn,
   bsc,
   mainnet,
   optimism,
@@ -62,6 +63,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [avalancheFuji.id]: '0xAD5a113ee65F30269f7558f96483126B1FB60c4E',
     [degen.id]: '0xaF987E88bf30581F7074E628c894A3FCbf4EE12e',
     [cyberTestnet.id]: '0x37F540de37afE8bDf6C722d87CB019F30e5E406a',
+    [klaytn.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
   },
 
   ERC1155: {
@@ -79,6 +81,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [avalancheFuji.id]: '0xB43826E079dFB2e2b48a0a473Efc7F1fe6391763',
     [degen.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [cyberTestnet.id]: '0x4bF67e5C9baD43DD89dbe8fCAD3c213C868fe881',
+    [klaytn.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
   },
 
   BOND: {
@@ -96,6 +99,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [avalancheFuji.id]: '0x20fBC8a650d75e4C2Dab8b7e85C27135f0D64e89',
     [degen.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [cyberTestnet.id]: '0x5dfA75b0185efBaEF286E80B847ce84ff8a62C2d',
+    [klaytn.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
   },
 
   ZAP: {
@@ -113,6 +117,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [avalancheFuji.id]: '0x60432191893c4F742205a2C834817a1891feC435',
     [degen.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
     [cyberTestnet.id]: '0x40c7DC399e01029a51cAb316f8Bca7D20DE31bad',
+    [klaytn.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
   },
 
   LOCKER: {
@@ -130,6 +135,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [avalancheFuji.id]: '0x789771E410527691729e54A84103594ee6Be6C3C',
     [degen.id]: '0xF44939c1613143ad587c79602182De7DcF593e33',
     [cyberTestnet.id]: '0x2c6B3fe4D6de27363cFEC95f703889EaF6b770fB',
+    [klaytn.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
   },
 
   MERKLE: {
@@ -147,6 +153,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [avalancheFuji.id]: '0x6d1f4ecd17ddA7fb39C56Da566b66d63f06671d9',
     [degen.id]: '0x5DaE94e149CF2112Ec625D46670047814aA9aC2a',
     [cyberTestnet.id]: '0xCbb23973235feA43E62C41a0c67717a92a2467f2',
+    [klaytn.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
   },
 
   ONEINCH: {
@@ -157,6 +164,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [polygon.id]: '0x0AdDd25a91563696D8567Df78D5A01C9a991F9B8',
     [bsc.id]: '0x0AdDd25a91563696D8567Df78D5A01C9a991F9B8',
     [base.id]: '0x0AdDd25a91563696D8567Df78D5A01C9a991F9B8',
+    [klaytn.id]: '0x',
     [sepolia.id]: '0x',
     [baseSepolia.id]: '0x',
     [blast.id]: '0x',
