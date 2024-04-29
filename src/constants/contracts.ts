@@ -164,7 +164,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [polygon.id]: '0x0AdDd25a91563696D8567Df78D5A01C9a991F9B8',
     [bsc.id]: '0x0AdDd25a91563696D8567Df78D5A01C9a991F9B8',
     [base.id]: '0x0AdDd25a91563696D8567Df78D5A01C9a991F9B8',
-    [klaytn.id]: '0x',
+    [klaytn.id]: '0x0AdDd25a91563696D8567Df78D5A01C9a991F9B8',
     [sepolia.id]: '0x',
     [baseSepolia.id]: '0x',
     [blast.id]: '0x',
