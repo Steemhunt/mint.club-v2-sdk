@@ -1,5 +1,5 @@
 import { Chain, FallbackTransportConfig, HttpTransportConfig, http } from 'viem';
-import { arbitrum, avalanche, base, blast, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains';
+import { arbitrum, avalanche, base, blast, bsc, cyber, mainnet, optimism, polygon, sepolia } from 'viem/chains';
 
 export type RPCList = {
   readonly id: number;
@@ -205,6 +205,10 @@ export const RPCS: Array<RPCList> = [
       // 'https://nodes.vefinetwork.org/smartchain',
       // 'https://bsc-dataseed6.dict.life',
     ],
+  },
+  {
+    id: cyber.id,
+    rpcs: ['https://cyber.alt.technology/', 'https://rpc.cyber.co/'],
   },
   {
     id: avalanche.id,

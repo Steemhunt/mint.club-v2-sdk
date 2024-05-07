@@ -13,10 +13,10 @@ import {
   polygon,
   sepolia,
   degen,
-  cyberTestnet
   cyber,
+  cyberTestnet,
 } from 'viem/chains';
-import { SdkSupportedChainIds,  } from '../contracts';
+import { SdkSupportedChainIds } from '../contracts';
 import { ARBITRUM_TOKENS } from './arbitrum';
 import { AVALANCHE_TOKENS } from './avalanche';
 import { AVALANCHE_FUJI_TOKENS } from './avalanche-fuji';
@@ -160,7 +160,7 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
-   [cyber.id]: {
+  [cyber.id]: {
     image: 'https://mint.club/assets/tokens/large/eth.png',
     tokenAddress: '0x4200000000000000000000000000000000000006',
     nativeSymbol: 'ETH',
