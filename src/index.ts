@@ -12,6 +12,9 @@ import {
   polygon,
   sepolia,
   klaytn,
+  degen,
+  cyber,
+  cyberTestnet,
 } from 'viem/chains';
 import { MintClubSDK } from './MintClubSDK';
 import {
@@ -28,8 +31,6 @@ import {
   ONEINCH_ABI,
   TOKENS,
   ZAP_ABI,
-  degen,
-  cyberTestnet,
 } from './exports';
 
 export const abis: Record<ContractNames, Abi> = {
@@ -55,6 +56,9 @@ export const supportedChains = [
   'base',
   'basesepolia',
   'klaytn',
+  'degen',
+  'cyber',
+  'cybertestnet',
 ] as const;
 
 export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainIds> = {
@@ -71,6 +75,7 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   blast: blast.id,
   blastsepolia: blastSepolia.id,
   avalanchefuji: avalancheFuji.id,
+  cyber: cyber.id,
   cybertestnet: cyberTestnet.id,
   klaytn: klaytn.id,
 };

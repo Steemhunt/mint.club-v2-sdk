@@ -13,9 +13,12 @@ import {
   optimism,
   polygon,
   sepolia,
+  degen,
+  cyber,
+  cyberTestnet,
 } from 'viem/chains';
 import { oneInchContract } from '../contracts';
-import { SdkSupportedChainIds, cyberTestnet, degen, toNumber } from '../exports';
+import { SdkSupportedChainIds, toNumber } from '../exports';
 
 export type USDValueOptions = {
   tokenAddress: `0x${string}`;
@@ -65,6 +68,7 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [blastSepolia.id]: { address: '0x', symbol: '', decimals: 0n },
     [avalancheFuji.id]: { address: '0x', symbol: '', decimals: 0n },
     [degen.id]: { address: '0x', symbol: '', decimals: 0n },
+    [cyber.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyberTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
     [klaytn.id]: { address: '0x', symbol: '', decimals: 0n },
   };

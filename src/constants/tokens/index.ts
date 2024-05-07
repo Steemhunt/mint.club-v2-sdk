@@ -12,8 +12,11 @@ import {
   optimism,
   polygon,
   sepolia,
+  degen,
+  cyberTestnet
+  cyber,
 } from 'viem/chains';
-import { SdkSupportedChainIds, cyberTestnet, degen } from '../contracts';
+import { SdkSupportedChainIds,  } from '../contracts';
 import { ARBITRUM_TOKENS } from './arbitrum';
 import { AVALANCHE_TOKENS } from './avalanche';
 import { AVALANCHE_FUJI_TOKENS } from './avalanche-fuji';
@@ -28,6 +31,7 @@ import { SEPOLIA_TOKENS } from './sepolia';
 import { DEGEN_TOKENS } from './degen';
 import { BASE_SEPOLIA_TOKENS } from './base-sepolia';
 import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
+import { CYBER_TOKENS } from './cyber';
 import { KLAYTN_TOKENS } from './klaytn';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
@@ -156,6 +160,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
+   [cyber.id]: {
+    image: 'https://mint.club/assets/tokens/large/eth.png',
+    tokenAddress: '0x4200000000000000000000000000000000000006',
+    nativeSymbol: 'ETH',
+    oneInchSymbol: 'USDT',
+    decimals: 18,
+  },
   [cyberTestnet.id]: {
     image: 'https://mint.club/assets/tokens/large/eth.png',
     tokenAddress: '0xf760686C2b40F7C526D040b979641293D2F55816',
@@ -188,6 +199,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [baseSepolia.id]: BASE_SEPOLIA_TOKENS,
   [avalancheFuji.id]: AVALANCHE_FUJI_TOKENS,
   [degen.id]: DEGEN_TOKENS,
+  [cyber.id]: CYBER_TOKENS,
   [cyberTestnet.id]: CYBER_TESTNET_TOKENS,
   [klaytn.id]: KLAYTN_TOKENS,
 };

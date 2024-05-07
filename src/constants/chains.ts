@@ -1,4 +1,4 @@
-import { defineChain, isAddress } from 'viem';
+import { isAddress } from 'viem';
 import {
   avalancheFuji,
   arbitrum,
@@ -8,15 +8,17 @@ import {
   blastSepolia,
   bsc,
   klaytn,
-  klaytnBaobab,
   mainnet,
   optimism,
   polygon,
   sepolia,
   baseSepolia,
+  cyber,
+  cyberTestnet,
+  degen,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
-import { cyberTestnet, degen, getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
+import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
 import * as chains from 'viem/chains';
 
 export type ChainType = {
@@ -25,6 +27,7 @@ export type ChainType = {
     | 'Ethereum'
     | 'Base'
     | 'Blast'
+    | 'Cyber'
     | 'Degen'
     | 'Optimism'
     | 'Arbitrum'
@@ -170,9 +173,9 @@ export const CHAINS: Array<ChainType> = [
   },
 
   {
-    id: cyberTestnet.id,
-    name: 'CyberTestnet',
-    icon: 'https://docs.cyber.co/assets/logo.svg',
+    id: cyber.id,
+    name: 'Cyber',
+    icon: 'https://mint.club/assets/networks/cyber@2x.png',
     color: '#32A0CD',
     openseaSlug: 'cyber-testnet',
     enabled: isAddress(getMintClubContractAddress('BOND', avalancheFuji.id)),
