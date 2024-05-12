@@ -200,7 +200,6 @@ export const CHAINS: Array<ChainType> = [
     color: '#C82812',
     openseaSlug: 'klaytn',
     enabled: isAddress(getMintClubContractAddress('BOND', klaytn.id)),
-    isTestnet: true,
     chain: klaytn,
   },
   // {
