@@ -1,7 +1,7 @@
 import MerkleTree from 'merkletreejs';
 import { Chain, isAddress, keccak256, maxUint256 } from 'viem';
 import { ContractNames, SdkSupportedChainIds, TokenType, getMintClubContractAddress } from '../constants/contracts';
-import { bondContract, erc1155Contract, erc20Contract } from '../contracts';
+import { bondContract, erc1155Contract, erc20Contract, zapContract } from '../contracts';
 import {
   AirdropContainsInvalidWalletError,
   SymbolNotDefinedError,
@@ -377,6 +377,41 @@ export class Token<T extends TokenType> {
       return bondContract.network(this.chainId).write({
         ...params,
         functionName: 'burn',
+        args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
+      });
+    } catch (e) {
+      onError?.(e);
+    }
+  }
+
+  public async buyWithZap(params: BuySellCommonParams) {
+    const { amount, slippage = 0, recipient, onError } = params;
+    try {
+      const connectedAddress = await this.getConnectedWalletAddress();
+      const [estimatedOutcome, royalty] = await this.getBuyEstimation(amount);
+      const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n + royalty;
+
+      return zapContract.network(this.chainId).write({
+        ...params,
+        functionName: 'mintWithEth',
+        args: [this.tokenAddress, amount, recipient || connectedAddress],
+        value: maxReserveAmount,
+      });
+    } catch (e) {
+      onError?.(e);
+    }
+  }
+
+  public async sellWithZap(params: BuySellCommonParams) {
+    const { amount, slippage = 0, recipient, onError } = params;
+    try {
+      const connectedAddress = await this.getConnectedWalletAddress();
+      const [estimatedOutcome, royalty] = await this.getBuyEstimation(amount);
+      const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n + royalty;
+
+      return zapContract.network(this.chainId).write({
+        ...params,
+        functionName: 'burnToEth',
         args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
       });
     } catch (e) {

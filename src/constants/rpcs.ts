@@ -6,6 +6,7 @@ import {
   blast,
   bsc,
   cyber,
+  cyberTestnet,
   degen,
   klaytn,
   mainnet,
@@ -62,6 +63,10 @@ export const RPCS: Array<RPCList> = [
   {
     id: cyber.id,
     rpcs: ['https://cyber.alt.technology/', 'https://rpc.cyber.co/'],
+  },
+  {
+    id: cyberTestnet.id,
+    rpcs: ['https://cyber-testnet.alt.technology'],
   },
   {
     id: optimism.id,
