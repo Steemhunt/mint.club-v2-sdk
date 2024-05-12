@@ -362,7 +362,7 @@ export class Token<T extends TokenType> {
 
       const bondApproved = await this.bondContractApproved({
         walletAddress: connectedAddress,
-        amountToSpend: amount,
+        amountToSpend: params?.allowanceAmount ?? amount,
         tradeType: 'sell',
       } as BondApprovedParams<T>);
 
@@ -402,12 +402,30 @@ export class Token<T extends TokenType> {
     }
   }
 
-  public async sellWithZap(params: BuySellCommonParams) {
+  public async sellWithZap(
+    params: BuySellCommonParams & {
+      allowanceAmount?: T extends 'ERC20' ? bigint : never;
+    },
+  ) {
     const { amount, slippage = 0, recipient, onError } = params;
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
       const [estimatedOutcome, royalty] = await this.getBuyEstimation(amount);
       const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n + royalty;
+
+      const bondApproved = await this.bondContractApproved({
+        walletAddress: connectedAddress,
+        amountToSpend: params?.allowanceAmount ?? amount,
+        tradeType: 'sell',
+      } as BondApprovedParams<T>);
+
+      if (!bondApproved) {
+        return this.approveBond({
+          ...params,
+          tradeType: 'sell',
+          amountToSpend: amount,
+        } as ApproveBondParams<T, 'sell'>);
+      }
 
       return zapContract.network(this.chainId).write({
         ...params,
