@@ -70,7 +70,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [blastSepolia.id]: '0x5dfA75b0185efBaEF286E80B847ce84ff8a62C2d',
     [avalancheFuji.id]: '0x20fBC8a650d75e4C2Dab8b7e85C27135f0D64e89',
     [degen.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
-    [cyberTestnet.id]: '0x40c7DC399e01029a51cAb316f8Bca7D20DE31bad',
+    [cyberTestnet.id]: '0x5dfA75b0185efBaEF286E80B847ce84ff8a62C2d',
     [klaytn.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [cyber.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
   },

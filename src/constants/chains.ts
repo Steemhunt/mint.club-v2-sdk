@@ -162,6 +162,16 @@ export const CHAINS: Array<ChainType> = [
   },
 
   {
+    id: cyber.id,
+    name: 'Cyber',
+    icon: 'https://mint.club/assets/networks/cyber@2x.png',
+    color: '#32A0CD',
+    openseaSlug: 'cyber',
+    enabled: isAddress(getMintClubContractAddress('BOND', cyber.id)),
+    chain: cyber,
+  },
+
+  {
     id: avalancheFuji.id,
     name: 'AvalancheFuji',
     icon: 'https://mint.club/assets/networks/avalanche@2x.png',
@@ -173,15 +183,16 @@ export const CHAINS: Array<ChainType> = [
   },
 
   {
-    id: cyber.id,
-    name: 'Cyber',
+    id: cyberTestnet.id,
+    name: 'CyberTestnet',
     icon: 'https://mint.club/assets/networks/cyber@2x.png',
     color: '#32A0CD',
     openseaSlug: 'cyber-testnet',
-    enabled: isAddress(getMintClubContractAddress('BOND', avalancheFuji.id)),
+    enabled: isAddress(getMintClubContractAddress('BOND', cyberTestnet.id)),
     isTestnet: true,
     chain: cyberTestnet,
   },
+
   {
     id: klaytn.id,
     name: 'Klaytn',
