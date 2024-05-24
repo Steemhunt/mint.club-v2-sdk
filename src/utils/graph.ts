@@ -1,7 +1,6 @@
 import lodash from 'lodash';
-const { uniqBy } = lodash;
-import { countDecimals, countLeadingZeros, handleScientificNotation } from './numbers';
 import { GenerateStepArgs } from '../types/bond.types';
+const { uniqBy } = lodash;
 
 export const enum CurveEnum {
   FLAT = 'FLAT',
@@ -62,19 +61,11 @@ export function generateSteps(form: GenerateStepArgs) {
   const totalX = maxSupply - creatorAllocation - deltaX;
   const totalY = maxPrice - startingPrice;
 
-  /*
-  In the EXPONENTIAL case, the formula used is y = startingPrice + a(x - creatorAllocation)^2, where "a" is the coefficient and "x" is the current step.
-  */
-  const coefficientExponential = totalY / Math.pow(totalX, 2);
-  /*
-  In the LOGARITHMIC case, the formula is y = startingPrice + b * ln(x - creatorAllocation), where "b" is the coefficient and "x" is the current step.
-  */
-  // OLD: this is the old formula, but it's too steep
-  // const coefficientLogarithmic = totalY / Math.log(totalX);
-
-  // NEW: this is the new formula, which is less steep, using Math.pow
   const exponent = 0.5; // This can be adjusted to control the curve steepness
   const coefficientPower = totalY / Math.pow(totalX, exponent);
+
+  // handle exponential curves separately.
+  const percentageIncrease = Math.pow(maxPrice / startingPrice, 1 / (stepCount - 1));
 
   for (let i = extraStepCount; i <= stepCount + extraStepCount; i++) {
     let x = i * deltaX + creatorAllocation;
@@ -90,17 +81,17 @@ export function generateSteps(form: GenerateStepArgs) {
         y = stepPerPrice * (x - extraStepCount - creatorAllocation) + startingPrice;
         break;
       case CurveEnum.EXPONENTIAL:
-        y = startingPrice + coefficientExponential * Math.pow(x - extraStepCount - creatorAllocation, 2);
+        if (i === 0) {
+          y = startingPrice;
+        } else {
+          const prevY = stepPoints[i - 1].y;
+          y = prevY * percentageIncrease;
+        }
+
         break;
       case CurveEnum.LOGARITHMIC:
         if (x - creatorAllocation === 0) y = startingPrice;
         else {
-          // OLD - using Math.log
-          // y =
-          //   startingPrice +
-          //   coefficientLogarithmic * Math.log(x - creatorAllocation);
-
-          // NEW - using Math.pow
           y = startingPrice + coefficientPower * Math.pow(x - extraStepCount - creatorAllocation, exponent);
         }
         break;
@@ -110,11 +101,8 @@ export function generateSteps(form: GenerateStepArgs) {
 
     // interval range: leading 0 of deltaX + 3
     // price: max price decimal count + 3
-    const leadingZeros = countLeadingZeros(handleScientificNotation(deltaX));
     if (tokenType === 'ERC1155') {
       x = Number(x.toFixed(0));
-    } else if (leadingZeros !== undefined && leadingZeros > 0) {
-      x = Number(x.toFixed(leadingZeros + 3));
     } else {
       x = formatGraphPoint(x, 18); // mint club generates 18 decimals
     }
@@ -129,11 +117,9 @@ export function generateSteps(form: GenerateStepArgs) {
     } else {
       // there are cases where y is negative (e.g. when the curve is logarithmic and the starting price is 0)
       // in those cases, we set y to 0
-      stepPoints.push({ x, y: Math.min(y || 0, maxPrice) });
+      stepPoints.push({ x, y: Math.min(y ?? 0, maxPrice) });
     }
   }
-
-  // console.log({ stepPoints });
 
   // If the starting price is 0, call it again to set the first step to the first point
   if (startingPrice === 0) {
