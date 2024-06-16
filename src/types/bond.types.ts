@@ -58,17 +58,20 @@ export type ApproveBondParams<T extends TokenType, TT extends TradeType = TradeT
       tradeType: TT;
       amountToSpend?: bigint;
       allowanceAmount?: bigint;
+      isZap?: boolean;
     }
   : T extends 'ERC20'
     ? {
         tradeType: TT;
         amountToSpend?: bigint;
         allowanceAmount?: bigint;
+        isZap?: boolean;
       }
     : {
         // for ERC1155 sell, allowance amount is either true or false
         tradeType: TT;
         amountToSpend?: bigint;
+        isZap?: boolean;
       }) &
   WriteTransactionCallbacks;
 
@@ -77,17 +80,20 @@ export type BondApprovedParams<T extends TokenType, TT extends TradeType = Trade
       walletAddress: `0x${string}`;
       amountToSpend: bigint;
       tradeType: TT;
+      isZap?: boolean;
     }
   : TT extends 'buy'
     ? {
         walletAddress: `0x${string}`;
         amountToSpend: bigint;
         tradeType: TT;
+        isZap?: boolean;
       }
     : TT extends 'sell'
       ? {
           walletAddress: `0x${string}`;
           tradeType: TT;
+          isZap?: boolean;
         }
       : never;
 

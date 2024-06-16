@@ -69,14 +69,14 @@ export class Token<T extends TokenType> {
   }
 
   public async bondContractApproved(params: BondApprovedParams<T>) {
-    const { tradeType, walletAddress } = params;
+    const { tradeType, walletAddress, isZap } = params;
     const tokenToApprove = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
       return erc1155Contract.network(this.chainId).read({
         tokenAddress: this.tokenAddress,
         functionName: 'isApprovedForAll',
-        args: [walletAddress, getMintClubContractAddress('BOND', this.chainId)],
+        args: [walletAddress, getMintClubContractAddress(isZap ? 'ZAP' : 'BOND', this.chainId)],
       });
     }
 
@@ -88,7 +88,7 @@ export class Token<T extends TokenType> {
     const allowance = await erc20Contract.network(this.chainId).read({
       tokenAddress: tokenToApprove,
       functionName: 'allowance',
-      args: [walletAddress, getMintClubContractAddress('BOND', this.chainId)],
+      args: [walletAddress, getMintClubContractAddress(isZap ? 'ZAP' : 'BOND', this.chainId)],
     });
 
     return allowance >= amountToSpend;
@@ -146,7 +146,7 @@ export class Token<T extends TokenType> {
   }
 
   private async approveBond(params: ApproveBondParams<T>) {
-    const { tradeType, onAllowanceSignatureRequest, onAllowanceSigned, onAllowanceSuccess } = params;
+    const { isZap, tradeType, onAllowanceSignatureRequest, onAllowanceSigned, onAllowanceSuccess } = params;
     const tokenToCheck = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
@@ -157,7 +157,7 @@ export class Token<T extends TokenType> {
         onSuccess: onAllowanceSuccess,
         tokenAddress: this.tokenAddress,
         functionName: 'setApprovalForAll',
-        args: [getMintClubContractAddress('BOND', this.chainId), true],
+        args: [getMintClubContractAddress(isZap ? 'ZAP' : 'BOND', this.chainId), true],
       });
     } else {
       let amountToSpend = maxUint256;
@@ -173,7 +173,7 @@ export class Token<T extends TokenType> {
         onSuccess: onAllowanceSuccess,
         tokenAddress: tokenToCheck,
         functionName: 'approve',
-        args: [getMintClubContractAddress('BOND', this.chainId), amountToSpend],
+        args: [getMintClubContractAddress(isZap ? 'ZAP' : 'BOND', this.chainId), amountToSpend],
       });
     }
   }
@@ -417,6 +417,7 @@ export class Token<T extends TokenType> {
         walletAddress: connectedAddress,
         amountToSpend: params?.allowanceAmount ?? amount,
         tradeType: 'sell',
+        isZap: true,
       } as BondApprovedParams<T>);
 
       if (!bondApproved) {
@@ -424,6 +425,7 @@ export class Token<T extends TokenType> {
           ...params,
           tradeType: 'sell',
           amountToSpend: amount,
+          isZap: true,
         } as ApproveBondParams<T, 'sell'>);
       }
 
