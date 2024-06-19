@@ -19,6 +19,7 @@ import {
 } from 'viem/chains';
 import { oneInchContract } from '../contracts';
 import { SdkSupportedChainIds, toNumber } from '../exports';
+import { ham } from '../custom-chains/ham';
 
 export type USDValueOptions = {
   tokenAddress: `0x${string}`;
@@ -71,6 +72,7 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [cyber.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyberTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
     [klaytn.id]: { address: '0x', symbol: '', decimals: 0n },
+    [ham.id]: { address: '0x', symbol: '', decimals: 0n },
   };
 
 export class OneInch {

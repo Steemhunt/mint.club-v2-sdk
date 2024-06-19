@@ -16,6 +16,7 @@ import {
   cyberTestnet,
   degen,
 } from 'viem/chains';
+import { ham } from '../custom-chains/ham';
 
 const SDK_CONTRACT_ADDRESSES = {
   ERC20: {
@@ -35,6 +36,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [cyberTestnet.id]: '0x37F540de37afE8bDf6C722d87CB019F30e5E406a',
     [klaytn.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [cyber.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
+    [ham.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
   },
 
   ERC1155: {
@@ -54,6 +56,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [cyberTestnet.id]: '0x4bF67e5C9baD43DD89dbe8fCAD3c213C868fe881',
     [klaytn.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [cyber.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
+    [ham.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
   },
 
   BOND: {
@@ -73,6 +76,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [cyberTestnet.id]: '0x5dfA75b0185efBaEF286E80B847ce84ff8a62C2d',
     [klaytn.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [cyber.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
+    [ham.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
   },
 
   ZAP: {
@@ -92,6 +96,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [cyberTestnet.id]: '0x40c7DC399e01029a51cAb316f8Bca7D20DE31bad',
     [klaytn.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [cyber.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
+    [ham.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
   },
 
   LOCKER: {
@@ -111,6 +116,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [cyberTestnet.id]: '0x2c6B3fe4D6de27363cFEC95f703889EaF6b770fB',
     [klaytn.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [cyber.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
+    [ham.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
   },
 
   MERKLE: {
@@ -130,6 +136,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [cyberTestnet.id]: '0xCbb23973235feA43E62C41a0c67717a92a2467f2',
     [klaytn.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [cyber.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
+    [ham.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
   },
 
   ONEINCH: {
@@ -149,6 +156,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [degen.id]: '0x',
     [cyberTestnet.id]: '0x',
     [cyber.id]: '0x',
+    [ham.id]: '0x',
   },
 } as const;
 

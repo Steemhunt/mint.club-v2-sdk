@@ -20,6 +20,7 @@ import {
 import { ChainNotSupportedError } from '../errors/sdk.errors';
 import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
 import * as chains from 'viem/chains';
+import { ham } from '../custom-chains/ham';
 
 export type ChainType = {
   readonly id: SdkSupportedChainIds;
@@ -36,6 +37,7 @@ export type ChainType = {
     | 'BNBChain'
     | 'Sepolia'
     | 'Klaytn'
+    | 'Ham'
     | 'BaseSepolia'
     | 'AvalancheFuji'
     | 'BlastSepolia'
@@ -169,6 +171,16 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'cyber',
     enabled: isAddress(getMintClubContractAddress('BOND', cyber.id)),
     chain: cyber,
+  },
+
+  {
+    id: ham.id,
+    name: 'Ham',
+    icon: '/assets/networks/ham@2x.png',
+    color: '#EB4747',
+    openseaSlug: 'ham',
+    enabled: isAddress(getMintClubContractAddress('BOND', ham.id)),
+    chain: ham,
   },
 
   {

@@ -32,6 +32,7 @@ import {
   TOKENS,
   ZAP_ABI,
 } from './exports';
+import { ham } from './custom-chains/ham';
 
 export const abis: Record<ContractNames, Abi> = {
   BOND: BOND_ABI,
@@ -57,6 +58,7 @@ export const supportedChains = [
   'basesepolia',
   'klaytn',
   'degen',
+  'ham',
   'cyber',
   'cybertestnet',
 ] as const;
@@ -76,6 +78,7 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   blastsepolia: blastSepolia.id,
   avalanchefuji: avalancheFuji.id,
   cyber: cyber.id,
+  ham: ham.id,
   cybertestnet: cyberTestnet.id,
   klaytn: klaytn.id,
 };

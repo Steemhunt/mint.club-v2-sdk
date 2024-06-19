@@ -33,6 +33,8 @@ import { BASE_SEPOLIA_TOKENS } from './base-sepolia';
 import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
 import { CYBER_TOKENS } from './cyber';
 import { KLAYTN_TOKENS } from './klaytn';
+import { ham } from '../../custom-chains/ham';
+import { HAM_TOKENS } from './ham';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
 export const COINGECKO_NETWORK_IDS = {
@@ -181,6 +183,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 6,
   },
+  [ham.id]: {
+    image: 'https://mint.club/assets/tokens/large/eth.png',
+    tokenAddress: '0x4200000000000000000000000000000000000006',
+    nativeSymbol: 'ETH',
+    oneInchSymbol: 'USDC',
+    decimals: 18,
+  },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
@@ -202,6 +211,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [cyber.id]: CYBER_TOKENS,
   [cyberTestnet.id]: CYBER_TESTNET_TOKENS,
   [klaytn.id]: KLAYTN_TOKENS,
+  [ham.id]: HAM_TOKENS,
 };
 
 export type TokenChain = keyof typeof TOKENS;
