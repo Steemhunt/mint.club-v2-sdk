@@ -176,7 +176,7 @@ export const CHAINS: Array<ChainType> = [
   {
     id: ham.id,
     name: 'Ham',
-    icon: '/assets/networks/ham@2x.png',
+    icon: 'https://mint.club/assets/networks/ham@2x.png',
     color: '#EB4747',
     openseaSlug: 'ham',
     enabled: isAddress(getMintClubContractAddress('BOND', ham.id)),
