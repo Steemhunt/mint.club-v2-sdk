@@ -1,0 +1,659 @@
+# Airdrop Claim Frame [A frame for airdrop claim on Warpcast]
+
+Below is a simple example code for an airdrop claim frame on Warpcast.
+
+![alt](https://i.imgur.com/LJcY5wB.png)
+
+## Dependencies
+
+```json
+{
+  "name": "mcv2-frames",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "frog dev",
+    "serve": "bun run src/index.tsx"
+  },
+  "dependencies": {
+    "@neynar/nodejs-sdk": "^1.29.0",
+    "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
+    "frog": "latest",
+    "hono": "^4",
+    "ky": "^1.3.0",
+    "lodash-es": "^4.17.21",
+    "merkletreejs": "^0.3.11",
+    "mint.club-v2-sdk": "1.0.3",
+    "query-string": "^9.0.0",
+    "tailwind-merge": "^2.3.0",
+    "valibot": "^0.30.0",
+    "viem": "^2.16.3",
+    "winston": "^3.13.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/lodash-es": "^4.17.12",
+    "bun": "latest",
+    "prettier-plugin-tailwindcss": "^0.5.14"
+  },
+}
+
+```
+
+## Logics
+
+:::code-group
+
+```tsx [index.tsx]
+import { Frog } from 'frog';
+import { devtools } from 'frog/dev';
+import { serveStatic } from 'frog/serve-static';
+import { airdrop } from './routes/airdrop/frame';
+import { getPublicUrl } from './utils/url';
+import { SECRET } from './envs/server-env';
+
+const origin = getPublicUrl();
+
+export const app = new Frog({
+  assetsPath: '/',
+  basePath: '/',
+  origin,
+  secret: SECRET,
+  imageOptions: {
+    width: 764,
+    height: 400,
+    fonts: [
+      {
+        name: 'Poetsen One',
+        source: 'google',
+      },
+    ],
+  },
+});
+
+app.route('/airdrop', airdrop);
+
+app.use('/*', serveStatic({ root: './public' }));
+devtools(app, { serveStatic });
+
+const PORT = process.env.PORT || 5173;
+
+if (typeof Bun !== 'undefined') {
+  Bun.serve({
+    fetch: app.fetch,
+    port: process.env.PORT || 5173,
+  });
+  console.log(`Server is running on port ${PORT}`);
+}
+```
+
+```tsx [routes/airdrop/frame.ts]
+import { Button, ContractTransactionParameters, Frog } from 'frog';
+import ky from 'ky';
+import { truncate } from 'lodash-es';
+import {
+  CHAIN_MAP,
+  MERKLE_ABI,
+  SdkSupportedChainIds,
+  chainIdToString,
+  commify,
+  getMintClubContractAddress,
+  mintclub,
+  shortenNumber,
+} from 'mint.club-v2-sdk';
+import queryString from 'query-string';
+import { Tag } from '../../shared/tag';
+import { framesChainIdSupported } from '../../utils/frames-utils';
+import { Logger } from '../../utils/logger';
+import { verifyMerkleProof } from '../../utils/merkle';
+import { humanReadableTimeString } from '../../utils/time';
+import { getPublicUrl } from '../../utils/url';
+import { getPublicClientForChain } from '../../utils/viem-utils';
+import { AirdropApiResponse } from './airdrop.types';
+
+export const airdrop = new Frog<{
+  State: {
+    transactionId?: string;
+  };
+}>({
+  imageAspectRatio: '1:1',
+  imageOptions: {
+    width: 600,
+    height: 600,
+    fonts: [
+      {
+        name: 'Wix Madefor Display',
+        source: 'google',
+        weight: 700,
+      },
+    ],
+  },
+  initialState: {},
+});
+
+// Claim success frame
+airdrop.frame('/claim/:chainId/:distributionId', async (c) => {
+  const chainId = c.req.param('chainId');
+  const distributionId = c.req.param('distributionId');
+  const { transactionId: _transactionId, previousState, deriveState } = c;
+
+  const transactionId = previousState?.transactionId ?? _transactionId;
+
+  if (transactionId) {
+    deriveState((prev) => {
+      prev.transactionId = _transactionId;
+    });
+
+    const publicClient = getPublicClientForChain(Number(chainId));
+
+    const receipt = await publicClient
+      .getTransactionReceipt({
+        hash: transactionId as `0x${string}`,
+      })
+      .catch((e) => {
+        Logger.warn(`Transaction ${transactionId} not mined yet`);
+        return null;
+      });
+
+    // fail
+    if (receipt?.status === 'reverted') {
+      return c.res({
+        image: (
+          <div tw="flex h-full w-full flex-col items-center justify-center text-3xl text-white">
+            <AirdropBackground />
+            <div tw="h-15 w-15 flex items-center justify-center rounded-full bg-white">
+              ❌
+            </div>
+            <div tw="my-5">Claim failed</div>
+            <span tw="text-lg">Try again :c</span>
+          </div>
+        ),
+        intents: [<Button.Reset>Back</Button.Reset>],
+      });
+    }
+
+    // success
+    if (receipt?.status === 'success') {
+      const shareQs = queryString.stringify({
+        text: `I just claimed an airdrop from /mintclub 💚`,
+        'embeds[]': `${getPublicUrl()}/airdrop/${chainId}/${distributionId}`,
+      });
+
+      const warpcastShareLink = `https://warpcast.com/~/compose?${shareQs}`;
+      return c.res({
+        image: (
+          <div tw="flex h-full w-full flex-col items-center justify-center text-3xl text-white">
+            <AirdropBackground />
+            <div tw="h-15 w-15 flex items-center justify-center rounded-full bg-white">
+              👏
+            </div>
+            <div tw="my-5">Claim success!</div>
+            <span tw="text-lg">You successfully claimed the airdrop</span>
+          </div>
+        ),
+        intents: [<Button.Link href={warpcastShareLink}>Share</Button.Link>],
+      });
+    }
+  }
+
+  return c.res({
+    image: (
+      <div tw="flex h-full w-full flex-col items-center justify-center text-3xl text-white">
+        <AirdropBackground />
+        <div tw="h-15 w-15 flex items-center justify-center rounded-full bg-white">
+          💚
+        </div>
+        <div tw="my-5">Claim Tx in progress</div>
+        <span tw="text-lg">Count to 10 and click refresh</span>
+      </div>
+    ),
+    intents: [<Button>Refresh</Button>],
+  });
+});
+
+// default claim frame
+airdrop.frame('/:chainId/:distributionId', async (c) => {
+  let chainId = +c.req.param('chainId');
+  let distributionId = +c.req.param('distributionId');
+
+  if (isNaN(Number(chainId))) {
+    chainId = 8453;
+  }
+
+  const framesSupported = framesChainIdSupported(Number(chainId));
+  const browserLocation = `https://mint.club/airdrops/${chainIdToString(Number(chainId))}/${distributionId}`;
+
+  return c.res({
+    browserLocation,
+    image: `/image/${chainId}/${distributionId}/${Date.now()}`,
+    intents: [
+      framesSupported ? (
+        <Button.Transaction
+          target={`/tx/${chainId}/${distributionId}`}
+          action={`/claim/${chainId}/${distributionId}`}
+        >
+          Claim
+        </Button.Transaction>
+      ) : (
+        <Button.Link href={browserLocation}>Claim</Button.Link>
+      ),
+    ],
+  });
+});
+
+// Claim transaction route
+airdrop.transaction('/tx/:chainId/:distributionId', async (c) => {
+  const userAddress = c.address as `0x${string}`;
+  const chainId = +c.req.param('chainId');
+  const distributionId = +c.req.param('distributionId');
+
+  const data = await ky
+    .get(
+      `https://mint.club/api/distribution/detail/${chainId}/${distributionId}`,
+    )
+    .json<AirdropApiResponse>();
+
+  if (data.claimedCount >= data.walletCount) {
+    return c.error({
+      message: 'Airdrop claim is finished',
+    });
+  }
+
+  // check if already claimed
+  const alreadyClaimed = await mintclub
+    .network(chainId as SdkSupportedChainIds)
+    .airdrop.getIsClaimed(distributionId, userAddress);
+
+  if (alreadyClaimed) {
+    return c.error({
+      message: 'You have already claimed this airdrop',
+    });
+  }
+
+  let merkleProof: `0x${string}`[] = [];
+
+  // for private airdrops
+  if (data?.ipfsCID) {
+    const list = await ky
+      .get(`https://mint.club/api/ipfs/whitelist/${data.ipfsCID}`)
+      .json<string[]>();
+
+    const { verified, proof } = verifyMerkleProof(
+      data.merkleRoot,
+      userAddress,
+      list,
+    );
+
+    if (!verified) {
+      return c.error({
+        message: 'You are not eligible for this airdrop',
+      });
+    }
+
+    merkleProof = proof;
+  }
+
+  return c.contract({
+    abi: MERKLE_ABI,
+    to: getMintClubContractAddress(
+      'MERKLE',
+      Number(chainId) as SdkSupportedChainIds,
+    ),
+    chainId: `eip155:${chainId}` as ContractTransactionParameters['chainId'],
+    functionName: 'claim',
+    args: [BigInt(distributionId), merkleProof],
+  });
+});
+
+// default claim image route
+airdrop.image('/image/:chainId/:distributionId/:t', async (c) => {
+  const chainId = c.req.param('chainId');
+  const distributionId = c.req.param('distributionId');
+
+  const data = await ky
+    .get(
+      `https://mint.club/api/distribution/detail/${chainId}/${distributionId}`,
+      // `https://mint.club/api/distribution/detail/8453/1109`,
+    )
+    .json<AirdropApiResponse>();
+
+  const chainData = CHAIN_MAP[Number(chainId) as SdkSupportedChainIds];
+  const logo = data.token?.metadata?.logo;
+
+  const {
+    title: _title,
+    endTime,
+    walletCount,
+    amountPerClaim,
+    claimedCount,
+    token,
+  } = data;
+  const title = _title?.split('\n')?.[0];
+  const { symbol = '' } = token || {};
+  const total = walletCount * amountPerClaim;
+  const claimedAmount = claimedCount * amountPerClaim;
+  const remainingAmount = total - claimedAmount;
+  const progress = (remainingAmount / total) * 100;
+
+  return c.res({
+    image: (
+      <div tw="flex h-full w-full flex-col justify-between p-5 text-2xl text-white">
+        <AirdropBackground />
+
+        <img
+          tw="absolute right-[24px] top-[24px]"
+          src={'https://mint.club/assets/icons/mint-logo.png'}
+          width={24}
+          height={24}
+        />
+        <div tw="flex flex-col items-start">
+          <div tw="relative flex items-center">
+            {logo ? (
+              <img
+                tw="rounded-full"
+                src={`https://res.cloudinary.com/merkle-manufactory/image/fetch/c_pad,w_48,h_48,f_png/${logo}`}
+                width={48}
+                height={48}
+                alt=""
+              />
+            ) : symbol ? (
+              <div tw="flex h-[48px] w-[48px] items-center justify-center rounded-full border-2 border-[#64ffa1] text-lg">
+                {symbol.substring(0, 3).toUpperCase()}
+              </div>
+            ) : null}
+          </div>
+          <div tw="my-2 flex">
+            {truncate(title, {
+              length: 50,
+            })}
+          </div>
+          <div
+            tw="flex justify-start"
+            style={{
+              gap: 10,
+            }}
+          >
+            <Tag
+              tw="text-black"
+              style={{
+                background: 'linear-gradient(to right, #c6f120, #64ffa1)',
+              }}
+            >
+              {commify(data?.amountPerClaim.toString())} {data?.token?.symbol}{' '}
+              per wallet
+            </Tag>
+            <Tag>{data.isERC20 ? 'Token' : 'NFT'}</Tag>
+            {chainData && (
+              <Tag>
+                <div tw="flex items-center">
+                  <img tw="mr-1" src={chainData?.icon} width={16} height={16} />
+                  {chainData?.name}
+                </div>
+              </Tag>
+            )}
+          </div>
+        </div>
+
+        <div tw="mt-10 flex w-full flex-col flex-wrap rounded-lg border border-[#243141] p-5 text-base text-gray-500">
+          <div tw="text-xl text-white">Airdrop Details</div>
+          <div tw="mt-5 flex w-full justify-between">
+            <div tw="flex w-1/2 flex-col">
+              <span>Total pool size</span>
+              <span tw="text-lg text-white">
+                {shortenNumber(total)} {symbol}
+              </span>
+            </div>
+
+            <div tw="flex w-1/2 flex-col">
+              <span>Claims</span>
+              <span tw="text-lg text-white">
+                {commify(claimedCount)} / {commify(walletCount)}
+              </span>
+            </div>
+          </div>
+
+          <div tw="mt-2 flex w-full justify-between">
+            <div tw="flex w-1/2 flex-col">
+              <span>Amount per wallet</span>
+              <span tw="text-lg text-white">
+                {commify(amountPerClaim)} {symbol}
+              </span>
+            </div>
+
+            <div tw="flex w-1/2 flex-col">
+              <span>Closes on</span>
+              <span tw="text-lg text-white">
+                {humanReadableTimeString(new Date(endTime * 1000))}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div tw="mt-5 flex w-full flex-col items-start rounded-lg border border-[#243141] p-5 text-xl">
+          <div>Airdrop Progress</div>
+          <div tw="mt-5 flex w-full flex-col items-start">
+            {shortenNumber(remainingAmount)} {data?.token?.symbol} left
+          </div>
+
+          <div tw="relative mt-2 flex h-[4px] w-full bg-[#1C1E1F]">
+            <div
+              tw="absolute flex"
+              style={{
+                width: `${progress}%`,
+                background: 'linear-gradient(to right, #c6f120, #64ffa1)',
+                height: '100%',
+              }}
+            />
+          </div>
+          <div tw="mt-1 flex w-full justify-end text-sm text-gray-500">
+            {(100 - progress).toFixed(2)}% claimed
+          </div>
+        </div>
+      </div>
+    ),
+  });
+});
+
+function AirdropBackground() {
+  return (
+    <img
+      tw="absolute h-screen w-screen"
+      src="https://i.imgur.com/pUGFjdN.png"
+      width="100%"
+      height="100%"
+    />
+  );
+}
+```
+
+```tsx [routes/airdrop/airdrop.types.ts]
+export type AirdropApiResponse = {
+  isERC20: boolean;
+  walletCount: number;
+  claimedCount: number;
+  amountPerClaim: number;
+  startTime: number;
+  tokenAddress: string;
+  endTime: number;
+  title: string;
+  owner: string;
+  refundedAt: number;
+  merkleRoot: string;
+  ipfsCID: string;
+  token: {
+    reserveToken: {
+      tokenAddress: string;
+    };
+    name: string;
+    symbol: string;
+    tokenType: string;
+    metadata?: {
+      logo: string;
+    };
+  };
+};
+
+```
+
+```tsx [envs/server-env.ts]
+import dotenv from 'dotenv';
+import { object, parse, string } from 'valibot';
+
+dotenv.config();
+
+const envSchema = object({
+  SECRET: string('SECRET is required'),
+  NEYNAR_API_KEY: string('NEYNAR_API_KEY is required'),
+});
+
+export const { SECRET, NEYNAR_API_KEY } = parse(
+  envSchema,
+  process.env,
+);
+```
+
+
+:::
+
+## Utilities
+
+:::code-group
+
+```tsx [shared/tag.tsx]
+import { CSSProperties } from 'hono/jsx';
+import { cn } from '../utils/classnames';
+
+export function Tag(props: {
+  children: JSX.Element | string[] | string;
+  tw?: string;
+  style?: CSSProperties;
+}) {
+  return (
+    <div
+      tw={cn(
+        'flex items-center justify-center rounded-lg border bg-[#161E29] px-2 py-1 text-sm',
+        props.tw,
+      )}
+      style={props.style}
+    >
+      {props.children}
+    </div>
+  );
+}
+```
+
+```tsx [frames-utils.ts]
+const mainnets = [1, 42161, 8453, 666666666, 100, 10, 7777777];
+const testnets = [11155111, 421614, 84532, 11155420];
+
+export function framesChainIdSupported(chainId: number): boolean {
+  return [...mainnets, ...testnets].includes(chainId);
+}
+```
+
+```tsx [logger.ts]
+import { format, createLogger, transports } from 'winston';
+
+const { printf, combine, timestamp, colorize } = format;
+const colorizer = colorize();
+
+colorizer.addColors({
+  http: 'cyan',
+  error: 'red',
+});
+
+export const Logger = createLogger({
+  level: 'http',
+  levels: {
+    error: 0,
+    warn: 1,
+    info: 2,
+    http: 3,
+    verbose: 4,
+    debug: 5,
+  },
+  format: combine(
+    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    printf(({ message, level, timestamp }) =>
+      colorizer.colorize(level, `[${timestamp}]: ${message}`),
+    ),
+  ),
+  transports: new transports.Console(),
+});
+```
+
+```tsx [merkle.ts]
+import MerkleTree from 'merkletreejs';
+import { getAddress, keccak256 } from 'viem';
+
+export function verifyMerkleProof(
+  merkleRoot: string,
+  address: string,
+  list: string[],
+) {
+  const leaves = list.map((address) => keccak256(getAddress(address)));
+  const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
+
+  const leaf = keccak256(getAddress(address));
+  const proof = tree.getProof(leaf);
+  const formattedProof = proof.map(
+    (obj) => '0x' + obj.data.toString('hex'),
+  ) as `0x${string}`[];
+
+  const verified = tree.verify(proof, leaf, merkleRoot);
+
+  return {
+    verified,
+    proof: formattedProof,
+  };
+}
+```
+
+```tsx [time.ts]
+export function humanReadableTimeString(date: Date) {
+  const options: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'UTC',
+  };
+
+  return date.toLocaleString('en-GB', options).replace(',', '') + ' UTC';
+}
+```
+
+```tsx [url.ts]
+export function getPublicUrl() {
+  return process.env.NODE_ENV !== 'production'
+    ? `http://localhost:${process.env.PORT}`
+    : '[YOUR PRODUCTION URL]';
+}
+```
+
+```tsx [viem-utils.ts]
+import { createPublicClient, http } from 'viem';
+import { ham } from 'viem/chains';
+import * as chains from 'viem/chains';
+
+export function chainIdToViemChain(chainId: number) {
+  if (chainId === 5112) return ham;
+
+  return Object.values({
+    ...chains,
+  }).find((chain) => chain.id === chainId);
+}
+
+export function getPublicClientForChain(chainId: number) {
+  return createPublicClient({
+    transport: http(),
+    chain: chainIdToViemChain(Number(chainId)),
+  });
+}
+```
+
+:::

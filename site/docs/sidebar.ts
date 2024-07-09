@@ -36,6 +36,36 @@ export const sidebar = {
           link: '/docs/sdk/introduction',
         },
         {
+          text: '🍳 Recipes',
+          collapsed: true,
+          items: [
+            {
+              text: 'Farcaster Frames',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Required Ingredients',
+                  link: '/docs/recipes/frog',
+                },
+                {
+                  text: 'Airdrop Claim Frame',
+                  link: '/docs/recipes/airdrop-claim',
+                },
+              ],
+            },
+            // {
+            //   text: 'Scripts',
+            //   collapsed: true,
+            //   items: [
+            //     {
+            //       text: 'Minting & Sending to NFT Holders',
+            //       link: '/docs/recipes/airdrop-claim',
+            //     },
+            //   ],
+            // },
+          ],
+        },
+        {
           text: '👛 wallet',
           collapsed: true,
           items: [
