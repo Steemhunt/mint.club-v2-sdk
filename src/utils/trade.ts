@@ -7,7 +7,8 @@ export function calculateRoyalty(amount: bigint, rate: number): bigint {
 
 // Utility function to find the current step index based on the current supply
 function getCurrentStepIndex(currentSupply: bigint, bondSteps: BondSteps): number {
-  return bondSteps.findIndex((step) => currentSupply < step.rangeTo) || bondSteps.length - 1;
+  const stepIndex = bondSteps.findIndex((step) => currentSupply < step.rangeTo);
+  return stepIndex === -1 ? bondSteps.length - 1 : stepIndex;
 }
 
 // Common function to calculate adjustments for minting and burning
