@@ -33,7 +33,7 @@ export class Ipfs {
     return valid;
   }
 
-  public hashToGatewayUrl(hash: string, gateway = 'https://cf-ipfs.com/ipfs/') {
+  public hashToGatewayUrl(hash: string, gateway = 'https://ipfs.io/ipfs/') {
     if (hash.includes('ipfs://')) {
       hash = hash.replace('ipfs://', '');
     }

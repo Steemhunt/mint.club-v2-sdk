@@ -104,7 +104,7 @@ export class Airdrop {
       .get(`ipfs/whitelist?cid=${ipfsCID}`)
       .json<`0x${string}`[]>()
       .catch(() => {
-        return baseFetcher.get(`https://cf-ipfs.com/ipfs/${ipfsCID}`).json<`0x${string}`[]>();
+        return baseFetcher.get(`https://ipfs.io/ipfs/${ipfsCID}`).json<`0x${string}`[]>();
       });
     return merkleProof;
   }
