@@ -53,16 +53,16 @@ export const sidebar = {
                 },
               ],
             },
-            // {
-            //   text: 'Scripts',
-            //   collapsed: true,
-            //   items: [
-            //     {
-            //       text: 'Minting & Sending to NFT Holders',
-            //       link: '/docs/recipes/airdrop-claim',
-            //     },
-            //   ],
-            // },
+            {
+              text: 'Snippets',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Calculating reverse input',
+                  link: '/docs/recipes/snippets/reverse-calculation',
+                },
+              ],
+            },
           ],
         },
         {

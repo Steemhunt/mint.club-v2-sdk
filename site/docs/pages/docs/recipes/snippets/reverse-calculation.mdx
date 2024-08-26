@@ -1,0 +1,64 @@
+# Reverse calculation for minting and burning
+
+The [`getBuyEstimation`](/docs/sdk/network/token-nft/getBuyEstimation) and [`getSellEstimation`](/docs/sdk/network/token-nft/getSellEstimation) methods can only be used to estimate the reserveAmount amount of the token for the given input amount of the token.
+
+However, there may be cases where you may want to calculate the input amount of the token for the given reserveAmount of the token. Below is an example of how you can calculate the input amount of the token for the given reserveAmount amount of the token.
+
+In the examples below, we will use the [CHICKEN](https://mint.club/token/base/CHICKEN) token on `Base` as an example.
+
+## Reverse Minting Calculation
+
+```ts twoslash
+import { mintclub, binaryReverseMint, wei, toNumber } from 'mint.club-v2-sdk';
+
+// CHICKEN token address
+const tokenAddress = '0x13c2Bc9B3b8427791F700cB153314b487fFE8F5e' 
+
+const reserveAmount = 1_000;
+
+// 1. get the token data
+const token = mintclub.network("base").token(tokenAddress);
+
+const tokenData = await token.getDetail();
+
+// for NFT, the decimal is 0 so we would use 10n ** 0n;
+const multiFactor = 10n ** 18n;
+
+const inputAmountNeeded = binaryReverseMint({
+	reserveAmount: wei(reserveAmount),
+	bondSteps: tokenData.steps,
+	currentSupply: tokenData.info.currentSupply,
+	maxSupply: tokenData.info.maxSupply,
+	multiFactor,
+	mintRoyalty: tokenData.mintRoyalty,
+	slippage: 0,
+});
+```
+
+## Reverse Burning Calculation
+
+```ts twoslash
+import { mintclub, binaryReverseBurn, wei, toNumber } from 'mint.club-v2-sdk';
+
+// CHICKEN token address
+const tokenAddress = '0x13c2Bc9B3b8427791F700cB153314b487fFE8F5e' 
+
+const reserveAmount = 1_000;
+
+// 1. get the token data
+const token = mintclub.network("base").token(tokenAddress);
+
+const tokenData = await token.getDetail();
+
+// for NFT, the decimal is 0 so we would use 10n ** 0n;
+const multiFactor = 10n ** 18n;
+
+const inputAmountNeeded = binaryReverseBurn({
+	reserveAmount: wei(reserveAmount),
+	bondSteps: tokenData.steps,
+	currentSupply: tokenData.info.currentSupply,
+	multiFactor,
+	burnRoyalty: tokenData.burnRoyalty,
+	slippage: 0,
+});
+```

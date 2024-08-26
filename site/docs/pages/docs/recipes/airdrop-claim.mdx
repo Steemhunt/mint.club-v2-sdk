@@ -112,6 +112,7 @@ import { getPublicUrl } from '../../utils/url';
 import { getPublicClientForChain } from '../../utils/viem-utils';
 import { AirdropApiResponse } from './airdrop.types';
 
+
 export const airdrop = new Frog<{
   State: {
     transactionId?: string;
@@ -254,6 +255,8 @@ airdrop.transaction('/tx/:chainId/:distributionId', async (c) => {
     )
     .json<AirdropApiResponse>();
 
+  console.log(data);
+
   if (data.claimedCount >= data.walletCount) {
     return c.error({
       message: 'Airdrop claim is finished',
@@ -275,9 +278,9 @@ airdrop.transaction('/tx/:chainId/:distributionId', async (c) => {
 
   // for private airdrops
   if (data?.ipfsCID) {
-    const list = await ky
-      .get(`https://mint.club/api/ipfs/whitelist/${data.ipfsCID}`)
-      .json<string[]>();
+    const ipfsUrl = `https://mint.club/api/ipfs/whitelist?cid=${data.ipfsCID}`;
+    console.log(ipfsUrl);
+    const list = await ky.get(ipfsUrl).json<string[]>();
 
     const { verified, proof } = verifyMerkleProof(
       data.merkleRoot,
@@ -584,7 +587,7 @@ export const Logger = createLogger({
 ```
 
 ```tsx [merkle.ts]
-import MerkleTree from 'merkletreejs';
+import { MerkleTree } from 'merkletreejs';
 import { getAddress, keccak256 } from 'viem';
 
 export function verifyMerkleProof(
@@ -608,6 +611,7 @@ export function verifyMerkleProof(
     proof: formattedProof,
   };
 }
+
 ```
 
 ```tsx [time.ts]
