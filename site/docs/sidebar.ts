@@ -40,6 +40,14 @@ export const sidebar = {
           collapsed: true,
           items: [
             {
+              text: 'Mint Frame Implementation',
+              link: 'https://github.com/ggomaeng/farsight-hackathon/blob/main/api/index.tsx',
+            },
+            {
+              text: 'Next.js Implementation',
+              link: 'https://github.com/ggomaeng/mint.club-v2-web-example/blob/main/app/page.tsx',
+            },
+            {
               text: 'Farcaster Frames',
               collapsed: true,
               items: [
@@ -65,36 +73,36 @@ export const sidebar = {
             },
           ],
         },
-        {
-          text: '👛 wallet',
-          collapsed: true,
-          items: [
-            {
-              text: 'connect',
-              link: '/docs/sdk/wallet/connect',
-            },
-            {
-              text: 'disconnect',
-              link: '/docs/sdk/wallet/disconnect',
-            },
-            {
-              text: 'change',
-              link: '/docs/sdk/wallet/change',
-            },
-            {
-              text: 'account',
-              link: '/docs/sdk/wallet/account',
-            },
-            {
-              text: 'getNativeBalance',
-              link: '/docs/sdk/wallet/getNativeBalance',
-            },
-            {
-              text: 'Using a custom wallet provider',
-              link: '/docs/sdk/wallet/custom',
-            },
-          ],
-        },
+        // {
+        //   text: '👛 wallet',
+        //   collapsed: true,
+        //   items: [
+        //     {
+        //       text: 'connect',
+        //       link: '/docs/sdk/wallet/connect',
+        //     },
+        //     {
+        //       text: 'disconnect',
+        //       link: '/docs/sdk/wallet/disconnect',
+        //     },
+        //     {
+        //       text: 'change',
+        //       link: '/docs/sdk/wallet/change',
+        //     },
+        //     {
+        //       text: 'account',
+        //       link: '/docs/sdk/wallet/account',
+        //     },
+        //     {
+        //       text: 'getNativeBalance',
+        //       link: '/docs/sdk/wallet/getNativeBalance',
+        //     },
+        //     {
+        //       text: 'Using a custom wallet provider',
+        //       link: '/docs/sdk/wallet/custom',
+        //     },
+        //   ],
+        // },
 
         {
           text: '📦 ipfs',
