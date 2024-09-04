@@ -11,6 +11,7 @@ import { HomePage } from 'vocs/components'
   <HomePage.Logo className="aspect-square" />
   <HomePage.Tagline className="text-primary font-bold">Mint Club V2 SDK</HomePage.Tagline>
   <HomePage.Description>Create and Trade Bonding Curve Tokens / NFTs with Automated Liquidity</HomePage.Description>
+
   <HomePage.Buttons>
     <HomePage.Button href="/docs/getting-started" variant="accent">
       Get started
@@ -20,6 +21,19 @@ import { HomePage } from 'vocs/components'
     <HomePage.Button href="https://www.npmjs.com/package/mint.club-v2-sdk">NPM</HomePage.Button>
   </HomePage.Buttons>
 </HomePage.Root>
+
+<div className="w-full max-w-3xl mx-auto my-8">
+  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+    <iframe
+      className="absolute top-0 left-0 w-full h-full"
+      src="https://www.youtube.com/embed/HT2OH3nAOrI"
+      title="YouTube video player"
+      frameBorder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+    ></iframe>
+  </div>
+</div>
 
 :::code-group
 
@@ -72,9 +86,7 @@ await RickMee6Token.create({
   // Bonding curve data
   curveData: {
     curveType: 'EXPONENTIAL',
-//              ^|
-
-
+    //              ^|
 
     stepCount: 10, // how granular the curve is
     maxSupply: 10_000, // token max supply
@@ -102,9 +114,7 @@ await MortyMee6Nft.create({
   // Bonding curve data
   curveData: {
     curveType: 'EXPONENTIAL',
-//              ^|
-
-
+    //              ^|
 
     stepCount: 10, // how granular the curve is
     maxSupply: 10_000, // NFT max supply
@@ -112,16 +122,15 @@ await MortyMee6Nft.create({
     finalMintingPrice: 0.1, // ending price, 0.1 WETH
     creatorAllocation: 100, // initial supply to the deployer
   },
-  metadataUrl: 'ipfs://...' // [!code highlight]
+  metadataUrl: 'ipfs://...', // [!code highlight]
 })
 ```
-
 
 ```ts twoslash [buy-sell.ts]
 import { mintclub } from 'mint.club-v2-sdk'
 
 // 💲 Buying/Selling $MNM-NFT tokens
-const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT');
+const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT')
 
 // buy
 const buyParams = { amount: 100n }
@@ -136,7 +145,7 @@ await MortyMee6Nft.sell(sellParams)
 import { mintclub } from 'mint.club-v2-sdk'
 
 // 🔍 querying $MNM-NFT on-chain data
-const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT');
+const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT')
 
 const totalSupply = await MortyMee6Nft.getTotalSupply()
 //       ^?
@@ -149,7 +158,7 @@ const totalSupply = await MortyMee6Nft.getTotalSupply()
 
 🤤 Automated Liquidity on Bonding Curve
 
-🔥 Fully customizable 
+🔥 Fully customizable
 
 💪 Strongly Typed
 
@@ -158,7 +167,7 @@ const totalSupply = await MortyMee6Nft.getTotalSupply()
 ☕ Built with love & coffee
 
 > Any Questions? Ping [`@undefined`](https://warpcast.com/undefined)
-:::
+> ::
 
 :::warning
 ⚠️

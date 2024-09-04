@@ -1,4 +1,15 @@
-![image](https://github.com/Steemhunt/mint.club-v2-contract/assets/1332279/66ce69bd-7ebd-4d58-b064-f82053b51b5a)
+<div className="w-full max-w-3xl mx-auto my-8">
+  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+    <iframe
+      className="absolute top-0 left-0 w-full h-full"
+      src="https://www.youtube.com/embed/HT2OH3nAOrI"
+      title="YouTube video player"
+      frameBorder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+    ></iframe>
+  </div>
+</div>
 
 # Getting Started
 
@@ -49,15 +60,14 @@ import { mintclub } from 'mint.club-v2-sdk'
 
 // [!code focus]
 const totalSupply = await mintclub // [!code focus]
-//     ^?
+  //     ^?
 
+  .network('base') // [!code focus]
+  .token('CHICKEN') // [!code focus]
+  .getTotalSupply() // [!code focus]
 
-							.network('base') // [!code focus]
-							.token('CHICKEN') // [!code focus]
-							.getTotalSupply() // [!code focus]
-
-// $CHICKEN token actually exists! 
-// https://mint.club/token/base/CHICKEN 🐔 
+// $CHICKEN token actually exists!
+// https://mint.club/token/base/CHICKEN 🐔
 ```
 
 [Go to full documentation](/docs/sdk/introduction)
@@ -70,10 +80,11 @@ Below is a simple example of purchasing a token.
 import { mintclub } from 'mint.club-v2-sdk'
 
 // [!code focus]
-const result = await mintclub.network('base').token('CHICKEN').buy({ // [!code focus]
-	amount: 100n, // [!code focus]
-	slippage: 0, // [!code focus]
-	recipient: '0x...' // [!code focus]
+const result = await mintclub.network('base').token('CHICKEN').buy({
+  // [!code focus]
+  amount: 100n, // [!code focus]
+  slippage: 0, // [!code focus]
+  recipient: '0x...', // [!code focus]
 }) // [!code focus]
 // [!code focus]
 ```
