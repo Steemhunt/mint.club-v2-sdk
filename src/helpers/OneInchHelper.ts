@@ -8,7 +8,7 @@ import {
   blast,
   blastSepolia,
   bsc,
-  klaytn,
+  kaia,
   mainnet,
   optimism,
   polygon,
@@ -16,10 +16,10 @@ import {
   degen,
   cyber,
   cyberTestnet,
+  ham,
 } from 'viem/chains';
 import { oneInchContract } from '../contracts';
 import { SdkSupportedChainIds, toNumber } from '../exports';
-import { ham } from '../custom-chains/ham';
 
 export type USDValueOptions = {
   tokenAddress: `0x${string}`;
@@ -71,7 +71,7 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [degen.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyber.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyberTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
-    [klaytn.id]: { address: '0x', symbol: '', decimals: 0n },
+    [kaia.id]: { address: '0x', symbol: '', decimals: 0n },
     [ham.id]: { address: '0x', symbol: '', decimals: 0n },
   };
 
