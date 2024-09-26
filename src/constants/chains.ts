@@ -7,20 +7,20 @@ import {
   blast,
   blastSepolia,
   bsc,
-  klaytn,
+  kaia,
   mainnet,
   optimism,
   polygon,
   sepolia,
   baseSepolia,
   cyber,
+  ham,
   cyberTestnet,
   degen,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
 import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
 import * as chains from 'viem/chains';
-import { ham } from '../custom-chains/ham';
 
 export type ChainType = {
   readonly id: SdkSupportedChainIds;
@@ -36,7 +36,7 @@ export type ChainType = {
     | 'Polygon'
     | 'BNBChain'
     | 'Sepolia'
-    | 'Klaytn'
+    | 'Kaia'
     | 'Ham'
     | 'BaseSepolia'
     | 'AvalancheFuji'
@@ -206,24 +206,14 @@ export const CHAINS: Array<ChainType> = [
   },
 
   {
-    id: klaytn.id,
-    name: 'Klaytn',
-    icon: 'https://mint.club/assets/networks/klaytn@2x.png',
-    color: '#C82812',
+    id: kaia.id,
+    name: 'Kaia',
+    icon: 'https://mint.club/assets/networks/kaia@2x.png',
+    color: '#BFF009',
     openseaSlug: 'klaytn',
-    enabled: isAddress(getMintClubContractAddress('BOND', klaytn.id)),
-    chain: klaytn,
+    enabled: isAddress(getMintClubContractAddress('BOND', kaia.id)),
+    chain: kaia,
   },
-  // {
-  //   id: klaytnBaobab.id,
-  //   name: 'KlaytnBaobab',
-  //   icon: 'https://mint.club/assets/networks/klaytn@2x.png',
-  //   color: '#C82812',
-  //   openseaSlug: 'klaytn',
-  //   enabled: isAddress(getMintClubContractAddress('BOND', klaytnBaobab.id)),
-  //   isTestnet: true,
-  //   chain: klaytnBaobab,
-  // },
 ];
 
 export function chainIdToViemChain(chainId: SdkSupportedChainIds) {

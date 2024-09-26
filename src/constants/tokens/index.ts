@@ -7,12 +7,13 @@ import {
   blast,
   blastSepolia,
   bsc,
-  klaytn,
+  kaia,
   mainnet,
   optimism,
   polygon,
   sepolia,
   degen,
+  ham,
   cyber,
   cyberTestnet,
 } from 'viem/chains';
@@ -32,8 +33,7 @@ import { DEGEN_TOKENS } from './degen';
 import { BASE_SEPOLIA_TOKENS } from './base-sepolia';
 import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
 import { CYBER_TOKENS } from './cyber';
-import { KLAYTN_TOKENS } from './klaytn';
-import { ham } from '../../custom-chains/ham';
+import { KAIA_TOKENS } from './kaia';
 import { HAM_TOKENS } from './ham';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
@@ -176,8 +176,8 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
-  [klaytn.id]: {
-    image: 'https://mint.club/assets/tokens/large/klaytn.png',
+  [kaia.id]: {
+    image: 'https://mint.club/assets/tokens/large/kaia.png',
     tokenAddress: '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A',
     nativeSymbol: 'KLAY',
     oneInchSymbol: 'USDC',
@@ -210,7 +210,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [degen.id]: DEGEN_TOKENS,
   [cyber.id]: CYBER_TOKENS,
   [cyberTestnet.id]: CYBER_TESTNET_TOKENS,
-  [klaytn.id]: KLAYTN_TOKENS,
+  [kaia.id]: KAIA_TOKENS,
   [ham.id]: HAM_TOKENS,
 };
 
