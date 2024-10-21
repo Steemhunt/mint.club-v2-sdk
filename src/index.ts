@@ -11,7 +11,8 @@ import {
   optimism,
   polygon,
   sepolia,
-  klaytn,
+  kaia,
+  ham,
   degen,
   cyber,
   cyberTestnet,
@@ -32,7 +33,6 @@ import {
   TOKENS,
   ZAP_ABI,
 } from './exports';
-import { ham } from './custom-chains/ham';
 
 export const abis: Record<ContractNames, Abi> = {
   BOND: BOND_ABI,
@@ -56,7 +56,7 @@ export const supportedChains = [
   'avalanche',
   'base',
   'basesepolia',
-  'klaytn',
+  'kaia',
   'degen',
   'ham',
   'cyber',
@@ -70,6 +70,7 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   bnbchain: bsc.id,
   polygon: polygon.id,
   arbitrum: arbitrum.id,
+  kaia: kaia.id,
   degen: degen.id,
   optimism: optimism.id,
   avalanche: avalanche.id,
@@ -80,7 +81,6 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   cyber: cyber.id,
   ham: ham.id,
   cybertestnet: cyberTestnet.id,
-  klaytn: klaytn.id,
 };
 
 export * from './exports';
