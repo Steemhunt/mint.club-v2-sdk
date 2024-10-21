@@ -8,7 +8,7 @@ import {
   cyber,
   cyberTestnet,
   degen,
-  klaytn,
+  kaia,
   mainnet,
   optimism,
   polygon,
@@ -173,12 +173,16 @@ export const RPCS: Array<RPCList> = [
     rpcs: ['https://rpc.zora.energy'],
   },
   {
-    id: klaytn.id,
+    id: kaia.id,
     rpcs: [
-      'https://public-en-cypress.klaytn.net',
-      'https://klaytn.api.onfinality.io/public',
-      'https://klaytn-pokt.nodies.app',
-      'https://klaytn-mainnet-rpc.allthatnode.com:8551',
+      'https://public-en.node.kaia.io', // ✅ - All checks passed
+      'https://rpc.ankr.com/klaytn', // ✅ - All checks passed
+      'https://kaia.blockpi.network/v1/rpc/public', // 🤔 - Old block NOT supported
+      'https://klaytn-pokt.nodies.app', // 🤔 - Old block NOT supported
+      'https://klaytn.api.onfinality.io/public', // 🤔 - Old block NOT supported
+      'https://public-en-cypress.klaytn.net', // ❌ - Both checks failed
+      'https://klaytn-rpc.gateway.pokt.network/', // ❌ - Both checks failed
+      'https://klaytn-mainnet.g.allthatnode.com/full/evm', // ❌ - Both checks failed
     ],
   },
 ];
