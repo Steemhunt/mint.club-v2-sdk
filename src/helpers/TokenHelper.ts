@@ -321,8 +321,8 @@ export class Token<T extends TokenType> {
     const { amount, slippage = 0, recipient, onError } = params;
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
-      const [estimatedOutcome, royalty] = await this.getBuyEstimation(amount);
-      const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n + royalty;
+      const [estimatedOutcome] = await this.getBuyEstimation(amount);
+      const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
       const bondApproved = await this.bondContractApproved({
         walletAddress: connectedAddress,
@@ -357,8 +357,8 @@ export class Token<T extends TokenType> {
 
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
-      const [estimatedOutcome, royalty] = await this.getSellEstimation(amount);
-      const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n - royalty;
+      const [estimatedOutcome] = await this.getSellEstimation(amount);
+      const minReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
       const bondApproved = await this.bondContractApproved({
         walletAddress: connectedAddress,
@@ -377,7 +377,7 @@ export class Token<T extends TokenType> {
       return bondContract.network(this.chainId).write({
         ...params,
         functionName: 'burn',
-        args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
+        args: [this.tokenAddress, amount, minReserveAmount, recipient || connectedAddress],
       });
     } catch (e) {
       onError?.(e);
@@ -388,8 +388,8 @@ export class Token<T extends TokenType> {
     const { amount, slippage = 0, recipient, onError } = params;
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
-      const [estimatedOutcome, royalty] = await this.getBuyEstimation(amount);
-      const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n + royalty;
+      const [estimatedOutcome] = await this.getBuyEstimation(amount);
+      const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
       return zapContract.network(this.chainId).write({
         ...params,
@@ -410,8 +410,8 @@ export class Token<T extends TokenType> {
     const { amount, slippage = 0, recipient, onError } = params;
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
-      const [estimatedOutcome, royalty] = await this.getBuyEstimation(amount);
-      const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n + royalty;
+      const [estimatedOutcome] = await this.getBuyEstimation(amount);
+      const minReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
       const bondApproved = await this.bondContractApproved({
         walletAddress: connectedAddress,
@@ -432,7 +432,7 @@ export class Token<T extends TokenType> {
       return zapContract.network(this.chainId).write({
         ...params,
         functionName: 'burnToEth',
-        args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
+        args: [this.tokenAddress, amount, minReserveAmount, recipient || connectedAddress],
       });
     } catch (e) {
       onError?.(e);
