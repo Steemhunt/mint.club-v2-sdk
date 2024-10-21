@@ -4,30 +4,21 @@ export const HAM_TOKENS = {
     symbol: 'WETH',
     address: '0x4200000000000000000000000000000000000006',
     decimals: 18,
-    image: {
-      small: 'https://mint.club/assets/tokens/weth.png',
-      large: 'https://mint.club/assets/tokens/weth.png',
-    },
+    image: 'https://mint.club/assets/tokens/weth.png',
   },
   '0xE8DD44d0791B73afe9066C3A77721f42d0844bEB': {
     name: 'The Next 100x Memecoin on Base',
     symbol: 'TN100x',
     address: '0xE8DD44d0791B73afe9066C3A77721f42d0844bEB',
     decimals: 18,
-    image: {
-      small: 'https://mint.club/assets/tokens/tn100x.png',
-      large: 'https://mint.club/assets/tokens/tn100x.png',
-    },
+    image: 'https://mint.club/assets/tokens/tn100x.png',
   },
   '0x30005Fd5eE0480D0ccFdDe168BBe4527Ffb27062': {
     name: 'USD Coin',
     symbol: 'USDC',
     address: '0x30005Fd5eE0480D0ccFdDe168BBe4527Ffb27062',
     decimals: 6,
-    image: {
-      small: 'https://mint.club/assets/tokens/usdc.png',
-      large: 'https://mint.club/assets/tokens/usdc.png',
-    },
+    image: 'https://mint.club/assets/tokens/usdc.png',
   },
 
   // NOTE:

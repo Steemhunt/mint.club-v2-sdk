@@ -56,10 +56,7 @@ export type BaseToken = {
   symbol: string;
   address: `0x${string}`;
   decimals: number;
-  image?: {
-    small: string | null;
-    large: string | null;
-  };
+  image?: string | null;
 };
 
 export type WrappedToken = {
@@ -72,119 +69,119 @@ export type WrappedToken = {
 
 export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> = {
   [mainnet.id]: {
-    image: 'https://mint.club/assets/tokens/large/eth.png',
+    image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
   [optimism.id]: {
-    image: 'https://mint.club/assets/tokens/large/eth.png',
+    image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0x4200000000000000000000000000000000000006',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
   [arbitrum.id]: {
-    image: 'https://mint.club/assets/tokens/large/eth.png',
+    image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
   [avalanche.id]: {
-    image: 'https://mint.club/assets/tokens/large/avalanche.png',
+    image: 'https://mint.club/assets/tokens/avalanche.png',
     tokenAddress: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
     nativeSymbol: 'AVAX',
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
   [polygon.id]: {
-    image: 'https://mint.club/assets/tokens/large/matic.png',
+    image: 'https://mint.club/assets/tokens/matic.png',
     tokenAddress: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
     nativeSymbol: 'MATIC',
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
   [bsc.id]: {
-    image: 'https://mint.club/assets/tokens/large/bnb.png',
+    image: 'https://mint.club/assets/tokens/bnb.png',
     tokenAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
     nativeSymbol: 'BNB',
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
   [base.id]: {
-    image: 'https://mint.club/assets/tokens/large/eth.png',
+    image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0x4200000000000000000000000000000000000006',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDbC',
     decimals: 18,
   },
   [sepolia.id]: {
-    image: 'https://mint.club/assets/tokens/large/eth.png',
+    image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
   [baseSepolia.id]: {
-    image: 'https://mint.club/assets/tokens/large/eth.png',
+    image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0x4200000000000000000000000000000000000006',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
   [blast.id]: {
-    image: 'https://mint.club/assets/tokens/large/blast.png',
+    image: 'https://mint.club/assets/tokens/blast.png',
     tokenAddress: '0x4300000000000000000000000000000000000004',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDB',
     decimals: 18,
   },
   [blastSepolia.id]: {
-    image: 'https://mint.club/assets/tokens/large/blast.png',
+    image: 'https://mint.club/assets/tokens/blast.png',
     tokenAddress: '0x4200000000000000000000000000000000000023',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDB',
     decimals: 18,
   },
   [avalancheFuji.id]: {
-    image: 'https://mint.club/assets/tokens/large/avalanche.png',
+    image: 'https://mint.club/assets/tokens/avalanche.png',
     tokenAddress: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c',
     nativeSymbol: 'AVAX',
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
   [degen.id]: {
-    image: 'https://mint.club/assets/tokens/large/degen.png',
+    image: 'https://mint.club/assets/tokens/degen.png',
     tokenAddress: '0xEb54dACB4C2ccb64F8074eceEa33b5eBb38E5387',
     nativeSymbol: 'DEGEN',
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
   [cyber.id]: {
-    image: 'https://mint.club/assets/tokens/large/eth.png',
+    image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0x4200000000000000000000000000000000000006',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
   [cyberTestnet.id]: {
-    image: 'https://mint.club/assets/tokens/large/eth.png',
+    image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0xf760686C2b40F7C526D040b979641293D2F55816',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
   [kaia.id]: {
-    image: 'https://mint.club/assets/tokens/large/kaia.png',
+    image: 'https://mint.club/assets/tokens/kaia.png',
     tokenAddress: '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A',
     nativeSymbol: 'KLAY',
     oneInchSymbol: 'USDC',
     decimals: 6,
   },
   [ham.id]: {
-    image: 'https://mint.club/assets/tokens/large/eth.png',
+    image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0x4200000000000000000000000000000000000006',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDC',
