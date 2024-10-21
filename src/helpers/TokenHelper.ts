@@ -358,7 +358,7 @@ export class Token<T extends TokenType> {
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
       const [estimatedOutcome] = await this.getSellEstimation(amount);
-      const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
+      const minReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
       const bondApproved = await this.bondContractApproved({
         walletAddress: connectedAddress,
@@ -377,7 +377,7 @@ export class Token<T extends TokenType> {
       return bondContract.network(this.chainId).write({
         ...params,
         functionName: 'burn',
-        args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
+        args: [this.tokenAddress, amount, minReserveAmount, recipient || connectedAddress],
       });
     } catch (e) {
       onError?.(e);
@@ -411,7 +411,7 @@ export class Token<T extends TokenType> {
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
       const [estimatedOutcome] = await this.getBuyEstimation(amount);
-      const maxReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
+      const minReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
       const bondApproved = await this.bondContractApproved({
         walletAddress: connectedAddress,
@@ -432,7 +432,7 @@ export class Token<T extends TokenType> {
       return zapContract.network(this.chainId).write({
         ...params,
         functionName: 'burnToEth',
-        args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
+        args: [this.tokenAddress, amount, minReserveAmount, recipient || connectedAddress],
       });
     } catch (e) {
       onError?.(e);
