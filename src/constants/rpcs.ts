@@ -13,6 +13,7 @@ import {
   optimism,
   polygon,
   sepolia,
+  shibarium,
   zora,
 } from 'viem/chains';
 
@@ -184,6 +185,10 @@ export const RPCS: Array<RPCList> = [
       'https://klaytn-rpc.gateway.pokt.network/', // ❌ - Both checks failed
       'https://klaytn-mainnet.g.allthatnode.com/full/evm', // ❌ - Both checks failed
     ],
+  },
+  {
+    id: shibarium.id,
+    rpcs: ['https://www.shibrpc.com'],
   },
 ];
 

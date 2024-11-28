@@ -1,0 +1,46 @@
+---
+description: Returns a list of tokens from the network
+---
+
+# getList
+
+Returns a list of tokens from the specified network.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const tokens = await mintclub.network('ethereum').bond.getList({
+  start: 0,
+  end: 1000,
+})
+```
+
+## Return Value
+
+`Promise<readonly '0x${string}'[]>`
+
+Returns an array of token addresses from the specified network.
+
+## Parameters
+
+### start (optional)
+
+- Type: `number`
+- Default: `0`
+
+Start index.
+
+### end (optional)
+
+- Type: `number`
+- Default: `1000`
+
+End index.
+
+:::warning[Note]
+Note that passing 0 and 100 does **NOT** mean that it will fetch the first 100.
+
+It means that it will check and return the ids from 0 to 100.
+:::

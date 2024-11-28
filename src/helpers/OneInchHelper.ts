@@ -17,6 +17,7 @@ import {
   cyber,
   cyberTestnet,
   ham,
+  shibarium,
 } from 'viem/chains';
 import { oneInchContract } from '../contracts';
 import { SdkSupportedChainIds, toNumber } from '../exports';
@@ -73,6 +74,7 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [cyberTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
     [kaia.id]: { address: '0x', symbol: '', decimals: 0n },
     [ham.id]: { address: '0x', symbol: '', decimals: 0n },
+    [shibarium.id]: { address: '0x', symbol: '', decimals: 0n },
   };
 
 export class OneInch {

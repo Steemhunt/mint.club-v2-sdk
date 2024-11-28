@@ -29,4 +29,12 @@ export class Bond {
       args: [creator, BigInt(start), BigInt(end)],
     });
   }
+
+  public getList(params: { start?: number; end?: number }) {
+    const { start = 0, end = 1000 } = params;
+    return bondContract.network(this.chainId).read({
+      functionName: 'getList',
+      args: [BigInt(start), BigInt(end)],
+    });
+  }
 }

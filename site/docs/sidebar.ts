@@ -333,6 +333,10 @@ export const sidebar = {
               text: 'getTokensByCreator',
               link: '/docs/sdk/network/bond/getTokensByCreator',
             },
+            {
+              text: 'getList',
+              link: '/docs/sdk/network/bond/getList',
+            },
           ],
         },
         {

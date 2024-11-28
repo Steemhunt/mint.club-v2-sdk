@@ -16,6 +16,7 @@ import {
   ham,
   cyber,
   cyberTestnet,
+  shibarium,
 } from 'viem/chains';
 import { SdkSupportedChainIds } from '../contracts';
 import { ARBITRUM_TOKENS } from './arbitrum';
@@ -35,6 +36,7 @@ import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
 import { CYBER_TOKENS } from './cyber';
 import { KAIA_TOKENS } from './kaia';
 import { HAM_TOKENS } from './ham';
+import { SHIBARIUM_TOKENS } from './shibarium';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
 export const COINGECKO_NETWORK_IDS = {
@@ -49,6 +51,7 @@ export const COINGECKO_NETWORK_IDS = {
   [blast.id]: 'ethereum', // blast not supported by coingecko API
   [blastSepolia.id]: 'ethereum', // blast sepolia not supported by coingecko API
   [avalancheFuji.id]: 'ethereum', // avalanche-fuji not supported by coingecko API
+  [shibarium.id]: 'shib',
 } as const satisfies Partial<Record<SdkSupportedChainIds, string>>;
 
 export type BaseToken = {
@@ -187,11 +190,17 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
+  [shibarium.id]: {
+    image: 'https://mint.club/assets/tokens/bone.png',
+    tokenAddress: '0xC76F4c819D820369Fb2d7C1531aB3Bb18e6fE8d8',
+    nativeSymbol: 'WBONE',
+    oneInchSymbol: 'USDC',
+    decimals: 18,
+  },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
 export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToken>> = {
-  // export const TOKENS = {
   [mainnet.id]: MAINNET_TOKENS,
   [optimism.id]: OPTIMISM_TOKENS,
   [arbitrum.id]: ARBITRUM_TOKENS,
@@ -209,6 +218,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [cyberTestnet.id]: CYBER_TESTNET_TOKENS,
   [kaia.id]: KAIA_TOKENS,
   [ham.id]: HAM_TOKENS,
+  [shibarium.id]: SHIBARIUM_TOKENS,
 };
 
 export type TokenChain = keyof typeof TOKENS;

@@ -16,6 +16,7 @@ import {
   cyberTestnet,
   ham,
   degen,
+  shibarium,
 } from 'viem/chains';
 
 const SDK_CONTRACT_ADDRESSES = {
@@ -37,6 +38,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [kaia.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [cyber.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [ham.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
+    [shibarium.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
   },
 
   ERC1155: {
@@ -57,6 +59,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [kaia.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [cyber.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [ham.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
+    [shibarium.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
   },
 
   BOND: {
@@ -77,6 +80,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [kaia.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [cyber.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [ham.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
+    [shibarium.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
   },
 
   ZAP: {
@@ -97,6 +101,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [kaia.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [cyber.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [ham.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
+    [shibarium.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
   },
 
   LOCKER: {
@@ -117,6 +122,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [kaia.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [cyber.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [ham.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
+    [shibarium.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
   },
 
   MERKLE: {
@@ -137,6 +143,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [kaia.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [cyber.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [ham.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
+    [shibarium.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
   },
 
   ONEINCH: {
@@ -157,6 +164,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [cyberTestnet.id]: '0x',
     [cyber.id]: '0x',
     [ham.id]: '0x',
+    [shibarium.id]: '0x',
   },
 } as const;
 
