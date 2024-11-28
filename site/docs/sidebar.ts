@@ -160,14 +160,6 @@ export const sidebar = {
               text: 'withWalletClient',
               link: '/docs/sdk/network/withWalletClient',
             },
-            {
-              text: 'withPrivateKey',
-              link: '/docs/sdk/network/withPrivateKey',
-            },
-            {
-              text: 'withProvider',
-              link: '/docs/sdk/network/withProvider',
-            },
           ],
         },
         {

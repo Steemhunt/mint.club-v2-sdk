@@ -12,8 +12,8 @@ description: Mint.club SDK - withPrivateKey
 It's probably not a good idea for you to use this in a public-facing application, as it requires the input of private key.
 :::
 
-```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk';
+```ts [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
 
 await mintclub
   .network('ethereum')
@@ -22,24 +22,23 @@ await mintclub
   .create({
     name: 'Mint Club',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address 
-      decimals: 18, 
-    }, 
-	curveData: {
-		curveType: 'LINEAR', 
-		stepCount: 10,
-		maxSupply: 10_000,
-		initialMintingPrice: 0.01, // 0.01 WETH 
-		finalMintingPrice: 0.1, // 0.1 WETH
-		creatorAllocation: 100,
-	}
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address
+      decimals: 18,
+    },
+    curveData: {
+      curveType: 'LINEAR',
+      stepCount: 10,
+      maxSupply: 10_000,
+      initialMintingPrice: 0.01, // 0.01 WETH
+      finalMintingPrice: 0.1, // 0.1 WETH
+      creatorAllocation: 100,
+    },
   })
 ```
 
-
 ## Return Value
 
-[`network`](/docs/sdk/network)  
+[`network`](/docs/sdk/network)
 
 Returns the `network` instance, so you chain functions such as [`token`](/docs/sdk/network/nft) and [`nft`](/docs/sdk/network/nft).
 
