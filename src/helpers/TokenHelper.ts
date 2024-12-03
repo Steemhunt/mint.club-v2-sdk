@@ -556,10 +556,6 @@ export class Token<T extends TokenType> {
   }
 
   public validateMetadataParams(params: MetadataCommonParams) {
-    if (!params.backgroundImage && !params.logo && !params.website) {
-      throw new MetadataValidationError('At least one of backgroundImage, logo, or website must be provided');
-    }
-
     if (params.website && !params.website.startsWith('http')) {
       throw new MetadataValidationError('Website must be a valid URL starting with http:// or https://');
     }
@@ -570,14 +566,6 @@ export class Token<T extends TokenType> {
 
     if (params.logo && !(params.logo instanceof File)) {
       throw new MetadataValidationError('logo must be a File object');
-    }
-
-    if (params.distributionPlan && params.distributionPlan.length > 1000) {
-      throw new MetadataValidationError('Distribution plan must be less than 1000 characters');
-    }
-
-    if (params.creatorComment && params.creatorComment.length > 500) {
-      throw new MetadataValidationError('Creator comment must be less than 500 characters');
     }
   }
 
