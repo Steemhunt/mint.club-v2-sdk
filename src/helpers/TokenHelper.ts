@@ -28,7 +28,7 @@ import { Client } from './ClientHelper';
 import { Ipfs } from './IpfsHelper';
 import { OneInch } from './OneInchHelper';
 import { isFalse } from '../utils/logic';
-import ky from 'ky-universal';
+import fetch from 'cross-fetch';
 
 interface MetadataCommonParams {
   backgroundImage?: File | null;
@@ -546,11 +546,13 @@ export class Token<T extends TokenType> {
   }
 
   public async getMintClubMetadata() {
-    const response = await ky(
+    const response = await fetch(
       `https://mint.club/api/metadata?chainId=${this.chainId}&tokenAddress=${this.tokenAddress}`,
     );
-    const json = await response.json();
-    return json;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
   }
 
   private validateMetadataParams(params: MetadataCommonParams) {
@@ -610,9 +612,14 @@ export class Token<T extends TokenType> {
       formData.append('creatorComment', params.creatorComment);
     }
 
-    const response = await ky.post('https://mint.club/api/metadata', {
+    const response = await fetch('https://mint.club/api/metadata', {
+      method: 'POST',
       body: formData,
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     return response.json();
   }
@@ -642,9 +649,14 @@ export class Token<T extends TokenType> {
       formData.append('creatorComment', params.creatorComment);
     }
 
-    const response = await ky.put('https://mint.club/api/metadata', {
+    const response = await fetch('https://mint.club/api/metadata', {
+      method: 'PUT',
       body: formData,
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     return response.json();
   }
