@@ -100,13 +100,13 @@ export class Airdrop {
 
   public async getMerkleProof(airdropId: number) {
     const { ipfsCID } = await this.getAirdropById(airdropId);
-    const merkleProof = await api
-      .get(`ipfs/whitelist?cid=${ipfsCID}`)
-      .json<`0x${string}`[]>()
-      .catch(() => {
-        return baseFetcher.get(`https://ipfs.io/ipfs/${ipfsCID}`).json<`0x${string}`[]>();
-      });
-    return merkleProof;
+    try {
+      const data = await api.get(`ipfs/whitelist?cid=${ipfsCID}`);
+      return data as `0x${string}`[];
+    } catch {
+      const data = await baseFetcher.get(`https://ipfs.io/ipfs/${ipfsCID}`);
+      return data as `0x${string}`[];
+    }
   }
 
   public async getIsWhitelisted(airdropId: number, account: `0x${string}`) {
