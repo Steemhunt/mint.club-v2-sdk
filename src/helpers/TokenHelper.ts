@@ -555,7 +555,7 @@ export class Token<T extends TokenType> {
     return response.json();
   }
 
-  private validateMetadataParams(params: MetadataCommonParams) {
+  public validateMetadataParams(params: MetadataCommonParams) {
     if (!params.backgroundImage && !params.logo && !params.website) {
       throw new MetadataValidationError('At least one of backgroundImage, logo, or website must be provided');
     }
@@ -581,7 +581,7 @@ export class Token<T extends TokenType> {
     }
   }
 
-  private validateUpdateMetadataParams(params: UpdateMintClubMetadataParams) {
+  public validateUpdateMetadataParams(params: UpdateMintClubMetadataParams) {
     this.validateMetadataParams(params);
 
     if (!params.signature || !params.message) {
