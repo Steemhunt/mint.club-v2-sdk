@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { mintclub } from '../../../src';
-import { MetadataValidationError, SignatureRequiredError } from '../../../src/errors/sdk.errors';
+import { MetadataValidationError } from '../../../src/errors/sdk.errors';
 
 test(`CHICKEN on base - getMintclubMetadata`, async () => {
   const tokenMetadata = await mintclub.network('base').token('CHICKEN').getMintClubMetadata();
@@ -31,9 +31,23 @@ test(`CHICKEN on base - createMintClubMetadata validation`, async () => {
   }
   expect(error).toBeInstanceOf(MetadataValidationError);
 
-  // Should pass with valid website
+  // Should throw error for long distribution plan
+  error = null;
+  try {
+    await token.createMintClubMetadata({
+      website: 'https://example.com',
+      distributionPlan: 'a'.repeat(1001),
+    });
+  } catch (e) {
+    error = e;
+  }
+  expect(error).toBeInstanceOf(MetadataValidationError);
+
+  // Should pass with valid params including distribution plan and creator comment
   const metadata = await token.createMintClubMetadata({
     website: 'https://example.com',
+    distributionPlan: 'Community distribution',
+    creatorComment: 'Test creation',
   });
   expect(metadata).toBeDefined();
 });
@@ -46,11 +60,12 @@ test(`CHICKEN on base - updateMintClubMetadata validation`, async () => {
   try {
     await token.updateMintClubMetadata({
       website: 'https://example.com',
+      distributionPlan: 'Community distribution',
     } as any);
   } catch (e) {
     error = e;
   }
-  expect(error).toBeInstanceOf(SignatureRequiredError);
+  expect(error).toBeInstanceOf(MetadataValidationError);
 
   // Should throw error for long distribution plan
   error = null;
@@ -58,10 +73,8 @@ test(`CHICKEN on base - updateMintClubMetadata validation`, async () => {
     await token.updateMintClubMetadata({
       website: 'https://example.com',
       distributionPlan: 'a'.repeat(1001),
-      signMessage: {
-        message: 'Test message',
-        signature: '0x123',
-      },
+      signature: '0x123',
+      message: 'Test message',
     });
   } catch (e) {
     error = e;
@@ -73,10 +86,8 @@ test(`CHICKEN on base - updateMintClubMetadata validation`, async () => {
     website: 'https://example.com',
     distributionPlan: 'Community distribution',
     creatorComment: 'Test update',
-    signMessage: {
-      message: 'Test message',
-      signature: '0x123',
-    },
+    signature: '0x123',
+    message: 'Test message',
   });
   expect(metadata).toBeDefined();
 });
