@@ -97,3 +97,17 @@ export class AirdropContainsInvalidWalletError extends BaseError {
     });
   }
 }
+
+export class MetadataValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'MetadataValidationError';
+  }
+}
+
+export class SignatureRequiredError extends Error {
+  constructor() {
+    super('Signature and message are required for updating metadata');
+    this.name = 'SignatureRequiredError';
+  }
+}

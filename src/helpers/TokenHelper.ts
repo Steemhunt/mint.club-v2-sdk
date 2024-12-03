@@ -7,6 +7,8 @@ import {
   SymbolNotDefinedError,
   TokenAlreadyExistsError,
   WalletNotConnectedError,
+  MetadataValidationError,
+  SignatureRequiredError,
 } from '../errors/sdk.errors';
 import { WRAPPED_NATIVE_TOKENS, getChain } from '../exports';
 import {
@@ -27,6 +29,22 @@ import { Client } from './ClientHelper';
 import { Ipfs } from './IpfsHelper';
 import { OneInch } from './OneInchHelper';
 import { isFalse } from '../utils/logic';
+import ky from 'ky-universal';
+
+interface CreateMintClubMetadataParams {
+  backgroundImage?: File | null;
+  logo?: File | null;
+  website?: string;
+}
+
+interface UpdateMintClubMetadataParams extends CreateMintClubMetadataParams {
+  distributionPlan?: string;
+  creatorComment?: string;
+  signMessage: {
+    message: string;
+    signature: string;
+  };
+}
 
 export class Token<T extends TokenType> {
   private tokenAddress: `0x${string}`;
@@ -526,5 +544,104 @@ export class Token<T extends TokenType> {
       title,
       ipfsCID,
     });
+  }
+
+  public async getMintClubMetadata() {
+    const response = await ky(
+      `https://mint.club/api/metadata?chainId=${this.chainId}&tokenAddress=${this.tokenAddress}`,
+    );
+    const json = await response.json();
+    return json;
+  }
+
+  private validateMetadataParams(params: CreateMintClubMetadataParams) {
+    if (!params.backgroundImage && !params.logo && !params.website) {
+      throw new MetadataValidationError('At least one of backgroundImage, logo, or website must be provided');
+    }
+
+    if (params.website && !params.website.startsWith('http')) {
+      throw new MetadataValidationError('Website must be a valid URL starting with http:// or https://');
+    }
+
+    if (params.backgroundImage && !(params.backgroundImage instanceof File)) {
+      throw new MetadataValidationError('backgroundImage must be a File object');
+    }
+
+    if (params.logo && !(params.logo instanceof File)) {
+      throw new MetadataValidationError('logo must be a File object');
+    }
+  }
+
+  private validateUpdateMetadataParams(params: UpdateMintClubMetadataParams) {
+    this.validateMetadataParams(params);
+
+    if (!params.signMessage?.signature || !params.signMessage?.message) {
+      throw new SignatureRequiredError();
+    }
+
+    if (params.distributionPlan && params.distributionPlan.length > 1000) {
+      throw new MetadataValidationError('Distribution plan must be less than 1000 characters');
+    }
+
+    if (params.creatorComment && params.creatorComment.length > 500) {
+      throw new MetadataValidationError('Creator comment must be less than 500 characters');
+    }
+  }
+
+  public async createMintClubMetadata(params: CreateMintClubMetadataParams) {
+    this.validateMetadataParams(params);
+
+    const formData = new FormData();
+    formData.append('chainId', this.chainId.toString());
+    formData.append('tokenAddress', this.tokenAddress);
+
+    if (params.backgroundImage) {
+      formData.append('backgroundImage', params.backgroundImage);
+    }
+    if (params.logo) {
+      formData.append('logo', params.logo);
+    }
+    if (params.website) {
+      formData.append('website', params.website);
+    }
+
+    const response = await ky.post('https://mint.club/api/metadata', {
+      body: formData,
+    });
+
+    return response.json();
+  }
+
+  public async updateMintClubMetadata(params: UpdateMintClubMetadataParams) {
+    this.validateUpdateMetadataParams(params);
+
+    const formData = new FormData();
+    formData.append('chainId', this.chainId.toString());
+    formData.append('tokenAddress', this.tokenAddress);
+
+    if (params.backgroundImage) {
+      formData.append('backgroundImage', params.backgroundImage);
+    }
+    if (params.logo) {
+      formData.append('logo', params.logo);
+    }
+    if (params.website) {
+      formData.append('website', params.website);
+    }
+    if (params.distributionPlan) {
+      formData.append('distributionPlan', params.distributionPlan);
+    }
+    if (params.creatorComment) {
+      formData.append('creatorComment', params.creatorComment);
+    }
+
+    formData.append('signature', params.signMessage.signature);
+    formData.append('message', params.signMessage.message);
+
+    const response = await ky.put('https://mint.club/api/metadata', {
+      body: formData,
+    });
+
+    return response.json();
   }
 }
