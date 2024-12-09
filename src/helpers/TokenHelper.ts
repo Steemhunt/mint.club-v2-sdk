@@ -427,7 +427,7 @@ export class Token<T extends TokenType> {
     const { amount, slippage = 0, recipient, onError } = params;
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
-      const [estimatedOutcome] = await this.getBuyEstimation(amount);
+      const [estimatedOutcome] = await this.getSellEstimation(amount);
       const minReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
 
       const bondApproved = await this.bondContractApproved({
