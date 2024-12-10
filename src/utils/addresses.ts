@@ -1,4 +1,3 @@
-import { randomBytes } from 'crypto';
 import { bytesToHex, getAddress, hexToBytes, hexToString, keccak256, stringToHex } from 'viem';
 import { getMintClubContractAddress, SdkSupportedChainIds, TokenType } from '../constants/contracts';
 
@@ -38,6 +37,6 @@ export function computeCreate2Address(chainId: number, tokenType: TokenType, tok
 }
 
 export function createRandomAddress() {
-  const randBytes = randomBytes(20);
+  const randBytes = new Uint8Array(20).map(() => Math.floor(Math.random() * 256));
   return bytesToHex(randBytes);
 }
