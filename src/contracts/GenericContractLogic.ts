@@ -124,15 +124,16 @@ export class GenericContractLogic<
 
       let tx: `0x${string}` | undefined;
 
+      // If wallet client is available, use it
       if (isPrivateKey) {
-        const client = createWalletClient({
-          chain: this.chain,
-          account: walletClient.account,
-          transport: fallback(chainRPCFallbacks(this.chain), DEFAULT_RANK_OPTIONS),
-        }).extend(publicActions);
-        const { request } = (await client.simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
+        const publicClient = this.clientHelper._getPublicClient(this.chainId);
+        const { request } = (await publicClient.simulateContract(simulationArgs)) as SimulateContractReturnType<
+          A,
+          T,
+          R
+        >;
         onSignatureRequest?.();
-        tx = await client.writeContract(request as WriteContractParameters<A, T, R>);
+        tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
       } else {
         const { request } = (await this.clientHelper
           ._getPublicClient(this.chainId)
