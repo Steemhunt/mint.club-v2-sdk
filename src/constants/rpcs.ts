@@ -167,7 +167,7 @@ export const RPCS: Array<RPCList> = [
   },
   {
     id: degen.id,
-    rpcs: ['https://rpc.degen.tips'],
+    rpcs: ['https://degen-mainnet.g.alchemy.com/v2/mHNwP_FMYPuuNHF9evNcW_Seq-m1u8N2'],
   },
   {
     id: zora.id,
