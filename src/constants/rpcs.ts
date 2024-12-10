@@ -167,7 +167,7 @@ export const RPCS: Array<RPCList> = [
   },
   {
     id: degen.id,
-    rpcs: ['https://rpc.degen.tips', 'https://nitrorpc-degen-mainnet-1.t.conduit.xyz'],
+    rpcs: ['https://rpc.degen.tips'],
   },
   {
     id: zora.id,
