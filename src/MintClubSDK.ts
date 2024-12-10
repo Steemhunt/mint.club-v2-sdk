@@ -34,9 +34,7 @@ export class MintClubSDK {
       chainId = id;
     }
 
-    const clientHelper = new Client();
-
-    return this.withClientHelper(clientHelper, chainId);
+    return this.withClientHelper(this.wallet, chainId);
   }
 
   private withClientHelper(clientHelper: Client, chainId: SdkSupportedChainIds) {
@@ -68,7 +66,7 @@ export class MintClubSDK {
   public withPublicClient(publicClient: PublicClient): MintClubSDK {
     const chainId = publicClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
-    const clientHelper = new Client().withPublicClient(publicClient);
+    this.wallet.withPublicClient(publicClient);
     return this;
   }
 
@@ -76,8 +74,7 @@ export class MintClubSDK {
     const chainId = walletClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
     if (walletClient.chain?.id === undefined) throw new InvalidClientError();
-    const clientHelper = new Client().withWalletClient(walletClient);
-
+    this.wallet.withWalletClient(walletClient);
     return this;
   }
 }

@@ -135,23 +135,23 @@ export class Client {
   }
 
   public _getPublicClient(id: number): PublicClient {
-    if (this.publicClients[id] !== undefined) return this.publicClients[id];
-
     const chain: Chain | undefined =
       Object.values(chains).find((chain) => chain.id === id) ?? chainIdToViemChain(id as SdkSupportedChainIds);
 
     if (!chain) throw new ChainNotSupportedError(id);
 
-    this.publicClients[chain.id] = createPublicClient({
-      chain,
-      transport: fallback(chainRPCFallbacks(chain), DEFAULT_RANK_OPTIONS),
-    }) as PublicClient<FallbackTransport>;
+    if (!this.publicClients[id]) {
+      this.publicClients[chain.id] = createPublicClient({
+        chain,
+        transport: fallback(chainRPCFallbacks(chain), DEFAULT_RANK_OPTIONS),
+      }) as PublicClient<FallbackTransport>;
 
-    (this.publicClients[chain.id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
-      if (!response.response && response.status === 'success') {
-        throw new Error('Empty RPC Response');
-      }
-    });
+      (this.publicClients[chain.id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
+        if (!response.response && response.status === 'success') {
+          throw new Error('Empty RPC Response');
+        }
+      });
+    }
 
     return this.publicClients[chain.id];
   }
