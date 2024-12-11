@@ -8,22 +8,13 @@ import {
   SimulateContractReturnType,
   TransactionReceipt,
   WriteContractParameters,
-  createWalletClient,
-  fallback,
-  publicActions,
 } from 'viem';
 import { WalletNotConnectedError } from '../errors/sdk.errors';
-import {
-  ContractNames,
-  DEFAULT_RANK_OPTIONS,
-  SdkSupportedChainIds,
-  chainRPCFallbacks,
-  getChain,
-  getMintClubContractAddress,
-} from '../exports';
+import { ContractNames, SdkSupportedChainIds, getChain, getMintClubContractAddress } from '../exports';
 import { Client } from '../helpers/ClientHelper';
 import { SupportedAbiType } from '../types/abi.types';
 import { GenericWriteParams, TokenContractReadWriteArgs } from '../types/transactions.types';
+import { customWaitForTransaction } from '../utils/transaction';
 
 type GenericLogicConstructorParams<
   A extends SupportedAbiType = SupportedAbiType,
@@ -144,9 +135,12 @@ export class GenericContractLogic<
 
       onSigned?.(tx);
 
-      const receipt = await this.clientHelper._getPublicClient(this.chainId).waitForTransactionReceipt({
-        hash: tx,
-      });
+      // const receipt = await this.clientHelper._getPublicClient(this.chainId).waitForTransactionReceipt({
+      //   hash: tx,
+      // });
+
+      // use custom wait for transaction for better stability
+      const receipt = await customWaitForTransaction(this.chainId, tx);
 
       onSuccess?.(receipt as TransactionReceipt);
 
