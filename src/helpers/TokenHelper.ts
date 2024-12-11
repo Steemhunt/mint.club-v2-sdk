@@ -311,7 +311,7 @@ export class Token<T extends TokenType> {
     });
   }
 
-  protected async checkAndPrepareCreateArgs(
+  public async checkAndPrepareCreateArgs(
     params: (CreateERC20TokenParams | CreateERC1155TokenParams) & Omit<CommonWriteParams, 'value'>,
   ) {
     if (!this.symbol) {
