@@ -96,7 +96,7 @@ export class GenericContractLogic<
       } else if (!walletClient || !walletClient.account) {
         await this.clientHelper.connect();
         return;
-      } else if (!isPrivateKey) {
+      } else if (!isPrivateKey && walletClient.chain?.id !== this.chainId) {
         await walletClient.addChain({ chain: this.chain });
         await walletClient.switchChain({ id: this.chainId });
       }
