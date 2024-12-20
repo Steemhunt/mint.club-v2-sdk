@@ -199,7 +199,7 @@ function customTransport(params: { rpc?: string; fetchOptions?: HttpTransportCon
     name: rpc,
     fetchOptions,
     retryCount: 0,
-    timeout: 4_000,
+    timeout: 10_000,
   });
 }
 
@@ -224,7 +224,7 @@ export const DEFAULT_RANK_OPTIONS: FallbackTransportConfig = {
   rank: {
     interval: 100_000,
     sampleCount: 5,
-    timeout: 4_000,
+    timeout: 10_000,
     weights: {
       latency: 0.3,
       stability: 0.7,
