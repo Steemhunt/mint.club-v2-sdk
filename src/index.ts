@@ -17,6 +17,7 @@ import {
   cyber,
   cyberTestnet,
   shibarium,
+  shibariumTestnet,
 } from 'viem/chains';
 import { MintClubSDK } from './MintClubSDK';
 import {
@@ -63,6 +64,7 @@ export const supportedChains = [
   'cyber',
   'cybertestnet',
   'shibarium',
+  'puppynet',
 ] as const;
 
 export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainIds> = {
@@ -84,6 +86,7 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   ham: ham.id,
   cybertestnet: cyberTestnet.id,
   shibarium: shibarium.id,
+  puppynet: shibariumTestnet.id,
 };
 
 export * from './exports';

@@ -18,6 +18,7 @@ import {
   cyberTestnet,
   degen,
   shibarium,
+  shibariumTestnet,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
 import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
@@ -40,6 +41,7 @@ export type ChainType = {
     | 'Kaia'
     | 'Ham'
     | 'Shibarium'
+    | 'Puppynet'
     | 'BaseSepolia'
     | 'AvalancheFuji'
     | 'BlastSepolia'
@@ -172,6 +174,15 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'shibarium',
     enabled: isAddress(getMintClubContractAddress('BOND', shibarium.id)),
     chain: shibarium,
+  },
+  {
+    id: shibariumTestnet.id,
+    name: 'Puppynet',
+    icon: 'https://mint.club/assets/networks/shibarium@2x.png',
+    color: '#F0B90B',
+    openseaSlug: 'puppynet',
+    enabled: isAddress(getMintClubContractAddress('BOND', shibariumTestnet.id)),
+    chain: shibariumTestnet,
   },
   {
     id: cyber.id,

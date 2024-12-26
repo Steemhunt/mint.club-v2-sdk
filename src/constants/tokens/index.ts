@@ -17,6 +17,7 @@ import {
   cyber,
   cyberTestnet,
   shibarium,
+  shibariumTestnet,
 } from 'viem/chains';
 import { SdkSupportedChainIds } from '../contracts';
 import { ARBITRUM_TOKENS } from './arbitrum';
@@ -37,6 +38,7 @@ import { CYBER_TOKENS } from './cyber';
 import { KAIA_TOKENS } from './kaia';
 import { HAM_TOKENS } from './ham';
 import { SHIBARIUM_TOKENS } from './shibarium';
+import { SHIBARIUM_TESTNET_TOKENS } from './puppynet';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
 export const COINGECKO_NETWORK_IDS = {
@@ -197,6 +199,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
+  [shibariumTestnet.id]: {
+    image: 'https://mint.club/assets/tokens/bone.png',
+    tokenAddress: '0x41c3F37587EBcD46C0F85eF43E38BcfE1E70Ab56',
+    nativeSymbol: 'WBONE',
+    oneInchSymbol: 'USDC',
+    decimals: 18,
+  },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
@@ -219,6 +228,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [kaia.id]: KAIA_TOKENS,
   [ham.id]: HAM_TOKENS,
   [shibarium.id]: SHIBARIUM_TOKENS,
+  [shibariumTestnet.id]: SHIBARIUM_TESTNET_TOKENS,
 };
 
 export type TokenChain = keyof typeof TOKENS;

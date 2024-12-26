@@ -14,6 +14,7 @@ import {
   polygon,
   sepolia,
   shibarium,
+  shibariumTestnet,
   zora,
 } from 'viem/chains';
 
@@ -189,6 +190,10 @@ export const RPCS: Array<RPCList> = [
   {
     id: shibarium.id,
     rpcs: ['https://www.shibrpc.com'],
+  },
+  {
+    id: shibariumTestnet.id,
+    rpcs: ['https://puppynet.shibrpc.com'],
   },
 ];
 
