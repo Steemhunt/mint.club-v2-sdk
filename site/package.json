@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@types/react": "latest",
-    "mint.club-v2-sdk": "^1.0.9",
+    "mint.club-v2-sdk": "1.0.27",
     "react": "latest",
     "react-dom": "latest",
     "typescript": "latest",
