@@ -15,6 +15,7 @@ import {
   sepolia,
   shibarium,
   shibariumTestnet,
+  unichain,
   zora,
 } from 'viem/chains';
 
@@ -194,6 +195,10 @@ export const RPCS: Array<RPCList> = [
   {
     id: shibariumTestnet.id,
     rpcs: ['https://puppynet.shibrpc.com'],
+  },
+  {
+    id: unichain.id,
+    rpcs: ['https://mainnet.unichain.org'],
   },
 ];
 

@@ -19,6 +19,7 @@ import {
   ham,
   shibarium,
   shibariumTestnet,
+  unichain,
 } from 'viem/chains';
 import { oneInchContract } from '../contracts';
 import { SdkSupportedChainIds, toNumber } from '../exports';
@@ -77,6 +78,7 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [ham.id]: { address: '0x', symbol: '', decimals: 0n },
     [shibarium.id]: { address: '0x', symbol: '', decimals: 0n },
     [shibariumTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
+    [unichain.id]: { address: '0x', symbol: '', decimals: 0n },
   };
 
 export class OneInch {

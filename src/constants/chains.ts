@@ -19,6 +19,7 @@ import {
   degen,
   shibarium,
   shibariumTestnet,
+  unichain,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
 import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
@@ -45,7 +46,8 @@ export type ChainType = {
     | 'BaseSepolia'
     | 'AvalancheFuji'
     | 'BlastSepolia'
-    | 'CyberTestnet';
+    | 'CyberTestnet'
+    | 'Unichain';
   readonly icon: string;
   readonly color: string;
   readonly openseaSlug?: string;
@@ -234,6 +236,15 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'klaytn',
     enabled: isAddress(getMintClubContractAddress('BOND', kaia.id)),
     chain: kaia,
+  },
+
+  {
+    id: unichain.id,
+    name: 'Unichain',
+    icon: 'https://mint.club/assets/networks/unichain@2x.png',
+    color: '#F50DB4',
+    enabled: isAddress(getMintClubContractAddress('BOND', unichain.id)),
+    chain: unichain,
   },
 ];
 

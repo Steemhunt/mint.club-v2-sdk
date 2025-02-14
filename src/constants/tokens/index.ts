@@ -18,6 +18,7 @@ import {
   cyberTestnet,
   shibarium,
   shibariumTestnet,
+  unichain,
 } from 'viem/chains';
 import { SdkSupportedChainIds } from '../contracts';
 import { ARBITRUM_TOKENS } from './arbitrum';
@@ -39,6 +40,7 @@ import { KAIA_TOKENS } from './kaia';
 import { HAM_TOKENS } from './ham';
 import { SHIBARIUM_TOKENS } from './shibarium';
 import { SHIBARIUM_TESTNET_TOKENS } from './puppynet';
+import { UNICHAIN_TOKENS } from './unichain';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
 export const COINGECKO_NETWORK_IDS = {
@@ -206,6 +208,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
+  [unichain.id]: {
+    image: '/assets/tokens/weth.png',
+    tokenAddress: '0x4200000000000000000000000000000000000006',
+    nativeSymbol: 'ETH',
+    oneInchSymbol: 'USDT',
+    decimals: 18,
+  },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
@@ -229,6 +238,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [ham.id]: HAM_TOKENS,
   [shibarium.id]: SHIBARIUM_TOKENS,
   [shibariumTestnet.id]: SHIBARIUM_TESTNET_TOKENS,
+  [unichain.id]: UNICHAIN_TOKENS,
 };
 
 export type TokenChain = keyof typeof TOKENS;
