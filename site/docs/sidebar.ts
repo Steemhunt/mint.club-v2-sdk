@@ -441,5 +441,15 @@ export const sidebar = {
         // Any additional items or categories should follow the same pattern
       ],
     },
+    {
+      text: 'API 🔗',
+      collapsed: false,
+      items: [
+        {
+          text: '📪 Endpoints',
+          link: '/docs/api',
+        },
+      ],
+    },
   ],
 } as const satisfies Sidebar
