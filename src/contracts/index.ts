@@ -7,3 +7,4 @@ export const zapContract = new GenericContract('ZAP');
 export const airdropContract = new GenericContract('MERKLE');
 export const lockupContract = new GenericContract('LOCKER');
 export const oneInchContract = new GenericContract('ONEINCH');
+export const stakeContract = new GenericContract('STAKE');

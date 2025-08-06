@@ -8,6 +8,7 @@ import { ERC20 } from './helpers/ERC20Helper';
 import { Ipfs } from './helpers/IpfsHelper';
 import { Airdrop } from './helpers/AirdropHelper';
 import { Lockup } from './helpers/LockupHelper';
+import { Stake } from './helpers/StakeHelper';
 import { Utils } from './helpers/UtilsHelper';
 
 type NetworkReturnType = Omit<Client, '_getPublicClient'> & {
@@ -17,6 +18,7 @@ type NetworkReturnType = Omit<Client, '_getPublicClient'> & {
   airdrop: Airdrop;
   lockup: Lockup;
   bond: Bond;
+  stake: Stake;
 };
 
 export class MintClubSDK {
@@ -60,6 +62,7 @@ export class MintClubSDK {
       airdrop: new Airdrop(chainId),
       lockup: new Lockup(chainId),
       bond: new Bond(chainId),
+      stake: new Stake(chainId),
     });
   }
 

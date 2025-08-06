@@ -8,6 +8,7 @@ import {
   LowerCaseChainNames,
   MERKLE_ABI,
   ONEINCH_ABI,
+  STAKE_ABI,
   ZAP_ABI,
   chainStringToId,
 } from '../exports';
@@ -40,6 +41,8 @@ export class GenericContract<T extends ContractNames> {
       this.abi = ZAP_ABI;
     } else if (type === 'ONEINCH') {
       this.abi = ONEINCH_ABI;
+    } else if (type === 'STAKE') {
+      this.abi = STAKE_ABI;
     } else {
       throw new Error(`Contract type ${type} not supported`);
     }

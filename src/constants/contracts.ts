@@ -182,6 +182,30 @@ const SDK_CONTRACT_ADDRESSES = {
     [shibariumTestnet.id]: '0x',
     [unichain.id]: '0x',
   },
+
+  STAKE: {
+    // TODO: Add actual stake contract addresses for each network
+    [mainnet.id]: '0x', // Placeholder
+    [optimism.id]: '0x', // Placeholder
+    [arbitrum.id]: '0x', // Placeholder
+    [avalanche.id]: '0x', // Placeholder
+    [polygon.id]: '0x', // Placeholder
+    [bsc.id]: '0x', // Placeholder
+    [base.id]: '0x', // Placeholder
+    [kaia.id]: '0x', // Placeholder
+    [sepolia.id]: '0x', // Placeholder
+    [baseSepolia.id]: '0x', // Placeholder
+    [blast.id]: '0x', // Placeholder
+    [blastSepolia.id]: '0x', // Placeholder
+    [avalancheFuji.id]: '0x', // Placeholder
+    [degen.id]: '0x', // Placeholder
+    [cyberTestnet.id]: '0x', // Placeholder
+    [cyber.id]: '0x', // Placeholder
+    [ham.id]: '0x', // Placeholder
+    [shibarium.id]: '0x', // Placeholder
+    [shibariumTestnet.id]: '0x', // Placeholder
+    [unichain.id]: '0x', // Placeholder
+  },
 } as const;
 
 export function getMintClubContractAddress(contractName: ContractNames, chainId: SdkSupportedChainIds) {

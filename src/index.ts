@@ -33,6 +33,7 @@ import {
   LowerCaseChainNames,
   MERKLE_ABI,
   ONEINCH_ABI,
+  STAKE_ABI,
   TOKENS,
   ZAP_ABI,
 } from './exports';
@@ -44,6 +45,7 @@ export const abis: Record<ContractNames, Abi> = {
   LOCKER: LOCKER_ABI,
   MERKLE: MERKLE_ABI,
   ONEINCH: ONEINCH_ABI,
+  STAKE: STAKE_ABI,
   ZAP: ZAP_ABI,
 };
 
