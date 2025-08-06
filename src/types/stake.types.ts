@@ -1,4 +1,4 @@
-import { WriteTransactionCallbacks } from './transactions.types';
+import { CommonWriteParams } from './transactions.types';
 
 export type CreateStakePoolParams = {
   stakingToken: `0x${string}`;
@@ -7,29 +7,29 @@ export type CreateStakePoolParams = {
   rewardAmount: bigint;
   rewardStartsAt: number;
   rewardDuration: number;
-} & WriteTransactionCallbacks;
+} & CommonWriteParams;
 
 export type StakeParams = {
   poolId: number;
   amount: bigint;
-} & WriteTransactionCallbacks;
+} & CommonWriteParams;
 
 export type UnstakeParams = {
   poolId: number;
   amount: bigint;
-} & WriteTransactionCallbacks;
+} & CommonWriteParams;
 
 export type ClaimParams = {
   poolId: number;
-} & WriteTransactionCallbacks;
+} & CommonWriteParams;
 
 export type CancelPoolParams = {
   poolId: number;
-} & WriteTransactionCallbacks;
+} & CommonWriteParams;
 
 export type EmergencyUnstakeParams = {
   poolId: number;
-} & WriteTransactionCallbacks;
+} & CommonWriteParams;
 
 export type Pool = {
   stakingToken: `0x${string}`;
@@ -60,19 +60,9 @@ export type PoolView = {
   rewardToken: TokenInfo;
 };
 
-export type UserPoolStake = {
-  stakedAmount: bigint;
-  claimedTotal: bigint;
-  feeTotal: bigint;
-  rewardDebt: bigint;
-};
+export type UserPoolStake = readonly [bigint, bigint, bigint, bigint];
 
-export type ClaimableReward = {
-  rewardClaimable: bigint;
-  fee: bigint;
-  claimedTotal: bigint;
-  feeTotal: bigint;
-};
+export type ClaimableReward = readonly [bigint, bigint, bigint, bigint];
 
 export type GetPoolsParams = {
   start?: number;

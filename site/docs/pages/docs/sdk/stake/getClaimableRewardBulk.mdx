@@ -1,0 +1,135 @@
+---
+description: Get claimable rewards for multiple pools in a single call
+---
+
+# getClaimableRewardBulk
+
+Get claimable rewards for a user across multiple staking pools in a single call. This is more efficient than calling `getClaimableReward` multiple times.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const bulkRewards = await mintclub.network('base').stake.getClaimableRewardBulk({
+  poolIdFrom: 0,
+  poolIdTo: 10,
+  staker: '0x1234567890123456789012345678901234567890',
+})
+console.log('Bulk claimable rewards:', bulkRewards)
+```
+
+## Return Value
+
+`Promise<bigint[5][]>`
+
+Returns a promise that resolves to an array of arrays, where each inner array contains 5 values for each pool:
+
+- `[0]` - Pool ID (bigint)
+- `[1]` - Reward claimable (after fees) (bigint)
+- `[2]` - Fee that will be charged (bigint)
+- `[3]` - Total claimed so far (bigint)
+- `[4]` - Total fees paid so far (bigint)
+
+## Parameters
+
+### poolIdFrom
+
+- Type: `number`
+
+The starting pool ID (inclusive).
+
+```ts
+const bulkRewards = await mintclub.network('base').stake.getClaimableRewardBulk({
+  poolIdFrom: 0, // [!code focus]
+  poolIdTo: 10,
+  staker: '0x1234567890123456789012345678901234567890',
+})
+```
+
+### poolIdTo
+
+- Type: `number`
+
+The ending pool ID (inclusive).
+
+```ts
+const bulkRewards = await mintclub.network('base').stake.getClaimableRewardBulk({
+  poolIdFrom: 0,
+  poolIdTo: 10, // [!code focus]
+  staker: '0x1234567890123456789012345678901234567890',
+})
+```
+
+### staker
+
+- Type: `'0x${string}'`
+
+The address of the staker to check rewards for.
+
+```ts
+const bulkRewards = await mintclub.network('base').stake.getClaimableRewardBulk({
+  poolIdFrom: 0,
+  poolIdTo: 10,
+  staker: '0x1234567890123456789012345678901234567890', // [!code focus]
+})
+```
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+import { formatUnits } from 'viem'
+
+const stakerAddress = '0x1234567890123456789012345678901234567890'
+
+// Get rewards for pools 0-19
+const bulkRewards = await mintclub.network('base').stake.getClaimableRewardBulk({
+  poolIdFrom: 0,
+  poolIdTo: 19,
+  staker: stakerAddress,
+})
+
+console.log(`Checking rewards for ${bulkRewards.length} pools`)
+
+// Process each pool's rewards
+for (const poolRewards of bulkRewards) {
+  const [poolId, rewardClaimable, fee, claimedTotal, feeTotal] = poolRewards
+
+  // Skip pools with no claimable rewards
+  if (rewardClaimable === 0n) continue
+
+  console.log(`\nPool ${poolId}:`)
+
+  // Get pool info for token details
+  const poolInfo = await mintclub.network('base').stake.getPool({
+    poolId: Number(poolId),
+  })
+  const { rewardToken } = poolInfo
+
+  const claimableAmount = formatUnits(rewardClaimable, rewardToken.decimals)
+  const feeAmount = formatUnits(fee, rewardToken.decimals)
+
+  console.log(`  Claimable: ${claimableAmount} ${rewardToken.symbol}`)
+  console.log(`  Fee: ${feeAmount} ${rewardToken.symbol}`)
+}
+
+// Find pools with rewards
+const poolsWithRewards = bulkRewards.filter(([, rewardClaimable]) => rewardClaimable > 0n)
+
+if (poolsWithRewards.length > 0) {
+  console.log(`\n✅ You have rewards in ${poolsWithRewards.length} pools!`)
+
+  // Claim rewards from all pools
+  for (const [poolId] of poolsWithRewards) {
+    await mintclub.network('base').stake.claim({
+      poolId: Number(poolId),
+      onSuccess: (receipt) => {
+        console.log(`Claimed rewards from pool ${poolId}`)
+      },
+    })
+  }
+} else {
+  console.log('\n❌ No rewards available in any pool')
+}
+```

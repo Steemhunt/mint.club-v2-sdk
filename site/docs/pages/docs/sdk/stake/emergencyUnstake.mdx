@@ -1,0 +1,119 @@
+---
+description: Emergency unstake all tokens without claiming rewards
+---
+
+# emergencyUnstake
+
+Emergency unstake all staked tokens from a pool without claiming any rewards. Use this when you need to quickly withdraw your stake.
+
+:::warning[No Rewards]
+Emergency unstaking forfeits all pending rewards. Use [`unstake`](/docs/sdk/stake/unstake) instead if you want to claim rewards.
+:::
+
+:::tip[Use Case]
+This function is useful when:
+
+- You need to quickly exit a position
+- The pool has issues or is compromised
+- You want to avoid claiming fees
+  :::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').stake.emergencyUnstake({
+  poolId: 0,
+  onSuccess: (receipt) => {
+    console.log('Emergency unstake successful!', receipt)
+  },
+  onError: (error) => {
+    console.error('Failed to emergency unstake:', error)
+  },
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+## Parameters
+
+### poolId
+
+- Type: `number`
+
+The ID of the staking pool to emergency unstake from.
+
+```ts
+await mintclub.network('base').stake.emergencyUnstake({
+  poolId: 0, // [!code focus]
+})
+```
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').stake.emergencyUnstake({
+  poolId: 0,
+  onSignatureRequest: () => {
+    console.log('Please sign the transaction')
+  }, // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+Callback function for when the user signs the transaction.
+
+```ts
+await mintclub.network('base').stake.emergencyUnstake({
+  poolId: 0,
+  onSigned: (txHash) => {
+    console.log('Transaction signed:', txHash)
+  }, // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').stake.emergencyUnstake({
+  poolId: 0,
+  onSuccess: (receipt) => {
+    console.log('Emergency unstake successful!', receipt)
+  }, // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').stake.emergencyUnstake({
+  poolId: 0,
+  onError: (error) => {
+    console.error('Failed to emergency unstake:', error)
+  }, // [!code focus]
+})
+```

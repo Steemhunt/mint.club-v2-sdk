@@ -1,0 +1,43 @@
+---
+description: Get the total number of staking pools created
+---
+
+# getPoolCount
+
+Get the total number of staking pools that have been created on the protocol.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const poolCount = await mintclub.network('base').stake.getPoolCount()
+console.log('Total pools created:', poolCount)
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns a promise that resolves to the total number of staking pools created.
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const poolCount = await mintclub.network('base').stake.getPoolCount()
+
+// Convert to number for easier handling
+const totalPools = Number(poolCount)
+console.log(`${totalPools} pools have been created`)
+
+// Get all pools
+if (totalPools > 0) {
+  const pools = await mintclub.network('base').stake.getPools({
+    start: 0,
+    end: totalPools,
+  })
+  console.log('All pools:', pools)
+}
+```

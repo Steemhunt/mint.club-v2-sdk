@@ -1,0 +1,95 @@
+---
+description: Get a list of staking pools with pagination
+---
+
+# getPools
+
+Get a paginated list of staking pools created on the protocol.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const pools = await mintclub.network('base').stake.getPools({
+  start: 0,
+  end: 10,
+})
+console.log('Pools:', pools)
+```
+
+## Return Value
+
+`Promise<PoolView[]>`
+
+Returns a promise that resolves to an array of `PoolView` objects. Each object contains detailed information about a pool, including pool data and token metadata.
+
+## Parameters
+
+### start (optional)
+
+- Type: `number`
+- Default: `0`
+
+The starting index for pagination (inclusive).
+
+```ts
+const pools = await mintclub.network('base').stake.getPools({
+  start: 0, // [!code focus]
+  end: 10,
+})
+```
+
+### end (optional)
+
+- Type: `number`
+- Default: `1000`
+
+The ending index for pagination (exclusive).
+
+```ts
+const pools = await mintclub.network('base').stake.getPools({
+  start: 0,
+  end: 10, // [!code focus]
+})
+```
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+import { formatUnits } from 'viem'
+
+// Get first 20 pools
+const pools = await mintclub.network('base').stake.getPools({
+  start: 0,
+  end: 20,
+})
+
+console.log(`Found ${pools.length} pools`)
+
+// Display pool information
+pools.forEach((poolInfo, index) => {
+  const { pool, stakingToken, rewardToken } = poolInfo
+
+  console.log(`\nPool ${index}:`)
+  console.log(`  Staking: ${stakingToken.symbol}`)
+  console.log(`  Reward: ${rewardToken.symbol}`)
+
+  const totalRewards = formatUnits(pool.rewardAmount, rewardToken.decimals)
+  console.log(`  Total Rewards: ${totalRewards} ${rewardToken.symbol}`)
+
+  const totalStaked = formatUnits(pool.totalStaked, stakingToken.decimals)
+  console.log(`  Total Staked: ${totalStaked} ${stakingToken.symbol}`)
+
+  console.log(`  Active Stakers: ${pool.activeStakerCount}`)
+})
+
+// Filter active pools
+const now = Math.floor(Date.now() / 1000)
+const activePools = pools.filter(
+  ({ pool }) => pool.rewardStartsAt <= now && pool.cancelledAt === 0 && pool.rewardStartsAt + pool.rewardDuration > now,
+)
+
+console.log(`\n${activePools.length} pools are currently active`)
+```

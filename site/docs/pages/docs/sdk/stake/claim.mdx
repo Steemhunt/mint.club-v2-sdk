@@ -1,0 +1,120 @@
+---
+description: Claim pending rewards from a staking pool
+---
+
+# claim
+
+Claim all pending rewards from a specific staking pool.
+
+:::tip[Claim Fee]
+The protocol charges a fee on claimed rewards. You can check the current fee using [`getClaimFee`](/docs/sdk/stake/getClaimFee).
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+// Check claimable rewards first
+const claimable = await mintclub.network('base').stake.getClaimableReward({
+  poolId: 0,
+  staker: '0x1234567890123456789012345678901234567890',
+})
+
+const [rewardClaimable] = claimable
+if (rewardClaimable > 0n) {
+  await mintclub.network('base').stake.claim({
+    poolId: 0,
+    onSuccess: (receipt) => {
+      console.log('Rewards claimed successfully!', receipt)
+    },
+    onError: (error) => {
+      console.error('Failed to claim rewards:', error)
+    },
+  })
+}
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+## Parameters
+
+### poolId
+
+- Type: `number`
+
+The ID of the staking pool to claim rewards from.
+
+```ts
+await mintclub.network('base').stake.claim({
+  poolId: 0, // [!code focus]
+})
+```
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').stake.claim({
+  poolId: 0,
+  onSignatureRequest: () => {
+    console.log('Please sign the transaction')
+  }, // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+Callback function for when the user signs the transaction.
+
+```ts
+await mintclub.network('base').stake.claim({
+  poolId: 0,
+  onSigned: (txHash) => {
+    console.log('Transaction signed:', txHash)
+  }, // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').stake.claim({
+  poolId: 0,
+  onSuccess: (receipt) => {
+    console.log('Rewards claimed successfully!', receipt)
+  }, // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').stake.claim({
+  poolId: 0,
+  onError: (error) => {
+    console.error('Failed to claim rewards:', error)
+  }, // [!code focus]
+})
+```

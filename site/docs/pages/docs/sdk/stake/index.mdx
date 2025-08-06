@@ -1,0 +1,133 @@
+---
+description: Stake tokens to earn rewards with Mint.club V2 SDK
+---
+
+# stake 🥩
+
+The Mint.club V2 Stake feature allows users to create staking pools and earn rewards by staking tokens. Pool creators can set up reward pools with various tokens, durations, and reward amounts, while stakers can earn rewards over time.
+
+## Key Features
+
+- **Create Staking Pools**: Set up pools with any ERC20/ERC1155 token as the staking asset
+- **Flexible Rewards**: Configure reward tokens, amounts, and distribution durations
+- **Real-time Rewards**: Earn rewards that accrue over time based on stake duration
+- **Pool Management**: Cancel pools, emergency unstake, and manage pool lifecycles
+- **Fee Structure**: Protocol fees for pool creation and reward claiming
+
+## Quick Start
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+// Access stake functionality
+const stake = mintclub.network('base').stake
+
+// Get pool creation fee
+const creationFee = await stake.getCreationFee()
+
+// Create a staking pool
+await stake.createPool({
+  stakingToken: '0x...', // Token to be staked
+  isStakingTokenERC20: true, // true for ERC20, false for ERC1155
+  rewardToken: '0x...', // Token to be distributed as rewards
+  rewardAmount: BigInt('1000000000000000000'), // 1 token (18 decimals)
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // Start in 1 hour
+  rewardDuration: 7 * 24 * 60 * 60, // 7 days in seconds
+  onSuccess: (receipt) => console.log('Pool created!', receipt),
+})
+
+// Stake tokens
+await stake.stake({
+  poolId: 0,
+  amount: BigInt('100000000000000000'), // 0.1 token
+  onSuccess: (receipt) => console.log('Staked!', receipt),
+})
+
+// Check claimable rewards
+const claimable = await stake.getClaimableReward({
+  poolId: 0,
+  staker: '0x...', // User's address
+})
+
+// Claim rewards
+const [rewardClaimable, fee, claimedTotal, feeTotal] = claimable
+if (rewardClaimable > 0n) {
+  await stake.claim({
+    poolId: 0,
+    onSuccess: (receipt) => console.log('Claimed!', receipt),
+  })
+}
+```
+
+## Core Concepts
+
+### Staking Pools
+
+Each staking pool consists of:
+
+- **Staking Token**: The token users must stake (ERC20 or ERC1155)
+- **Reward Token**: The token distributed as rewards (ERC20)
+- **Reward Amount**: Total amount of reward tokens to distribute
+- **Duration**: How long the rewards are distributed over
+- **Start Time**: When reward distribution begins
+
+### Reward Distribution
+
+Rewards are distributed proportionally based on:
+
+- **Stake Amount**: How much a user has staked
+- **Stake Duration**: How long tokens have been staked
+- **Pool Activity**: Total staked amount in the pool
+
+### Fees
+
+The protocol charges fees for:
+
+- **Pool Creation**: One-time fee paid when creating a pool
+- **Reward Claiming**: Percentage fee taken from claimed rewards
+
+## Usage Patterns
+
+### Pool Creator Flow
+
+1. Create a staking pool with desired parameters
+2. Monitor pool activity and performance
+3. Optionally cancel pool if needed (returns unused rewards)
+
+### Staker Flow
+
+1. Find attractive staking pools
+2. Stake tokens to earn rewards
+3. Monitor accumulated rewards
+4. Claim rewards when desired
+5. Unstake tokens when ready
+
+### Emergency Scenarios
+
+- **Emergency Unstake**: Withdraw staked tokens immediately (forfeit rewards)
+- **Pool Cancellation**: Creator can cancel pool and recover unused rewards
+
+## Important Notes
+
+:::warning[Time Units]
+
+- All time parameters (`rewardStartsAt`, `rewardDuration`) are in **seconds**, not milliseconds
+- Use `Math.floor(Date.now() / 1000)` to convert JavaScript timestamps
+  :::
+
+:::tip[Token Amounts]
+
+- All token amounts use `bigint` type for precision
+- Remember to account for token decimals (usually 18 for ERC20)
+- Use libraries like `viem` to convert between units
+  :::
+
+:::info[Pool States]
+
+- **Active**: Pool is distributing rewards
+- **Pending**: Pool created but rewards haven't started
+- **Finished**: Reward distribution period ended
+- **Cancelled**: Pool was cancelled by creator
+  :::
+
+Ready to get started? Check out the individual method documentation for detailed usage examples and parameters.

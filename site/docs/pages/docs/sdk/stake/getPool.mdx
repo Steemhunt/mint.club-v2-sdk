@@ -1,0 +1,102 @@
+---
+description: Get detailed information about a specific staking pool
+---
+
+# getPool
+
+Get comprehensive information about a specific staking pool, including pool details and token metadata.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const poolInfo = await mintclub.network('base').stake.getPool({
+  poolId: 0,
+})
+console.log('Pool information:', poolInfo)
+```
+
+## Return Value
+
+`Promise<PoolView>`
+
+Returns a promise that resolves to a `PoolView` object containing:
+
+```ts
+type PoolView = {
+  pool: {
+    stakingToken: string
+    isStakingTokenERC20: boolean
+    rewardToken: string
+    creator: string
+    rewardAmount: bigint
+    rewardDuration: number
+    rewardStartsAt: number
+    rewardStartedAt: number
+    cancelledAt: number
+    totalStaked: bigint
+    activeStakerCount: number
+    lastRewardUpdatedAt: number
+    accRewardPerShare: bigint
+    totalAllocatedRewards: bigint
+  }
+  stakingToken: {
+    symbol: string
+    name: string
+    decimals: number
+  }
+  rewardToken: {
+    symbol: string
+    name: string
+    decimals: number
+  }
+}
+```
+
+## Parameters
+
+### poolId
+
+- Type: `number`
+
+The ID of the staking pool to get information for.
+
+```ts
+const poolInfo = await mintclub.network('base').stake.getPool({
+  poolId: 0, // [!code focus]
+})
+```
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+import { formatUnits } from 'viem'
+
+const poolInfo = await mintclub.network('base').stake.getPool({
+  poolId: 0,
+})
+
+const { pool, stakingToken, rewardToken } = poolInfo
+
+console.log('Pool Details:')
+console.log(`Creator: ${pool.creator}`)
+console.log(`Staking Token: ${stakingToken.name} (${stakingToken.symbol})`)
+console.log(`Reward Token: ${rewardToken.name} (${rewardToken.symbol})`)
+
+// Format amounts using token decimals
+const totalRewards = formatUnits(pool.rewardAmount, rewardToken.decimals)
+const totalStaked = formatUnits(pool.totalStaked, stakingToken.decimals)
+
+console.log(`Total Rewards: ${totalRewards} ${rewardToken.symbol}`)
+console.log(`Total Staked: ${totalStaked} ${stakingToken.symbol}`)
+console.log(`Active Stakers: ${pool.activeStakerCount}`)
+
+// Check pool status
+const now = Math.floor(Date.now() / 1000)
+const isActive = pool.rewardStartsAt <= now && pool.cancelledAt === 0
+const isFinished = pool.rewardStartsAt + pool.rewardDuration <= now
+
+console.log(`Status: ${pool.cancelledAt > 0 ? 'Cancelled' : isFinished ? 'Finished' : isActive ? 'Active' : 'Pending'}`)
+```
