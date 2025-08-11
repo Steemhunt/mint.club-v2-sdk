@@ -9,7 +9,7 @@ import {
   WalletNotConnectedError,
   MetadataValidationError,
 } from '../errors/sdk.errors';
-import { WRAPPED_NATIVE_TOKENS, getChain } from '../exports';
+import { WRAPPED_NATIVE_TOKENS, getChain, toNumber } from '../exports';
 import {
   ApproveBondParams,
   BondApprovedParams,
@@ -239,16 +239,189 @@ export class Token<T extends TokenType> {
     return this.tokenAddress;
   }
 
-  public async getUsdRate(amount = 1) {
-    const rateData = await this.oneinch.getUsdRate({
-      tokenAddress: this.tokenAddress,
-      tokenDecimals: this.tokenType === 'ERC20' ? 18 : 0,
+  public async getReserveUsdRate() {
+    const reserve = await this.getReserveToken();
+    // If the reserve is also a Mint Club token, always expand via its bond path first
+    const reserveIsMintClub = await bondContract.network(this.chainId).read({
+      functionName: 'exists',
+      args: [reserve.address],
     });
 
-    if (isFalse(rateData)) return { usdRate: null, stableCoin: null };
-    const { rate, stableCoin } = rateData;
+    if (reserveIsMintClub) {
+      const nested = await this.computeUsdRateForBondToken(reserve.address);
+      if (nested.usdRate === null) return { usdRate: null, reserveToken: reserve, path: nested.path } as const;
+      return { usdRate: nested.usdRate, reserveToken: reserve, path: nested.path } as const;
+    }
 
-    return { usdRate: rate * amount, stableCoin };
+    // Otherwise, use direct 1inch pricing for the non-Mint Club reserve token
+    const rateData = await this.oneinch.getUsdRate({
+      tokenAddress: reserve.address,
+      tokenDecimals: reserve.decimals,
+    });
+
+    if (isFalse(rateData)) {
+      return { usdRate: null, reserveToken: reserve, path: [] } as const;
+    }
+    const { rate, stableCoin } = rateData;
+    return {
+      usdRate: rate,
+      reserveToken: reserve,
+      path: [
+        { address: reserve.address as `0x${string}`, method: 'oneinch' as const, stableSymbol: stableCoin.symbol },
+      ],
+    } as const;
+  }
+
+  private async computeUsdRateForBondToken(
+    tokenAddress: `0x${string}`,
+    visited: Set<string> = new Set(),
+  ): Promise<{
+    usdRate: number | null;
+    path: Array<
+      | {
+          address: `0x${string}`;
+          method: 'oneinch';
+          stableSymbol?: string;
+          note?: string;
+          reserveSymbol?: string;
+          rate?: number;
+        }
+      | {
+          address: `0x${string}`;
+          method: 'bond';
+          reservePerToken: number;
+          note?: string;
+          reserveSymbol?: string;
+          reserveUsdRate?: number;
+        }
+    >;
+  }> {
+    if (visited.has(tokenAddress.toLowerCase())) return { usdRate: null, path: [] };
+    visited.add(tokenAddress.toLowerCase());
+
+    // Check if the provided tokenAddress is a Mint Club token
+    const exists = await bondContract.network(this.chainId).read({
+      functionName: 'exists',
+      args: [tokenAddress],
+    });
+    if (!exists) return { usdRate: null, path: [] };
+
+    // Get its reserve token and price per 1 token in reserve units
+    const [pricePerTokenWei, bondInfo] = await Promise.all([
+      bondContract.network(this.chainId).read({ functionName: 'priceForNextMint', args: [tokenAddress] }),
+      bondContract.network(this.chainId).read({ functionName: 'tokenBond', args: [tokenAddress] }),
+    ]);
+
+    const reserveTokenAddress = bondInfo[4] as `0x${string}`; // reserveToken
+    const [reserveTokenDecimals, reserveTokenSymbol] = await Promise.all([
+      erc20Contract.network(this.chainId).read({
+        tokenAddress: reserveTokenAddress,
+        functionName: 'decimals',
+      }),
+      erc20Contract.network(this.chainId).read({
+        tokenAddress: reserveTokenAddress,
+        functionName: 'symbol',
+      }),
+    ]);
+
+    const reservePerToken = toNumber(pricePerTokenWei, reserveTokenDecimals);
+
+    // Try to price the reserve token via 1inch
+    const reserveRateData = await this.oneinch.getUsdRate({
+      tokenAddress: reserveTokenAddress,
+      tokenDecimals: reserveTokenDecimals,
+    });
+    if (!isFalse(reserveRateData)) {
+      const { rate, stableCoin } = reserveRateData!;
+      return {
+        usdRate: rate * reservePerToken,
+        path: [
+          {
+            address: tokenAddress,
+            method: 'bond',
+            reservePerToken,
+            note: 'bond price in reserve',
+            reserveSymbol: reserveTokenSymbol,
+            reserveUsdRate: rate,
+          },
+          {
+            address: reserveTokenAddress,
+            method: 'oneinch',
+            stableSymbol: stableCoin.symbol,
+            note: 'dex quote to stable',
+            reserveSymbol: reserveTokenSymbol,
+            rate: rate,
+          },
+        ],
+      };
+    }
+
+    // If reserve token is also a Mint Club token, recurse
+    const nested = await this.computeUsdRateForBondToken(reserveTokenAddress, visited);
+    if (nested.usdRate === null) return { usdRate: null, path: nested.path };
+    return {
+      usdRate: nested.usdRate * reservePerToken,
+      path: [
+        {
+          address: tokenAddress,
+          method: 'bond',
+          reservePerToken,
+          note: 'bond price in reserve',
+          reserveSymbol: reserveTokenSymbol,
+          reserveUsdRate: nested.usdRate ?? undefined,
+        },
+        ...nested.path,
+      ],
+    };
+  }
+
+  public async getUsdRate(amount = 1) {
+    // 0) If this is NOT a Mint Club token, price it directly via 1inch
+    const isMintClub = await this.exists();
+    if (!isMintClub) {
+      const tokenDecimals = await erc20Contract.network(this.chainId).read({
+        tokenAddress: this.tokenAddress,
+        functionName: 'decimals',
+      });
+
+      const rateData = await this.oneinch.getUsdRate({
+        tokenAddress: this.tokenAddress,
+        tokenDecimals,
+      });
+
+      const path = [
+        {
+          address: this.tokenAddress,
+          method: 'oneinch' as const,
+          stableSymbol: rateData.stableCoin.symbol,
+          note: 'dex quote to stable',
+          rate: rateData.rate,
+        },
+      ];
+      return { usdRate: rateData.rate * amount, reserveToken: null, path } as const;
+    }
+
+    // 1) Get reserve USD rate
+    const { usdRate: reserveUsdRate, reserveToken, path: reservePath } = await this.getReserveUsdRate();
+    if (reserveUsdRate === null) return { usdRate: null, reserveToken, path: reservePath } as const;
+
+    // 2) Get reserve needed per 1 token and convert to human-readable
+    const pricePerTokenWei = await this.getPriceForNextMint();
+    const reservePerToken = toNumber(pricePerTokenWei, reserveToken.decimals);
+
+    // 3) Token USD price = reserve per token * reserve USD rate
+    const path = [
+      {
+        address: this.tokenAddress,
+        method: 'bond' as const,
+        reservePerToken,
+        note: 'bond price in reserve',
+        reserveSymbol: reserveToken.symbol,
+        reserveUsdRate: reserveUsdRate,
+      },
+      ...reservePath,
+    ];
+    return { usdRate: reserveUsdRate * reservePerToken * amount, reserveToken, path } as const;
   }
 
   public getDetail() {
@@ -543,6 +716,10 @@ export class Token<T extends TokenType> {
       title,
       ipfsCID,
     });
+  }
+
+  public getTokenLogoUrl() {
+    return `https://mint.club/api/tokens/logo?chainId=${this.chainId}&address=${this.tokenAddress}`;
   }
 
   public async getMintClubMetadata() {

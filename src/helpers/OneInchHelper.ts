@@ -22,6 +22,7 @@ import {
   unichain,
 } from 'viem/chains';
 import { oneInchContract } from '../contracts';
+import { ChainNotSupportedError } from '../errors/sdk.errors';
 import { SdkSupportedChainIds, toNumber } from '../exports';
 
 export type USDValueOptions = {
@@ -90,7 +91,7 @@ export class OneInch {
 
   public async getUsdRate({ tokenAddress, tokenDecimals }: USDValueOptions) {
     if (!isAddress(STABLE_COINS[this.chainId].address) || STABLE_COINS[this.chainId].address === '0x') {
-      return null;
+      throw new ChainNotSupportedError(this.chainId);
     }
 
     const isSameToken =
