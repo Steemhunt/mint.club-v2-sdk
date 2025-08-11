@@ -277,6 +277,10 @@ export const sidebar = {
                   link: '/docs/sdk/network/token-nft/getTokenAddress',
                 },
                 {
+                  text: 'getTokenLogoUrl',
+                  link: '/docs/sdk/network/token-nft/getTokenLogoUrl',
+                },
+                {
                   text: 'getReserveTokenAddress',
                   link: '/docs/sdk/network/token-nft/getReserveTokenAddress',
                 },
