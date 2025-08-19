@@ -28,6 +28,7 @@ import { SdkSupportedChainIds, toNumber } from '../exports';
 export type USDValueOptions = {
   tokenAddress: `0x${string}`;
   tokenDecimals: number;
+  blockNumber?: bigint;
 };
 
 export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`; symbol: string; decimals: bigint }> =
@@ -89,7 +90,7 @@ export class OneInch {
     this.chainId = chainId;
   }
 
-  public async getUsdRate({ tokenAddress, tokenDecimals }: USDValueOptions) {
+  public async getUsdRate({ tokenAddress, tokenDecimals, blockNumber }: USDValueOptions & { blockNumber?: bigint }) {
     if (!isAddress(STABLE_COINS[this.chainId].address) || STABLE_COINS[this.chainId].address === '0x') {
       throw new ChainNotSupportedError(this.chainId);
     }
@@ -102,6 +103,7 @@ export class OneInch {
     const rate = await oneInchContract.network(this.chainId).read({
       functionName: 'getRate',
       args: [tokenAddress, STABLE_COINS[this.chainId].address, false],
+      blockNumber,
     });
 
     const stableCoinDecimals = STABLE_COINS[this.chainId].decimals;

@@ -20,7 +20,7 @@ import {
 } from '../types/bond.types';
 import { TokenCreateAirdropParams, TokenHelperConstructorParams } from '../types/token.types';
 import { ApproveParams, CommonWriteParams, TradeType, WriteTransactionCallbacks } from '../types/transactions.types';
-import { wei } from '../utils';
+import { getTwentyFourHoursAgoTimestamp, wei } from '../utils';
 import { computeCreate2Address } from '../utils/addresses';
 import { generateCreateArgs } from '../utils/bond';
 import { Airdrop } from './AirdropHelper';
@@ -29,6 +29,7 @@ import { Ipfs } from './IpfsHelper';
 import { OneInch } from './OneInchHelper';
 import { isFalse } from '../utils/logic';
 import fetch from 'cross-fetch';
+import { Utils } from './UtilsHelper';
 
 interface MetadataCommonParams {
   backgroundImage?: File | null;
@@ -55,6 +56,7 @@ export class Token<T extends TokenType> {
   protected tokenType: T;
   protected chain: Chain;
   protected chainId: SdkSupportedChainIds;
+  protected utils: Utils;
 
   constructor(params: TokenHelperConstructorParams) {
     const { symbolOrAddress, chainId, tokenType } = params;
@@ -73,6 +75,7 @@ export class Token<T extends TokenType> {
     this.ipfsHelper = new Ipfs();
     this.oneinch = new OneInch(chainId);
     this.airdropHelper = new Airdrop(this.chainId);
+    this.utils = new Utils();
   }
 
   protected async getConnectedWalletAddress() {
@@ -239,7 +242,8 @@ export class Token<T extends TokenType> {
     return this.tokenAddress;
   }
 
-  public async getReserveUsdRate() {
+  public async getReserveUsdRate(params: { blockNumber?: bigint } = {}) {
+    const { blockNumber } = params;
     const reserve = await this.getReserveToken();
     // If the reserve is also a Mint Club token, always expand via its bond path first
     const reserveIsMintClub = await bondContract.network(this.chainId).read({
@@ -248,7 +252,11 @@ export class Token<T extends TokenType> {
     });
 
     if (reserveIsMintClub) {
-      const nested = await this.computeUsdRateForBondToken(reserve.address);
+      const nested = await this.computeUsdRateForBondToken({
+        tokenAddress: reserve.address,
+        visited: new Set(),
+        blockNumber,
+      });
       if (nested.usdRate === null) return { usdRate: null, reserveToken: reserve, path: nested.path } as const;
       return { usdRate: nested.usdRate, reserveToken: reserve, path: nested.path } as const;
     }
@@ -257,6 +265,7 @@ export class Token<T extends TokenType> {
     const rateData = await this.oneinch.getUsdRate({
       tokenAddress: reserve.address,
       tokenDecimals: reserve.decimals,
+      blockNumber,
     });
 
     if (isFalse(rateData)) {
@@ -272,10 +281,11 @@ export class Token<T extends TokenType> {
     } as const;
   }
 
-  private async computeUsdRateForBondToken(
-    tokenAddress: `0x${string}`,
-    visited: Set<string> = new Set(),
-  ): Promise<{
+  private async computeUsdRateForBondToken(params: {
+    tokenAddress: `0x${string}`;
+    visited: Set<string>;
+    blockNumber?: bigint;
+  }): Promise<{
     usdRate: number | null;
     path: Array<
       | {
@@ -296,6 +306,7 @@ export class Token<T extends TokenType> {
         }
     >;
   }> {
+    const { tokenAddress, visited, blockNumber } = params;
     if (visited.has(tokenAddress.toLowerCase())) return { usdRate: null, path: [] };
     visited.add(tokenAddress.toLowerCase());
 
@@ -330,6 +341,7 @@ export class Token<T extends TokenType> {
     const reserveRateData = await this.oneinch.getUsdRate({
       tokenAddress: reserveTokenAddress,
       tokenDecimals: reserveTokenDecimals,
+      blockNumber,
     });
     if (!isFalse(reserveRateData)) {
       const { rate, stableCoin } = reserveRateData!;
@@ -357,7 +369,7 @@ export class Token<T extends TokenType> {
     }
 
     // If reserve token is also a Mint Club token, recurse
-    const nested = await this.computeUsdRateForBondToken(reserveTokenAddress, visited);
+    const nested = await this.computeUsdRateForBondToken({ tokenAddress: reserveTokenAddress, visited });
     if (nested.usdRate === null) return { usdRate: null, path: nested.path };
     return {
       usdRate: nested.usdRate * reservePerToken,
@@ -375,7 +387,9 @@ export class Token<T extends TokenType> {
     };
   }
 
-  public async getUsdRate(amount = 1) {
+  public async getUsdRate(params: { amount: number; blockNumber?: bigint } = { amount: 1 }) {
+    const { amount, blockNumber } = params;
+
     // 0) If this is NOT a Mint Club token, price it directly via 1inch
     const isMintClub = await this.exists();
     if (!isMintClub) {
@@ -387,6 +401,7 @@ export class Token<T extends TokenType> {
       const rateData = await this.oneinch.getUsdRate({
         tokenAddress: this.tokenAddress,
         tokenDecimals,
+        blockNumber,
       });
 
       const path = [
@@ -402,7 +417,7 @@ export class Token<T extends TokenType> {
     }
 
     // 1) Get reserve USD rate
-    const { usdRate: reserveUsdRate, reserveToken, path: reservePath } = await this.getReserveUsdRate();
+    const { usdRate: reserveUsdRate, reserveToken, path: reservePath } = await this.getReserveUsdRate({ blockNumber });
     if (reserveUsdRate === null) return { usdRate: null, reserveToken, path: reservePath } as const;
 
     // 2) Get reserve needed per 1 token and convert to human-readable
@@ -422,6 +437,36 @@ export class Token<T extends TokenType> {
       ...reservePath,
     ];
     return { usdRate: reserveUsdRate * reservePerToken * amount, reserveToken, path } as const;
+  }
+
+  // NOTE: use this before calling `get24HoursUsdRate` to check if client needs to re-fetch the data
+  public async get24HoursUsdCacheKey() {
+    const prevTimeStamp = getTwentyFourHoursAgoTimestamp();
+    const cacheKey = `usd-rate-${this.chainId}-${this.tokenAddress}-${prevTimeStamp}`;
+    return { timestamp: prevTimeStamp, cacheKey } as const;
+  }
+
+  public async get24HoursUsdRate() {
+    const { timestamp, cacheKey } = await this.get24HoursUsdCacheKey();
+    const amount = 1;
+
+    // Current via unified helper
+    const currentRes = await this.getUsdRate({ amount });
+    const currentUsdRate = currentRes.usdRate;
+
+    // Previous via unified helper with blockNumber when available
+    const blockNumber24h = await this.utils.getBlockNumber({ chainId: this.chainId, timestamp });
+
+    let previousUsdRate: number | null = null;
+    const previousRes = await this.getUsdRate({ amount, blockNumber: blockNumber24h });
+    previousUsdRate = previousRes.usdRate;
+
+    const changePercent =
+      currentUsdRate !== null && previousUsdRate !== null && previousUsdRate > 0
+        ? ((currentUsdRate - previousUsdRate) / previousUsdRate) * 100
+        : null;
+
+    return { currentUsdRate, previousUsdRate, changePercent, cacheKey, timestamp } as const;
   }
 
   public getDetail() {

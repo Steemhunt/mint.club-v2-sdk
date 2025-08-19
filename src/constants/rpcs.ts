@@ -59,7 +59,6 @@ export const RPCS: Array<RPCList> = [
       // 'https://base.gateway.tenderly.co', // NOTE: 400 on `eth_getFilterChanges`
       // 'https://gateway.tenderly.co/public/base', // NOTE: 400 on `eth_getFilterChanges`
       'https://base-rpc.publicnode.com',
-      'https://developer-access-mainnet.base.org',
       'https://base.meowrpc.com',
     ],
   },
