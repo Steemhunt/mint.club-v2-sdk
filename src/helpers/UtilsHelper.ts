@@ -65,7 +65,7 @@ export class Utils {
   }
 
   public async defillamaUsdRate(params: {
-    chainId: SdkSupportedChainIds;
+    chainId: number;
     tokenAddress: `0x${string}`;
     timestamp?: number;
   }): Promise<number | undefined> {
