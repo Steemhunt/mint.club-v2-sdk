@@ -23,7 +23,8 @@ import {
 } from 'viem/chains';
 import { oneInchContract } from '../contracts';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
-import { SdkSupportedChainIds, toNumber } from '../exports';
+import { SdkSupportedChainIds, toNumber, getMintClubContractAddress } from '../exports';
+import { retry } from '../utils/retry';
 
 export type USDValueOptions = {
   tokenAddress: `0x${string}`;
@@ -90,24 +91,62 @@ export class OneInch {
     this.chainId = chainId;
   }
 
-  public async getUsdRate({ tokenAddress, tokenDecimals, blockNumber }: USDValueOptions & { blockNumber?: bigint }) {
-    if (!isAddress(STABLE_COINS[this.chainId].address) || STABLE_COINS[this.chainId].address === '0x') {
-      throw new ChainNotSupportedError(this.chainId);
+  public async getUsdRate({
+    tokenAddress,
+    tokenDecimals,
+    blockNumber,
+    tryCount,
+  }: USDValueOptions & { blockNumber?: bigint | number | 'now'; tryCount?: number }) {
+    const stable = STABLE_COINS[this.chainId];
+
+    if (!isAddress(stable.address) || stable.address === '0x') {
+      return undefined;
     }
 
-    const isSameToken =
-      isAddress(tokenAddress) && getAddress(tokenAddress) === getAddress(STABLE_COINS[this.chainId].address);
+    if (typeof tryCount === 'number' && tryCount > 5) return undefined;
 
-    if (isSameToken) return { rate: 1, stableCoin: STABLE_COINS[this.chainId] };
+    const isSameToken = isAddress(tokenAddress) && getAddress(tokenAddress) === getAddress(stable.address);
+    if (isSameToken) return { rate: 1, stableCoin: stable };
 
-    const rate = await oneInchContract.network(this.chainId).read({
-      functionName: 'getRate',
-      args: [tokenAddress, STABLE_COINS[this.chainId].address, false],
-      blockNumber,
+    // Validate params similar to client before attempting read
+    const oneInchAddress = getMintClubContractAddress('ONEINCH', this.chainId);
+    const validParams =
+      tokenAddress &&
+      tokenAddress !== '0x' &&
+      oneInchAddress !== '0x' &&
+      isAddress(tokenAddress) &&
+      isAddress(stable.address) &&
+      isAddress(oneInchAddress);
+
+    if (!validParams) return undefined;
+
+    // Compute blockNumber value to pass (number -> bigint, 'now' -> undefined)
+    let bn: bigint | undefined = undefined;
+    if (typeof blockNumber === 'number') {
+      bn = BigInt(blockNumber);
+    } else if (typeof blockNumber === 'bigint') {
+      bn = blockNumber;
+    } else if (blockNumber === 'now') {
+      bn = undefined;
+    }
+
+    // Retry read up to 5 times, 1s interval, and swallow errors to return undefined (rpc down)
+    const rate = await retry(
+      () =>
+        oneInchContract.network(this.chainId).read({
+          functionName: 'getRate',
+          args: [tokenAddress, stable.address, false],
+          ...(bn !== undefined ? { blockNumber: bn } : {}),
+        }),
+      { retries: 5, retryIntervalMs: 1000 },
+    ).catch(() => {
+      return undefined as unknown as bigint;
     });
 
-    const stableCoinDecimals = STABLE_COINS[this.chainId].decimals;
+    if (rate === undefined || rate === null) return undefined;
+
+    const stableCoinDecimals = stable.decimals;
     const rateToNumber = toNumber(rate, Number(18n + stableCoinDecimals) - tokenDecimals);
-    return { rate: rateToNumber, stableCoin: STABLE_COINS[this.chainId] };
+    return { rate: rateToNumber, stableCoin: stable };
   }
 }

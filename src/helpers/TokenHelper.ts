@@ -411,6 +411,10 @@ export class Token<T extends TokenType> {
         blockNumber,
       });
 
+      if (isFalse(rateData)) {
+        return { usdRate: null, reserveToken: null, path: [] } as const;
+      }
+
       const path = [
         {
           address: this.tokenAddress,
