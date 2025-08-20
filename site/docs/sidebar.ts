@@ -457,6 +457,7 @@ export const sidebar = {
             { text: 'Getting Started', link: '/docs/sdk/utils' },
             { text: 'generateMerkleRoot', link: '/docs/sdk/utils/generateMerkleRoot' },
             { text: 'defillamaUsdRate', link: '/docs/sdk/utils/defillamaUsdRate' },
+            { text: 'defillama24HoursPercentage', link: '/docs/sdk/utils/defillama24HoursPercentage' },
             { text: 'getBlockNumber', link: '/docs/sdk/utils/getBlockNumber' },
             { text: 'getSwapscannerPrice', link: '/docs/sdk/utils/getSwapscannerPrice' },
           ],
