@@ -26,7 +26,6 @@ import { generateCreateArgs } from '../utils/bond';
 import { Airdrop } from './AirdropHelper';
 import { Client } from './ClientHelper';
 import { Ipfs } from './IpfsHelper';
-import { OneInch } from './OneInchHelper';
 import { isFalse } from '../utils/logic';
 import fetch from 'cross-fetch';
 import { Utils } from './UtilsHelper';
@@ -51,7 +50,6 @@ export class Token<T extends TokenType> {
   private tokenAddress: `0x${string}`;
   protected clientHelper: Client;
   protected airdropHelper: Airdrop;
-  protected oneinch: OneInch;
   protected ipfsHelper: Ipfs;
   protected symbol?: string;
   protected tokenType: T;
@@ -74,7 +72,6 @@ export class Token<T extends TokenType> {
     this.tokenType = tokenType as T;
     this.clientHelper = new Client();
     this.ipfsHelper = new Ipfs();
-    this.oneinch = new OneInch(chainId);
     this.airdropHelper = new Airdrop(this.chainId);
     this.utils = new Utils();
   }
@@ -263,7 +260,8 @@ export class Token<T extends TokenType> {
     }
 
     // Otherwise, use direct 1inch pricing for the non-Mint Club reserve token
-    const rateData = await this.oneinch.getUsdRate({
+    const rateData = await this.utils.oneinchUsdRate({
+      chainId: this.chainId,
       tokenAddress: reserve.address,
       tokenDecimals: reserve.decimals,
       blockNumber,
@@ -339,7 +337,8 @@ export class Token<T extends TokenType> {
     const reservePerToken = toNumber(pricePerTokenWei, reserveTokenDecimals);
 
     // Try to price the reserve token via 1inch
-    const reserveRateData = await this.oneinch.getUsdRate({
+    const reserveRateData = await this.utils.oneinchUsdRate({
+      chainId: this.chainId,
       tokenAddress: reserveTokenAddress,
       tokenDecimals: reserveTokenDecimals,
       blockNumber,
@@ -405,7 +404,8 @@ export class Token<T extends TokenType> {
         functionName: 'decimals',
       });
 
-      const rateData = await this.oneinch.getUsdRate({
+      const rateData = await this.utils.oneinchUsdRate({
+        chainId: this.chainId,
         tokenAddress: this.tokenAddress,
         tokenDecimals,
         blockNumber,

@@ -32,6 +32,14 @@ const block = await mintclub.utils.getBlockNumber({
 
 // Swapscanner price (when available)
 const price = await mintclub.utils.getSwapscannerPrice('0x0000000000000000000000000000000000000000')
+
+// 1inch spot USD rate
+const q = await mintclub.utils.oneinchUsdRate({
+  chainId: 8453, // base
+  tokenAddress: '0x0000000000000000000000000000000000000000',
+  tokenDecimals: 18,
+  blockNumber: 'now',
+})
 ```
 
 ## Functions
@@ -41,3 +49,4 @@ const price = await mintclub.utils.getSwapscannerPrice('0x0000000000000000000000
 - `defillama24HoursPercentage({ chainId, tokenAddress })`
 - `getBlockNumber({ chainId, timestamp })`
 - `getSwapscannerPrice(tokenAddress)`
+- `oneinchUsdRate({ chainId, tokenAddress, tokenDecimals, blockNumber?, tryCount? })`

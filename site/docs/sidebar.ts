@@ -460,6 +460,7 @@ export const sidebar = {
             { text: 'defillama24HoursPercentage', link: '/docs/sdk/utils/defillama24HoursPercentage' },
             { text: 'getBlockNumber', link: '/docs/sdk/utils/getBlockNumber' },
             { text: 'getSwapscannerPrice', link: '/docs/sdk/utils/getSwapscannerPrice' },
+            { text: 'oneinchUsdRate', link: '/docs/sdk/utils/oneinchUsdRate' },
           ],
         },
 

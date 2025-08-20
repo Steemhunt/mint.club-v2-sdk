@@ -1,16 +1,22 @@
 import MerkleTree from 'merkletreejs';
-import { keccak256 } from 'viem';
+import { getAddress, isAddress, keccak256 } from 'viem';
 import { baseFetcher } from '../utils/api';
 import { getTwentyFourHoursAgoTimestamp } from '../utils';
-import { chainIdToViemChain, SdkSupportedChainIds } from '../exports';
+import { chainIdToViemChain, SdkSupportedChainIds, getMintClubContractAddress, toNumber } from '../exports';
+import { retry } from '../utils/retry';
+import { oneInchContract } from '../contracts';
 import {
   apeChain,
   arbitrum,
   avalanche,
+  avalancheFuji,
   base,
+  baseSepolia,
   blast,
+  blastSepolia,
   bsc,
   cyber,
+  cyberTestnet,
   degen,
   ham,
   hashkey,
@@ -20,11 +26,38 @@ import {
   polygon,
   sepolia,
   shibarium,
+  shibariumTestnet,
   unichain,
   zora,
 } from 'viem/chains';
 
 export class Utils {
+  // 1inch stablecoin map for USD quoting
+  private static STABLE_COINS: Record<
+    SdkSupportedChainIds,
+    { address: `0x${string}`; symbol: string; decimals: bigint }
+  > = {
+    [mainnet.id]: { address: '0xdac17f958d2ee523a2206206994597c13d831ec7', symbol: 'USDT', decimals: 6n },
+    [optimism.id]: { address: '0x94b008aa00579c1307b0ef2c499ad98a8ce58e58', symbol: 'USDT', decimals: 6n },
+    [arbitrum.id]: { address: '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9', symbol: 'USDT', decimals: 6n },
+    [avalanche.id]: { address: '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7', symbol: 'USDT', decimals: 6n },
+    [polygon.id]: { address: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', symbol: 'USDT', decimals: 6n },
+    [bsc.id]: { address: '0x55d398326f99059ff775485246999027b3197955', symbol: 'USDT', decimals: 18n },
+    [base.id]: { address: '0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca', symbol: 'USDBC', decimals: 6n },
+    [baseSepolia.id]: { address: '0x', symbol: '', decimals: 0n },
+    [sepolia.id]: { address: '0x', symbol: '', decimals: 0n },
+    [blast.id]: { address: '0x', symbol: '', decimals: 0n },
+    [blastSepolia.id]: { address: '0x', symbol: '', decimals: 0n },
+    [avalancheFuji.id]: { address: '0x', symbol: '', decimals: 0n },
+    [degen.id]: { address: '0x', symbol: '', decimals: 0n },
+    [cyber.id]: { address: '0x', symbol: '', decimals: 0n },
+    [cyberTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
+    [kaia.id]: { address: '0x', symbol: '', decimals: 0n },
+    [ham.id]: { address: '0x', symbol: '', decimals: 0n },
+    [shibarium.id]: { address: '0x', symbol: '', decimals: 0n },
+    [shibariumTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
+    [unichain.id]: { address: '0x', symbol: '', decimals: 0n },
+  };
   public generateMerkleRoot(wallets: `0x${string}`[]) {
     const leaves = wallets.map((address) => keccak256(address));
     const tree = new MerkleTree(leaves, keccak256, {
@@ -32,6 +65,63 @@ export class Utils {
     });
     const merkleRoot = `0x${tree.getRoot().toString('hex')}` as const;
     return merkleRoot;
+  }
+
+  public async oneinchUsdRate(params: {
+    chainId: SdkSupportedChainIds;
+    tokenAddress: `0x${string}`;
+    tokenDecimals: number;
+    blockNumber?: bigint | number | 'now';
+    tryCount?: number;
+  }): Promise<{ rate: number; stableCoin: { address: `0x${string}`; symbol: string; decimals: bigint } } | undefined> {
+    const { chainId, tokenAddress, tokenDecimals, blockNumber, tryCount } = params;
+    const stable = Utils.STABLE_COINS[chainId];
+
+    if (!isAddress(stable.address) || stable.address === '0x') {
+      return undefined;
+    }
+
+    if (typeof tryCount === 'number' && tryCount > 5) return undefined;
+
+    const isSameToken = isAddress(tokenAddress) && getAddress(tokenAddress) === getAddress(stable.address);
+    if (isSameToken) return { rate: 1, stableCoin: stable } as const;
+
+    const oneInchAddress = getMintClubContractAddress('ONEINCH', chainId);
+    const validParams =
+      tokenAddress &&
+      tokenAddress !== '0x' &&
+      oneInchAddress !== '0x' &&
+      isAddress(tokenAddress) &&
+      isAddress(stable.address) &&
+      isAddress(oneInchAddress);
+
+    if (!validParams) return undefined;
+
+    let bn: bigint | undefined = undefined;
+    if (typeof blockNumber === 'number') {
+      bn = BigInt(blockNumber);
+    } else if (typeof blockNumber === 'bigint') {
+      bn = blockNumber;
+    } else if (blockNumber === 'now') {
+      bn = undefined;
+    }
+
+    const rate = await retry(
+      () =>
+        oneInchContract.network(chainId).read({
+          functionName: 'getRate',
+          args: [tokenAddress, stable.address, false],
+          ...(bn !== undefined ? { blockNumber: bn } : {}),
+        }),
+      { retries: 5, retryIntervalMs: 1000 },
+    ).catch(() => {
+      return undefined as unknown as bigint;
+    });
+
+    if (rate === undefined || rate === null) return undefined;
+
+    const rateToNumber = toNumber(rate, Number(18n + stable.decimals) - tokenDecimals);
+    return { rate: rateToNumber, stableCoin: stable } as const;
   }
 
   private getDefillamaChainName(chainId: number) {
