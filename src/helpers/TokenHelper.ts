@@ -30,6 +30,7 @@ import { OneInch } from './OneInchHelper';
 import { isFalse } from '../utils/logic';
 import fetch from 'cross-fetch';
 import { Utils } from './UtilsHelper';
+import { kaia } from 'viem/chains';
 
 interface MetadataCommonParams {
   backgroundImage?: File | null;
@@ -389,6 +390,12 @@ export class Token<T extends TokenType> {
 
   public async getUsdRate(params: { amount: number; blockNumber?: bigint } = { amount: 1 }) {
     const { amount, blockNumber } = params;
+
+    // if chainId is kaia, use swapscanner price
+    if (this.chainId === kaia.id) {
+      const price = await this.utils.getSwapscannerPrice(this.tokenAddress);
+      return { usdRate: price ?? null, reserveToken: null, path: [] } as const;
+    }
 
     // 0) If this is NOT a Mint Club token, price it directly via 1inch
     const isMintClub = await this.exists();
