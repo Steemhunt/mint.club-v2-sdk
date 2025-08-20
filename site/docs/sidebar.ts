@@ -257,6 +257,14 @@ export const sidebar = {
                   link: '/docs/sdk/network/token-nft/getUsdRate',
                 },
                 {
+                  text: 'get24HoursUsdRate',
+                  link: '/docs/sdk/network/token-nft/get24HoursUsdRate',
+                },
+                {
+                  text: 'get24HoursUsdCacheKey',
+                  link: '/docs/sdk/network/token-nft/get24HoursUsdCacheKey',
+                },
+                {
                   text: 'getDetail',
                   link: '/docs/sdk/network/token-nft/getDetail',
                 },
@@ -439,6 +447,18 @@ export const sidebar = {
               text: 'Debugging',
               link: '/docs/sdk/bonus/debugging',
             },
+          ],
+        },
+
+        {
+          text: '🛠️ utils',
+          collapsed: true,
+          items: [
+            { text: 'Getting Started', link: '/docs/sdk/utils' },
+            { text: 'generateMerkleRoot', link: '/docs/sdk/utils/generateMerkleRoot' },
+            { text: 'defillamaUsdRate', link: '/docs/sdk/utils/defillamaUsdRate' },
+            { text: 'getBlockNumber', link: '/docs/sdk/utils/getBlockNumber' },
+            { text: 'getSwapscannerPrice', link: '/docs/sdk/utils/getSwapscannerPrice' },
           ],
         },
 

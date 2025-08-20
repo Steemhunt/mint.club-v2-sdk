@@ -440,14 +440,14 @@ export class Token<T extends TokenType> {
   }
 
   // NOTE: use this before calling `get24HoursUsdRate` to check if client needs to re-fetch the data
-  public async get24HoursUsdCacheKey() {
+  public get24HoursUsdCacheKey() {
     const prevTimeStamp = getTwentyFourHoursAgoTimestamp();
     const cacheKey = `usd-rate-${this.chainId}-${this.tokenAddress}-${prevTimeStamp}`;
     return { timestamp: prevTimeStamp, cacheKey } as const;
   }
 
   public async get24HoursUsdRate() {
-    const { timestamp, cacheKey } = await this.get24HoursUsdCacheKey();
+    const { timestamp, cacheKey } = this.get24HoursUsdCacheKey();
     const amount = 1;
 
     // Current via unified helper

@@ -1,0 +1,42 @@
+---
+description: Utilities exposed by the SDK for common tasks like Merkle trees, pricing, and block lookups.
+---
+
+# utils
+
+Helper utilities available via `mintclub.utils`.
+
+## Quick start
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+// Merkle root
+const root = mintclub.utils.generateMerkleRoot([
+  '0x1111111111111111111111111111111111111111',
+  '0x2222222222222222222222222222222222222222',
+])
+
+// Historical USD price
+const usd = await mintclub.utils.defillamaUsdRate({
+  chainId: 8453, // base
+  tokenAddress: '0x0000000000000000000000000000000000000000',
+  timestamp: Math.floor(Date.now() / 1000),
+})
+
+// Block number at timestamp
+const block = await mintclub.utils.getBlockNumber({
+  chainId: 8453,
+  timestamp: Math.floor(Date.now() / 1000) - 86400,
+})
+
+// Swapscanner price (when available)
+const price = await mintclub.utils.getSwapscannerPrice('0x0000000000000000000000000000000000000000')
+```
+
+## Functions
+
+- `generateMerkleRoot(wallets)`
+- `defillamaUsdRate({ chainId, tokenAddress, timestamp? })`
+- `getBlockNumber({ chainId, timestamp })`
+- `getSwapscannerPrice(tokenAddress)`

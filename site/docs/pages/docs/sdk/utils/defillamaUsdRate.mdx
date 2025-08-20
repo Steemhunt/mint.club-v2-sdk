@@ -1,0 +1,29 @@
+---
+description: Get the USD price of a token at a specific timestamp via DefiLlama.
+---
+
+# defillamaUsdRate
+
+Fetches the USD price of a token at a specific timestamp from DefiLlama.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const price = await mintclub.utils.defillamaUsdRate({
+  chainId: 8453, // base
+  tokenAddress: '0x0000000000000000000000000000000000000000',
+  timestamp: Math.floor(Date.now() / 1000),
+})
+```
+
+## Parameters
+
+- `chainId`: number — Chain ID.
+- `tokenAddress`: `0x${string}` — Token address.
+- `timestamp` (optional): number — Unix seconds; defaults to now when omitted.
+
+## Returns
+
+- `Promise<number | undefined>` — Price in USD, or `undefined` if unavailable.

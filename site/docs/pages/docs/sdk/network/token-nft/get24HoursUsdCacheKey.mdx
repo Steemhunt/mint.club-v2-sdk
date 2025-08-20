@@ -1,0 +1,31 @@
+---
+description: Returns a stable cache key and timestamp for 24h USD rate comparisons.
+---
+
+# get24HoursUsdCacheKey
+
+Returns a stable cache key based on chain, token address, and a timestamp rounded to the nearest 10 minutes (~24h ago). Use this to decide on the client if a refetch is necessary.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const { cacheKey, timestamp } = mintclub.network('base').token('GMFR').get24HoursUsdCacheKey()
+
+// Compare cacheKey to your stored key to determine if you should refetch
+```
+
+## Return Value
+
+```ts
+{
+  cacheKey: string
+  timestamp: number // unix seconds, rounded to nearest 10 minutes
+}
+```
+
+## Notes
+
+- Recommended to check this on the client for conditional refetching.
+- The key format is `usd-rate-<chainId>-<tokenAddress>-<timestamp>`.
