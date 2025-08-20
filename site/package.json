@@ -13,7 +13,7 @@
   "dependencies": {
     "@scalar/api-reference-react": "^0.6.16",
     "@types/react": "latest",
-    "mint.club-v2-sdk": "^1.1.2",
+    "mint.club-v2-sdk": "^1.2.1",
     "react": "latest",
     "react-dom": "latest",
     "typescript": "latest",
