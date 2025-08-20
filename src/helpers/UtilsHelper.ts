@@ -138,7 +138,7 @@ export class Utils {
   }
 
   public async getBlockNumber(params: {
-    chainId: SdkSupportedChainIds;
+    chainId: number;
     timestamp: number; // unix seconds
   }): Promise<bigint | undefined> {
     const { chainId } = params;
@@ -153,6 +153,7 @@ export class Utils {
     return undefined;
   }
 
+  // NOTE: only for kaia network
   public async getSwapscannerPrice(tokenAddress: `0x${string}`): Promise<number | undefined> {
     try {
       const data = (await baseFetcher.get('https://api.swapscanner.io/v1/tokens/prices')) as Record<
