@@ -68,14 +68,14 @@ export class Utils {
   }
 
   public async oneinchUsdRate(params: {
-    chainId: SdkSupportedChainIds;
+    chainId: number;
     tokenAddress: `0x${string}`;
     tokenDecimals: number;
     blockNumber?: bigint | number | 'now';
     tryCount?: number;
   }): Promise<{ rate: number; stableCoin: { address: `0x${string}`; symbol: string; decimals: bigint } } | undefined> {
     const { chainId, tokenAddress, tokenDecimals, blockNumber, tryCount } = params;
-    const stable = Utils.STABLE_COINS[chainId];
+    const stable = Utils.STABLE_COINS[chainId as SdkSupportedChainIds];
 
     if (!isAddress(stable.address) || stable.address === '0x') {
       return undefined;
@@ -86,7 +86,7 @@ export class Utils {
     const isSameToken = isAddress(tokenAddress) && getAddress(tokenAddress) === getAddress(stable.address);
     if (isSameToken) return { rate: 1, stableCoin: stable } as const;
 
-    const oneInchAddress = getMintClubContractAddress('ONEINCH', chainId);
+    const oneInchAddress = getMintClubContractAddress('ONEINCH', chainId as SdkSupportedChainIds);
     const validParams =
       tokenAddress &&
       tokenAddress !== '0x' &&
@@ -108,7 +108,7 @@ export class Utils {
 
     const rate = await retry(
       () =>
-        oneInchContract.network(chainId).read({
+        oneInchContract.network(chainId as SdkSupportedChainIds).read({
           functionName: 'getRate',
           args: [tokenAddress, stable.address, false],
           ...(bn !== undefined ? { blockNumber: bn } : {}),
