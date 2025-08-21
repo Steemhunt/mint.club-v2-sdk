@@ -19,6 +19,9 @@ import {
   shibarium,
   shibariumTestnet,
   unichain,
+  apeChain,
+  zora,
+  hashkey,
 } from 'viem/chains';
 import { MintClubSDK } from './MintClubSDK';
 import {
@@ -35,6 +38,7 @@ import {
   ONEINCH_ABI,
   TOKENS,
   ZAP_ABI,
+  over,
 } from './exports';
 
 export const abis: Record<ContractNames, Abi> = {
@@ -90,6 +94,10 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   shibarium: shibarium.id,
   puppynet: shibariumTestnet.id,
   unichain: unichain.id,
+  hashkey: hashkey.id,
+  over: over.id,
+  zora: zora.id,
+  apechain: apeChain.id,
 };
 
 export * from './exports';
