@@ -775,7 +775,7 @@ export class Token<T extends TokenType> {
   }
 
   public getTokenLogoUrl() {
-    return `https://mint.club/api/tokens/logo?chainId=${this.chainId}&address=${this.tokenAddress}`;
+    return `https://fc.hunt.town/tokens/logo/${this.chainId}/${this.tokenAddress}/image`;
   }
 
   public async getMintClubMetadata() {
