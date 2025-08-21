@@ -6,6 +6,7 @@ import { chainIdToViemChain, SdkSupportedChainIds, getMintClubContractAddress, t
 import { retry } from '../utils/retry';
 import { oneInchContract } from '../contracts';
 import { FALLBACK_USD_MAP } from '../constants/usd/fallbackUsdMap';
+import { Client } from './ClientHelper';
 import {
   apeChain,
   arbitrum,
@@ -58,10 +59,22 @@ export class Utils {
     [shibarium.id]: { address: '0x', symbol: '', decimals: 0n },
     [shibariumTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
     [apeChain.id]: { address: '0x', symbol: '', decimals: 0n },
-    [unichain.id]: { address: '0x078d782b760474a361dda0af3839290b0ef57ad6', symbol: 'USDT', decimals: 6n },
-    [hashkey.id]: { address: '0x', symbol: '', decimals: 0n },
     [zora.id]: { address: '0x', symbol: '', decimals: 0n },
-    [over.id]: { address: '0x', symbol: '', decimals: 0n },
+    [hashkey.id]: {
+      address: '0xf1b50ed67a9e2cc94ad3c477779e2d4cbfff9029',
+      symbol: 'USDT',
+      decimals: 6n,
+    },
+    [unichain.id]: {
+      address: '0x078D782b760474a361dDA0AF3839290b0EF57AD6',
+      symbol: 'USDT',
+      decimals: 6n,
+    },
+    [over.id]: {
+      address: '0xA510432E4aa60B4acd476fb850EC84B7EE226b2d',
+      symbol: 'USDT',
+      decimals: 18n,
+    }, // USDT
   };
   public generateMerkleRoot(wallets: `0x${string}`[]) {
     const leaves = wallets.map((address) => keccak256(address));
@@ -248,10 +261,26 @@ export class Utils {
     return undefined;
   }
 
+  public async getTimestampFromBlock(params: {
+    chainId: number;
+    blockNumber: bigint | number;
+  }): Promise<number | undefined> {
+    const { chainId, blockNumber } = params;
+    try {
+      const client = new Client();
+      const pc = client._getPublicClient(chainId);
+      const bn = typeof blockNumber === 'number' ? BigInt(blockNumber) : blockNumber;
+      const block = await pc.getBlock({ blockNumber: bn });
+      return Number(block.timestamp);
+    } catch {
+      return undefined;
+    }
+  }
+
   // NOTE: only for kaia network
   public async getSwapscannerPrice(tokenAddress: `0x${string}`): Promise<number | undefined> {
     try {
-      const data = (await baseFetcher.get('https://api.swapscanner.io/v1/tokens/prices')) as Record<
+      const data = (await baseFetcher.get('/v1/tokens/prices', { prefixUrl: 'https://api.swapscanner.io/' })) as Record<
         `0x${string}`,
         number
       >;

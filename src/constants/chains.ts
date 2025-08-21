@@ -24,7 +24,7 @@ import {
   apeChain,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
-import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
+import { getMintClubContractAddress, over, SdkSupportedChainIds } from './contracts';
 import * as chains from 'viem/chains';
 
 export type ChainType = {
@@ -267,6 +267,14 @@ export const CHAINS: Array<ChainType> = [
     color: '#FFB300',
     enabled: isAddress(getMintClubContractAddress('BOND', apeChain.id)),
     chain: apeChain,
+  },
+  {
+    id: over.id,
+    name: 'Over',
+    icon: 'https://mint.club/assets/networks/over@2x.png',
+    color: '#000000',
+    enabled: isAddress(getMintClubContractAddress('BOND', over.id)),
+    chain: over,
   },
 ];
 

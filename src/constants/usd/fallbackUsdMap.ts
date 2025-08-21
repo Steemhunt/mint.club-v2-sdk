@@ -1,4 +1,5 @@
-import { apeChain, base, degen, hashkey, ham, mainnet, unichain } from 'viem/chains';
+import { apeChain, base, degen, hashkey, ham, mainnet, unichain, cyber } from 'viem/chains';
+import { over } from '../contracts';
 
 type Address = `0x${string}`;
 export type FallbackUsdMap = Record<number, Record<Address, { network: number; address: Address }>>;
@@ -26,17 +27,24 @@ export const FALLBACK_USD_MAP: FallbackUsdMap = {
     },
   },
   [ham.id]: {
-    // HAM native token -> base remap (as used for DefiLlama indexing)
+    // HAM native token -> base remap
     '0xe8dd44D0791B73aFE9066C3A77721F42D0844bEB': {
       network: base.id,
       address: '0x5B5dee44552546ECEA05EDeA01DCD7Be7aa6144A',
     },
   },
   [unichain.id]: {
-    // Unichain WETH placeholder -> mainnet mapping used by DefiLlama
+    // Unichain WETH -> Mainnet WETH
     '0x4200000000000000000000000000000000000006': {
       network: mainnet.id,
-      address: '0xE7C6BF469e97eEB0bFB74C8dbFF5BD47D4C1C98a',
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    },
+  },
+  [cyber.id]: {
+    // Cyber WETH -> Mainnet WETH
+    '0x4200000000000000000000000000000000000006': {
+      network: mainnet.id,
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     },
   },
 };
