@@ -17,7 +17,11 @@ import {
   shibariumTestnet,
   unichain,
   zora,
+  apeChain,
+  hashkey,
 } from 'viem/chains';
+
+const overId = 54176;
 
 export type RPCList = {
   readonly id: number;
@@ -198,6 +202,25 @@ export const RPCS: Array<RPCList> = [
   {
     id: unichain.id,
     rpcs: ['https://mainnet.unichain.org'],
+  },
+  {
+    id: apeChain.id,
+    rpcs: ['https://rpc.apechain.com'],
+  },
+  {
+    id: hashkey.id,
+    rpcs: ['https://rpc.hashkey.org'],
+  },
+  {
+    id: overId,
+    rpcs: ['https://rpc.over.network'],
+  },
+  {
+    id: zora.id,
+    rpcs: [
+      'https://rpc.zora.energy', // ✅ - All checks passed
+      'https://zora.drpc.org', // ✅ - All checks passed
+    ],
   },
 ];
 

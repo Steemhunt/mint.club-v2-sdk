@@ -31,6 +31,8 @@
   "scripts": {
     "docs:deploy": "",
     "build": "npm run purge && npx pkgroll",
+    "build:dev": "npm run purge && npx pkgroll --sourcemap --minify=false",
+    "typecheck": "npx tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "git push && npm run build",
     "purge": "npx rimraf ./dist",
     "test": "npx bun test",
@@ -71,6 +73,6 @@
     "jsdom": "^24.0.0",
     "lodash": "^4.17.21",
     "merkletreejs": "^0.3.11",
-    "viem": "^2.23.1"
+    "viem": "^2.34.0"
   }
 }

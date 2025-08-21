@@ -26,7 +26,10 @@ export function formatGraphPoint(value: number, maxDecimalPoints?: number) {
   return formattedValue;
 }
 
-export function generateSteps(form: GenerateStepArgs) {
+export function generateSteps(form: GenerateStepArgs): {
+  stepData: Array<{ rangeTo: number; price: number }>;
+  mergeCount: number;
+} {
   const {
     tokenType,
     reserveToken,

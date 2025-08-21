@@ -1,4 +1,5 @@
 import {
+  apeChain,
   arbitrum,
   avalanche,
   avalancheFuji,
@@ -7,40 +8,46 @@ import {
   blast,
   blastSepolia,
   bsc,
+  cyber,
+  cyberTestnet,
+  degen,
+  ham,
+  hashkey,
   kaia,
   mainnet,
   optimism,
   polygon,
   sepolia,
-  degen,
-  ham,
-  cyber,
-  cyberTestnet,
   shibarium,
   shibariumTestnet,
   unichain,
+  zora,
 } from 'viem/chains';
-import { SdkSupportedChainIds } from '../contracts';
+import { over, SdkSupportedChainIds } from '../contracts';
+import { APECHAIN_TOKENS } from './apeChain';
 import { ARBITRUM_TOKENS } from './arbitrum';
 import { AVALANCHE_TOKENS } from './avalanche';
 import { AVALANCHE_FUJI_TOKENS } from './avalanche-fuji';
 import { BASE_TOKENS } from './base';
+import { BASE_SEPOLIA_TOKENS } from './base-sepolia';
 import { BLAST_TOKENS } from './blast';
 import { BLAST_SEPOLIA_TOKENS } from './blast-sepolia';
 import { BSC_TOKENS } from './bsc';
+import { CYBER_TOKENS } from './cyber';
+import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
+import { DEGEN_TOKENS } from './degen';
+import { HAM_TOKENS } from './ham';
+import { HASHKEY_TOKENS } from './hashkey';
+import { KAIA_TOKENS } from './kaia';
 import { MAINNET_TOKENS } from './mainnet';
 import { OPTIMISM_TOKENS } from './optimism';
+import { OVER_TOKENS } from './over';
 import { POLYGON_TOKENS } from './polygon';
-import { SEPOLIA_TOKENS } from './sepolia';
-import { DEGEN_TOKENS } from './degen';
-import { BASE_SEPOLIA_TOKENS } from './base-sepolia';
-import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
-import { CYBER_TOKENS } from './cyber';
-import { KAIA_TOKENS } from './kaia';
-import { HAM_TOKENS } from './ham';
-import { SHIBARIUM_TOKENS } from './shibarium';
 import { SHIBARIUM_TESTNET_TOKENS } from './puppynet';
+import { SEPOLIA_TOKENS } from './sepolia';
+import { SHIBARIUM_TOKENS } from './shibarium';
 import { UNICHAIN_TOKENS } from './unichain';
+import { ZORA_TOKENS } from './zora';
 
 // Ref: https://api.coingecko.com/api/v3/asset_platforms
 export const COINGECKO_NETWORK_IDS = {
@@ -209,36 +216,68 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     decimals: 18,
   },
   [unichain.id]: {
-    image: '/assets/tokens/weth.png',
+    image: 'https://mint.club/assets/tokens/weth.png',
     tokenAddress: '0x4200000000000000000000000000000000000006',
     nativeSymbol: 'ETH',
     oneInchSymbol: 'USDT',
+    decimals: 18,
+  },
+  [hashkey.id]: {
+    image: 'https://mint.club/assets/tokens/hashkey.png',
+    tokenAddress: '0xB210D2120d57b758EE163cFfb43e73728c471Cf1',
+    nativeSymbol: 'HSK',
+    oneInchSymbol: 'USDC',
+    decimals: 18,
+  },
+  [over.id]: {
+    image: 'https://assets.coingecko.com/coins/images/35082/large/overprotocol-logo.png?1707308333',
+    tokenAddress: '0x59c914C8ac6F212bb655737CC80d9Abc79A1e273',
+    nativeSymbol: 'OVER',
+    oneInchSymbol: 'USDT', // NOTE: not supported yet
+    decimals: 18,
+  },
+  [zora.id]: {
+    image: 'https://mint.club/assets/tokens/eth.png',
+    tokenAddress: '0x4200000000000000000000000000000000000006',
+    nativeSymbol: 'ETH',
+    oneInchSymbol: 'USDT',
+    decimals: 18,
+  },
+  [apeChain.id]: {
+    image: 'https://mint.club/assets/tokens/ape.png',
+    tokenAddress: '0x48b62137EdfA95a428D35C09E44256a739F6B557',
+    nativeSymbol: 'APE',
+    oneInchSymbol: 'USDC',
     decimals: 18,
   },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
 export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToken>> = {
-  [mainnet.id]: MAINNET_TOKENS,
-  [optimism.id]: OPTIMISM_TOKENS,
+  [apeChain.id]: APECHAIN_TOKENS,
   [arbitrum.id]: ARBITRUM_TOKENS,
   [avalanche.id]: AVALANCHE_TOKENS,
-  [polygon.id]: POLYGON_TOKENS,
-  [bsc.id]: BSC_TOKENS,
+  [avalancheFuji.id]: AVALANCHE_FUJI_TOKENS,
   [base.id]: BASE_TOKENS,
+  [baseSepolia.id]: BASE_SEPOLIA_TOKENS,
   [blast.id]: BLAST_TOKENS,
   [blastSepolia.id]: BLAST_SEPOLIA_TOKENS,
-  [sepolia.id]: SEPOLIA_TOKENS,
-  [baseSepolia.id]: BASE_SEPOLIA_TOKENS,
-  [avalancheFuji.id]: AVALANCHE_FUJI_TOKENS,
-  [degen.id]: DEGEN_TOKENS,
+  [bsc.id]: BSC_TOKENS,
   [cyber.id]: CYBER_TOKENS,
   [cyberTestnet.id]: CYBER_TESTNET_TOKENS,
-  [kaia.id]: KAIA_TOKENS,
+  [degen.id]: DEGEN_TOKENS,
   [ham.id]: HAM_TOKENS,
+  [hashkey.id]: HASHKEY_TOKENS,
+  [kaia.id]: KAIA_TOKENS,
+  [mainnet.id]: MAINNET_TOKENS,
+  [optimism.id]: OPTIMISM_TOKENS,
+  [over.id]: OVER_TOKENS,
+  [polygon.id]: POLYGON_TOKENS,
+  [sepolia.id]: SEPOLIA_TOKENS,
   [shibarium.id]: SHIBARIUM_TOKENS,
   [shibariumTestnet.id]: SHIBARIUM_TESTNET_TOKENS,
   [unichain.id]: UNICHAIN_TOKENS,
+  [zora.id]: ZORA_TOKENS,
 };
 
 export type TokenChain = keyof typeof TOKENS;

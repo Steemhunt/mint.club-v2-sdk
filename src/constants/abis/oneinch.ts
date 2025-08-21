@@ -1,28 +1,12 @@
 export const ONEINCH_ABI = [
   {
     inputs: [
-      {
-        internalType: 'contract MultiWrapper',
-        name: '_multiWrapper',
-        type: 'address',
-      },
-      {
-        internalType: 'contract IOracle[]',
-        name: 'existingOracles',
-        type: 'address[]',
-      },
-      {
-        internalType: 'enum OffchainOracle.OracleType[]',
-        name: 'oracleTypes',
-        type: 'uint8[]',
-      },
-      {
-        internalType: 'contract IERC20[]',
-        name: 'existingConnectors',
-        type: 'address[]',
-      },
+      { internalType: 'contract MultiWrapper', name: '_multiWrapper', type: 'address' },
+      { internalType: 'contract IOracle[]', name: 'existingOracles', type: 'address[]' },
+      { internalType: 'enum OffchainOracle.OracleType[]', name: 'oracleTypes', type: 'uint8[]' },
+      { internalType: 'contract IERC20[]', name: 'existingConnectors', type: 'address[]' },
       { internalType: 'contract IERC20', name: 'wBase', type: 'address' },
-      { internalType: 'address', name: 'owner', type: 'address' },
+      { internalType: 'address', name: 'owner_', type: 'address' },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
@@ -30,65 +14,41 @@ export const ONEINCH_ABI = [
   { inputs: [], name: 'ArraysLengthMismatch', type: 'error' },
   { inputs: [], name: 'ConnectorAlreadyAdded', type: 'error' },
   { inputs: [], name: 'InvalidOracleTokenKind', type: 'error' },
+  { inputs: [], name: 'MathOverflowedMulDiv', type: 'error' },
   { inputs: [], name: 'OracleAlreadyAdded', type: 'error' },
+  { inputs: [{ internalType: 'address', name: 'owner', type: 'address' }], name: 'OwnableInvalidOwner', type: 'error' },
+  {
+    inputs: [{ internalType: 'address', name: 'account', type: 'address' }],
+    name: 'OwnableUnauthorizedAccount',
+    type: 'error',
+  },
   { inputs: [], name: 'SameTokens', type: 'error' },
   { inputs: [], name: 'TooBigThreshold', type: 'error' },
   { inputs: [], name: 'UnknownConnector', type: 'error' },
   { inputs: [], name: 'UnknownOracle', type: 'error' },
   {
     anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'contract IERC20',
-        name: 'connector',
-        type: 'address',
-      },
-    ],
+    inputs: [{ indexed: false, internalType: 'contract IERC20', name: 'connector', type: 'address' }],
     name: 'ConnectorAdded',
     type: 'event',
   },
   {
     anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'contract IERC20',
-        name: 'connector',
-        type: 'address',
-      },
-    ],
+    inputs: [{ indexed: false, internalType: 'contract IERC20', name: 'connector', type: 'address' }],
     name: 'ConnectorRemoved',
     type: 'event',
   },
   {
     anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'contract MultiWrapper',
-        name: 'multiWrapper',
-        type: 'address',
-      },
-    ],
+    inputs: [{ indexed: false, internalType: 'contract MultiWrapper', name: 'multiWrapper', type: 'address' }],
     name: 'MultiWrapperUpdated',
     type: 'event',
   },
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: false,
-        internalType: 'contract IOracle',
-        name: 'oracle',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'enum OffchainOracle.OracleType',
-        name: 'oracleType',
-        type: 'uint8',
-      },
+      { indexed: false, internalType: 'contract IOracle', name: 'oracle', type: 'address' },
+      { indexed: false, internalType: 'enum OffchainOracle.OracleType', name: 'oracleType', type: 'uint8' },
     ],
     name: 'OracleAdded',
     type: 'event',
@@ -96,18 +56,8 @@ export const ONEINCH_ABI = [
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: false,
-        internalType: 'contract IOracle',
-        name: 'oracle',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'enum OffchainOracle.OracleType',
-        name: 'oracleType',
-        type: 'uint8',
-      },
+      { indexed: false, internalType: 'contract IOracle', name: 'oracle', type: 'address' },
+      { indexed: false, internalType: 'enum OffchainOracle.OracleType', name: 'oracleType', type: 'uint8' },
     ],
     name: 'OracleRemoved',
     type: 'event',
@@ -115,18 +65,8 @@ export const ONEINCH_ABI = [
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'previousOwner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
+      { indexed: true, internalType: 'address', name: 'previousOwner', type: 'address' },
+      { indexed: true, internalType: 'address', name: 'newOwner', type: 'address' },
     ],
     name: 'OwnershipTransferred',
     type: 'event',
@@ -141,11 +81,7 @@ export const ONEINCH_ABI = [
   {
     inputs: [
       { internalType: 'contract IOracle', name: 'oracle', type: 'address' },
-      {
-        internalType: 'enum OffchainOracle.OracleType',
-        name: 'oracleKind',
-        type: 'uint8',
-      },
+      { internalType: 'enum OffchainOracle.OracleType', name: 'oracleKind', type: 'uint8' },
     ],
     name: 'addOracle',
     outputs: [],
@@ -155,13 +91,7 @@ export const ONEINCH_ABI = [
   {
     inputs: [],
     name: 'connectors',
-    outputs: [
-      {
-        internalType: 'contract IERC20[]',
-        name: 'allConnectors',
-        type: 'address[]',
-      },
-    ],
+    outputs: [{ internalType: 'contract IERC20[]', name: 'allConnectors', type: 'address[]' }],
     stateMutability: 'view',
     type: 'function',
   },
@@ -190,11 +120,7 @@ export const ONEINCH_ABI = [
     inputs: [
       { internalType: 'contract IERC20', name: 'srcToken', type: 'address' },
       { internalType: 'bool', name: 'useSrcWrappers', type: 'bool' },
-      {
-        internalType: 'contract IERC20[]',
-        name: 'customConnectors',
-        type: 'address[]',
-      },
+      { internalType: 'contract IERC20[]', name: 'customConnectors', type: 'address[]' },
       { internalType: 'uint256', name: 'thresholdFilter', type: 'uint256' },
     ],
     name: 'getRateToEthWithCustomConnectors',
@@ -218,11 +144,7 @@ export const ONEINCH_ABI = [
       { internalType: 'contract IERC20', name: 'srcToken', type: 'address' },
       { internalType: 'contract IERC20', name: 'dstToken', type: 'address' },
       { internalType: 'bool', name: 'useWrappers', type: 'bool' },
-      {
-        internalType: 'contract IERC20[]',
-        name: 'customConnectors',
-        type: 'address[]',
-      },
+      { internalType: 'contract IERC20[]', name: 'customConnectors', type: 'address[]' },
       { internalType: 'uint256', name: 'thresholdFilter', type: 'uint256' },
     ],
     name: 'getRateWithCustomConnectors',
@@ -243,6 +165,71 @@ export const ONEINCH_ABI = [
     type: 'function',
   },
   {
+    inputs: [
+      { internalType: 'contract IERC20', name: 'srcToken', type: 'address' },
+      { internalType: 'bool', name: 'useSrcWrappers', type: 'bool' },
+      { internalType: 'contract IERC20[]', name: 'customConnectors', type: 'address[]' },
+      { internalType: 'uint256', name: 'thresholdFilter', type: 'uint256' },
+    ],
+    name: 'getRatesAndWeightsToEthWithCustomConnectors',
+    outputs: [
+      { internalType: 'uint256', name: 'wrappedPrice', type: 'uint256' },
+      {
+        components: [
+          { internalType: 'uint256', name: 'maxOracleWeight', type: 'uint256' },
+          { internalType: 'uint256', name: 'size', type: 'uint256' },
+          {
+            components: [
+              { internalType: 'uint256', name: 'rate', type: 'uint256' },
+              { internalType: 'uint256', name: 'weight', type: 'uint256' },
+            ],
+            internalType: 'struct OraclePrices.OraclePrice[]',
+            name: 'oraclePrices',
+            type: 'tuple[]',
+          },
+        ],
+        internalType: 'struct OraclePrices.Data',
+        name: 'ratesAndWeights',
+        type: 'tuple',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'contract IERC20', name: 'srcToken', type: 'address' },
+      { internalType: 'contract IERC20', name: 'dstToken', type: 'address' },
+      { internalType: 'bool', name: 'useWrappers', type: 'bool' },
+      { internalType: 'contract IERC20[]', name: 'customConnectors', type: 'address[]' },
+      { internalType: 'uint256', name: 'thresholdFilter', type: 'uint256' },
+    ],
+    name: 'getRatesAndWeightsWithCustomConnectors',
+    outputs: [
+      { internalType: 'uint256', name: 'wrappedPrice', type: 'uint256' },
+      {
+        components: [
+          { internalType: 'uint256', name: 'maxOracleWeight', type: 'uint256' },
+          { internalType: 'uint256', name: 'size', type: 'uint256' },
+          {
+            components: [
+              { internalType: 'uint256', name: 'rate', type: 'uint256' },
+              { internalType: 'uint256', name: 'weight', type: 'uint256' },
+            ],
+            internalType: 'struct OraclePrices.OraclePrice[]',
+            name: 'oraclePrices',
+            type: 'tuple[]',
+          },
+        ],
+        internalType: 'struct OraclePrices.Data',
+        name: 'ratesAndWeights',
+        type: 'tuple',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [],
     name: 'multiWrapper',
     outputs: [{ internalType: 'contract MultiWrapper', name: '', type: 'address' }],
@@ -253,16 +240,8 @@ export const ONEINCH_ABI = [
     inputs: [],
     name: 'oracles',
     outputs: [
-      {
-        internalType: 'contract IOracle[]',
-        name: 'allOracles',
-        type: 'address[]',
-      },
-      {
-        internalType: 'enum OffchainOracle.OracleType[]',
-        name: 'oracleTypes',
-        type: 'uint8[]',
-      },
+      { internalType: 'contract IOracle[]', name: 'allOracles', type: 'address[]' },
+      { internalType: 'enum OffchainOracle.OracleType[]', name: 'oracleTypes', type: 'uint8[]' },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -284,32 +263,16 @@ export const ONEINCH_ABI = [
   {
     inputs: [
       { internalType: 'contract IOracle', name: 'oracle', type: 'address' },
-      {
-        internalType: 'enum OffchainOracle.OracleType',
-        name: 'oracleKind',
-        type: 'uint8',
-      },
+      { internalType: 'enum OffchainOracle.OracleType', name: 'oracleKind', type: 'uint8' },
     ],
     name: 'removeOracle',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
+  { inputs: [], name: 'renounceOwnership', outputs: [], stateMutability: 'nonpayable', type: 'function' },
   {
-    inputs: [],
-    name: 'renounceOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'contract MultiWrapper',
-        name: '_multiWrapper',
-        type: 'address',
-      },
-    ],
+    inputs: [{ internalType: 'contract MultiWrapper', name: '_multiWrapper', type: 'address' }],
     name: 'setMultiWrapper',
     outputs: [],
     stateMutability: 'nonpayable',

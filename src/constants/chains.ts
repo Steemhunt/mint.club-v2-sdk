@@ -20,6 +20,8 @@ import {
   shibarium,
   shibariumTestnet,
   unichain,
+  zora,
+  apeChain,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
 import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
@@ -47,7 +49,11 @@ export type ChainType = {
     | 'AvalancheFuji'
     | 'BlastSepolia'
     | 'CyberTestnet'
-    | 'Unichain';
+    | 'Unichain'
+    | 'Zora'
+    | 'Apechain'
+    | 'Hashkey'
+    | 'Over';
   readonly icon: string;
   readonly color: string;
   readonly openseaSlug?: string;
@@ -245,6 +251,22 @@ export const CHAINS: Array<ChainType> = [
     color: '#F50DB4',
     enabled: isAddress(getMintClubContractAddress('BOND', unichain.id)),
     chain: unichain,
+  },
+  {
+    id: zora.id,
+    name: 'Zora',
+    icon: 'https://mint.club/assets/networks/zora@2x.png',
+    color: '#000000',
+    enabled: isAddress(getMintClubContractAddress('BOND', zora.id)),
+    chain: zora,
+  },
+  {
+    id: apeChain.id,
+    name: 'Apechain',
+    icon: 'https://mint.club/assets/networks/apechain@2x.png',
+    color: '#FFB300',
+    enabled: isAddress(getMintClubContractAddress('BOND', apeChain.id)),
+    chain: apeChain,
   },
 ];
 

@@ -135,7 +135,7 @@ export class Token<T extends TokenType> {
         args: [connectedAddress, getMintClubContractAddress(contract, this.chainId)],
       });
 
-      return allowance >= amountToSpend;
+      return BigInt(allowance) >= amountToSpend;
     }
   }
 
