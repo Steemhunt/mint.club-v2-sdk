@@ -219,7 +219,10 @@ export const RPCS: Array<RPCList> = [
   },
   {
     id: hashkey.id,
-    rpcs: ['https://rpc.hashkey.org'],
+    rpcs: [
+      'https://mainnet.hsk.xyz',
+      'https://hashkey.drpc.org',
+    ],
   },
   {
     id: overId,

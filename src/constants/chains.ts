@@ -22,6 +22,7 @@ import {
   unichain,
   zora,
   apeChain,
+  hashkey,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
 import { getMintClubContractAddress, over, SdkSupportedChainIds } from './contracts';
@@ -267,6 +268,14 @@ export const CHAINS: Array<ChainType> = [
     color: '#FFB300',
     enabled: isAddress(getMintClubContractAddress('BOND', apeChain.id)),
     chain: apeChain,
+  },
+  {
+    id: hashkey.id,
+    name: 'Hashkey',
+    icon: 'https://mint.club/assets/networks/hashkey@2x.png',
+    color: '#000000',
+    enabled: isAddress(getMintClubContractAddress('BOND', hashkey.id)),
+    chain: hashkey,
   },
   {
     id: over.id,
