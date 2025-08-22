@@ -7,7 +7,7 @@ description: Returns the token price in USD. Supports Mint Club tokens (bond pat
 Returns the current token price in USD.
 
 - Mint Club tokens: computed via its bonding curve price (in reserve) multiplied by the reserve token USD rate. If reserves are nested Mint Club tokens, the method expands the full path until a DEX-quoted token is reached.
-- Non–Mint Club tokens: priced directly via 1inch on the current chain.
+- Non–Mint Club tokens: priced via 1inch on the current chain. For tokens with very small values (< $0.000001), automatically uses TOKEN → ETH → USD path for better precision instead of direct TOKEN → USDC/USDT path.
 
 ## Usage
 

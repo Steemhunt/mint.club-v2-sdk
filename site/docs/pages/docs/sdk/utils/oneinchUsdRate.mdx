@@ -4,7 +4,7 @@ description: Get a spot USD rate for any ERC-20 via 1inch router on supported ch
 
 ## utils.oneinchUsdRate
 
-Returns a USD rate for a token by quoting against a stablecoin via the on-chain 1inch router.
+Returns a USD rate for a token by quoting against a stablecoin via the on-chain 1inch router. For tokens with very small values (< $0.000001), automatically uses TOKEN → ETH → USD path for better precision.
 
 - Parameters:
 

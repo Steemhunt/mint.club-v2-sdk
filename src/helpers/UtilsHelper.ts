@@ -34,6 +34,38 @@ import {
 } from 'viem/chains';
 
 export class Utils {
+  // ETH cache for efficient pricing (TOKEN -> ETH -> USD)
+  private static ethRateCache = new Map<string, { rate: number; timestamp: number }>();
+  private static ETH_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+  // WETH addresses for TOKEN -> ETH pricing path
+  private static WETH_ADDRESSES: Record<SdkSupportedChainIds, `0x${string}`> = {
+    [mainnet.id]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    [optimism.id]: '0x4200000000000000000000000000000000000006',
+    [arbitrum.id]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+    [avalanche.id]: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7', // WAVAX
+    [polygon.id]: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270', // WMATIC
+    [bsc.id]: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', // WBNB
+    [base.id]: '0x4200000000000000000000000000000000000006',
+    [sepolia.id]: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14',
+    [baseSepolia.id]: '0x4200000000000000000000000000000000000006',
+    [blast.id]: '0x4300000000000000000000000000000000000004',
+    [blastSepolia.id]: '0x4300000000000000000000000000000000000004',
+    [avalancheFuji.id]: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c', // WAVAX
+    [degen.id]: '0xEb54dACB4C2ccb64F8074eceEa33b5eBb38E5387', // DEGEN (native)
+    [cyber.id]: '0x4200000000000000000000000000000000000006',
+    [cyberTestnet.id]: '0x4200000000000000000000000000000000000006',
+    [kaia.id]: '0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432', // WKLAY
+    [ham.id]: '0xe8dd44D0791B73aFE9066C3A77721F42D0844bEB', // WHAM
+    [shibarium.id]: '0x0000000000000000000000000000000000001010', // BONE
+    [shibariumTestnet.id]: '0x0000000000000000000000000000000000001010',
+    [apeChain.id]: '0x48b62137EdfA95a428D35C09E44256a739F6B557', // WAPE
+    [zora.id]: '0x4200000000000000000000000000000000000006',
+    [hashkey.id]: '0xB210D2120d57b758EE163cFfb43e73728c471Cf1', // WHSK
+    [unichain.id]: '0x4200000000000000000000000000000000000006',
+    [over.id]: '0x4200000000000000000000000000000000000006', // Assume WETH for Over network
+  };
+
   // 1inch stablecoin map for USD quoting
   private static STABLE_COINS: Record<
     SdkSupportedChainIds,
@@ -85,6 +117,93 @@ export class Utils {
     return merkleRoot;
   }
 
+  public async oneinchEthRate(params: {
+    chainId: number;
+    tokenAddress: `0x${string}`;
+    tokenDecimals: number;
+    blockNumber?: bigint | number | 'now';
+    tryCount?: number;
+  }): Promise<{ rate: number; nativeToken: { address: `0x${string}`; symbol: string; decimals: number } } | undefined> {
+    const { chainId, tokenAddress, tokenDecimals, blockNumber, tryCount } = params;
+    const wethAddress = Utils.WETH_ADDRESSES[chainId as SdkSupportedChainIds];
+
+    if (!isAddress(wethAddress) || wethAddress === '0x') {
+      return undefined;
+    }
+
+    if (typeof tryCount === 'number' && tryCount > 5) return undefined;
+
+    const isSameToken = isAddress(tokenAddress) && getAddress(tokenAddress) === getAddress(wethAddress);
+    if (isSameToken) {
+      const nativeSymbol = chainIdToViemChain(chainId as SdkSupportedChainIds)?.nativeCurrency?.symbol || 'ETH';
+      return {
+        rate: 1,
+        nativeToken: { address: wethAddress, symbol: nativeSymbol, decimals: 18 },
+      } as const;
+    }
+
+    const oneInchAddress = getMintClubContractAddress('ONEINCH', chainId as SdkSupportedChainIds);
+    const validParams =
+      tokenAddress &&
+      tokenAddress !== '0x' &&
+      oneInchAddress !== '0x' &&
+      isAddress(tokenAddress) &&
+      isAddress(wethAddress) &&
+      isAddress(oneInchAddress);
+
+    if (!validParams) return undefined;
+
+    let bn: bigint | undefined = undefined;
+    if (typeof blockNumber === 'number') {
+      bn = BigInt(blockNumber);
+    } else if (typeof blockNumber === 'bigint') {
+      bn = blockNumber;
+    } else if (blockNumber === 'now') {
+      bn = undefined;
+    }
+
+    const rate = await retry(
+      () =>
+        oneInchContract.network(chainId as SdkSupportedChainIds).read({
+          functionName: 'getRate',
+          args: [tokenAddress, wethAddress, false],
+          ...(bn !== undefined ? { blockNumber: bn } : {}),
+        }),
+      { retries: 5, retryIntervalMs: 1000 },
+    ).catch(() => {
+      return undefined as unknown as bigint;
+    });
+
+    if (rate === undefined || rate === null) return undefined;
+
+    const rateToNumber = toNumber(rate, Number(18n + 18n) - tokenDecimals); // WETH is always 18 decimals
+    const nativeSymbol = chainIdToViemChain(chainId as SdkSupportedChainIds)?.nativeCurrency?.symbol || 'ETH';
+
+    return {
+      rate: rateToNumber,
+      nativeToken: { address: wethAddress, symbol: nativeSymbol, decimals: 18 },
+    } as const;
+  }
+
+  private getCachedEthUsdRate(chainId: number): number | undefined {
+    const cacheKey = `eth-usd-${chainId}`;
+    const cached = Utils.ethRateCache.get(cacheKey);
+
+    if (cached && Date.now() - cached.timestamp < Utils.ETH_CACHE_DURATION) {
+      return cached.rate;
+    }
+
+    return undefined;
+  }
+
+  private setCachedEthUsdRate(chainId: number, rate: number): void {
+    const cacheKey = `eth-usd-${chainId}`;
+    Utils.ethRateCache.set(cacheKey, {
+      rate,
+      timestamp: Date.now(),
+    });
+  }
+
   public async oneinchUsdRate(params: {
     chainId: number;
     tokenAddress: `0x${string}`;
@@ -124,6 +243,7 @@ export class Utils {
       bn = undefined;
     }
 
+    // Try direct TOKEN -> STABLE path first
     const rate = await retry(
       () =>
         oneInchContract.network(chainId as SdkSupportedChainIds).read({
@@ -136,10 +256,52 @@ export class Utils {
       return undefined as unknown as bigint;
     });
 
-    if (rate === undefined || rate === null) return undefined;
+    if (rate !== undefined && rate !== null) {
+      const rateToNumber = toNumber(rate, Number(18n + stable.decimals) - tokenDecimals);
 
-    const rateToNumber = toNumber(rate, Number(18n + stable.decimals) - tokenDecimals);
-    return { rate: rateToNumber, stableCoin: stable } as const;
+      // If the rate is too small (< $0.000001), try TOKEN -> ETH -> USD path
+      if (rateToNumber >= 0.000001) {
+        return { rate: rateToNumber, stableCoin: stable } as const;
+      }
+    }
+
+    // Fallback: Try TOKEN -> ETH -> USD path for better precision with small values
+    const ethRate = await this.oneinchEthRate({
+      chainId,
+      tokenAddress,
+      tokenDecimals,
+      blockNumber,
+      tryCount: (tryCount ?? 0) + 1,
+    });
+
+    if (!ethRate) return undefined;
+
+    // Get cached ETH -> USD rate or fetch fresh one
+    let ethUsdRate = this.getCachedEthUsdRate(chainId);
+
+    if (ethUsdRate === undefined || ethUsdRate === null || ethUsdRate === 0) {
+      // Get ETH -> USD rate
+      const wethAddress = Utils.WETH_ADDRESSES[chainId as SdkSupportedChainIds];
+      const ethToUsdRate = await retry(
+        () =>
+          oneInchContract.network(chainId as SdkSupportedChainIds).read({
+            functionName: 'getRate',
+            args: [wethAddress, stable.address, false],
+            ...(bn !== undefined ? { blockNumber: bn } : {}),
+          }),
+        { retries: 5, retryIntervalMs: 1000 },
+      ).catch(() => {
+        return undefined as unknown as bigint;
+      });
+
+      if (ethToUsdRate === undefined || ethToUsdRate === null) return undefined;
+
+      ethUsdRate = toNumber(ethToUsdRate, Number(18n + stable.decimals) - 18); // WETH is 18 decimals
+      this.setCachedEthUsdRate(chainId, ethUsdRate);
+    }
+
+    const finalUsdRate = ethRate.rate * ethUsdRate;
+    return { rate: finalUsdRate, stableCoin: stable } as const;
   }
 
   private getDefillamaChainName(chainId: number) {
@@ -182,7 +344,7 @@ export class Utils {
 
     // Centralized fallback remap if present
     const chainFallbacks = FALLBACK_USD_MAP[chainId];
-    if (chainFallbacks) {
+    if (chainFallbacks !== undefined) {
       const key = (Object.keys(chainFallbacks) as Array<keyof typeof chainFallbacks>).find(
         (k) => (k as string).toLowerCase() === tokenAddress.toLowerCase(),
       );
@@ -218,7 +380,7 @@ export class Utils {
 
     // Centralized fallback remap if present
     const chainFallbacks = FALLBACK_USD_MAP[chainId];
-    if (chainFallbacks) {
+    if (chainFallbacks !== undefined) {
       const key = (Object.keys(chainFallbacks) as Array<keyof typeof chainFallbacks>).find(
         (k) => (k as string).toLowerCase() === tokenAddress.toLowerCase(),
       );

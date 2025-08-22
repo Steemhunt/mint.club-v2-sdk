@@ -40,6 +40,14 @@ const q = await mintclub.utils.oneinchUsdRate({
   tokenDecimals: 18,
   blockNumber: 'now',
 })
+
+// 1inch spot ETH rate (for better precision with small values)
+const ethRate = await mintclub.utils.oneinchEthRate({
+  chainId: 8453, // base
+  tokenAddress: '0x0000000000000000000000000000000000000000',
+  tokenDecimals: 18,
+  blockNumber: 'now',
+})
 ```
 
 ## Functions
@@ -50,3 +58,4 @@ const q = await mintclub.utils.oneinchUsdRate({
 - `getBlockNumber({ chainId, timestamp })`
 - `getSwapscannerPrice(tokenAddress)`
 - `oneinchUsdRate({ chainId, tokenAddress, tokenDecimals, blockNumber?, tryCount? })`
+- `oneinchEthRate({ chainId, tokenAddress, tokenDecimals, blockNumber?, tryCount? })`
