@@ -20,9 +20,12 @@ import {
   shibarium,
   shibariumTestnet,
   unichain,
+  zora,
+  apeChain,
+  hashkey,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
-import { getMintClubContractAddress, SdkSupportedChainIds } from './contracts';
+import { getMintClubContractAddress, over, SdkSupportedChainIds } from './contracts';
 import * as chains from 'viem/chains';
 
 export type ChainType = {
@@ -47,7 +50,11 @@ export type ChainType = {
     | 'AvalancheFuji'
     | 'BlastSepolia'
     | 'CyberTestnet'
-    | 'Unichain';
+    | 'Unichain'
+    | 'Zora'
+    | 'Apechain'
+    | 'Hashkey'
+    | 'Over';
   readonly icon: string;
   readonly color: string;
   readonly openseaSlug?: string;
@@ -245,6 +252,38 @@ export const CHAINS: Array<ChainType> = [
     color: '#F50DB4',
     enabled: isAddress(getMintClubContractAddress('BOND', unichain.id)),
     chain: unichain,
+  },
+  {
+    id: zora.id,
+    name: 'Zora',
+    icon: 'https://mint.club/assets/networks/zora@2x.png',
+    color: '#000000',
+    enabled: isAddress(getMintClubContractAddress('BOND', zora.id)),
+    chain: zora,
+  },
+  {
+    id: apeChain.id,
+    name: 'Apechain',
+    icon: 'https://mint.club/assets/networks/apechain@2x.png',
+    color: '#FFB300',
+    enabled: isAddress(getMintClubContractAddress('BOND', apeChain.id)),
+    chain: apeChain,
+  },
+  {
+    id: hashkey.id,
+    name: 'Hashkey',
+    icon: 'https://mint.club/assets/networks/hashkey@2x.png',
+    color: '#000000',
+    enabled: isAddress(getMintClubContractAddress('BOND', hashkey.id)),
+    chain: hashkey,
+  },
+  {
+    id: over.id,
+    name: 'Over',
+    icon: 'https://mint.club/assets/networks/over@2x.png',
+    color: '#000000',
+    enabled: isAddress(getMintClubContractAddress('BOND', over.id)),
+    chain: over,
   },
 ];
 

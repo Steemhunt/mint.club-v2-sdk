@@ -16,6 +16,20 @@ export type TokenContractReadWriteArgs<
         functionName: T;
       });
 
+export type TokenContractReadArgs<
+  A extends Abi,
+  T extends ContractFunctionName<A, 'view' | 'pure'>,
+  R extends ContractFunctionArgs<A, 'view' | 'pure', T>,
+  C extends ContractNames = ContractNames,
+> = (R extends readonly [] ? {} : { args: R }) & { blockNumber?: bigint } & (C extends 'ERC20' | 'ERC1155'
+    ? {
+        tokenAddress: `0x${string}`;
+        functionName: T;
+      }
+    : {
+        functionName: T;
+      });
+
 export type WriteTransactionCallbacks = {
   debug?: (args: any) => void;
 

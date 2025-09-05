@@ -13,7 +13,7 @@ import { WalletNotConnectedError } from '../errors/sdk.errors';
 import { ContractNames, SdkSupportedChainIds, getChain, getMintClubContractAddress } from '../exports';
 import { Client } from '../helpers/ClientHelper';
 import { SupportedAbiType } from '../types/abi.types';
-import { GenericWriteParams, TokenContractReadWriteArgs } from '../types/transactions.types';
+import { GenericWriteParams, TokenContractReadArgs, TokenContractReadWriteArgs } from '../types/transactions.types';
 import { customWaitForTransaction } from '../utils/transaction';
 
 type GenericLogicConstructorParams<
@@ -48,8 +48,8 @@ export class GenericContractLogic<
   public read<
     T extends ContractFunctionName<A, 'view' | 'pure'>,
     R extends ContractFunctionArgs<A, 'view' | 'pure', T>,
-  >(params: TokenContractReadWriteArgs<A, T, R, C>): Promise<ReadContractReturnType<A, T, R>> {
-    const { functionName } = params;
+  >(params: TokenContractReadArgs<A, T, R, C>): Promise<ReadContractReturnType<A, T, R>> {
+    const { functionName, blockNumber } = params as TokenContractReadArgs<A, T, R, C>;
 
     const args = 'args' in params ? params.args : undefined;
     let address: `0x${string}`;
@@ -67,6 +67,7 @@ export class GenericContractLogic<
       address,
       functionName,
       args,
+      ...(blockNumber !== undefined ? { blockNumber } : {}),
     } as unknown as ReadContractParameters<A, T, R>) as Promise<ReadContractReturnType<A, T, R>>;
   }
 

@@ -1,0 +1,27 @@
+---
+description: Get the block number at a given timestamp using DefiLlama's block API.
+---
+
+# getBlockNumber
+
+Returns the block number closest to a given timestamp.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const blockNumber = await mintclub.utils.getBlockNumber({
+  chainId: 8453,
+  timestamp: Math.floor(Date.now() / 1000) - 86400,
+})
+```
+
+## Parameters
+
+- `chainId`: number — Chain ID.
+- `timestamp`: number — Unix timestamp (seconds).
+
+## Returns
+
+- `Promise<bigint | undefined>` — Block number, or `undefined` if unavailable.

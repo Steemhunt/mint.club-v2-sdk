@@ -1,0 +1,23 @@
+---
+description: Get the current token price from Swapscanner, when supported.
+---
+
+# getSwapscannerPrice
+
+Fetches the token price from Swapscanner's public API when available.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const price = await mintclub.utils.getSwapscannerPrice('0x0000000000000000000000000000000000000000')
+```
+
+## Parameters
+
+- `tokenAddress`: `0x${string}` — Token address.
+
+## Returns
+
+- `Promise<number | undefined>` — Price in USD (when available), otherwise `undefined`.

@@ -32,7 +32,7 @@ export function wei(num: number, decimals = 18) {
 
 export function getCreationFee(network: LowerCaseChainNames) {
   // Collect ~ $5 of asset creation fee to prevent spam
-  const CREATION_FEE: Record<LowerCaseChainNames, bigint> = {
+  const CREATION_FEE: Partial<Record<LowerCaseChainNames, bigint>> = {
     ethereum: 2n * 10n ** 15n, // 0.002 ETH
     optimism: 2n * 10n ** 15n, // 0.002 ETH
     arbitrum: 2n * 10n ** 15n, // 0.002 ETH
@@ -47,5 +47,5 @@ export function getCreationFee(network: LowerCaseChainNames) {
     throw new Error(`CREATION_FEE is not defined for ${network}`);
   }
 
-  return CREATION_FEE[network];
+  return CREATION_FEE[network]!;
 }

@@ -1,0 +1,42 @@
+---
+description: Get a spot USD rate for any ERC-20 via 1inch router on supported chains, with retries and block pinning.
+---
+
+## utils.oneinchUsdRate
+
+Returns a USD rate for a token by quoting against a stablecoin via the on-chain 1inch router. For tokens with very small values (< $0.000001), automatically uses TOKEN → ETH → USD path for better precision.
+
+- Parameters:
+
+  - `chainId` (number): Supported chain ID used by the SDK
+  - `tokenAddress` (`0x…`): ERC-20 address to quote
+  - `tokenDecimals` (number): Decimals of `tokenAddress`
+  - `blockNumber?` (bigint | number | 'now'): Optional block to pin the read; `'now'` reads latest
+  - `tryCount?` (number): Optional attempt counter; if `> 5` returns `undefined`
+
+- Returns: `{ rate: number; stableCoin: { address: string; symbol: string; decimals: bigint } } | undefined`
+
+### Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const res = await mintclub.utils.oneinchUsdRate({
+  chainId: 8453, // base
+  tokenAddress: '0x0000000000000000000000000000000000000000',
+  tokenDecimals: 18,
+  blockNumber: 'now',
+})
+
+if (res) {
+  console.log('USD rate:', res.rate, 'stable:', res.stableCoin.symbol)
+} else {
+  console.log('Rate not available')
+}
+```
+
+### Notes
+
+- Returns `undefined` if chain is unsupported (no stable), params invalid, or all retries fail.
+- Implements 5 retries with 1s intervals for transient RPC errors.
+- When `tokenAddress` is the stablecoin itself, returns `{ rate: 1 }`.

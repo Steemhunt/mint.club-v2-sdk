@@ -1,0 +1,26 @@
+---
+description: Generate a Merkle root from a list of wallet addresses.
+---
+
+# generateMerkleRoot
+
+Generates a Merkle root from a list of EVM wallet addresses using keccak256 with sorted pairs.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const root = mintclub.utils.generateMerkleRoot([
+  '0x1111111111111111111111111111111111111111',
+  '0x2222222222222222222222222222222222222222',
+])
+```
+
+## Parameters
+
+- `wallets`: `0x${string}`[] — List of EVM addresses.
+
+## Returns
+
+- `string` — Merkle root as a hex string (0x-prefixed).

@@ -1,0 +1,31 @@
+---
+description: Returns the logo URL for the token from Mint Club API.
+---
+
+# getTokenLogoUrl
+
+Returns the Mint Club API URL of the token logo:
+
+`https://mint.club/api/tokens/logo?chainId={chainId}&address={tokenAddress}`
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const url = await mintclub.network('base').token('0x...').getTokenLogoUrl()
+// -> "https://mint.club/api/tokens/logo?chainId=8453&address=0x..."
+```
+
+## Return Value
+
+```ts
+string
+```
+
+The URL pointing to the PNG logo for the token.
+
+## Notes
+
+- Works for both Mint Club tokens and arbitrary ERC-20/1155 addresses.
+- The URL is deterministic and safe to cache.

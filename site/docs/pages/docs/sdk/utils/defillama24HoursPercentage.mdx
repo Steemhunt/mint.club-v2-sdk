@@ -1,0 +1,31 @@
+---
+description: Get the 24-hour percentage price change for a token via DefiLlama.
+---
+
+# defillama24HoursPercentage
+
+Fetches the 24-hour percentage price change for a token from DefiLlama.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const pct = await mintclub.utils.defillama24HoursPercentage({
+  chainId: 8453, // base
+  tokenAddress: '0x0000000000000000000000000000000000000000',
+})
+```
+
+## Parameters
+
+- `chainId`: number — Chain ID.
+- `tokenAddress`: `0x${string}` — Token address.
+
+## Returns
+
+- `Promise<number | undefined>` — 24h percentage change, or `undefined` if unavailable.
+
+## Notes
+
+- Internally maps a few special tokens across chains to ensure DefiLlama coverage.

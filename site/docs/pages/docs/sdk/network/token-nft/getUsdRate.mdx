@@ -1,43 +1,84 @@
 ---
-description: Returns the estimated UsdRate from OneInch spot aggregator Contract.
+description: Returns the token price in USD. Supports Mint Club tokens (bond path) and non–Mint Club tokens (1inch).
 ---
 
-# getUsdRate 
+# getUsdRate
 
-Returns the estimated UsdRate from OneInch spot aggregator Contract.
+Returns the current token price in USD.
+
+- Mint Club tokens: computed via its bonding curve price (in reserve) multiplied by the reserve token USD rate. If reserves are nested Mint Club tokens, the method expands the full path until a DEX-quoted token is reached.
+- Non–Mint Club tokens: priced via 1inch on the current chain. For tokens with very small values (< $0.000001), automatically uses TOKEN → ETH → USD path for better precision instead of direct TOKEN → USDC/USDT path.
 
 ## Usage
 
 :::tip[Tip]
-For mint tokens, you can pass the symbol of the token as a parameter in `token`.
-
-If it's not a mint token, you should pass the token address.
+For Mint Club tokens, you can pass the symbol. For non–Mint Club tokens, pass the token address.
 :::
-
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
- 
-const usdRate = await mintclub.network('ethereum').token('0x...').getUsdRate(100)
+
+// Mint Club token
+const mintToken = await mintclub.network('base').token('GMFR').getUsdRate()
+
+// Non–Mint Club token
+const erc20 = await mintclub.network('base').token('0x...erc20').getUsdRate(100)
 ```
 
 ## Return Value
 
 ```ts
-Promise<
-{
-	usdRate: null | number,
-	stableCoin: null | {
-		address: '0x${string}',
-		symbol: string,
-		decimals: number
-	}
+Promise<{
+  usdRate: number | null
+  reserveToken: null | {
+    address: `0x${string}`
+    name: string
+    symbol: string
+    decimals: number
+  }
+  path: Array<
+    | {
+        address: `0x${string}`
+        method: 'bond'
+        reservePerToken: number
+        note?: string
+        reserveSymbol?: string
+        reserveUsdRate?: number
+      }
+    | {
+        address: `0x${string}`
+        method: 'oneinch'
+        stableSymbol?: string
+        note?: string
+        reserveSymbol?: string
+        rate?: number
+      }
+  >
 }>
 ```
 
-The estimated UsdRate and stable coin used from OneInch spot aggregator Contract. 
+- usdRate: USD price for the requested amount, or null when unavailable
+- reserveToken: the direct reserve token of the Mint Club token (null for non–Mint Club tokens)
+- path: verbose breakdown of how the price was derived
+  - bond item: the bonding curve price denominated in the reserve token
+  - oneinch item: the DEX quote into a stable coin on the current chain
 
-Returns `null` if the aggregator contract does not exist on the chain.
+## Examples
+
+Nested Mint Club path (example):
+
+```ts
+// GNMFER -> GMFR -> MFER -> USDBC
+{
+  usdRate: 0.0000046,
+  reserveToken: { address: '0x...', name: 'gmfer', symbol: 'GMFR', decimals: 18 },
+  path: [
+    { address: '0x...gnmfer', method: 'bond', reservePerToken: 0.307..., reserveSymbol: 'GMFR' },
+    { address: '0x...gmfr', method: 'bond', reservePerToken: 0.0015..., reserveSymbol: 'MFER' },
+    { address: '0x...mfer', method: 'oneinch', stableSymbol: 'USDBC', note: 'dex quote to stable', rate: 3.05 }
+  ]
+}
+```
 
 ## Parameters
 
@@ -46,4 +87,8 @@ Returns `null` if the aggregator contract does not exist on the chain.
 - Type: `number`
 - Default: `1`
 
-The amount of the token to be converted to USD. If not provided, the default value is `1`.
+The amount of the token to be converted to USD. If not provided, defaults to 1.
+
+## Errors
+
+- Throws when 1inch is not supported on the current network.

@@ -9,7 +9,7 @@ import {
   WalletNotConnectedError,
   MetadataValidationError,
 } from '../errors/sdk.errors';
-import { WRAPPED_NATIVE_TOKENS, getChain } from '../exports';
+import { WRAPPED_NATIVE_TOKENS, getChain, toNumber } from '../exports';
 import {
   ApproveBondParams,
   BondApprovedParams,
@@ -20,15 +20,17 @@ import {
 } from '../types/bond.types';
 import { TokenCreateAirdropParams, TokenHelperConstructorParams } from '../types/token.types';
 import { ApproveParams, CommonWriteParams, TradeType, WriteTransactionCallbacks } from '../types/transactions.types';
-import { wei } from '../utils';
+import { getTwentyFourHoursAgoTimestamp, wei } from '../utils';
 import { computeCreate2Address } from '../utils/addresses';
 import { generateCreateArgs } from '../utils/bond';
 import { Airdrop } from './AirdropHelper';
 import { Client } from './ClientHelper';
 import { Ipfs } from './IpfsHelper';
-import { OneInch } from './OneInchHelper';
 import { isFalse } from '../utils/logic';
 import fetch from 'cross-fetch';
+import { Utils } from './UtilsHelper';
+import { kaia } from 'viem/chains';
+import { FALLBACK_USD_MAP } from '../constants/usd/fallbackUsdMap';
 
 interface MetadataCommonParams {
   backgroundImage?: File | null;
@@ -49,12 +51,12 @@ export class Token<T extends TokenType> {
   private tokenAddress: `0x${string}`;
   protected clientHelper: Client;
   protected airdropHelper: Airdrop;
-  protected oneinch: OneInch;
   protected ipfsHelper: Ipfs;
   protected symbol?: string;
   protected tokenType: T;
   protected chain: Chain;
   protected chainId: SdkSupportedChainIds;
+  protected utils: Utils;
 
   constructor(params: TokenHelperConstructorParams) {
     const { symbolOrAddress, chainId, tokenType } = params;
@@ -71,8 +73,8 @@ export class Token<T extends TokenType> {
     this.tokenType = tokenType as T;
     this.clientHelper = new Client();
     this.ipfsHelper = new Ipfs();
-    this.oneinch = new OneInch(chainId);
     this.airdropHelper = new Airdrop(this.chainId);
+    this.utils = new Utils();
   }
 
   protected async getConnectedWalletAddress() {
@@ -83,6 +85,20 @@ export class Token<T extends TokenType> {
 
   protected async tokenToApprove(tradeType: TradeType) {
     return tradeType === 'buy' ? await this.getReserveTokenAddress() : this.getTokenAddress();
+  }
+
+  private remapUsdPricingTarget(chainId: number, tokenAddress: `0x${string}`) {
+    const chainFallbacks = FALLBACK_USD_MAP[chainId];
+    if (chainFallbacks) {
+      const key = (Object.keys(chainFallbacks) as Array<keyof typeof chainFallbacks>).find(
+        (k) => (k as string).toLowerCase() === tokenAddress.toLowerCase(),
+      );
+      if (key) {
+        const remap = chainFallbacks[key]!;
+        return { chainId: remap.network, tokenAddress: remap.address as `0x${string}` } as const;
+      }
+    }
+    return { chainId, tokenAddress } as const;
   }
 
   public async bondContractApproved(params: BondApprovedParams<T>) {
@@ -134,7 +150,7 @@ export class Token<T extends TokenType> {
         args: [connectedAddress, getMintClubContractAddress(contract, this.chainId)],
       });
 
-      return allowance >= amountToSpend;
+      return BigInt(allowance) >= amountToSpend;
     }
   }
 
@@ -239,16 +255,413 @@ export class Token<T extends TokenType> {
     return this.tokenAddress;
   }
 
-  public async getUsdRate(amount = 1) {
-    const rateData = await this.oneinch.getUsdRate({
-      tokenAddress: this.tokenAddress,
-      tokenDecimals: this.tokenType === 'ERC20' ? 18 : 0,
+  public async getReserveUsdRate(params: { blockNumber?: bigint } = {}) {
+    const { blockNumber } = params;
+    const reserve = await this.getReserveToken();
+    // If the reserve is also a Mint Club token, always expand via its bond path first
+    const reserveIsMintClub = await bondContract.network(this.chainId).read({
+      functionName: 'exists',
+      args: [reserve.address],
     });
 
-    if (isFalse(rateData)) return { usdRate: null, stableCoin: null };
-    const { rate, stableCoin } = rateData;
+    if (reserveIsMintClub) {
+      const nested = await this.computeUsdRateForBondToken({
+        tokenAddress: reserve.address,
+        visited: new Set(),
+        blockNumber,
+      });
+      if (nested.usdRate === null) {
+        // Fallback: try DefiLlama on the reserve token itself
+        if (blockNumber === undefined) {
+          const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: reserve.address });
+          if (llama !== undefined) {
+            return { usdRate: llama, reserveToken: reserve, path: [] } as const;
+          }
+        } else {
+          const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
+          if (ts !== undefined) {
+            const llama = await this.utils.defillamaUsdRate({
+              chainId: this.chainId,
+              tokenAddress: reserve.address,
+              timestamp: ts,
+            });
+            if (llama !== undefined) {
+              return { usdRate: llama, reserveToken: reserve, path: [] } as const;
+            }
+          }
+        }
+        return { usdRate: null, reserveToken: reserve, path: nested.path } as const;
+      }
+      return { usdRate: nested.usdRate, reserveToken: reserve, path: nested.path } as const;
+    }
 
-    return { usdRate: rate * amount, stableCoin };
+    // Otherwise, use direct 1inch pricing for the non-Mint Club reserve token
+    const remap = this.remapUsdPricingTarget(this.chainId, reserve.address);
+    let decimalsForQuote = reserve.decimals;
+    if (remap.chainId !== this.chainId || remap.tokenAddress.toLowerCase() !== reserve.address.toLowerCase()) {
+      decimalsForQuote = await erc20Contract
+        .network(remap.chainId as SdkSupportedChainIds)
+        .read({ tokenAddress: remap.tokenAddress, functionName: 'decimals' });
+    }
+
+    const rateData = await this.utils.oneinchUsdRate({
+      chainId: remap.chainId,
+      tokenAddress: remap.tokenAddress,
+      tokenDecimals: decimalsForQuote,
+      ...(remap.chainId === this.chainId && blockNumber !== undefined ? { blockNumber } : {}),
+    });
+
+    if (isFalse(rateData)) {
+      // Fallback to DefiLlama for reserve token
+      if (blockNumber === undefined) {
+        const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: reserve.address });
+        if (llama !== undefined) {
+          return { usdRate: llama, reserveToken: reserve, path: [] } as const;
+        }
+      } else {
+        const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
+        if (ts !== undefined) {
+          const llama = await this.utils.defillamaUsdRate({
+            chainId: this.chainId,
+            tokenAddress: reserve.address,
+            timestamp: ts,
+          });
+          if (llama !== undefined) {
+            return { usdRate: llama, reserveToken: reserve, path: [] } as const;
+          }
+        }
+      }
+      return { usdRate: null, reserveToken: reserve, path: [] } as const;
+    }
+    const { rate, stableCoin } = rateData;
+    return {
+      usdRate: rate,
+      reserveToken: reserve,
+      path: [
+        { address: reserve.address as `0x${string}`, method: 'oneinch' as const, stableSymbol: stableCoin.symbol },
+      ],
+    } as const;
+  }
+
+  private async computeUsdRateForBondToken(params: {
+    tokenAddress: `0x${string}`;
+    visited: Set<string>;
+    blockNumber?: bigint;
+  }): Promise<{
+    usdRate: number | null;
+    path: Array<
+      | {
+          address: `0x${string}`;
+          method: 'oneinch';
+          stableSymbol?: string;
+          note?: string;
+          reserveSymbol?: string;
+          rate?: number;
+        }
+      | {
+          address: `0x${string}`;
+          method: 'bond';
+          reservePerToken: number;
+          note?: string;
+          reserveSymbol?: string;
+          reserveUsdRate?: number;
+        }
+    >;
+  }> {
+    const { tokenAddress, visited, blockNumber } = params;
+    if (visited.has(tokenAddress.toLowerCase())) return { usdRate: null, path: [] };
+    visited.add(tokenAddress.toLowerCase());
+
+    // Check if the provided tokenAddress is a Mint Club token
+    const exists = await bondContract.network(this.chainId).read({
+      functionName: 'exists',
+      args: [tokenAddress],
+    });
+    if (!exists) return { usdRate: null, path: [] };
+
+    // Get its reserve token and price per 1 token in reserve units
+    const [pricePerTokenWei, bondInfo] = await Promise.all([
+      bondContract.network(this.chainId).read({ functionName: 'priceForNextMint', args: [tokenAddress] }),
+      bondContract.network(this.chainId).read({ functionName: 'tokenBond', args: [tokenAddress] }),
+    ]);
+
+    const reserveTokenAddress = bondInfo[4] as `0x${string}`; // reserveToken
+    const [reserveTokenDecimals, reserveTokenSymbol] = await Promise.all([
+      erc20Contract.network(this.chainId).read({
+        tokenAddress: reserveTokenAddress,
+        functionName: 'decimals',
+      }),
+      erc20Contract.network(this.chainId).read({
+        tokenAddress: reserveTokenAddress,
+        functionName: 'symbol',
+      }),
+    ]);
+
+    const reservePerToken = toNumber(pricePerTokenWei, reserveTokenDecimals);
+
+    // Try to price the reserve token via 1inch
+    const remap = this.remapUsdPricingTarget(this.chainId, reserveTokenAddress);
+    let decimalsForQuote = reserveTokenDecimals;
+    if (remap.chainId !== this.chainId || remap.tokenAddress.toLowerCase() !== reserveTokenAddress.toLowerCase()) {
+      decimalsForQuote = await erc20Contract
+        .network(remap.chainId as SdkSupportedChainIds)
+        .read({ tokenAddress: remap.tokenAddress, functionName: 'decimals' });
+    }
+    const reserveRateData = await this.utils.oneinchUsdRate({
+      chainId: remap.chainId,
+      tokenAddress: remap.tokenAddress,
+      tokenDecimals: decimalsForQuote,
+      ...(remap.chainId === this.chainId && blockNumber !== undefined ? { blockNumber } : {}),
+    });
+    if (!isFalse(reserveRateData)) {
+      const { rate, stableCoin } = reserveRateData!;
+      return {
+        usdRate: rate * reservePerToken,
+        path: [
+          {
+            address: tokenAddress,
+            method: 'bond',
+            reservePerToken,
+            note: 'bond price in reserve',
+            reserveSymbol: reserveTokenSymbol,
+            reserveUsdRate: rate,
+          },
+          {
+            address: reserveTokenAddress,
+            method: 'oneinch',
+            stableSymbol: stableCoin.symbol,
+            note: 'dex quote to stable',
+            reserveSymbol: reserveTokenSymbol,
+            rate: rate,
+          },
+        ],
+      };
+    }
+
+    // Fallback: try DefiLlama on the reserve token
+    if (blockNumber === undefined) {
+      const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: reserveTokenAddress });
+      if (llama !== undefined) {
+        return {
+          usdRate: llama * reservePerToken,
+          path: [
+            {
+              address: tokenAddress,
+              method: 'bond',
+              reservePerToken,
+              note: 'bond price in reserve',
+              reserveSymbol: reserveTokenSymbol,
+              reserveUsdRate: llama,
+            },
+          ],
+        };
+      }
+    } else {
+      const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
+      if (ts !== undefined) {
+        const llama = await this.utils.defillamaUsdRate({
+          chainId: this.chainId,
+          tokenAddress: reserveTokenAddress,
+          timestamp: ts,
+        });
+        if (llama !== undefined) {
+          return {
+            usdRate: llama * reservePerToken,
+            path: [
+              {
+                address: tokenAddress,
+                method: 'bond',
+                reservePerToken,
+                note: 'bond price in reserve',
+                reserveSymbol: reserveTokenSymbol,
+                reserveUsdRate: llama,
+              },
+            ],
+          };
+        }
+      }
+    }
+
+    // If reserve token is also a Mint Club token, recurse
+    const nested = await this.computeUsdRateForBondToken({ tokenAddress: reserveTokenAddress, visited, blockNumber });
+    if (nested.usdRate === null) return { usdRate: null, path: nested.path };
+    return {
+      usdRate: nested.usdRate * reservePerToken,
+      path: [
+        {
+          address: tokenAddress,
+          method: 'bond',
+          reservePerToken,
+          note: 'bond price in reserve',
+          reserveSymbol: reserveTokenSymbol,
+          reserveUsdRate: nested.usdRate ?? undefined,
+        },
+        ...nested.path,
+      ],
+    };
+  }
+
+  public async getUsdRate(params: { amount: number; blockNumber?: bigint } = { amount: 1 }) {
+    const { amount, blockNumber } = params;
+
+    // if chainId is kaia, use swapscanner price
+    if (this.chainId === kaia.id) {
+      const price = await this.utils.getSwapscannerPrice(this.tokenAddress);
+      if (price !== undefined) {
+        return { usdRate: price, reserveToken: null, path: [] } as const;
+      }
+      if (blockNumber === undefined) {
+        const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: this.tokenAddress });
+        if (llama !== undefined) {
+          return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+        }
+      } else {
+        const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
+        if (ts !== undefined) {
+          const llama = await this.utils.defillamaUsdRate({
+            chainId: this.chainId,
+            tokenAddress: this.tokenAddress,
+            timestamp: ts,
+          });
+          if (llama !== undefined) {
+            return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+          }
+        }
+      }
+      return { usdRate: null, reserveToken: null, path: [] } as const;
+    }
+
+    // 0) If this is NOT a Mint Club token, price it directly via 1inch
+    const isMintClub = await this.exists();
+    if (!isMintClub) {
+      const tokenDecimals = await erc20Contract.network(this.chainId).read({
+        tokenAddress: this.tokenAddress,
+        functionName: 'decimals',
+      });
+
+      const remap = this.remapUsdPricingTarget(this.chainId, this.tokenAddress);
+      let decimalsForQuote = tokenDecimals;
+      if (remap.chainId !== this.chainId || remap.tokenAddress.toLowerCase() !== this.tokenAddress.toLowerCase()) {
+        decimalsForQuote = await erc20Contract
+          .network(remap.chainId as SdkSupportedChainIds)
+          .read({ tokenAddress: remap.tokenAddress, functionName: 'decimals' });
+      }
+
+      const rateData = await this.utils.oneinchUsdRate({
+        chainId: remap.chainId,
+        tokenAddress: remap.tokenAddress,
+        tokenDecimals: decimalsForQuote,
+        ...(remap.chainId === this.chainId && blockNumber !== undefined ? { blockNumber } : {}),
+      });
+
+      if (isFalse(rateData)) {
+        // Fallback to DefiLlama
+        if (blockNumber === undefined) {
+          const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: this.tokenAddress });
+          if (llama !== undefined) {
+            return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+          }
+        } else {
+          const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
+          if (ts !== undefined) {
+            const llama = await this.utils.defillamaUsdRate({
+              chainId: this.chainId,
+              tokenAddress: this.tokenAddress,
+              timestamp: ts,
+            });
+            if (llama !== undefined) {
+              return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+            }
+          }
+        }
+        return { usdRate: null, reserveToken: null, path: [] } as const;
+      }
+
+      const path = [
+        {
+          address: this.tokenAddress,
+          method: 'oneinch' as const,
+          stableSymbol: rateData.stableCoin.symbol,
+          note: 'dex quote to stable',
+          rate: rateData.rate,
+        },
+      ];
+
+      return { usdRate: rateData.rate * amount, reserveToken: null, path } as const;
+    }
+
+    // 1) Get reserve USD rate
+    const { usdRate: reserveUsdRate, reserveToken, path: reservePath } = await this.getReserveUsdRate({ blockNumber });
+    if (reserveUsdRate === null) {
+      // Final fallback to DefiLlama for the token itself
+      if (blockNumber === undefined) {
+        const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: this.tokenAddress });
+        if (llama !== undefined) {
+          return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+        }
+      } else {
+        const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
+        if (ts !== undefined) {
+          const llama = await this.utils.defillamaUsdRate({
+            chainId: this.chainId,
+            tokenAddress: this.tokenAddress,
+            timestamp: ts,
+          });
+          if (llama !== undefined) {
+            return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+          }
+        }
+      }
+      return { usdRate: null, reserveToken, path: reservePath } as const;
+    }
+
+    // 2) Get reserve needed per 1 token and convert to human-readable
+    const pricePerTokenWei = await this.getPriceForNextMint();
+    const reservePerToken = toNumber(pricePerTokenWei, reserveToken.decimals);
+
+    // 3) Token USD price = reserve per token * reserve USD rate
+    const path = [
+      {
+        address: this.tokenAddress,
+        method: 'bond' as const,
+        reservePerToken,
+        note: 'bond price in reserve',
+        reserveSymbol: reserveToken.symbol,
+        reserveUsdRate: reserveUsdRate,
+      },
+      ...reservePath,
+    ];
+    return { usdRate: reserveUsdRate * reservePerToken * amount, reserveToken, path } as const;
+  }
+
+  // NOTE: use this before calling `get24HoursUsdRate` to check if client needs to re-fetch the data
+  public get24HoursUsdCacheKey() {
+    const prevTimeStamp = getTwentyFourHoursAgoTimestamp();
+    const cacheKey = `usd-rate-${this.chainId}-${this.tokenAddress}-${prevTimeStamp}`;
+    return { timestamp: prevTimeStamp, cacheKey } as const;
+  }
+
+  public async get24HoursUsdRate() {
+    const { timestamp, cacheKey } = this.get24HoursUsdCacheKey();
+    const amount = 1;
+
+    // Current via unified helper
+    const currentRes = await this.getUsdRate({ amount });
+    const currentUsdRate = currentRes.usdRate;
+
+    // Previous via unified helper with blockNumber when available
+    const blockNumber24h = await this.utils.getBlockNumber({ chainId: this.chainId, timestamp });
+
+    let previousUsdRate: number | null = null;
+    const previousRes = await this.getUsdRate({ amount, blockNumber: blockNumber24h });
+    previousUsdRate = previousRes.usdRate;
+
+    const changePercent =
+      currentUsdRate !== null && previousUsdRate !== null && previousUsdRate > 0
+        ? ((currentUsdRate - previousUsdRate) / previousUsdRate) * 100
+        : null;
+
+    return { currentUsdRate, previousUsdRate, changePercent, cacheKey, timestamp } as const;
   }
 
   public getDetail() {
@@ -543,6 +956,10 @@ export class Token<T extends TokenType> {
       title,
       ipfsCID,
     });
+  }
+
+  public getTokenLogoUrl() {
+    return `https://fc.hunt.town/tokens/logo/${this.chainId}/${this.tokenAddress}/image`;
   }
 
   public async getMintClubMetadata() {

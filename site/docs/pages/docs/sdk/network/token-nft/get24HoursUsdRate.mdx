@@ -1,0 +1,42 @@
+---
+description: Get current USD rate, previous USD rate ~24h ago, and percentage change; includes a stable cache key.
+---
+
+# get24HoursUsdRate
+
+Returns the current token USD rate, the previous USD rate from ~24 hours ago, and the percentage change. Also returns a stable cache key and the timestamp used for the historical lookup.
+
+:::tip[Tip]
+On the client, use `get24HoursUsdCacheKey()` first to decide whether a refetch is needed. The timestamp is rounded to the nearest 10 minutes to stabilize caching.
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const { currentUsdRate, previousUsdRate, changePercent, cacheKey, timestamp } = await mintclub
+  .network('base')
+  .token('GMFR')
+  .get24HoursUsdRate()
+
+// cacheKey can be used to memoize results per token/chain/time bucket
+```
+
+## Return Value
+
+```ts
+Promise<{
+  currentUsdRate: number | null
+  previousUsdRate: number | null
+  changePercent: number | null
+  cacheKey: string
+  timestamp: number // unix seconds used for the historical quote
+}>
+```
+
+## Notes
+
+- Uses the same unified pricing as `getUsdRate()` (bond path for Mint Club tokens; 1inch for non–Mint Club tokens).
+- Historical block is resolved via DefiLlama block API for the rounded timestamp.
+- The cache key format is `usd-rate-<chainId>-<tokenAddress>-<timestamp>`.

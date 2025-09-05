@@ -17,7 +17,12 @@ import {
   shibariumTestnet,
   unichain,
   zora,
+  apeChain,
+  hashkey,
+  ham,
 } from 'viem/chains';
+
+const overId = 54176;
 
 export type RPCList = {
   readonly id: number;
@@ -59,7 +64,6 @@ export const RPCS: Array<RPCList> = [
       // 'https://base.gateway.tenderly.co', // NOTE: 400 on `eth_getFilterChanges`
       // 'https://gateway.tenderly.co/public/base', // NOTE: 400 on `eth_getFilterChanges`
       'https://base-rpc.publicnode.com',
-      'https://developer-access-mainnet.base.org',
       'https://base.meowrpc.com',
     ],
   },
@@ -169,7 +173,9 @@ export const RPCS: Array<RPCList> = [
   },
   {
     id: degen.id,
-    rpcs: ['https://degen-mainnet.g.alchemy.com/v2/mHNwP_FMYPuuNHF9evNcW_Seq-m1u8N2'],
+    rpcs: [
+      'https://rpc.degen.tips', // ✅ - All checks passed
+    ],
   },
   {
     id: zora.id,
@@ -199,6 +205,35 @@ export const RPCS: Array<RPCList> = [
   {
     id: unichain.id,
     rpcs: ['https://mainnet.unichain.org'],
+  },
+  {
+    id: ham.id,
+    rpcs: [
+      'https://rpc.ham.fun', // ✅ - All checks passed
+      'https://ham.calderachain.xyz/http', // ✅ - All checks passed
+    ],
+  },
+  {
+    id: apeChain.id,
+    rpcs: ['https://rpc.apechain.com'],
+  },
+  {
+    id: hashkey.id,
+    rpcs: [
+      'https://mainnet.hsk.xyz',
+      'https://hashkey.drpc.org',
+    ],
+  },
+  {
+    id: overId,
+    rpcs: ['https://rpc.over.network'],
+  },
+  {
+    id: zora.id,
+    rpcs: [
+      'https://rpc.zora.energy', // ✅ - All checks passed
+      'https://zora.drpc.org', // ✅ - All checks passed
+    ],
   },
 ];
 
