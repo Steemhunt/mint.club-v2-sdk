@@ -1,0 +1,141 @@
+---
+description: Update the claim fee charged on reward claims
+---
+
+# updateClaimFee
+
+Update the fee charged when users claim staking rewards. This function can only be called by the contract owner.
+
+:::warning[Owner Only]
+This function can only be called by the contract owner. Use [`getOwner`](/docs/sdk/stake/getOwner) to check who the current owner is.
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').stake.updateClaimFee({
+  claimFee: BigInt('10000000000000000'), // 0.01 ETH in wei
+  onSuccess: (receipt) => {
+    console.log('Claim fee updated successfully!', receipt)
+  },
+  onError: (error) => {
+    console.error('Failed to update claim fee:', error)
+  },
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+## Parameters
+
+### claimFee
+
+- Type: `bigint`
+
+The new claim fee amount in wei (smallest unit of the native token).
+
+```ts
+await mintclub.network('base').stake.updateClaimFee({
+  claimFee: BigInt('10000000000000000'), // [!code focus]
+  onSuccess: (receipt) => {
+    console.log('Claim fee updated successfully!', receipt)
+  },
+})
+```
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').stake.updateClaimFee({
+  claimFee: BigInt('10000000000000000'),
+  onSignatureRequest: () => {
+    console.log('Please sign the transaction')
+  }, // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+Callback function for when the user signs the transaction.
+
+```ts
+await mintclub.network('base').stake.updateClaimFee({
+  claimFee: BigInt('10000000000000000'),
+  onSigned: (txHash) => {
+    console.log('Transaction signed:', txHash)
+  }, // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').stake.updateClaimFee({
+  claimFee: BigInt('10000000000000000'),
+  onSuccess: (receipt) => {
+    console.log('Claim fee updated successfully!', receipt)
+  }, // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').stake.updateClaimFee({
+  claimFee: BigInt('10000000000000000'),
+  onError: (error) => {
+    console.error('Failed to update claim fee:', error)
+  }, // [!code focus]
+})
+```
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const stake = mintclub.network('base').stake
+
+// Check current claim fee
+const currentFee = await stake.getClaimFee()
+console.log('Current claim fee:', currentFee)
+
+// Update to 0.01 ETH claim fee (only if you're the owner)
+await stake.updateClaimFee({
+  claimFee: BigInt('10000000000000000'), // 0.01 ETH
+  onSuccess: (receipt) => {
+    console.log('Claim fee updated to 0.01 ETH')
+  },
+  onError: (error) => {
+    if (error.message?.includes('OwnableUnauthorizedAccount')) {
+      console.error('Only the contract owner can update fees')
+    } else {
+      console.error('Failed to update claim fee:', error)
+    }
+  },
+})
+```

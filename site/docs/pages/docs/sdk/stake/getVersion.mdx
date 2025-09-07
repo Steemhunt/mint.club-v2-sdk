@@ -1,0 +1,38 @@
+---
+description: Get the current version of the stake contract
+---
+
+# getVersion
+
+Get the version string of the staking contract.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const version = await mintclub.network('base').stake.getVersion()
+console.log('Stake contract version:', version)
+```
+
+## Return Value
+
+`Promise<string>`
+
+Returns a promise that resolves to the contract version string.
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const version = await mintclub.network('base').stake.getVersion()
+console.log(`Using stake contract version: ${version}`)
+
+// You can use this to ensure compatibility
+if (version === '1.0.0') {
+  console.log('Compatible with current implementation')
+} else {
+  console.log('Different version detected, check for updates')
+}
+```

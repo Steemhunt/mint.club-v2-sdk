@@ -28,7 +28,6 @@ export const STAKE_ABI = [
     name: 'SafeERC20FailedOperation',
     type: 'error',
   },
-  { inputs: [], name: 'Stake__CreationFeeTooHigh', type: 'error' },
   { inputs: [], name: 'Stake__FeeTransferFailed', type: 'error' },
   { inputs: [], name: 'Stake__InsufficientBalance', type: 'error' },
   { inputs: [], name: 'Stake__InvalidAddress', type: 'error' },
@@ -39,11 +38,14 @@ export const STAKE_ABI = [
   { inputs: [], name: 'Stake__InvalidRewardStartsAt', type: 'error' },
   { inputs: [], name: 'Stake__InvalidToken', type: 'error' },
   { inputs: [], name: 'Stake__InvalidTokenId', type: 'error' },
+  { inputs: [], name: 'Stake__InvalidTokenType', type: 'error' },
   { inputs: [], name: 'Stake__PoolCancelled', type: 'error' },
   { inputs: [], name: 'Stake__PoolFinished', type: 'error' },
   { inputs: [], name: 'Stake__PoolNotFound', type: 'error' },
   { inputs: [], name: 'Stake__RewardRateTooLow', type: 'error' },
+  { inputs: [], name: 'Stake__RewardTokenTokenTooSmall', type: 'error' },
   { inputs: [], name: 'Stake__StakeAmountTooLarge', type: 'error' },
+  { inputs: [], name: 'Stake__StakingTokenTokenTooBig', type: 'error' },
   { inputs: [], name: 'Stake__TokenHasTransferFeesOrRebasing', type: 'error' },
   { inputs: [], name: 'Stake__Unauthorized', type: 'error' },
   { inputs: [], name: 'Stake__ZeroAmount', type: 'error' },
@@ -78,7 +80,7 @@ export const STAKE_ABI = [
     anonymous: false,
     inputs: [
       { indexed: true, internalType: 'uint256', name: 'poolId', type: 'uint256' },
-      { indexed: false, internalType: 'uint256', name: 'leftoverRewards', type: 'uint256' },
+      { indexed: true, internalType: 'uint256', name: 'leftoverRewards', type: 'uint256' },
     ],
     name: 'PoolCancelled',
     type: 'event',
@@ -86,11 +88,11 @@ export const STAKE_ABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'uint256', name: 'poolId', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'poolId', type: 'uint256' },
       { indexed: true, internalType: 'address', name: 'creator', type: 'address' },
       { indexed: true, internalType: 'address', name: 'stakingToken', type: 'address' },
       { indexed: false, internalType: 'bool', name: 'isStakingTokenERC20', type: 'bool' },
-      { indexed: false, internalType: 'address', name: 'rewardToken', type: 'address' },
+      { indexed: true, internalType: 'address', name: 'rewardToken', type: 'address' },
       { indexed: false, internalType: 'uint104', name: 'rewardAmount', type: 'uint104' },
       { indexed: false, internalType: 'uint40', name: 'rewardStartsAt', type: 'uint40' },
       { indexed: false, internalType: 'uint32', name: 'rewardDuration', type: 'uint32' },
@@ -112,7 +114,7 @@ export const STAKE_ABI = [
     inputs: [
       { indexed: true, internalType: 'uint256', name: 'poolId', type: 'uint256' },
       { indexed: true, internalType: 'address', name: 'staker', type: 'address' },
-      { indexed: false, internalType: 'uint104', name: 'reward', type: 'uint104' },
+      { indexed: true, internalType: 'uint104', name: 'reward', type: 'uint104' },
       { indexed: false, internalType: 'uint104', name: 'fee', type: 'uint104' },
     ],
     name: 'RewardClaimed',
@@ -123,7 +125,7 @@ export const STAKE_ABI = [
     inputs: [
       { indexed: true, internalType: 'uint256', name: 'poolId', type: 'uint256' },
       { indexed: true, internalType: 'address', name: 'staker', type: 'address' },
-      { indexed: false, internalType: 'uint104', name: 'amount', type: 'uint104' },
+      { indexed: true, internalType: 'uint104', name: 'amount', type: 'uint104' },
     ],
     name: 'Staked',
     type: 'event',
@@ -133,7 +135,7 @@ export const STAKE_ABI = [
     inputs: [
       { indexed: true, internalType: 'uint256', name: 'poolId', type: 'uint256' },
       { indexed: true, internalType: 'address', name: 'staker', type: 'address' },
-      { indexed: false, internalType: 'uint104', name: 'amount', type: 'uint104' },
+      { indexed: true, internalType: 'uint104', name: 'amount', type: 'uint104' },
       { indexed: false, internalType: 'bool', name: 'rewardClaimed', type: 'bool' },
     ],
     name: 'Unstaked',
@@ -234,6 +236,7 @@ export const STAKE_ABI = [
     outputs: [
       {
         components: [
+          { internalType: 'uint256', name: 'poolId', type: 'uint256' },
           {
             components: [
               { internalType: 'address', name: 'stakingToken', type: 'address' },
@@ -293,6 +296,7 @@ export const STAKE_ABI = [
     outputs: [
       {
         components: [
+          { internalType: 'uint256', name: 'poolId', type: 'uint256' },
           {
             components: [
               { internalType: 'address', name: 'stakingToken', type: 'address' },
@@ -353,6 +357,7 @@ export const STAKE_ABI = [
     outputs: [
       {
         components: [
+          { internalType: 'uint256', name: 'poolId', type: 'uint256' },
           {
             components: [
               { internalType: 'address', name: 'stakingToken', type: 'address' },

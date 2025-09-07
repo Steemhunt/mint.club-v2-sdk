@@ -58,6 +58,18 @@ export class Stake {
     });
   }
 
+  public getVersion() {
+    return stakeContract.network(this.chainId).read({
+      functionName: 'version',
+    });
+  }
+
+  public getOwner() {
+    return stakeContract.network(this.chainId).read({
+      functionName: 'owner',
+    });
+  }
+
   public getPool(params: { poolId: number }) {
     const { poolId } = params;
     return stakeContract.network(this.chainId).read({
@@ -164,6 +176,53 @@ export class Stake {
       ...params,
       functionName: 'emergencyUnstake',
       args: [BigInt(poolId)],
+    });
+  }
+
+  public updateClaimFee(params: { claimFee: bigint }) {
+    const { claimFee } = params;
+
+    return stakeContract.network(this.chainId).write({
+      ...params,
+      functionName: 'updateClaimFee',
+      args: [claimFee],
+    });
+  }
+
+  public updateCreationFee(params: { creationFee: bigint }) {
+    const { creationFee } = params;
+
+    return stakeContract.network(this.chainId).write({
+      ...params,
+      functionName: 'updateCreationFee',
+      args: [creationFee],
+    });
+  }
+
+  public updateProtocolBeneficiary(params: { protocolBeneficiary: `0x${string}` }) {
+    const { protocolBeneficiary } = params;
+
+    return stakeContract.network(this.chainId).write({
+      ...params,
+      functionName: 'updateProtocolBeneficiary',
+      args: [protocolBeneficiary],
+    });
+  }
+
+  public renounceOwnership(params: {} = {}) {
+    return stakeContract.network(this.chainId).write({
+      ...params,
+      functionName: 'renounceOwnership',
+    });
+  }
+
+  public transferOwnership(params: { newOwner: `0x${string}` }) {
+    const { newOwner } = params;
+
+    return stakeContract.network(this.chainId).write({
+      ...params,
+      functionName: 'transferOwnership',
+      args: [newOwner],
     });
   }
 }

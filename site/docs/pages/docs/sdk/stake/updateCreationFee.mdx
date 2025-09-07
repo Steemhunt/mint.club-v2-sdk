@@ -1,0 +1,141 @@
+---
+description: Update the creation fee charged for creating staking pools
+---
+
+# updateCreationFee
+
+Update the fee charged when users create new staking pools. This function can only be called by the contract owner.
+
+:::warning[Owner Only]
+This function can only be called by the contract owner. Use [`getOwner`](/docs/sdk/stake/getOwner) to check who the current owner is.
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').stake.updateCreationFee({
+  creationFee: BigInt('50000000000000000'), // 0.05 ETH in wei
+  onSuccess: (receipt) => {
+    console.log('Creation fee updated successfully!', receipt)
+  },
+  onError: (error) => {
+    console.error('Failed to update creation fee:', error)
+  },
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+## Parameters
+
+### creationFee
+
+- Type: `bigint`
+
+The new creation fee amount in wei (smallest unit of the native token).
+
+```ts
+await mintclub.network('base').stake.updateCreationFee({
+  creationFee: BigInt('50000000000000000'), // [!code focus]
+  onSuccess: (receipt) => {
+    console.log('Creation fee updated successfully!', receipt)
+  },
+})
+```
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').stake.updateCreationFee({
+  creationFee: BigInt('50000000000000000'),
+  onSignatureRequest: () => {
+    console.log('Please sign the transaction')
+  }, // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+Callback function for when the user signs the transaction.
+
+```ts
+await mintclub.network('base').stake.updateCreationFee({
+  creationFee: BigInt('50000000000000000'),
+  onSigned: (txHash) => {
+    console.log('Transaction signed:', txHash)
+  }, // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').stake.updateCreationFee({
+  creationFee: BigInt('50000000000000000'),
+  onSuccess: (receipt) => {
+    console.log('Creation fee updated successfully!', receipt)
+  }, // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').stake.updateCreationFee({
+  creationFee: BigInt('50000000000000000'),
+  onError: (error) => {
+    console.error('Failed to update creation fee:', error)
+  }, // [!code focus]
+})
+```
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const stake = mintclub.network('base').stake
+
+// Check current creation fee
+const currentFee = await stake.getCreationFee()
+console.log('Current creation fee:', currentFee)
+
+// Update to 0.05 ETH creation fee (only if you're the owner)
+await stake.updateCreationFee({
+  creationFee: BigInt('50000000000000000'), // 0.05 ETH
+  onSuccess: (receipt) => {
+    console.log('Creation fee updated to 0.05 ETH')
+  },
+  onError: (error) => {
+    if (error.message?.includes('OwnableUnauthorizedAccount')) {
+      console.error('Only the contract owner can update fees')
+    } else {
+      console.error('Failed to update creation fee:', error)
+    }
+  },
+})
+```
