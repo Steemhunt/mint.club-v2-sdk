@@ -1,0 +1,122 @@
+---
+description: Get pools created by a specific address
+---
+
+# getPoolsByCreator
+
+Get a paginated list of staking pools created by a specific address.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const pools = await mintclub.network('base').stake.getPoolsByCreator({
+  creator: '0x1234567890123456789012345678901234567890',
+  start: 0,
+  end: 10,
+})
+console.log('Creator pools:', pools)
+```
+
+## Return Value
+
+`Promise<PoolView[]>`
+
+Returns a promise that resolves to an array of `PoolView` objects created by the specified address.
+
+## Parameters
+
+### creator
+
+- Type: `'0x${string}'`
+
+The address of the pool creator to filter by.
+
+```ts
+const pools = await mintclub.network('base').stake.getPoolsByCreator({
+  creator: '0x1234567890123456789012345678901234567890', // [!code focus]
+  start: 0,
+  end: 10,
+})
+```
+
+### start (optional)
+
+- Type: `number`
+- Default: `0`
+
+The starting index for pagination (inclusive).
+
+```ts
+const pools = await mintclub.network('base').stake.getPoolsByCreator({
+  creator: '0x1234567890123456789012345678901234567890',
+  start: 0, // [!code focus]
+  end: 10,
+})
+```
+
+### end (optional)
+
+- Type: `number`
+- Default: `1000`
+
+The ending index for pagination (exclusive).
+
+```ts
+const pools = await mintclub.network('base').stake.getPoolsByCreator({
+  creator: '0x1234567890123456789012345678901234567890',
+  start: 0,
+  end: 10, // [!code focus]
+})
+```
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+import { formatUnits } from 'viem'
+
+const creatorAddress = '0x1234567890123456789012345678901234567890'
+
+// Get all pools created by this address
+const pools = await mintclub.network('base').stake.getPoolsByCreator({
+  creator: creatorAddress,
+})
+
+console.log(`${creatorAddress} has created ${pools.length} pools`)
+
+// Calculate total rewards distributed
+let totalRewardsDistributed = 0n
+
+pools.forEach((poolInfo, index) => {
+  const { pool, stakingToken, rewardToken } = poolInfo
+
+  console.log(`\nPool ${index}:`)
+  console.log(`  Staking Token: ${stakingToken.symbol}`)
+  console.log(`  Reward Token: ${rewardToken.symbol}`)
+
+  const rewardAmount = formatUnits(pool.rewardAmount, rewardToken.decimals)
+  console.log(`  Total Rewards: ${rewardAmount} ${rewardToken.symbol}`)
+
+  // Check if pool is active/finished
+  const now = Math.floor(Date.now() / 1000)
+  const status =
+    pool.cancelledAt > 0
+      ? 'Cancelled'
+      : pool.rewardStartsAt + pool.rewardDuration <= now
+        ? 'Finished'
+        : pool.rewardStartsAt <= now
+          ? 'Active'
+          : 'Pending'
+
+  console.log(`  Status: ${status}`)
+
+  // Add to total if not cancelled
+  if (pool.cancelledAt === 0) {
+    totalRewardsDistributed += pool.rewardAmount
+  }
+})
+
+console.log(`\nTotal rewards distributed: ${totalRewardsDistributed}`)
+```

@@ -1,0 +1,180 @@
+---
+description: Transfer ownership of the stake contract to a new address
+---
+
+# transferOwnership
+
+Transfer ownership of the staking contract to a new address. The new owner will have full administrative control over the contract.
+
+:::warning[Owner Only]
+This function can only be called by the current contract owner. Use [`getOwner`](/docs/sdk/stake/getOwner) to check who the current owner is.
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').stake.transferOwnership({
+  newOwner: '0x1234567890123456789012345678901234567890',
+  onSuccess: (receipt) => {
+    console.log('Ownership transferred successfully!', receipt)
+  },
+  onError: (error) => {
+    console.error('Failed to transfer ownership:', error)
+  },
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+## Parameters
+
+### newOwner
+
+- Type: `'0x${string}'`
+
+The address of the new owner who will receive administrative control of the contract.
+
+```ts
+await mintclub.network('base').stake.transferOwnership({
+  newOwner: '0x1234567890123456789012345678901234567890', // [!code focus]
+  onSuccess: (receipt) => {
+    console.log('Ownership transferred successfully!', receipt)
+  },
+})
+```
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').stake.transferOwnership({
+  newOwner: '0x1234567890123456789012345678901234567890',
+  onSignatureRequest: () => {
+    console.log('Please sign the transaction')
+  }, // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+Callback function for when the user signs the transaction.
+
+```ts
+await mintclub.network('base').stake.transferOwnership({
+  newOwner: '0x1234567890123456789012345678901234567890',
+  onSigned: (txHash) => {
+    console.log('Transaction signed:', txHash)
+  }, // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').stake.transferOwnership({
+  newOwner: '0x1234567890123456789012345678901234567890',
+  onSuccess: (receipt) => {
+    console.log('Ownership transferred successfully!', receipt)
+  }, // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').stake.transferOwnership({
+  newOwner: '0x1234567890123456789012345678901234567890',
+  onError: (error) => {
+    console.error('Failed to transfer ownership:', error)
+  }, // [!code focus]
+})
+```
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const stake = mintclub.network('base').stake
+
+// Check current owner
+const currentOwner = await stake.getOwner()
+console.log('Current owner:', currentOwner)
+
+// New owner address
+const newOwnerAddress = '0x1234567890123456789012345678901234567890'
+
+// Validate new owner address (basic check)
+if (!newOwnerAddress.startsWith('0x') || newOwnerAddress.length !== 42) {
+  throw new Error('Invalid Ethereum address format')
+}
+
+// Confirm transfer
+const confirmTransfer = window.confirm(`Are you sure you want to transfer ownership to ${newOwnerAddress}?`)
+
+if (confirmTransfer) {
+  await stake.transferOwnership({
+    newOwner: newOwnerAddress,
+    onSuccess: (receipt) => {
+      console.log('Ownership transferred to:', newOwnerAddress)
+      console.log('New owner now has administrative control')
+    },
+    onError: (error) => {
+      if (error.message?.includes('OwnableUnauthorizedAccount')) {
+        console.error('Only the contract owner can transfer ownership')
+      } else {
+        console.error('Failed to transfer ownership:', error)
+      }
+    },
+  })
+} else {
+  console.log('Ownership transfer cancelled')
+}
+```
+
+## Administrative Functions Available to New Owner
+
+Once ownership is transferred, the new owner will be able to call:
+
+- [`updateClaimFee`](/docs/sdk/stake/updateClaimFee) - Update the claim fee
+- [`updateCreationFee`](/docs/sdk/stake/updateCreationFee) - Update the pool creation fee
+- [`updateProtocolBeneficiary`](/docs/sdk/stake/updateProtocolBeneficiary) - Update the protocol beneficiary
+- `transferOwnership` - Transfer ownership to another address
+- [`renounceOwnership`](/docs/sdk/stake/renounceOwnership) - Permanently renounce ownership
+
+## Important Considerations
+
+### Immediate Transfer
+
+Ownership transfer is immediate and cannot be reversed once the transaction is confirmed.
+
+### Verify New Owner
+
+Make sure the new owner address is correct and that you trust the recipient with administrative control over the contract.
+
+### Multi-signature Wallets
+
+For enhanced security, consider transferring ownership to a multi-signature wallet instead of an individual address.

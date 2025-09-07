@@ -1,0 +1,143 @@
+---
+description: Update the protocol beneficiary address that receives fees
+---
+
+# updateProtocolBeneficiary
+
+Update the address that receives protocol fees from pool creation and reward claims. This function can only be called by the contract owner.
+
+:::warning[Owner Only]
+This function can only be called by the contract owner. Use [`getOwner`](/docs/sdk/stake/getOwner) to check who the current owner is.
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').stake.updateProtocolBeneficiary({
+  protocolBeneficiary: '0x1234567890123456789012345678901234567890',
+  onSuccess: (receipt) => {
+    console.log('Protocol beneficiary updated successfully!', receipt)
+  },
+  onError: (error) => {
+    console.error('Failed to update protocol beneficiary:', error)
+  },
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+## Parameters
+
+### protocolBeneficiary
+
+- Type: `'0x${string}'`
+
+The new address that will receive protocol fees.
+
+```ts
+await mintclub.network('base').stake.updateProtocolBeneficiary({
+  protocolBeneficiary: '0x1234567890123456789012345678901234567890', // [!code focus]
+  onSuccess: (receipt) => {
+    console.log('Protocol beneficiary updated successfully!', receipt)
+  },
+})
+```
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').stake.updateProtocolBeneficiary({
+  protocolBeneficiary: '0x1234567890123456789012345678901234567890',
+  onSignatureRequest: () => {
+    console.log('Please sign the transaction')
+  }, // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+Callback function for when the user signs the transaction.
+
+```ts
+await mintclub.network('base').stake.updateProtocolBeneficiary({
+  protocolBeneficiary: '0x1234567890123456789012345678901234567890',
+  onSigned: (txHash) => {
+    console.log('Transaction signed:', txHash)
+  }, // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').stake.updateProtocolBeneficiary({
+  protocolBeneficiary: '0x1234567890123456789012345678901234567890',
+  onSuccess: (receipt) => {
+    console.log('Protocol beneficiary updated successfully!', receipt)
+  }, // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').stake.updateProtocolBeneficiary({
+  protocolBeneficiary: '0x1234567890123456789012345678901234567890',
+  onError: (error) => {
+    console.error('Failed to update protocol beneficiary:', error)
+  }, // [!code focus]
+})
+```
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const stake = mintclub.network('base').stake
+
+// Check current protocol beneficiary
+const currentBeneficiary = await stake.getProtocolBeneficiary()
+console.log('Current protocol beneficiary:', currentBeneficiary)
+
+// Update to new beneficiary address (only if you're the owner)
+const newBeneficiary = '0x1234567890123456789012345678901234567890'
+
+await stake.updateProtocolBeneficiary({
+  protocolBeneficiary: newBeneficiary,
+  onSuccess: (receipt) => {
+    console.log('Protocol beneficiary updated to:', newBeneficiary)
+  },
+  onError: (error) => {
+    if (error.message?.includes('OwnableUnauthorizedAccount')) {
+      console.error('Only the contract owner can update the beneficiary')
+    } else {
+      console.error('Failed to update protocol beneficiary:', error)
+    }
+  },
+})
+```

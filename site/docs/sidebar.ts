@@ -428,6 +428,88 @@ export const sidebar = {
           ],
         },
         {
+          text: '🥩 stake',
+          collapsed: true,
+          items: [
+            {
+              text: 'Getting Started',
+              link: '/docs/sdk/stake',
+            },
+            {
+              text: 'createPool',
+              link: '/docs/sdk/stake/createPool',
+            },
+            {
+              text: 'stake',
+              link: '/docs/sdk/stake/stake',
+            },
+            {
+              text: 'unstake',
+              link: '/docs/sdk/stake/unstake',
+            },
+            {
+              text: 'claim',
+              link: '/docs/sdk/stake/claim',
+            },
+            {
+              text: 'cancelPool',
+              link: '/docs/sdk/stake/cancelPool',
+            },
+            {
+              text: 'emergencyUnstake',
+              link: '/docs/sdk/stake/emergencyUnstake',
+            },
+            {
+              text: 'getCreationFee',
+              link: '/docs/sdk/stake/getCreationFee',
+            },
+            {
+              text: 'getClaimFee',
+              link: '/docs/sdk/stake/getClaimFee',
+            },
+            {
+              text: 'getPoolCount',
+              link: '/docs/sdk/stake/getPoolCount',
+            },
+            {
+              text: 'getPool',
+              link: '/docs/sdk/stake/getPool',
+            },
+            {
+              text: 'getPools',
+              link: '/docs/sdk/stake/getPools',
+            },
+            {
+              text: 'getPoolsByCreator',
+              link: '/docs/sdk/stake/getPoolsByCreator',
+            },
+            {
+              text: 'getUserPoolStake',
+              link: '/docs/sdk/stake/getUserPoolStake',
+            },
+            {
+              text: 'getClaimableReward',
+              link: '/docs/sdk/stake/getClaimableReward',
+            },
+            {
+              text: 'getClaimableRewardBulk',
+              link: '/docs/sdk/stake/getClaimableRewardBulk',
+            },
+            {
+              text: 'getMinRewardDuration',
+              link: '/docs/sdk/stake/getMinRewardDuration',
+            },
+            {
+              text: 'getMaxRewardDuration',
+              link: '/docs/sdk/stake/getMaxRewardDuration',
+            },
+            {
+              text: 'getProtocolBeneficiary',
+              link: '/docs/sdk/stake/getProtocolBeneficiary',
+            },
+          ],
+        },
+        {
           text: '🎁 bonus',
           collapsed: true,
           items: [

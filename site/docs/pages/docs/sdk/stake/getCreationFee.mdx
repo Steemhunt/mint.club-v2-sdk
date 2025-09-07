@@ -1,0 +1,46 @@
+---
+description: Get the fee required to create a staking pool
+---
+
+# getCreationFee
+
+Get the protocol fee required to create a new staking pool.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const creationFee = await mintclub.network('base').stake.getCreationFee()
+console.log('Pool creation fee:', creationFee)
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns a promise that resolves to the creation fee amount in wei (base unit of the native token).
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+import { formatEther } from 'viem'
+
+const creationFee = await mintclub.network('base').stake.getCreationFee()
+
+// Convert to readable format (ETH)
+const feeInEth = formatEther(creationFee)
+console.log(`Creation fee: ${feeInEth} ETH`)
+
+// Use fee when creating a pool
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x1234567890123456789012345678901234567890',
+  isStakingTokenERC20: true,
+  rewardToken: '0x0987654321098765432109876543210987654321',
+  rewardAmount: BigInt('1000000000000000000'),
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600,
+  rewardDuration: 7 * 24 * 60 * 60,
+  value: creationFee, // Pay the creation fee
+})
+```

@@ -5,6 +5,7 @@ export * from './constants/abis/erc20';
 export * from './constants/abis/locker';
 export * from './constants/abis/merkle';
 export * from './constants/abis/oneinch';
+export * from './constants/abis/stake';
 export * from './constants/abis/zap';
 
 export * from './constants/chains';

@@ -1,0 +1,134 @@
+---
+description: Unstake tokens from a pool
+---
+
+# unstake
+
+Unstake tokens from a specific pool. This will also automatically claim any pending rewards.
+
+:::info[Auto Claim]
+When you unstake, any pending rewards are automatically claimed and sent to your wallet.
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').stake.unstake({
+  poolId: 0,
+  amount: BigInt('50000000000000000'), // 0.05 token (18 decimals)
+  onSuccess: (receipt) => {
+    console.log('Tokens unstaked successfully!', receipt)
+  },
+  onError: (error) => {
+    console.error('Failed to unstake tokens:', error)
+  },
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+## Parameters
+
+### poolId
+
+- Type: `number`
+
+The ID of the staking pool to unstake tokens from.
+
+```ts
+await mintclub.network('base').stake.unstake({
+  poolId: 0, // [!code focus]
+  amount: BigInt('50000000000000000'),
+})
+```
+
+### amount
+
+- Type: `bigint`
+
+The amount of tokens to unstake.
+
+:::warning[Staked Balance]
+You cannot unstake more tokens than you have staked. Check your staked balance using [`getUserPoolStake`](/docs/sdk/stake/getUserPoolStake).
+:::
+
+```ts
+await mintclub.network('base').stake.unstake({
+  poolId: 0,
+  amount: BigInt('50000000000000000'), // [!code focus]
+})
+```
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').stake.unstake({
+  poolId: 0,
+  amount: BigInt('50000000000000000'),
+  onSignatureRequest: () => {
+    console.log('Please sign the transaction')
+  }, // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+Callback function for when the user signs the transaction.
+
+```ts
+await mintclub.network('base').stake.unstake({
+  poolId: 0,
+  amount: BigInt('50000000000000000'),
+  onSigned: (txHash) => {
+    console.log('Transaction signed:', txHash)
+  }, // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').stake.unstake({
+  poolId: 0,
+  amount: BigInt('50000000000000000'),
+  onSuccess: (receipt) => {
+    console.log('Tokens unstaked successfully!', receipt)
+  }, // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').stake.unstake({
+  poolId: 0,
+  amount: BigInt('50000000000000000'),
+  onError: (error) => {
+    console.error('Failed to unstake tokens:', error)
+  }, // [!code focus]
+})
+```

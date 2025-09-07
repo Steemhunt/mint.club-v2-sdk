@@ -1,0 +1,51 @@
+---
+description: Get the maximum allowed reward duration for pools
+---
+
+# getMaxRewardDuration
+
+Get the maximum duration (in seconds) allowed for reward distribution when creating staking pools.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const maxDuration = await mintclub.network('base').stake.getMaxRewardDuration()
+console.log('Maximum reward duration:', maxDuration)
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns a promise that resolves to the maximum reward duration in seconds.
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const maxDuration = await mintclub.network('base').stake.getMaxRewardDuration()
+
+// Convert to more readable units
+const maxDurationNumber = Number(maxDuration)
+const hours = maxDurationNumber / 3600
+const days = hours / 24
+const months = days / 30
+
+console.log(`Maximum duration: ${maxDurationNumber} seconds`)
+console.log(`That's ${hours} hours, ${days} days, or ~${months.toFixed(1)} months`)
+
+// Use when creating a pool
+const rewardDuration = Math.min(maxDurationNumber, 365 * 24 * 60 * 60) // Max 1 year
+
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x1234567890123456789012345678901234567890',
+  isStakingTokenERC20: true,
+  rewardToken: '0x0987654321098765432109876543210987654321',
+  rewardAmount: BigInt('1000000000000000000'),
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600,
+  rewardDuration, // Ensure it doesn't exceed maximum
+})
+```

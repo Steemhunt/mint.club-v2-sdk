@@ -13,6 +13,7 @@ import {
   cyberTestnet,
   degen,
   ham,
+  hashkey,
   kaia,
   mainnet,
   optimism,
@@ -21,7 +22,6 @@ import {
   shibarium,
   shibariumTestnet,
   unichain,
-  hashkey,
   zora,
 } from 'viem/chains';
 
@@ -233,13 +233,40 @@ const SDK_CONTRACT_ADDRESSES = {
     [hashkey.id]: '0x',
     [over.id]: '0x',
   },
+
+  STAKE: {
+    [apeChain.id]: '0xa4021a8907197Df92341F1218B32E26b250F6798',
+    [arbitrum.id]: '0xf7e2cDe9E603F15118E6E389cF14f11f19C1afbc',
+    [avalanche.id]: '0x68f54a53d3E69e2191bCF586fB507c81E5353413',
+    [avalancheFuji.id]: '0x',
+    [base.id]: '0x9Ab05EcA10d087f23a1B22A44A714cdbBA76E802',
+    [baseSepolia.id]: '0x',
+    [blast.id]: '0x68f54a53d3E69e2191bCF586fB507c81E5353413',
+    [blastSepolia.id]: '0x',
+    [bsc.id]: '0x7B09b728ee8c6a714dC3F10367b5DF9b217FE633',
+    [cyber.id]: '0x3Fd5B4DcDa968C8e22898523f5343177F94ccfd1',
+    [cyberTestnet.id]: '0x',
+    [degen.id]: '0x5FBdC7941a735685eB08c51776bA77098ebe1eb7',
+    [ham.id]: '0x',
+    [hashkey.id]: '0xa4021a8907197Df92341F1218B32E26b250F6798',
+    [kaia.id]: '0x29b0E6D2C2884aEa3FB4CB5dD1C7002A8E10c724',
+    [mainnet.id]: '0x841A2bD2fc97DCB865b4Ddb352540148Bad2dB09',
+    [optimism.id]: '0xF187645D1C5AE70C3ddCDeE6D746E5A7619a2A65',
+    [over.id]: '0x621c335b4BD8f2165E120DC70d3AfcAfc6628681',
+    [polygon.id]: '0x95BDA90196c4e737933360F4639c46Ace657AAb7',
+    [sepolia.id]: '0xd1cFAf476c8311792c329359B012bA515399f3a4',
+    [shibarium.id]: '0xa4021a8907197Df92341F1218B32E26b250F6798',
+    [shibariumTestnet.id]: '0x',
+    [unichain.id]: '0xa4021a8907197Df92341F1218B32E26b250F6798',
+    [zora.id]: '0x3Fd5B4DcDa968C8e22898523f5343177F94ccfd1',
+  },
 } as const;
 
 export function getMintClubContractAddress(contractName: ContractNames, chainId: SdkSupportedChainIds) {
   let contractAddress = SDK_CONTRACT_ADDRESSES[contractName][chainId];
 
   if (process.env.NODE_ENV === 'hardhat') {
-    contractAddress = global.mcv2Hardhat?.[contractName]?.[chainId] as any;
+    contractAddress = (global as any).mcv2Hardhat?.[contractName]?.[chainId] as any;
   }
 
   if (!contractAddress) {

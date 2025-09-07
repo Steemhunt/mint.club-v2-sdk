@@ -1,0 +1,35 @@
+---
+description: Get the protocol beneficiary address
+---
+
+# getProtocolBeneficiary
+
+Get the address that receives protocol fees from staking pool operations.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const beneficiary = await mintclub.network('base').stake.getProtocolBeneficiary()
+console.log('Protocol beneficiary:', beneficiary)
+```
+
+## Return Value
+
+`Promise<'0x${string}'>`
+
+Returns a promise that resolves to the protocol beneficiary address.
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const beneficiary = await mintclub.network('base').stake.getProtocolBeneficiary()
+console.log(`Protocol fees go to: ${beneficiary}`)
+
+// This is the address that receives:
+// - Creation fees when pools are created
+// - Claim fees when rewards are claimed
+```

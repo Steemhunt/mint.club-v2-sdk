@@ -1,0 +1,134 @@
+---
+description: Stake tokens in a pool to earn rewards
+---
+
+# stake
+
+Stake tokens in a specific pool to earn rewards over time.
+
+:::tip[Token Approval]
+Before staking, ensure the staking contract is approved to spend your tokens. Most wallets will prompt for approval if needed.
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').stake.stake({
+  poolId: 0,
+  amount: BigInt('100000000000000000'), // 0.1 token (18 decimals)
+  onSuccess: (receipt) => {
+    console.log('Tokens staked successfully!', receipt)
+  },
+  onError: (error) => {
+    console.error('Failed to stake tokens:', error)
+  },
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+## Parameters
+
+### poolId
+
+- Type: `number`
+
+The ID of the staking pool to stake tokens in.
+
+```ts
+await mintclub.network('base').stake.stake({
+  poolId: 0, // [!code focus]
+  amount: BigInt('100000000000000000'),
+})
+```
+
+### amount
+
+- Type: `bigint`
+
+The amount of tokens to stake.
+
+:::warning[Token Decimals]
+Remember to account for the staking token's decimals. For 18-decimal tokens, `100000000000000000` equals 0.1 tokens.
+:::
+
+```ts
+await mintclub.network('base').stake.stake({
+  poolId: 0,
+  amount: BigInt('100000000000000000'), // [!code focus]
+})
+```
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').stake.stake({
+  poolId: 0,
+  amount: BigInt('100000000000000000'),
+  onSignatureRequest: () => {
+    console.log('Please sign the transaction')
+  }, // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+Callback function for when the user signs the transaction.
+
+```ts
+await mintclub.network('base').stake.stake({
+  poolId: 0,
+  amount: BigInt('100000000000000000'),
+  onSigned: (txHash) => {
+    console.log('Transaction signed:', txHash)
+  }, // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').stake.stake({
+  poolId: 0,
+  amount: BigInt('100000000000000000'),
+  onSuccess: (receipt) => {
+    console.log('Tokens staked successfully!', receipt)
+  }, // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').stake.stake({
+  poolId: 0,
+  amount: BigInt('100000000000000000'),
+  onError: (error) => {
+    console.error('Failed to stake tokens:', error)
+  }, // [!code focus]
+})
+```

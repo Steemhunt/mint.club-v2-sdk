@@ -6,6 +6,7 @@ import {
   LOCKER_ABI,
   MERKLE_ABI,
   ONEINCH_ABI,
+  STAKE_ABI,
   ZAP_ABI,
 } from '../exports';
 
@@ -23,7 +24,9 @@ export type AbiType<T extends ContractNames> = T extends 'BOND'
             ? typeof ZAP_ABI
             : T extends 'ONEINCH'
               ? typeof ONEINCH_ABI
-              : never;
+              : T extends 'STAKE'
+                ? typeof STAKE_ABI
+                : never;
 
 export type SupportedAbiType =
   | typeof BOND_ABI
@@ -32,4 +35,5 @@ export type SupportedAbiType =
   | typeof LOCKER_ABI
   | typeof MERKLE_ABI
   | typeof ZAP_ABI
-  | typeof ONEINCH_ABI;
+  | typeof ONEINCH_ABI
+  | typeof STAKE_ABI;

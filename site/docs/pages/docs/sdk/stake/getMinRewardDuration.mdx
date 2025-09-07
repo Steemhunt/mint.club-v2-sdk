@@ -1,0 +1,50 @@
+---
+description: Get the minimum allowed reward duration for pools
+---
+
+# getMinRewardDuration
+
+Get the minimum duration (in seconds) allowed for reward distribution when creating staking pools.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const minDuration = await mintclub.network('base').stake.getMinRewardDuration()
+console.log('Minimum reward duration:', minDuration)
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns a promise that resolves to the minimum reward duration in seconds.
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const minDuration = await mintclub.network('base').stake.getMinRewardDuration()
+
+// Convert to more readable units
+const minDurationNumber = Number(minDuration)
+const hours = minDurationNumber / 3600
+const days = hours / 24
+
+console.log(`Minimum duration: ${minDurationNumber} seconds`)
+console.log(`That's ${hours} hours or ${days} days`)
+
+// Use when creating a pool
+const rewardDuration = Math.max(minDurationNumber, 7 * 24 * 60 * 60) // At least 7 days
+
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x1234567890123456789012345678901234567890',
+  isStakingTokenERC20: true,
+  rewardToken: '0x0987654321098765432109876543210987654321',
+  rewardAmount: BigInt('1000000000000000000'),
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600,
+  rewardDuration, // Ensure it meets minimum requirement
+})
+```

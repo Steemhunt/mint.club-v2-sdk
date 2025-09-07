@@ -1,0 +1,156 @@
+---
+description: Renounce ownership of the stake contract (permanent action)
+---
+
+# renounceOwnership
+
+Renounce ownership of the staking contract, making it permanently ownerless. This is an irreversible action that cannot be undone.
+
+:::danger[Irreversible Action]
+Once ownership is renounced, it cannot be restored. The contract will become permanently ownerless and certain administrative functions will no longer be available.
+:::
+
+:::warning[Owner Only]
+This function can only be called by the current contract owner. Use [`getOwner`](/docs/sdk/stake/getOwner) to check who the current owner is.
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').stake.renounceOwnership({
+  onSuccess: (receipt) => {
+    console.log('Ownership renounced successfully!', receipt)
+  },
+  onError: (error) => {
+    console.error('Failed to renounce ownership:', error)
+  },
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+## Parameters
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').stake.renounceOwnership({
+  onSignatureRequest: () => {
+    console.log('Please sign the transaction')
+  }, // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+Callback function for when the user signs the transaction.
+
+```ts
+await mintclub.network('base').stake.renounceOwnership({
+  onSigned: (txHash) => {
+    console.log('Transaction signed:', txHash)
+  }, // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').stake.renounceOwnership({
+  onSuccess: (receipt) => {
+    console.log('Ownership renounced successfully!', receipt)
+  }, // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').stake.renounceOwnership({
+  onError: (error) => {
+    console.error('Failed to renounce ownership:', error)
+  }, // [!code focus]
+})
+```
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const stake = mintclub.network('base').stake
+
+// Check current owner before renouncing
+const currentOwner = await stake.getOwner()
+console.log('Current owner:', currentOwner)
+
+// ⚠️  CAUTION: This action cannot be undone!
+const confirmRenounce = window.confirm(
+  'Are you sure you want to renounce ownership? This action is permanent and cannot be undone.',
+)
+
+if (confirmRenounce) {
+  await stake.renounceOwnership({
+    onSuccess: (receipt) => {
+      console.log('Ownership has been permanently renounced')
+      console.log('The contract is now ownerless')
+    },
+    onError: (error) => {
+      if (error.message?.includes('OwnableUnauthorizedAccount')) {
+        console.error('Only the contract owner can renounce ownership')
+      } else {
+        console.error('Failed to renounce ownership:', error)
+      }
+    },
+  })
+} else {
+  console.log('Ownership renouncement cancelled')
+}
+```
+
+## Important Considerations
+
+### After Renouncing Ownership
+
+Once ownership is renounced, the following functions will no longer be callable:
+
+- [`updateClaimFee`](/docs/sdk/stake/updateClaimFee)
+- [`updateCreationFee`](/docs/sdk/stake/updateCreationFee)
+- [`updateProtocolBeneficiary`](/docs/sdk/stake/updateProtocolBeneficiary)
+- `transferOwnership`
+
+### Recovery
+
+There is **no way** to recover ownership once it has been renounced. Make sure this is what you want to do before proceeding.
+
+### Use Cases
+
+Renouncing ownership might be appropriate when:
+
+- The contract has reached its final, stable state
+- No further administrative changes are needed
+- You want to ensure the contract remains immutable

@@ -1,0 +1,44 @@
+---
+description: Get the current owner of the stake contract
+---
+
+# getOwner
+
+Get the address of the current owner of the staking contract.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const owner = await mintclub.network('base').stake.getOwner()
+console.log('Stake contract owner:', owner)
+```
+
+## Return Value
+
+`Promise<'0x${string}'>`
+
+Returns a promise that resolves to the owner's address.
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const owner = await mintclub.network('base').stake.getOwner()
+
+// Check if current user is the owner
+const userAddress = '0x...' // Replace with actual user address
+if (owner.toLowerCase() === userAddress.toLowerCase()) {
+  console.log('You are the contract owner')
+} else {
+  console.log('You are not the contract owner')
+}
+
+// Use for access control
+const canUpdateFees = owner.toLowerCase() === userAddress.toLowerCase()
+if (canUpdateFees) {
+  console.log('You can update protocol fees')
+}
+```

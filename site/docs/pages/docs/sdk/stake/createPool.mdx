@@ -1,0 +1,218 @@
+---
+description: Create a new staking pool
+---
+
+# createPool
+
+Create a new staking pool where users can stake tokens to earn rewards.
+
+:::tip[Pool Creation Fee]
+Creating a staking pool requires paying a protocol fee. You can check the current fee using [`getCreationFee`](/docs/sdk/stake/getCreationFee).
+:::
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x1234567890123456789012345678901234567890',
+  isStakingTokenERC20: true,
+  rewardToken: '0x0987654321098765432109876543210987654321',
+  rewardAmount: BigInt('1000000000000000000'), // 1 token (18 decimals)
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // Start in 1 hour
+  rewardDuration: 7 * 24 * 60 * 60, // 7 days in seconds
+  onSuccess: (receipt) => {
+    console.log('Pool created successfully!', receipt)
+  },
+  onError: (error) => {
+    console.error('Failed to create pool:', error)
+  },
+})
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
+
+## Parameters
+
+### stakingToken
+
+- Type: `'0x${string}'`
+
+The address of the token that users will stake in this pool.
+
+```ts
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x1234567890123456789012345678901234567890', // [!code focus]
+  isStakingTokenERC20: true,
+  rewardToken: '0x0987654321098765432109876543210987654321',
+  rewardAmount: BigInt('1000000000000000000'),
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600,
+  rewardDuration: 7 * 24 * 60 * 60,
+})
+```
+
+### isStakingTokenERC20
+
+- Type: `boolean`
+
+Whether the staking token is an ERC20 token (`true`) or ERC1155 token (`false`).
+
+```ts
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x1234567890123456789012345678901234567890',
+  isStakingTokenERC20: true, // [!code focus]
+  rewardToken: '0x0987654321098765432109876543210987654321',
+  rewardAmount: BigInt('1000000000000000000'),
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600,
+  rewardDuration: 7 * 24 * 60 * 60,
+})
+```
+
+### rewardToken
+
+- Type: `'0x${string}'`
+
+The address of the ERC20 token that will be distributed as rewards.
+
+```ts
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x1234567890123456789012345678901234567890',
+  isStakingTokenERC20: true,
+  rewardToken: '0x0987654321098765432109876543210987654321', // [!code focus]
+  rewardAmount: BigInt('1000000000000000000'),
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600,
+  rewardDuration: 7 * 24 * 60 * 60,
+})
+```
+
+### rewardAmount
+
+- Type: `bigint`
+
+The total amount of reward tokens to be distributed over the entire duration.
+
+:::warning[Token Decimals]
+Remember to account for the reward token's decimals. For 18-decimal tokens, `1000000000000000000` equals 1 token.
+:::
+
+```ts
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x1234567890123456789012345678901234567890',
+  isStakingTokenERC20: true,
+  rewardToken: '0x0987654321098765432109876543210987654321',
+  rewardAmount: BigInt('1000000000000000000'), // [!code focus]
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600,
+  rewardDuration: 7 * 24 * 60 * 60,
+})
+```
+
+### rewardStartsAt
+
+- Type: `number`
+
+The timestamp (in seconds) when reward distribution should begin.
+
+:::warning[Time Unit]
+This must be in **seconds**, not milliseconds. Use `Math.floor(Date.now() / 1000)` to convert.
+:::
+
+```ts
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x1234567890123456789012345678901234567890',
+  isStakingTokenERC20: true,
+  rewardToken: '0x0987654321098765432109876543210987654321',
+  rewardAmount: BigInt('1000000000000000000'),
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // [!code focus]
+  rewardDuration: 7 * 24 * 60 * 60,
+})
+```
+
+### rewardDuration
+
+- Type: `number`
+
+The duration (in seconds) over which rewards will be distributed.
+
+:::info[Duration Limits]
+There are minimum and maximum duration limits. Check [`getMinRewardDuration`](/docs/sdk/stake/getMinRewardDuration) and [`getMaxRewardDuration`](/docs/sdk/stake/getMaxRewardDuration).
+:::
+
+```ts
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x1234567890123456789012345678901234567890',
+  isStakingTokenERC20: true,
+  rewardToken: '0x0987654321098765432109876543210987654321',
+  rewardAmount: BigInt('1000000000000000000'),
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600,
+  rewardDuration: 7 * 24 * 60 * 60, // [!code focus]
+})
+```
+
+### onSignatureRequest (optional)
+
+- Type: `onSignatureRequest?: () => void;`
+- Default: `undefined`
+
+Callback function for when the user is requested to sign the transaction.
+
+```ts
+await mintclub.network('base').stake.createPool({
+  // ... other parameters
+  onSignatureRequest: () => {
+    console.log('Please sign the transaction')
+  }, // [!code focus]
+})
+```
+
+### onSigned (optional)
+
+- Type: `onSigned?: (txHash: '0x${string}') => void;`
+- Default: `undefined`
+
+Callback function for when the user signs the transaction.
+
+```ts
+await mintclub.network('base').stake.createPool({
+  // ... other parameters
+  onSigned: (txHash) => {
+    console.log('Transaction signed:', txHash)
+  }, // [!code focus]
+})
+```
+
+### onSuccess (optional)
+
+- Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction is successful.
+
+```ts
+await mintclub.network('base').stake.createPool({
+  // ... other parameters
+  onSuccess: (receipt) => {
+    console.log('Pool created successfully!', receipt)
+  }, // [!code focus]
+})
+```
+
+### onError (optional)
+
+- Type: `onError?: (error: unknown) => void;`
+- Default: `undefined`
+
+Callback function for when the transaction fails. This also includes when the user rejects the transaction.
+
+```ts
+await mintclub.network('base').stake.createPool({
+  // ... other parameters
+  onError: (error) => {
+    console.error('Failed to create pool:', error)
+  }, // [!code focus]
+})
+```

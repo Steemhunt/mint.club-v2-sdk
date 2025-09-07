@@ -1,0 +1,39 @@
+---
+description: Get the fee charged when claiming rewards
+---
+
+# getClaimFee
+
+Get the protocol fee percentage charged when claiming rewards from staking pools.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const claimFee = await mintclub.network('base').stake.getClaimFee()
+console.log('Claim fee percentage:', claimFee)
+```
+
+## Return Value
+
+`Promise<bigint>`
+
+Returns a promise that resolves to the claim fee percentage. The fee is typically expressed as basis points (e.g., 500 = 5%).
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const claimFee = await mintclub.network('base').stake.getClaimFee()
+
+// Convert basis points to percentage
+const feePercentage = Number(claimFee) / 100
+console.log(`Claim fee: ${feePercentage}%`)
+
+// Calculate expected fee on rewards
+const expectedRewards = BigInt('1000000000000000000') // 1 token
+const feeAmount = (expectedRewards * claimFee) / BigInt(10000)
+console.log('Fee on 1 token reward:', feeAmount)
+```

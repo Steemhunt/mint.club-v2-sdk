@@ -1,0 +1,117 @@
+---
+description: Get claimable rewards for a user in a specific pool
+---
+
+# getClaimableReward
+
+Get the amount of rewards a user can currently claim from a specific staking pool, including fee calculations.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const claimable = await mintclub.network('base').stake.getClaimableReward({
+  poolId: 0,
+  staker: '0x1234567890123456789012345678901234567890',
+})
+console.log('Claimable rewards:', claimable)
+```
+
+## Return Value
+
+`Promise<ClaimableReward>`
+
+Returns a promise that resolves to a `ClaimableReward` object containing:
+
+```ts
+type ClaimableReward = readonly [
+  bigint, // rewardClaimable - Amount that can be claimed (after fees)
+  bigint, // fee - Fee that will be charged on claim
+  bigint, // claimedTotal - Total rewards claimed so far
+  bigint, // feeTotal - Total fees paid so far
+]
+```
+
+## Parameters
+
+### poolId
+
+- Type: `number`
+
+The ID of the staking pool to check rewards for.
+
+```ts
+const claimable = await mintclub.network('base').stake.getClaimableReward({
+  poolId: 0, // [!code focus]
+  staker: '0x1234567890123456789012345678901234567890',
+})
+```
+
+### staker
+
+- Type: `'0x${string}'`
+
+The address of the staker to check rewards for.
+
+```ts
+const claimable = await mintclub.network('base').stake.getClaimableReward({
+  poolId: 0,
+  staker: '0x1234567890123456789012345678901234567890', // [!code focus]
+})
+```
+
+## Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+import { formatUnits } from 'viem'
+
+const poolId = 0
+const stakerAddress = '0x1234567890123456789012345678901234567890'
+
+// Get claimable rewards
+const claimable = await mintclub.network('base').stake.getClaimableReward({
+  poolId,
+  staker: stakerAddress,
+})
+
+// Get pool info for token details
+const poolInfo = await mintclub.network('base').stake.getPool({ poolId })
+const { rewardToken } = poolInfo
+
+// Destructure the tuple
+const [rewardClaimable, fee, claimedTotal, feeTotal] = claimable
+
+// Format amounts
+const claimableAmount = formatUnits(rewardClaimable, rewardToken.decimals)
+const feeAmount = formatUnits(fee, rewardToken.decimals)
+const totalClaimed = formatUnits(claimedTotal, rewardToken.decimals)
+const totalFees = formatUnits(feeTotal, rewardToken.decimals)
+
+console.log(`Claimable Rewards for Pool ${poolId}:`)
+console.log(`Available to claim: ${claimableAmount} ${rewardToken.symbol}`)
+console.log(`Fee on claim: ${feeAmount} ${rewardToken.symbol}`)
+console.log(`Total claimed: ${totalClaimed} ${rewardToken.symbol}`)
+console.log(`Total fees paid: ${totalFees} ${rewardToken.symbol}`)
+
+// Check if worth claiming
+if (rewardClaimable > 0n) {
+  console.log('✅ You have rewards to claim!')
+
+  // You can claim these rewards
+  await mintclub.network('base').stake.claim({
+    poolId,
+    onSuccess: (receipt) => {
+      console.log('Rewards claimed successfully!', receipt)
+    },
+  })
+} else {
+  console.log('❌ No rewards available to claim')
+}
+
+// Calculate gross rewards (before fees)
+const grossRewards = rewardClaimable + fee
+const grossAmount = formatUnits(grossRewards, rewardToken.decimals)
+console.log(`Gross rewards: ${grossAmount} ${rewardToken.symbol}`)
+```
