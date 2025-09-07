@@ -133,7 +133,7 @@ await stake.updateProtocolBeneficiary({
     console.log('Protocol beneficiary updated to:', newBeneficiary)
   },
   onError: (error) => {
-    if (error.message?.includes('OwnableUnauthorizedAccount')) {
+    if ((error as Error).message?.includes('OwnableUnauthorizedAccount')) {
       console.error('Only the contract owner can update the beneficiary')
     } else {
       console.error('Failed to update protocol beneficiary:', error)

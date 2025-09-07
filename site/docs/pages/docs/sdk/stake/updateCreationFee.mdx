@@ -131,7 +131,7 @@ await stake.updateCreationFee({
     console.log('Creation fee updated to 0.05 ETH')
   },
   onError: (error) => {
-    if (error.message?.includes('OwnableUnauthorizedAccount')) {
+    if ((error as Error).message?.includes('OwnableUnauthorizedAccount')) {
       console.error('Only the contract owner can update fees')
     } else {
       console.error('Failed to update creation fee:', error)

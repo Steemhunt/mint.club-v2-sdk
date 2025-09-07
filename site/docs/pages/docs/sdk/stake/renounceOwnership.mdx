@@ -120,7 +120,7 @@ if (confirmRenounce) {
       console.log('The contract is now ownerless')
     },
     onError: (error) => {
-      if (error.message?.includes('OwnableUnauthorizedAccount')) {
+      if ((error as Error).message?.includes('OwnableUnauthorizedAccount')) {
         console.error('Only the contract owner can renounce ownership')
       } else {
         console.error('Failed to renounce ownership:', error)
