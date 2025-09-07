@@ -1,0 +1,448 @@
+# 🎨 Common Patterns & Snippets
+
+> **For AI Assistants:** These are battle-tested patterns you can copy-paste and adapt for your implementations.
+
+## 🚀 Complete Implementation Templates
+
+### 1. Basic Token Trading Bot
+
+```ts
+import { mintclub, wei } from 'mint.club-v2-sdk'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+
+async function tradeTokens() {
+  // Setup wallet
+  const account = privateKeyToAccount(process.env.PRIVATE_KEY!)
+  const walletClient = createWalletClient({
+    account,
+    chain: base,
+    transport: http(),
+  })
+
+  const sdk = mintclub.withWalletClient(walletClient)
+
+  try {
+    // Buy tokens
+    await sdk
+      .network('base')
+      .token('CHICKEN')
+      .buy({
+        amount: wei(100, 18),
+        slippage: 100,
+        onSuccess: (receipt) => {
+          console.log('✅ Purchase successful:', receipt.transactionHash)
+        },
+        onError: (error) => {
+          console.error('❌ Purchase failed:', error)
+        },
+      })
+
+    // Wait a bit
+    await new Promise((resolve) => setTimeout(resolve, 5000))
+
+    // Check balance
+    const balance = await sdk.network('base').token('CHICKEN').getBalanceOf(account.address)
+    console.log('📊 CHICKEN balance:', balance)
+
+    // Get current price
+    const price = await sdk.network('base').token('CHICKEN').getPriceForNextMint()
+    console.log('💰 Current price:', price)
+  } catch (error) {
+    console.error('🚨 Error:', error)
+  }
+}
+```
+
+### 2. Token Creation with Metadata
+
+```ts
+import { mintclub, wei } from 'mint.club-v2-sdk'
+
+async function createTokenWithMetadata(sdk: any) {
+  try {
+    // First upload metadata to IPFS
+    const metadataUrl = await sdk.ipfs.uploadMetadata({
+      filebaseApiKey: process.env.FILEBASE_KEY!,
+      name: 'My Awesome Token',
+      description: 'A revolutionary token on Mint Club',
+      image: 'ipfs://Qm...', // Upload image first
+      external_url: 'https://myapp.com',
+      attributes: [
+        { trait_type: 'Type', value: 'Utility' },
+        { trait_type: 'Network', value: 'Base' },
+      ],
+    })
+
+    // Create the token
+    const result = await sdk
+      .network('base')
+      .token('AWESOME')
+      .create({
+        name: 'Awesome Token',
+        reserveToken: {
+          address: '0x4200000000000000000000000000000000000006', // WETH on Base
+          decimals: 18,
+        },
+        curveData: {
+          curveType: 'EXPONENTIAL',
+          stepCount: 50,
+          maxSupply: 1_000_000,
+          initialMintingPrice: 0.001,
+          finalMintingPrice: 5,
+          creatorAllocation: wei(10000, 18), // 10k tokens for creator
+        },
+        buyRoyalty: 300, // 3%
+        sellRoyalty: 300, // 3%
+        onSuccess: (receipt) => {
+          console.log('🎉 Token created:', receipt.transactionHash)
+          console.log('🔗 View on Mint Club:', `https://mint.club/token/base/AWESOME`)
+        },
+      })
+
+    // Create Mint Club metadata
+    await sdk.network('base').token('AWESOME').createMintClubMetadata({
+      backgroundImage: backgroundFile,
+      logo: logoFile,
+      website: 'https://myapp.com',
+      distributionPlan: 'Fair launch with community rewards',
+      creatorComment: 'Built with Mint Club SDK!',
+    })
+
+    return result
+  } catch (error) {
+    console.error('❌ Token creation failed:', error)
+    throw error
+  }
+}
+```
+
+### 3. Staking Pool Manager
+
+```ts
+import { mintclub, wei } from 'mint.club-v2-sdk'
+
+class StakingManager {
+  constructor(private sdk: any) {}
+
+  async createStakingPool(tokenAddress: string, rewardTokenAddress: string) {
+    try {
+      const result = await this.sdk.network('base').stake.createPool({
+        stakingToken: tokenAddress,
+        isStakingTokenERC20: true,
+        rewardToken: rewardTokenAddress,
+        rewardAmount: wei(10000, 18), // 10k reward tokens
+        rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // Start in 1 hour
+        rewardDuration: 90 * 24 * 60 * 60, // 90 days
+        onSuccess: (receipt) => {
+          console.log('🏆 Staking pool created:', receipt.transactionHash)
+        },
+      })
+
+      return result
+    } catch (error) {
+      console.error('❌ Pool creation failed:', error)
+      throw error
+    }
+  }
+
+  async stakeTokens(poolId: number, amount: string, userAddress: string) {
+    try {
+      await this.sdk.network('base').stake.stake({
+        poolId,
+        amount: wei(amount, 18),
+        onSuccess: (receipt) => {
+          console.log('💰 Tokens staked successfully')
+        },
+      })
+
+      // Check claimable rewards
+      const rewards = await this.sdk.network('base').stake.getClaimableReward({
+        poolId,
+        staker: userAddress,
+      })
+
+      console.log('🎁 Claimable rewards:', rewards[0])
+    } catch (error) {
+      console.error('❌ Staking failed:', error)
+      throw error
+    }
+  }
+
+  async claimRewards(poolId: number) {
+    try {
+      const rewards = await this.sdk.network('base').stake.getClaimableReward({
+        poolId,
+        staker: await this.sdk.wallet.account(),
+      })
+
+      if (rewards[0] > 0n) {
+        await this.sdk.network('base').stake.claim({
+          poolId,
+          onSuccess: (receipt) => {
+            console.log('🎊 Rewards claimed successfully!')
+          },
+        })
+      } else {
+        console.log('⏳ No rewards available yet')
+      }
+    } catch (error) {
+      console.error('❌ Claim failed:', error)
+      throw error
+    }
+  }
+}
+```
+
+### 4. Airdrop Creator
+
+```ts
+import { mintclub, wei } from 'mint.club-v2-sdk'
+
+async function createAirdrop(sdk: any, tokenSymbol: string, recipients: string[]) {
+  try {
+    // Generate merkle root for private airdrop
+    const merkleRoot = sdk.utils.generateMerkleRoot(recipients)
+
+    // Create airdrop
+    const result = await sdk
+      .network('base')
+      .token(tokenSymbol)
+      .createAirdrop({
+        title: 'Community Airdrop',
+        wallets: recipients,
+        amountPerClaim: 100, // 100 tokens per wallet
+        startTime: new Date(),
+        endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        filebaseApiKey: process.env.FILEBASE_KEY!,
+        onSuccess: (receipt) => {
+          console.log('✈️ Airdrop created successfully!')
+          console.log('📋 Recipients:', recipients.length)
+          console.log('🎁 Tokens per claim:', 100)
+        },
+      })
+
+    return result
+  } catch (error) {
+    console.error('❌ Airdrop creation failed:', error)
+    throw error
+  }
+}
+```
+
+### 5. Price Monitoring Bot
+
+```ts
+import { mintclub } from 'mint.club-v2-sdk'
+
+class PriceMonitor {
+  constructor(private sdk: any) {}
+
+  async monitorTokenPrice(tokenSymbol: string, intervalMs: number = 30000) {
+    console.log(`👀 Monitoring ${tokenSymbol} price every ${intervalMs / 1000}s...`)
+
+    const checkPrice = async () => {
+      try {
+        const token = this.sdk.network('base').token(tokenSymbol)
+
+        // Get multiple price metrics
+        const [price, usdRate, totalSupply, usdRate24h] = await Promise.all([
+          token.getPriceForNextMint(),
+          token.getUsdRate({ amount: 1 }),
+          token.getTotalSupply(),
+          token.get24HoursUsdRate(),
+        ])
+
+        console.log(`💰 ${tokenSymbol} Price: $${usdRate}`)
+        console.log(`📊 24h Change: ${usdRate24h?.changePercent || 'N/A'}%`)
+        console.log(`🏦 Total Supply: ${totalSupply}`)
+
+        // Alert on price changes
+        if (usdRate24h?.changePercent) {
+          if (usdRate24h.changePercent > 10) {
+            console.log('🚀 Price surging!')
+          } else if (usdRate24h.changePercent < -10) {
+            console.log('📉 Price dropping!')
+          }
+        }
+      } catch (error) {
+        console.error('❌ Price check failed:', error)
+      }
+    }
+
+    // Initial check
+    await checkPrice()
+
+    // Set up interval
+    setInterval(checkPrice, intervalMs)
+  }
+
+  async getTokenStats(tokenSymbol: string) {
+    try {
+      const token = this.sdk.network('base').token(tokenSymbol)
+
+      const stats = await Promise.all([
+        token.getTotalSupply(),
+        token.getPriceForNextMint(),
+        token.getUsdRate({ amount: 1 }),
+        token.get24HoursUsdRate(),
+        token.getMaxSupply(),
+        token.getSteps(),
+      ])
+
+      return {
+        totalSupply: stats[0],
+        currentPrice: stats[1],
+        usdRate: stats[2],
+        usdRate24h: stats[3],
+        maxSupply: stats[4],
+        steps: stats[5],
+      }
+    } catch (error) {
+      console.error('❌ Stats fetch failed:', error)
+      throw error
+    }
+  }
+}
+```
+
+### 6. React Hook for Token Data
+
+```ts
+import { useState, useEffect } from 'react'
+import { useWalletClient } from 'wagmi'
+import { mintclub, wei } from 'mint.club-v2-sdk'
+import { base } from 'viem/chains'
+
+export function useMintClubToken(tokenSymbol: string) {
+  const { data: walletClient } = useWalletClient({ chainId: 8453 })
+  const [tokenData, setTokenData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  const sdk = walletClient ? mintclub.withWalletClient({ ...walletClient, chain: base }) : null
+
+  const refreshData = async () => {
+    if (!sdk) return
+
+    try {
+      setLoading(true)
+      const token = sdk.network('base').token(tokenSymbol)
+
+      const [totalSupply, price, usdRate, balance] = await Promise.all([
+        token.getTotalSupply(),
+        token.getPriceForNextMint(),
+        token.getUsdRate({ amount: 1 }),
+        walletClient ? token.getBalanceOf(walletClient.account.address) : Promise.resolve(0n),
+      ])
+
+      setTokenData({
+        totalSupply,
+        price,
+        usdRate,
+        balance,
+      })
+    } catch (error) {
+      console.error('Failed to fetch token data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    refreshData()
+  }, [walletClient, tokenSymbol])
+
+  const buy = async (amount: string) => {
+    if (!sdk) throw new Error('Wallet not connected')
+
+    return sdk
+      .network('base')
+      .token(tokenSymbol)
+      .buy({
+        amount: wei(amount, 18),
+        slippage: 100,
+        onSuccess: () => refreshData(),
+      })
+  }
+
+  const sell = async (amount: string) => {
+    if (!sdk) throw new Error('Wallet not connected')
+
+    return sdk
+      .network('base')
+      .token(tokenSymbol)
+      .sell({
+        amount: wei(amount, 18),
+        slippage: 100,
+        onSuccess: () => refreshData(),
+      })
+  }
+
+  return {
+    data: tokenData,
+    loading,
+    buy,
+    sell,
+    refresh: refreshData,
+  }
+}
+```
+
+## 🛠️ Utility Functions
+
+### BigInt Helpers
+
+```ts
+// Convert between wei and human readable
+function weiToHuman(weiAmount: bigint, decimals: number = 18): string {
+  return (Number(weiAmount) / Math.pow(10, decimals)).toString()
+}
+
+function humanToWei(humanAmount: string, decimals: number = 18): bigint {
+  return BigInt(Math.floor(parseFloat(humanAmount) * Math.pow(10, decimals)))
+}
+```
+
+### Time Helpers
+
+```ts
+function secondsToHuman(seconds: number): string {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  return `${hours}h ${minutes}m`
+}
+
+function humanToSeconds(humanTime: string): number {
+  // Parse "1h 30m" or "90m" etc.
+  const hourMatch = humanTime.match(/(\d+)h/)
+  const minuteMatch = humanTime.match(/(\d+)m/)
+
+  const hours = hourMatch ? parseInt(hourMatch[1]) : 0
+  const minutes = minuteMatch ? parseInt(minuteMatch[1]) : 0
+
+  return hours * 3600 + minutes * 60
+}
+```
+
+### Error Handler
+
+```ts
+function handleMintClubError(error: any): string {
+  if (error.message?.includes('insufficient funds')) {
+    return 'Insufficient funds in wallet'
+  }
+  if (error.message?.includes('user rejected')) {
+    return 'Transaction rejected by user'
+  }
+  if (error.message?.includes('slippage')) {
+    return 'Price slippage too high'
+  }
+
+  return error.message || 'Unknown error occurred'
+}
+```
+
+---
+
+**Copy-paste these patterns and adapt them to your needs!** They're production-ready and follow best practices. 🚀

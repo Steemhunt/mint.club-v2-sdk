@@ -546,7 +546,56 @@ export const sidebar = {
           ],
         },
 
-        // Any additional items or categories should follow the same pattern
+        {
+          text: '🤖 vibecoding',
+          collapsed: true,
+          items: [
+            {
+              text: '🏠 Welcome Vibe Coders',
+              link: '/docs/vibe-coders',
+            },
+            {
+              text: '📖 Complete LLM Guide',
+              link: '/docs/vibe-coders/llm-guide',
+            },
+            {
+              text: '⚡ Core Pattern Cheat Sheet',
+              link: '/docs/vibe-coders/cheat-sheet',
+            },
+            {
+              text: '🎨 Common Patterns & Snippets',
+              link: '/docs/vibe-coders/patterns',
+            },
+            {
+              text: '🚀 Environment Setup Guide',
+              link: '/docs/vibe-coders/setup',
+            },
+            {
+              text: '🔍 Debugging Guide',
+              link: '/docs/vibe-coders/debugging',
+            },
+            {
+              text: '🪙 Token & NFT Operations',
+              link: '/docs/vibe-coders/token-nft-guide',
+            },
+            {
+              text: '🎁 Airdrop Operations',
+              link: '/docs/vibe-coders/airdrop-guide',
+            },
+            {
+              text: '🔒 Lockup Operations',
+              link: '/docs/vibe-coders/lockup-guide',
+            },
+            {
+              text: '💎 Bond Operations',
+              link: '/docs/vibe-coders/bond-guide',
+            },
+            {
+              text: '🥩 Staking Operations',
+              link: '/docs/vibe-coders/stake-guide',
+            },
+          ],
+        },
       ],
     },
     {

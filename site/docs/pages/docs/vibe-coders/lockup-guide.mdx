@@ -1,0 +1,875 @@
+# 🔒 Token Lockup Operations — Complete LLM Guide
+
+> **For AI Assistants:** This comprehensive guide covers all token lockup operations in the Mint Club SDK. Use this when implementing vesting schedules, team token locks, or delayed token releases.
+
+## ⚡ Core Lockup Pattern
+
+```ts
+import { mintclub, wei } from 'mint.club-v2-sdk'
+
+// Always follow this pattern for lockups:
+mintclub
+  .network('base')      // Step 1: Select network
+  .lockup               // Step 2: Access lockup module
+  .createLockUp({...})  // Step 3: Call lockup operation
+```
+
+## 📋 Complete Lockup Operations Guide
+
+### Creating Token Lockups
+
+**Pattern:** `sdk.network().lockup.createLockUp()`
+
+```ts
+// Basic token lockup
+await sdk.network('base').lockup.createLockUp({
+  token: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Token address
+  isERC20: true, // true for ERC20, false for ERC1155
+  amount: wei(10000, 18), // Amount to lock (10,000 tokens)
+  unlockTime: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60, // 1 year
+  receiver: '0x742d35Cc6634C0532925a3b844Bc454e4438f44f', // Recipient
+  title: 'Team Token Vesting', // Lockup description
+  onSuccess: (receipt) => {
+    console.log('✅ Tokens locked successfully:', receipt.transactionHash)
+  },
+  onError: (error) => {
+    console.error('❌ Lockup creation failed:', error)
+  },
+})
+```
+
+**Advanced Lockup with Future Unlock:**
+
+```ts
+// Team vesting schedule
+const teamLockups = [
+  {
+    address: '0x...',
+    amount: wei(50000, 18), // 50k tokens
+    unlockTime: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60, // 1 year
+    title: 'Team Member - Year 1',
+  },
+  {
+    address: '0x...',
+    amount: wei(75000, 18), // 75k tokens
+    unlockTime: Math.floor(Date.now() / 1000) + 730 * 24 * 60 * 60, // 2 years
+    title: 'Team Member - Year 2',
+  },
+]
+
+for (const lockup of teamLockups) {
+  await sdk.network('base').lockup.createLockUp({
+    token: '0x...',
+    isERC20: true,
+    amount: lockup.amount,
+    unlockTime: lockup.unlockTime,
+    receiver: lockup.address,
+    title: lockup.title,
+  })
+
+  // Rate limiting
+  await new Promise((resolve) => setTimeout(resolve, 2000))
+}
+```
+
+**Parameters Reference:**
+
+```ts
+interface CreateLockUpParams {
+  token: string // Token contract address
+  isERC20: boolean // true for ERC20, false for ERC1155
+  amount: bigint // Amount to lock (use wei() helper)
+  unlockTime: number // Unix timestamp when tokens unlock
+  receiver: string // Address that can claim tokens
+  title: string // Lockup description/title
+  onSuccess?: (receipt: any) => void
+  onError?: (error: any) => void
+}
+```
+
+### Unlocking Tokens
+
+**Pattern:** `sdk.network().lockup.unlock()`
+
+```ts
+// Unlock tokens (only after unlock time)
+await sdk.network('base').lockup.unlock({
+  lockUpId: 123, // Lockup ID from creation
+  onSuccess: (receipt) => {
+    console.log('✅ Tokens unlocked and transferred')
+    console.log('📊 Transaction:', receipt.transactionHash)
+  },
+  onError: (error) => {
+    console.error('❌ Unlock failed:', error)
+  },
+})
+```
+
+**Batch Unlock Multiple Lockups:**
+
+```ts
+async function batchUnlockLockups(sdk: any, lockupIds: number[]) {
+  for (const lockupId of lockupIds) {
+    try {
+      // Check if lockup can be unlocked
+      const lockup = await sdk.network('base').lockup.getLockUpById(lockupId)
+
+      if (lockup.unlocked) {
+        console.log(`⏭️ Lockup ${lockupId} already unlocked`)
+        continue
+      }
+
+      const currentTime = Math.floor(Date.now() / 1000)
+      if (currentTime < lockup.unlockTime) {
+        console.log(`⏰ Lockup ${lockupId} not ready yet`)
+        console.log('Unlocks at:', new Date(lockup.unlockTime * 1000))
+        continue
+      }
+
+      // Unlock the tokens
+      await sdk.network('base').lockup.unlock({
+        lockUpId,
+        onSuccess: (receipt) => {
+          console.log(`✅ Unlocked lockup ${lockupId}`)
+        },
+      })
+
+      // Rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+    } catch (error) {
+      console.error(`❌ Failed to unlock lockup ${lockupId}:`, error)
+    }
+  }
+}
+```
+
+### Reading Lockup Data
+
+#### Lockup Information
+
+```ts
+const lockup = sdk.network('base').lockup
+
+// Get lockup details
+const lockupDetails = await lockup.getLockUpById(123)
+console.log('Lockup details:', lockupDetails)
+// Returns: { token, isERC20, unlockTime, unlocked, amount, receiver, title }
+
+// Check if lockup is unlocked
+const isUnlocked = lockupDetails.unlocked
+console.log('Is unlocked:', isUnlocked)
+
+// Check unlock time
+const unlockTime = new Date(lockupDetails.unlockTime * 1000)
+console.log('Unlock time:', unlockTime)
+
+// Check remaining time
+const currentTime = Math.floor(Date.now() / 1000)
+const remainingTime = lockupDetails.unlockTime - currentTime
+console.log('Time until unlock:', remainingTime, 'seconds')
+```
+
+#### Bulk Lockup Queries
+
+```ts
+const lockup = sdk.network('base').lockup
+
+// Get all lockups by receiver
+const receiverLockups = await lockup.getLockUpIdsByReceiver({
+  receiver: userAddress,
+  start: 0, // Starting index
+  end: 50, // Ending index (max 100)
+})
+console.log('Receiver lockups:', receiverLockups)
+
+// Get all lockups for a token
+const tokenLockups = await lockup.getLockUpIdsByToken({
+  token: '0x...', // Token contract address
+  start: 0,
+  end: 50,
+})
+console.log('Token lockups:', tokenLockups)
+```
+
+#### Lockup Statistics
+
+```ts
+const lockup = sdk.network('base').lockup
+
+// Get total number of lockups
+const totalLockups = await lockup.getTotalLockUpCount()
+console.log('Total lockups:', totalLockups)
+
+// Calculate total locked value
+async function calculateTotalLockedValue(tokenAddress: string) {
+  const tokenLockups = await sdk.network('base').lockup.getLockUpIdsByToken({
+    token: tokenAddress,
+    start: 0,
+    end: 1000,
+  })
+
+  let totalLocked = 0n
+  let totalUnlocked = 0n
+
+  for (const lockupId of tokenLockups) {
+    const details = await sdk.network('base').lockup.getLockUpById(lockupId)
+    totalLocked += details.amount
+
+    if (details.unlocked) {
+      totalUnlocked += details.amount
+    }
+  }
+
+  return {
+    totalLocked,
+    totalUnlocked,
+    stillLocked: totalLocked - totalUnlocked,
+    lockupCount: tokenLockups.length,
+  }
+}
+```
+
+## 🔧 Advanced Lockup Operations
+
+### Vesting Schedule Implementation
+
+**Linear Vesting:**
+
+```ts
+class VestingSchedule {
+  constructor(
+    private sdk: any,
+    private tokenAddress: string,
+  ) {}
+
+  async createLinearVesting(recipient: string, totalAmount: string, startTime: number, endTime: number, title: string) {
+    const totalAmountWei = wei(totalAmount, 18)
+    const duration = endTime - startTime
+
+    // Create monthly lockups
+    const monthlyAmount = totalAmountWei / 12n
+    const lockups = []
+
+    for (let month = 1; month <= 12; month++) {
+      const unlockTime = startTime + (duration / 12) * month
+
+      lockups.push({
+        token: this.tokenAddress,
+        isERC20: true,
+        amount: monthlyAmount,
+        unlockTime: Math.floor(unlockTime / 1000),
+        receiver: recipient,
+        title: `${title} - Month ${month}`,
+      })
+    }
+
+    // Create all lockups
+    for (const lockup of lockups) {
+      await this.sdk.network('base').lockup.createLockUp(lockup)
+      await new Promise((resolve) => setTimeout(resolve, 1000)) // Rate limiting
+    }
+
+    return lockups.length
+  }
+
+  async createCliffVesting(recipient: string, totalAmount: string, cliffTime: number, endTime: number, title: string) {
+    const totalAmountWei = wei(totalAmount, 18)
+    const cliffMonths = 6 // 6-month cliff
+    const remainingMonths = 18 // 18 months after cliff
+
+    // Cliff lockup (first 6 months)
+    const cliffAmount = (totalAmountWei * BigInt(cliffMonths)) / 24n
+    await this.sdk.network('base').lockup.createLockUp({
+      token: this.tokenAddress,
+      isERC20: true,
+      amount: cliffAmount,
+      unlockTime: Math.floor(cliffTime / 1000),
+      receiver: recipient,
+      title: `${title} - Cliff Period`,
+    })
+
+    // Monthly lockups after cliff
+    const monthlyAmount = (totalAmountWei * BigInt(remainingMonths)) / 24n / BigInt(remainingMonths)
+    const duration = endTime - cliffTime
+    const monthlyDuration = duration / remainingMonths
+
+    for (let month = 1; month <= remainingMonths; month++) {
+      const unlockTime = cliffTime + monthlyDuration * month
+
+      await this.sdk.network('base').lockup.createLockUp({
+        token: this.tokenAddress,
+        isERC20: true,
+        amount: monthlyAmount,
+        unlockTime: Math.floor(unlockTime / 1000),
+        receiver: recipient,
+        title: `${title} - Month ${month + cliffMonths}`,
+      })
+
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    }
+  }
+}
+```
+
+### Lockup Management System
+
+**Comprehensive Lockup Manager:**
+
+```ts
+class LockupManager {
+  constructor(private sdk: any) {}
+
+  async createTeamVesting(
+    teamMembers: Array<{
+      address: string
+      amount: string
+      role: string
+    }>,
+    vestingStart: Date,
+    vestingEnd: Date,
+  ) {
+    const results = []
+
+    for (const member of teamMembers) {
+      try {
+        const lockupId = await this.sdk.network('base').lockup.createLockUp({
+          token: process.env.TOKEN_ADDRESS!,
+          isERC20: true,
+          amount: wei(member.amount, 18),
+          unlockTime: Math.floor(vestingEnd.getTime() / 1000),
+          receiver: member.address,
+          title: `${member.role} - Team Vesting`,
+        })
+
+        results.push({
+          address: member.address,
+          amount: member.amount,
+          success: true,
+        })
+
+        // Rate limiting
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+      } catch (error) {
+        results.push({
+          address: member.address,
+          amount: member.amount,
+          success: false,
+          error: error.message,
+        })
+      }
+    }
+
+    return results
+  }
+
+  async getVestingStatus(userAddress: string) {
+    const lockupIds = await this.sdk.network('base').lockup.getLockUpIdsByReceiver({
+      receiver: userAddress,
+      start: 0,
+      end: 100,
+    })
+
+    const statusPromises = lockupIds.map(async (id) => {
+      const details = await this.sdk.network('base').lockup.getLockUpById(id)
+
+      const currentTime = Math.floor(Date.now() / 1000)
+      const timeUntilUnlock = details.unlockTime - currentTime
+      const isVested = timeUntilUnlock <= 0
+
+      return {
+        id,
+        title: details.title,
+        amount: details.amount,
+        unlockTime: details.unlockTime,
+        isUnlocked: details.unlocked,
+        canUnlock: isVested && !details.unlocked,
+        timeUntilUnlock: Math.max(0, timeUntilUnlock),
+        progress: Math.min(
+          100,
+          ((currentTime - (details.unlockTime - 365 * 24 * 60 * 60)) / (365 * 24 * 60 * 60)) * 100,
+        ),
+      }
+    })
+
+    const vestingStatus = await Promise.all(statusPromises)
+
+    return {
+      totalLockups: vestingStatus.length,
+      unlockedCount: vestingStatus.filter((v) => v.isUnlocked).length,
+      pendingCount: vestingStatus.filter((v) => !v.isUnlocked).length,
+      totalAmount: vestingStatus.reduce((sum, v) => sum + v.amount, 0n),
+      lockups: vestingStatus,
+    }
+  }
+
+  async unlockAllEligible(userAddress: string) {
+    const vestingStatus = await this.getVestingStatus(userAddress)
+    const eligibleLockups = vestingStatus.lockups.filter((v) => v.canUnlock)
+
+    const results = []
+
+    for (const lockup of eligibleLockups) {
+      try {
+        await this.sdk.network('base').lockup.unlock({
+          lockUpId: lockup.id,
+          onSuccess: (receipt) => {
+            console.log(`✅ Unlocked ${lockup.title}`)
+          },
+        })
+
+        results.push({
+          id: lockup.id,
+          title: lockup.title,
+          success: true,
+        })
+
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+      } catch (error) {
+        results.push({
+          id: lockup.id,
+          title: lockup.title,
+          success: false,
+          error: error.message,
+        })
+      }
+    }
+
+    return results
+  }
+}
+```
+
+### Lockup Analytics
+
+**Comprehensive Lockup Analysis:**
+
+```ts
+async function analyzeLockup(sdk: any, lockupId: number) {
+  const lockup = sdk.network('base').lockup
+
+  try {
+    const [details, receiverLockups, tokenLockups] = await Promise.all([
+      lockup.getLockUpById(lockupId),
+      lockup.getLockUpIdsByReceiver({
+        receiver: details.receiver,
+        start: 0,
+        end: 50,
+      }),
+      lockup.getLockUpIdsByToken({
+        token: details.token,
+        start: 0,
+        end: 50,
+      }),
+    ])
+
+    const currentTime = Math.floor(Date.now() / 1000)
+    const timeUntilUnlock = Math.max(0, details.unlockTime - currentTime)
+    const totalTime = 365 * 24 * 60 * 60 // Assuming 1 year vesting
+    const elapsedTime = totalTime - timeUntilUnlock
+    const progress = Math.min(100, (elapsedTime / totalTime) * 100)
+
+    return {
+      basic: {
+        id: lockupId,
+        title: details.title,
+        token: details.token,
+        isERC20: details.isERC20,
+        receiver: details.receiver,
+      },
+      timing: {
+        unlockTime: details.unlockTime,
+        unlockDate: new Date(details.unlockTime * 1000),
+        timeUntilUnlock,
+        timeUntilUnlockHuman: new Date(timeUntilUnlock * 1000).toISOString().substr(11, 8),
+        isExpired: timeUntilUnlock === 0,
+        isUnlocked: details.unlocked,
+      },
+      vesting: {
+        amount: details.amount,
+        progress: progress.toFixed(2) + '%',
+        status: details.unlocked ? 'Unlocked' : timeUntilUnlock === 0 ? 'Ready to Unlock' : 'Vesting',
+      },
+      related: {
+        byReceiver: receiverLockups.length,
+        byToken: tokenLockups.length,
+      },
+    }
+  } catch (error) {
+    console.error('❌ Lockup analysis failed:', error)
+    throw error
+  }
+}
+```
+
+## 🚨 Error Handling & Troubleshooting
+
+### Common Lockup Errors
+
+#### "Unlock Time Not Reached"
+
+```ts
+// Check unlock time before attempting
+const details = await sdk.network('base').lockup.getLockUpById(lockupId)
+const currentTime = Math.floor(Date.now() / 1000)
+
+if (currentTime < details.unlockTime) {
+  const timeUntilUnlock = details.unlockTime - currentTime
+  console.log('⏰ Cannot unlock yet')
+  console.log('Time until unlock:', Math.ceil(timeUntilUnlock / 86400), 'days')
+  return
+}
+
+// Proceed with unlock
+await sdk.network('base').lockup.unlock({ lockUpId })
+```
+
+#### "Already Unlocked"
+
+```ts
+// Check unlock status
+const details = await sdk.network('base').lockup.getLockUpById(lockupId)
+
+if (details.unlocked) {
+  console.log('⏭️ Lockup already unlocked')
+  console.log('Unlocked at:', new Date(details.unlockTime * 1000))
+  return
+}
+
+// Proceed with unlock
+await sdk.network('base').lockup.unlock({ lockUpId })
+```
+
+#### "Insufficient Balance"
+
+```ts
+// The contract will check this automatically, but you can validate beforehand
+const details = await sdk.network('base').lockup.getLockUpById(lockupId)
+console.log('Amount to unlock:', details.amount)
+
+// Check contract balance (if you have access to it)
+// This is more relevant for the contract deployer
+```
+
+#### "Invalid Lockup ID"
+
+```ts
+// Validate lockup ID exists
+try {
+  const details = await sdk.network('base').lockup.getLockUpById(lockupId)
+  console.log('✅ Lockup exists:', details.title)
+} catch (error) {
+  console.error('❌ Lockup not found:', lockupId)
+  console.log('Available lockups:', await sdk.network('base').lockup.getTotalLockUpCount())
+}
+```
+
+### Lockup Creation Errors
+
+#### "Invalid Unlock Time"
+
+```ts
+// Ensure unlock time is in the future
+const unlockTime = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+
+if (unlockTime <= Math.floor(Date.now() / 1000)) {
+  throw new Error('Unlock time must be in the future')
+}
+
+// Maximum reasonable lockup time (10 years)
+const maxUnlockTime = Math.floor(Date.now() / 1000) + 10 * 365 * 24 * 60 * 60
+if (unlockTime > maxUnlockTime) {
+  throw new Error('Unlock time cannot be more than 10 years in the future')
+}
+```
+
+#### "Invalid Amount"
+
+```ts
+// Ensure amount is positive and reasonable
+const amount = wei(requestedAmount, 18)
+
+if (amount <= 0n) {
+  throw new Error('Lockup amount must be positive')
+}
+
+// Maximum reasonable amount (1 billion tokens)
+const maxAmount = wei(1000000000, 18)
+if (amount > maxAmount) {
+  throw new Error('Lockup amount cannot exceed 1 billion tokens')
+}
+```
+
+#### "Invalid Receiver Address"
+
+```ts
+// Validate Ethereum address
+function isValidAddress(address: string): boolean {
+  return /^0x[a-fA-F0-9]{40}$/.test(address)
+}
+
+if (!isValidAddress(receiverAddress)) {
+  throw new Error('Invalid receiver address format')
+}
+
+// Additional validation (checksum)
+try {
+  const checksummed = getAddress(receiverAddress)
+  if (checksummed !== receiverAddress) {
+    console.warn('Address checksum mismatch, using checksummed version')
+    receiverAddress = checksummed
+  }
+} catch (error) {
+  throw new Error('Invalid Ethereum address')
+}
+```
+
+## 🎯 Best Practices
+
+### Lockup Creation Best Practices
+
+```ts
+// 1. Use clear, descriptive titles
+const lockupTitles = {
+  team: 'Team Member - 4 Year Vesting',
+  advisor: 'Advisor - 2 Year Vesting',
+  investor: 'Seed Investor - 1 Year Cliff',
+  partnership: 'Strategic Partner - 6 Month Lock',
+}
+
+// 2. Implement reasonable timeframes
+const vestingPeriods = {
+  short: 180 * 24 * 60 * 60, // 6 months
+  medium: 365 * 24 * 60 * 60, // 1 year
+  long: 4 * 365 * 24 * 60 * 60, // 4 years
+  extended: 10 * 365 * 24 * 60 * 60, // 10 years
+}
+
+// 3. Use batch creation for multiple lockups
+async function createBatchLockups(
+  sdk: any,
+  lockups: Array<{
+    receiver: string
+    amount: string
+    unlockTime: number
+    title: string
+  }>,
+) {
+  const results = []
+
+  for (const lockup of lockups) {
+    try {
+      await sdk.network('base').lockup.createLockUp({
+        token: process.env.TOKEN_ADDRESS!,
+        isERC20: true,
+        amount: wei(lockup.amount, 18),
+        unlockTime: lockup.unlockTime,
+        receiver: lockup.receiver,
+        title: lockup.title,
+      })
+
+      results.push({ ...lockup, success: true })
+    } catch (error) {
+      results.push({ ...lockup, success: false, error: error.message })
+    }
+
+    // Rate limiting
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+  }
+
+  return results
+}
+```
+
+### Unlock Best Practices
+
+```ts
+// 1. Check eligibility before attempting unlock
+async function checkUnlockEligibility(sdk: any, lockupId: number) {
+  const details = await sdk.network('base').lockup.getLockUpById(lockupId)
+
+  const currentTime = Math.floor(Date.now() / 1000)
+  const canUnlock = !details.unlocked && currentTime >= details.unlockTime
+
+  return {
+    canUnlock,
+    reason: details.unlocked
+      ? 'Already unlocked'
+      : currentTime < details.unlockTime
+        ? 'Not yet unlocked'
+        : 'Ready to unlock',
+    timeUntilUnlock: Math.max(0, details.unlockTime - currentTime),
+    details,
+  }
+}
+
+// 2. Implement unlock with retry logic
+async function unlockWithRetry(sdk: any, lockupId: number, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const eligibility = await checkUnlockEligibility(sdk, lockupId)
+
+      if (!eligibility.canUnlock) {
+        throw new Error(`Cannot unlock: ${eligibility.reason}`)
+      }
+
+      await sdk.network('base').lockup.unlock({
+        lockUpId,
+        onSuccess: (receipt) => {
+          console.log(`✅ Unlocked on attempt ${attempt}`)
+        },
+      })
+
+      return // Success
+    } catch (error) {
+      console.log(`❌ Attempt ${attempt} failed:`, error.message)
+
+      if (attempt === maxRetries) {
+        throw new Error(`Failed after ${maxRetries} attempts`)
+      }
+
+      // Exponential backoff
+      await new Promise((resolve) => setTimeout(resolve, 1000 * Math.pow(2, attempt)))
+    }
+  }
+}
+```
+
+### Monitoring Best Practices
+
+```ts
+// 1. Regular status monitoring
+async function monitorLockups(sdk: any, userAddress: string) {
+  const lockupIds = await sdk.network('base').lockup.getLockUpIdsByReceiver({
+    receiver: userAddress,
+    start: 0,
+    end: 100,
+  })
+
+  const monitoringPromises = lockupIds.map(async (id) => {
+    const details = await sdk.network('base').lockup.getLockUpById(id)
+    const currentTime = Math.floor(Date.now() / 1000)
+
+    return {
+      id,
+      title: details.title,
+      amount: details.amount,
+      unlockTime: details.unlockTime,
+      isUnlocked: details.unlocked,
+      daysUntilUnlock: Math.max(0, Math.ceil((details.unlockTime - currentTime) / 86400)),
+      status: details.unlocked ? 'Unlocked' : currentTime >= details.unlockTime ? 'Ready to Unlock' : 'Vesting',
+    }
+  })
+
+  return await Promise.all(monitoringPromises)
+}
+
+// 2. Automated unlock notifications
+async function checkAndNotifyUnlocks(sdk: any, userAddress: string) {
+  const lockups = await monitorLockups(sdk, userAddress)
+  const readyToUnlock = lockups.filter((l) => l.status === 'Ready to Unlock')
+
+  if (readyToUnlock.length > 0) {
+    console.log('🎉 Tokens ready to unlock!')
+    readyToUnlock.forEach((lockup) => {
+      console.log(`- ${lockup.title}: ${lockup.amount} tokens`)
+    })
+
+    // Could send email/SMS notification here
+    return readyToUnlock
+  }
+
+  return []
+}
+```
+
+### Security Best Practices
+
+```ts
+// 1. Validate all inputs
+function validateLockupInputs(params: CreateLockUpParams) {
+  // Address validation
+  if (!isValidAddress(params.receiver)) {
+    throw new Error('Invalid receiver address')
+  }
+
+  // Amount validation
+  if (params.amount <= 0n) {
+    throw new Error('Lockup amount must be positive')
+  }
+
+  // Time validation
+  const currentTime = Math.floor(Date.now() / 1000)
+  if (params.unlockTime <= currentTime) {
+    throw new Error('Unlock time must be in the future')
+  }
+
+  if (params.unlockTime > currentTime + 10 * 365 * 24 * 60 * 60) {
+    throw new Error('Unlock time cannot exceed 10 years')
+  }
+
+  // Title validation
+  if (!params.title || params.title.length > 100) {
+    throw new Error('Title must be 1-100 characters')
+  }
+}
+
+// 2. Use multisig for large lockups
+async function createMultisigLockup(sdk: any, multisigAddress: string, amount: string, unlockTime: number) {
+  // This would require the multisig to approve the lockup
+  // Implementation depends on your multisig setup
+  console.log('⚠️ Large lockup requires multisig approval')
+
+  await sdk.network('base').lockup.createLockUp({
+    token: process.env.TOKEN_ADDRESS!,
+    isERC20: true,
+    amount: wei(amount, 18),
+    unlockTime,
+    receiver: multisigAddress,
+    title: 'Multisig Protected Lockup',
+  })
+}
+```
+
+### Performance Optimization
+
+```ts
+// Batch read operations
+async function getBulkLockupStatus(sdk: any, lockupIds: number[]) {
+  const statusPromises = lockupIds.map(async (id) => {
+    const details = await sdk.network('base').lockup.getLockUpById(id)
+    const currentTime = Math.floor(Date.now() / 1000)
+
+    return {
+      id,
+      details,
+      status: details.unlocked ? 'unlocked' : currentTime >= details.unlockTime ? 'ready' : 'vesting',
+      timeUntilUnlock: Math.max(0, details.unlockTime - currentTime),
+    }
+  })
+
+  return await Promise.all(statusPromises)
+}
+
+// Cache lockup data
+class LockupCache {
+  private cache = new Map()
+  private ttl = 60000 // 1 minute
+
+  async getLockupData(sdk: any, lockupId: number) {
+    const key = `lockup_${lockupId}`
+    const cached = this.cache.get(key)
+
+    if (cached && Date.now() - cached.timestamp < this.ttl) {
+      return cached.data
+    }
+
+    const data = await sdk.network('base').lockup.getLockUpById(lockupId)
+    this.cache.set(key, { data, timestamp: Date.now() })
+    return data
+  }
+}
+```
+
+---
+
+**AI Assistants:** This guide covers every aspect of token lockup operations from creation to unlocking. Remember to always validate unlock times, implement proper error handling, and consider gas costs for bulk operations. For large-scale vesting programs, consider breaking operations into smaller batches! 🔒

@@ -1,0 +1,311 @@
+# ⚡ Core Pattern Cheat Sheet
+
+> **For AI Assistants:** This is your quick reference guide. Keep this pattern in mind for every implementation.
+
+## 🎯 The Core Pattern (Memorize This!)
+
+```ts
+import { mintclub } from 'mint.club-v2-sdk'
+
+mintclub           // 1. Start with mintclub
+  .network('base') // 2. Select network
+  .token('SYMBOL') // 3. Choose token or nft
+  .buy({...})      // 4. Call function
+```
+
+## 🚀 Quick Start Template
+
+```ts
+// 1. Setup
+import { mintclub, wei } from 'mint.club-v2-sdk'
+
+// 2. Configure wallet (choose one)
+const sdk = mintclub.withPrivateKey(process.env.PRIVATE_KEY!)
+// OR for React: mintclub.withWalletClient(walletClient)
+
+// 3. Use the pattern
+const result = await sdk
+  .network('base') // Step 2: Network
+  .token('CHICKEN') // Step 3: Token
+  .buy({
+    // Step 4: Function
+    amount: wei(100, 18),
+    slippage: 100,
+  })
+```
+
+## 📋 Essential Commands
+
+### Token Operations
+
+```ts
+// Buy tokens
+await sdk
+  .network('NETWORK')
+  .token('SYMBOL')
+  .buy({
+    amount: wei(AMOUNT, 18),
+    slippage: 100,
+  })
+
+// Sell tokens
+await sdk
+  .network('NETWORK')
+  .token('SYMBOL')
+  .sell({
+    amount: wei(AMOUNT, 18),
+    slippage: 100,
+  })
+
+// Create token
+await sdk
+  .network('NETWORK')
+  .token('SYMBOL')
+  .create({
+    name: 'Token Name',
+    reserveToken: { address: '0x...', decimals: 18 },
+    curveData: {
+      curveType: 'LINEAR',
+      stepCount: 20,
+      maxSupply: 1000000,
+      initialMintingPrice: 0.001,
+      finalMintingPrice: 1,
+    },
+  })
+```
+
+### NFT Operations
+
+```ts
+// Buy NFT
+await sdk
+  .network('NETWORK')
+  .nft('SYMBOL')
+  .buy({
+    amount: wei(1, 18),
+    slippage: 100,
+  })
+
+// Create NFT collection
+await sdk
+  .network('NETWORK')
+  .nft('SYMBOL')
+  .create({
+    name: 'NFT Collection',
+    metadataUrl: 'ipfs://...',
+    reserveToken: { address: '0x...', decimals: 18 },
+    curveData: {
+      /* same as token */
+    },
+  })
+```
+
+### Staking Operations
+
+```ts
+// Create pool
+await sdk.network('NETWORK').stake.createPool({
+  stakingToken: '0x...',
+  rewardToken: '0x...',
+  rewardAmount: wei(1000, 18),
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600,
+  rewardDuration: 30 * 24 * 60 * 60,
+})
+
+// Stake tokens
+await sdk.network('NETWORK').stake.stake({
+  poolId: 0,
+  amount: wei(100, 18),
+})
+
+// Claim rewards
+await sdk.network('NETWORK').stake.claim({ poolId: 0 })
+```
+
+## 🛠️ Essential Helpers
+
+### Amount Conversion
+
+```ts
+import { wei } from 'mint.club-v2-sdk'
+
+wei(1.5, 18) // 1.5 * 10^18 as bigint
+wei(100, 6) // 100 * 10^6 for USDC
+```
+
+### Time Conversion
+
+```ts
+Math.floor(Date.now() / 1000) // Current time in seconds
+Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+Math.floor(Date.now() / 1000) + 86400 // 24 hours from now
+```
+
+### Network Names
+
+```ts
+'ethereum', 'base', 'arbitrum', 'optimism', 'polygon', 'avalanche', 'bsc', 'kaia', 'degen', 'ham', 'cyber'
+```
+
+## ⚠️ Common Mistakes (Don't Do These!)
+
+### ❌ Wrong Order
+
+```ts
+// WRONG
+mintclub.token('SYMBOL').network('base').buy()
+
+// CORRECT
+mintclub.network('base').token('SYMBOL').buy()
+```
+
+### ❌ Missing Wallet
+
+```ts
+// WRONG - No wallet for write operations
+mintclub.network('base').token('CHICKEN').buy()
+
+// CORRECT
+const sdk = mintclub.withWalletClient(walletClient)
+sdk.network('base').token('CHICKEN').buy()
+```
+
+### ❌ Wrong Time Units
+
+```ts
+// WRONG - Milliseconds
+rewardStartsAt: Date.now() + 3600000
+
+// CORRECT - Seconds
+rewardStartsAt: Math.floor(Date.now() / 1000) + 3600
+```
+
+### ❌ Wrong Decimals
+
+```ts
+// WRONG
+amount: 100
+
+// CORRECT
+amount: wei(100, 18)
+```
+
+## 📊 Parameter Reference
+
+### Token Creation
+
+```ts
+{
+  name: string,
+  reserveToken: { address: string, decimals: number },
+  curveData: {
+    curveType: 'LINEAR' | 'EXPONENTIAL' | 'LOGARITHMIC' | 'FLAT',
+    stepCount: number,
+    maxSupply: number,
+    initialMintingPrice: number,
+    finalMintingPrice: number
+  },
+  buyRoyalty?: number,  // 0-10000 (0.00%-100.00%)
+  sellRoyalty?: number
+}
+```
+
+### Trading
+
+```ts
+{
+  amount: bigint,      // Use wei() helper
+  slippage: number,    // 0-10000 (0.00%-100.00%)
+  recipient?: string,  // Optional recipient address
+  onSuccess?: (receipt) => void,
+  onError?: (error) => void
+}
+```
+
+### Staking
+
+```ts
+// Create Pool
+{
+  stakingToken: string,
+  isStakingTokenERC20: boolean,
+  rewardToken: string,
+  rewardAmount: bigint,
+  rewardStartsAt: number,    // Seconds
+  rewardDuration: number     // Seconds
+}
+
+// Stake/Unstake
+{
+  poolId: number,
+  amount: bigint
+}
+```
+
+## 🎨 Copy-Paste Templates
+
+### Basic Token Trading
+
+```ts
+const sdk = mintclub.withWalletClient(walletClient)
+
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(100, 18),
+    slippage: 100,
+    onSuccess: (receipt) => console.log('Success!'),
+  })
+```
+
+### Token Creation
+
+```ts
+const sdk = mintclub.withWalletClient(walletClient)
+
+await sdk
+  .network('base')
+  .token('MYTOKEN')
+  .create({
+    name: 'My Token',
+    reserveToken: { address: '0x4200000000000000000000000000000000000006', decimals: 18 },
+    curveData: {
+      curveType: 'LINEAR',
+      stepCount: 20,
+      maxSupply: 1000000,
+      initialMintingPrice: 0.001,
+      finalMintingPrice: 1,
+    },
+  })
+```
+
+### Staking Pool
+
+```ts
+const sdk = mintclub.withWalletClient(walletClient)
+
+await sdk.network('base').stake.createPool({
+  stakingToken: '0x...',
+  isStakingTokenERC20: true,
+  rewardToken: '0x...',
+  rewardAmount: wei(1000, 18),
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600,
+  rewardDuration: 30 * 24 * 60 * 60,
+})
+```
+
+## 🚨 Emergency Checklist
+
+Before running any code:
+
+- [ ] Wallet configured with `withWalletClient()`?
+- [ ] Correct network selected?
+- [ ] Using `wei()` for amounts?
+- [ ] Time in seconds, not milliseconds?
+- [ ] Following core pattern order?
+- [ ] Error handling in place?
+
+---
+
+**Keep this cheat sheet open while coding!** The core pattern is your guide to success. 🎯

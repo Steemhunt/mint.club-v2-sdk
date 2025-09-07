@@ -1,0 +1,735 @@
+# 🎁 Airdrop Operations — Complete LLM Guide
+
+> **For AI Assistants:** This comprehensive guide covers all airdrop operations in the Mint Club SDK. Use this when implementing token distribution campaigns.
+
+## ⚡ Core Airdrop Pattern
+
+```ts
+import { mintclub, wei } from 'mint.club-v2-sdk'
+
+// Always follow this pattern for airdrops:
+mintclub
+  .network('base')      // Step 1: Select network
+  .airdrop              // Step 2: Access airdrop module
+  .claimAirdrop({...})  // Step 3: Call airdrop operation
+
+// OR through token:
+mintclub
+  .network('base')      // Step 1: Select network
+  .token('SYMBOL')      // Step 2: Choose token
+  .createAirdrop({...}) // Step 3: Create airdrop
+```
+
+## 📋 Complete Airdrop Operations Guide
+
+### Creating Airdrops
+
+**Pattern:** `sdk.network().token().createAirdrop()`
+
+```ts
+// Basic airdrop creation
+await sdk
+  .network('base')
+  .token('MYTOKEN')
+  .createAirdrop({
+    title: 'Community Airdrop',
+    wallets: [
+      '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+      '0x742d35Cc6634C0532925a3b844Bc454e4438f44f',
+      // ... up to 1000 addresses
+    ],
+    amountPerClaim: 100, // 100 tokens per wallet
+    startTime: new Date(), // Start immediately
+    endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    filebaseApiKey: process.env.FILEBASE_KEY,
+    onSuccess: (receipt) => {
+      console.log('✅ Airdrop created:', receipt.transactionHash)
+    },
+    onError: (error) => {
+      console.error('❌ Airdrop creation failed:', error)
+    },
+  })
+```
+
+**Advanced Airdrop with Future Start:**
+
+```ts
+await sdk
+  .network('base')
+  .token('MYTOKEN')
+  .createAirdrop({
+    title: 'Genesis Airdrop - Round 2',
+    wallets: recipientAddresses,
+    amountPerClaim: 500, // Higher amount for second round
+    startTime: new Date('2024-02-01T00:00:00Z'), // Future start
+    endTime: new Date('2024-02-08T00:00:00Z'), // One week duration
+    filebaseApiKey: process.env.FILEBASE_KEY,
+    onSuccess: (receipt) => {
+      console.log('✅ Future airdrop scheduled')
+      console.log('📅 Starts:', new Date('2024-02-01T00:00:00Z'))
+    },
+  })
+```
+
+**Parameters Reference:**
+
+```ts
+interface CreateAirdropParams {
+  title: string // Airdrop title/campaign name
+  wallets: string[] // Array of recipient addresses (max 1000)
+  amountPerClaim: number // Tokens per wallet (integer)
+  startTime?: Date // When airdrop starts (default: now)
+  endTime: Date // When airdrop ends (required)
+  filebaseApiKey: string // Filebase API key for IPFS upload
+  onSuccess?: (receipt: any) => void
+  onError?: (error: any) => void
+}
+```
+
+### Claiming Airdrops
+
+**Pattern:** `sdk.network().airdrop.claimAirdrop()`
+
+```ts
+// Claim an airdrop
+await sdk.network('base').airdrop.claimAirdrop({
+  airdropId: 123, // Airdrop ID from creation
+  onSuccess: (receipt) => {
+    console.log('✅ Airdrop claimed successfully!')
+    console.log('🎁 Tokens received:', receipt) // Check receipt for amount
+  },
+  onError: (error) => {
+    console.error('❌ Airdrop claim failed:', error)
+  },
+})
+```
+
+**Batch Claim Multiple Airdrops:**
+
+```ts
+const airdropIds = [123, 124, 125]
+
+for (const airdropId of airdropIds) {
+  try {
+    // Check if already claimed
+    const isClaimed = await sdk.network('base').airdrop.getIsClaimed(airdropId, userAddress)
+
+    if (!isClaimed) {
+      await sdk.network('base').airdrop.claimAirdrop({
+        airdropId,
+        onSuccess: (receipt) => {
+          console.log(`✅ Claimed airdrop ${airdropId}`)
+        },
+      })
+
+      // Rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+    } else {
+      console.log(`⏭️ Already claimed airdrop ${airdropId}`)
+    }
+  } catch (error) {
+    console.error(`❌ Failed to claim airdrop ${airdropId}:`, error)
+  }
+}
+```
+
+### Reading Airdrop Data
+
+#### Airdrop Information
+
+```ts
+const airdrop = sdk.network('base').airdrop
+
+// Get airdrop details
+const airdropDetails = await airdrop.getAirdropById(123)
+console.log('Airdrop details:', airdropDetails)
+// Returns: { token, isERC20, unlockTime, unlocked, amount, receiver, title }
+
+// Check if user has claimed
+const hasClaimed = await airdrop.getIsClaimed(123, userAddress)
+console.log('Has claimed:', hasClaimed)
+
+// Get amount already claimed
+const claimedAmount = await airdrop.getAmountClaimed(123)
+console.log('Total claimed:', claimedAmount)
+
+// Get remaining amount
+const remainingAmount = await airdrop.getAmountLeft(123)
+console.log('Remaining:', remainingAmount)
+```
+
+#### Bulk Airdrop Queries
+
+```ts
+const airdrop = sdk.network('base').airdrop
+
+// Get all airdrops by owner
+const ownerAirdrops = await airdrop.getAirdropIdsByOwner({
+  owner: userAddress,
+  start: 0, // Starting index
+  end: 10, // Ending index (max 100)
+})
+console.log('Owner airdrops:', ownerAirdrops)
+
+// Get all airdrops for a token
+const tokenAirdrops = await airdrop.getAirdropIdsByToken({
+  token: '0x...', // Token contract address
+  start: 0,
+  end: 10,
+})
+console.log('Token airdrops:', tokenAirdrops)
+
+// Check if airdrop is whitelist-only
+const isWhitelistOnly = await airdrop.getIsWhitelisted(123)
+console.log('Whitelist only:', isWhitelistOnly)
+
+// Get merkle proof (for private airdrops)
+const merkleProof = await airdrop.getMerkleProof(123)
+console.log('Merkle proof:', merkleProof)
+```
+
+#### Global Airdrop Statistics
+
+```ts
+const airdrop = sdk.network('base').airdrop
+
+// Get total number of airdrops
+const totalAirdrops = await airdrop.getTotalAirdropCount()
+console.log('Total airdrops:', totalAirdrops)
+
+// Get comprehensive airdrop data
+async function getAirdropSummary(airdropId: number) {
+  const [details, totalClaimed, remaining, isClaimed] = await Promise.all([
+    sdk.network('base').airdrop.getAirdropById(airdropId),
+    sdk.network('base').airdrop.getAmountClaimed(airdropId),
+    sdk.network('base').airdrop.getAmountLeft(airdropId),
+    sdk.network('base').airdrop.getIsClaimed(airdropId, userAddress),
+  ])
+
+  return {
+    details,
+    totalClaimed,
+    remaining,
+    isClaimed,
+    progress: (totalClaimed / (totalClaimed + remaining)) * 100,
+  }
+}
+```
+
+## 🔧 Advanced Airdrop Operations
+
+### Private/Whitelist Airdrops
+
+**Creating Private Airdrop:**
+
+```ts
+// 1. Generate merkle root from recipient list
+const recipients = ['0x...', '0x...', '0x...']
+const merkleRoot = sdk.utils.generateMerkleRoot(recipients)
+
+// 2. Upload recipient list to IPFS
+const recipientData = JSON.stringify(recipients)
+const ipfsUrl = await sdk.ipfs.add(process.env.FILEBASE_KEY, recipientData)
+
+// 3. Create airdrop with merkle root
+await sdk.network('base').airdrop.createAirdrop({
+  token: '0x...', // Token contract address
+  isERC20: true, // true for ERC20, false for ERC1155
+  amountPerClaim: 100,
+  walletCount: recipients.length,
+  startTime: new Date(),
+  endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  merkleRoot, // From step 1
+  title: 'Private Community Airdrop',
+  ipfsCID: ipfsUrl.replace('ipfs://', ''), // Extract CID
+  onSuccess: (receipt) => {
+    console.log('✅ Private airdrop created')
+  },
+})
+```
+
+**Claiming Private Airdrop:**
+
+```ts
+// 1. Verify user is in whitelist
+const recipients = ['0x...', '0x...', '0x...'] // Same list as creation
+const { verified, proof } = sdk.utils.verifyMerkleProof(
+  merkleRoot, // From airdrop creation
+  userAddress, // User's address
+  recipients, // Original recipient list
+)
+
+if (!verified) {
+  throw new Error('Address not in whitelist')
+}
+
+// 2. Claim with merkle proof
+await sdk.network('base').airdrop.claimAirdrop({
+  airdropId: 123,
+  merkleProof: proof, // From verification
+  onSuccess: (receipt) => {
+    console.log('✅ Private airdrop claimed')
+  },
+})
+```
+
+### Managing Multiple Airdrops
+
+**Airdrop Manager Class:**
+
+```ts
+class AirdropManager {
+  constructor(private sdk: any) {}
+
+  async createBulkAirdrops(
+    airdrops: Array<{
+      token: string
+      title: string
+      recipients: string[]
+      amountPerClaim: number
+      durationDays: number
+    }>,
+  ) {
+    const results = []
+
+    for (const airdrop of airdrops) {
+      try {
+        await this.sdk
+          .network('base')
+          .token(airdrop.token)
+          .createAirdrop({
+            title: airdrop.title,
+            wallets: airdrop.recipients,
+            amountPerClaim: airdrop.amountPerClaim,
+            startTime: new Date(),
+            endTime: new Date(Date.now() + airdrop.durationDays * 24 * 60 * 60 * 1000),
+            filebaseApiKey: process.env.FILEBASE_KEY,
+          })
+
+        results.push({
+          token: airdrop.token,
+          success: true,
+          recipientCount: airdrop.recipients.length,
+        })
+
+        // Rate limiting between creations
+        await new Promise((resolve) => setTimeout(resolve, 5000))
+      } catch (error) {
+        results.push({
+          token: airdrop.token,
+          success: false,
+          error: error.message,
+        })
+      }
+    }
+
+    return results
+  }
+
+  async getUserAirdropStatus(userAddress: string) {
+    const airdropIds = await this.sdk.network('base').airdrop.getAirdropIdsByOwner({
+      owner: userAddress,
+      start: 0,
+      end: 100,
+    })
+
+    const statusPromises = airdropIds.map(async (id) => {
+      const [details, isClaimed, claimedAmount] = await Promise.all([
+        this.sdk.network('base').airdrop.getAirdropById(id),
+        this.sdk.network('base').airdrop.getIsClaimed(id, userAddress),
+        this.sdk.network('base').airdrop.getAmountClaimed(id),
+      ])
+
+      return {
+        id,
+        details,
+        isClaimed,
+        claimedAmount,
+        canClaim: !isClaimed && details.amount > 0,
+      }
+    })
+
+    return await Promise.all(statusPromises)
+  }
+}
+```
+
+### Airdrop Analytics
+
+**Comprehensive Airdrop Analysis:**
+
+```ts
+async function analyzeAirdrop(sdk: any, airdropId: number) {
+  const airdrop = sdk.network('base').airdrop
+
+  try {
+    const [details, totalClaimed, remaining, isWhitelistOnly, ownerAirdrops, tokenAirdrops] = await Promise.all([
+      airdrop.getAirdropById(airdropId),
+      airdrop.getAmountClaimed(airdropId),
+      airdrop.getAmountLeft(airdropId),
+      airdrop.getIsWhitelisted(airdropId),
+      airdrop.getAirdropIdsByOwner({
+        owner: details.owner,
+        start: 0,
+        end: 50,
+      }),
+      airdrop.getAirdropIdsByToken({
+        token: details.token,
+        start: 0,
+        end: 50,
+      }),
+    ])
+
+    const totalRecipients = details.walletCount
+    const claimedRecipients = Math.floor(totalClaimed / details.amountPerClaim)
+    const claimRate = (claimedRecipients / totalRecipients) * 100
+
+    return {
+      basic: {
+        id: airdropId,
+        title: details.title,
+        token: details.token,
+        isERC20: details.isERC20,
+      },
+      timing: {
+        startTime: details.startTime,
+        endTime: details.endTime,
+        isActive: Date.now() >= details.startTime && Date.now() <= details.endTime,
+      },
+      distribution: {
+        totalRecipients,
+        claimedRecipients,
+        claimRate: claimRate.toFixed(2) + '%',
+        totalClaimed,
+        remaining,
+        amountPerClaim: details.amountPerClaim,
+      },
+      access: {
+        isWhitelistOnly,
+        merkleRoot: details.merkleRoot,
+      },
+      related: {
+        byOwner: ownerAirdrops.length,
+        byToken: tokenAirdrops.length,
+      },
+    }
+  } catch (error) {
+    console.error('❌ Airdrop analysis failed:', error)
+    throw error
+  }
+}
+```
+
+## 🚨 Error Handling & Troubleshooting
+
+### Common Airdrop Errors
+
+#### "Airdrop Already Claimed"
+
+```ts
+// Check claim status before attempting
+const isClaimed = await sdk.network('base').airdrop.getIsClaimed(airdropId, userAddress)
+
+if (isClaimed) {
+  console.log('⏭️ Airdrop already claimed by this address')
+  return
+}
+
+// Proceed with claim
+await sdk.network('base').airdrop.claimAirdrop({ airdropId })
+```
+
+#### "Airdrop Not Active"
+
+```ts
+// Check airdrop timing
+const details = await sdk.network('base').airdrop.getAirdropById(airdropId)
+const now = Date.now()
+
+if (now < details.startTime) {
+  console.log('⏰ Airdrop not started yet')
+  console.log('Starts at:', new Date(details.startTime))
+}
+
+if (now > details.endTime) {
+  console.log('⏰ Airdrop has ended')
+  console.log('Ended at:', new Date(details.endTime))
+}
+```
+
+#### "Insufficient Tokens"
+
+```ts
+// Check remaining tokens
+const remaining = await sdk.network('base').airdrop.getAmountLeft(airdropId)
+
+if (remaining < amountPerClaim) {
+  console.log('❌ Not enough tokens remaining')
+  console.log('Remaining:', remaining)
+  console.log('Required per claim:', amountPerClaim)
+  return
+}
+```
+
+#### "Invalid Merkle Proof"
+
+```ts
+// For private airdrops, ensure correct merkle proof
+const recipients = ['0x...', '0x...', '0x...'] // Original list
+const { verified, proof } = sdk.utils.verifyMerkleProof(merkleRoot, userAddress, recipients)
+
+if (!verified) {
+  throw new Error('Address not eligible for this private airdrop')
+}
+
+// Use the verified proof
+await sdk.network('base').airdrop.claimAirdrop({
+  airdropId,
+  merkleProof: proof,
+})
+```
+
+### Airdrop Creation Errors
+
+#### "Too Many Recipients"
+
+```ts
+const MAX_RECIPIENTS = 1000
+const recipients = ['0x...', '0x...' /* ... */]
+
+if (recipients.length > MAX_RECIPIENTS) {
+  throw new Error(`Too many recipients. Maximum: ${MAX_RECIPIENTS}, Got: ${recipients.length}`)
+}
+
+// Split into multiple airdrops if needed
+const chunks = []
+for (let i = 0; i < recipients.length; i += MAX_RECIPIENTS) {
+  chunks.push(recipients.slice(i, i + MAX_RECIPIENTS))
+}
+
+for (const chunk of chunks) {
+  await sdk
+    .network('base')
+    .token('TOKEN')
+    .createAirdrop({
+      title: `Airdrop Part ${chunks.indexOf(chunk) + 1}`,
+      wallets: chunk,
+      amountPerClaim: 100,
+      startTime: new Date(),
+      endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      filebaseApiKey: process.env.FILEBASE_KEY,
+    })
+}
+```
+
+#### "Invalid Filebase Key"
+
+```ts
+// Validate Filebase key before creation
+if (!process.env.FILEBASE_KEY) {
+  throw new Error('FILEBASE_KEY environment variable not set')
+}
+
+// Test Filebase connection
+try {
+  await sdk.ipfs.add(process.env.FILEBASE_KEY, 'test data')
+} catch (error) {
+  throw new Error('Invalid Filebase API key')
+}
+```
+
+## 🎯 Best Practices
+
+### Airdrop Creation Best Practices
+
+```ts
+// 1. Validate all inputs
+function validateAirdropInputs(params: CreateAirdropParams) {
+  if (!params.title || params.title.length > 100) {
+    throw new Error('Title must be 1-100 characters')
+  }
+
+  if (!params.wallets.length || params.wallets.length > 1000) {
+    throw new Error('Must have 1-1000 recipients')
+  }
+
+  if (params.amountPerClaim <= 0) {
+    throw new Error('Amount per claim must be positive')
+  }
+
+  if (params.endTime <= new Date()) {
+    throw new Error('End time must be in the future')
+  }
+
+  // Validate all addresses
+  for (const wallet of params.wallets) {
+    if (!wallet.startsWith('0x') || wallet.length !== 42) {
+      throw new Error(`Invalid address: ${wallet}`)
+    }
+  }
+}
+
+// 2. Use descriptive titles
+const airdropTitles = {
+  community: 'Community Engagement Airdrop',
+  loyalty: 'Loyalty Program Rewards',
+  genesis: 'Genesis Block Celebrations',
+  partnership: 'Strategic Partnership Bonus',
+}
+
+// 3. Set reasonable timeframes
+const airdropDurations = {
+  flash: 1 * 60 * 60 * 1000, // 1 hour
+  short: 24 * 60 * 60 * 1000, // 1 day
+  medium: 7 * 24 * 60 * 60 * 1000, // 1 week
+  long: 30 * 24 * 60 * 60 * 1000, // 1 month
+}
+```
+
+### Claiming Best Practices
+
+```ts
+// 1. Check eligibility first
+async function checkAirdropEligibility(airdropId: number, userAddress: string) {
+  const [details, isClaimed, remaining] = await Promise.all([
+    sdk.network('base').airdrop.getAirdropById(airdropId),
+    sdk.network('base').airdrop.getIsClaimed(airdropId, userAddress),
+    sdk.network('base').airdrop.getAmountLeft(airdropId),
+  ])
+
+  return {
+    canClaim: !isClaimed && remaining >= details.amountPerClaim,
+    reason: isClaimed ? 'Already claimed' : remaining < details.amountPerClaim ? 'Insufficient tokens' : 'Eligible',
+  }
+}
+
+// 2. Implement retry logic
+async function claimWithRetry(airdropId: number, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await sdk.network('base').airdrop.claimAirdrop({
+        airdropId,
+        onSuccess: (receipt) => {
+          console.log(`✅ Claimed on attempt ${attempt}`)
+        },
+      })
+      return // Success, exit function
+    } catch (error) {
+      console.log(`❌ Attempt ${attempt} failed:`, error.message)
+
+      if (attempt === maxRetries) {
+        throw new Error(`Failed after ${maxRetries} attempts`)
+      }
+
+      // Wait before retry (exponential backoff)
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt))
+    }
+  }
+}
+```
+
+### Private Airdrop Best Practices
+
+```ts
+// 1. Generate secure merkle tree
+function createSecureMerkleTree(addresses: string[]) {
+  // Remove duplicates
+  const uniqueAddresses = [...new Set(addresses)]
+
+  // Validate all addresses
+  for (const address of uniqueAddresses) {
+    if (!address.startsWith('0x') || address.length !== 42) {
+      throw new Error(`Invalid address: ${address}`)
+    }
+  }
+
+  // Generate merkle root
+  const merkleRoot = sdk.utils.generateMerkleRoot(uniqueAddresses)
+
+  return {
+    addresses: uniqueAddresses,
+    merkleRoot,
+    count: uniqueAddresses.length,
+  }
+}
+
+// 2. Implement claim verification
+async function verifyAndClaimPrivateAirdrop(
+  airdropId: number,
+  userAddress: string,
+  originalRecipients: string[],
+  merkleRoot: string,
+) {
+  // Verify user is eligible
+  const { verified, proof } = sdk.utils.verifyMerkleProof(merkleRoot, userAddress, originalRecipients)
+
+  if (!verified) {
+    throw new Error('Address not eligible for this airdrop')
+  }
+
+  // Check claim status
+  const isClaimed = await sdk.network('base').airdrop.getIsClaimed(airdropId, userAddress)
+  if (isClaimed) {
+    throw new Error('Airdrop already claimed')
+  }
+
+  // Claim with proof
+  await sdk.network('base').airdrop.claimAirdrop({
+    airdropId,
+    merkleProof: proof,
+    onSuccess: (receipt) => {
+      console.log('✅ Private airdrop claimed successfully')
+    },
+  })
+}
+```
+
+### Performance Optimization
+
+```ts
+// Batch read operations for multiple airdrops
+async function getBulkAirdropStatus(airdropIds: number[], userAddress: string) {
+  const statusPromises = airdropIds.map(async (id) => {
+    const [details, isClaimed, claimedAmount, remaining] = await Promise.all([
+      sdk.network('base').airdrop.getAirdropById(id),
+      sdk.network('base').airdrop.getIsClaimed(id, userAddress),
+      sdk.network('base').airdrop.getAmountClaimed(id),
+      sdk.network('base').airdrop.getAmountLeft(id),
+    ])
+
+    return {
+      id,
+      details,
+      isClaimed,
+      claimedAmount,
+      remaining,
+      canClaim: !isClaimed && remaining > 0,
+    }
+  })
+
+  return await Promise.all(statusPromises)
+}
+
+// Cache airdrop data to reduce API calls
+class AirdropCache {
+  private cache = new Map()
+  private ttl = 30000 // 30 seconds
+
+  async getAirdropData(airdropId: number) {
+    const key = `airdrop_${airdropId}`
+    const cached = this.cache.get(key)
+
+    if (cached && Date.now() - cached.timestamp < this.ttl) {
+      return cached.data
+    }
+
+    const data = await sdk.network('base').airdrop.getAirdropById(airdropId)
+    this.cache.set(key, { data, timestamp: Date.now() })
+    return data
+  }
+}
+```
+
+---
+
+**AI Assistants:** This guide covers every aspect of airdrop operations from creation to claiming. Remember to always validate inputs, handle errors gracefully, and consider gas costs for large recipient lists. For complex scenarios, break operations into smaller batches to ensure reliability! 🎁

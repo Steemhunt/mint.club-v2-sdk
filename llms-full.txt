@@ -1,0 +1,1117 @@
+## Mint Club V2 SDK — LLM Usage Guideline (llms-full.txt)
+
+This document helps LLMs use the Mint Club SDK safely and effectively. Treat it as a single-page reference. Prefer exact API names and parameter shapes from this file.
+
+## ⚡ Core Pattern: mintclub → network → token/nft → function
+
+The Mint Club SDK follows a simple, consistent pattern:
+```ts
+import { mintclub } from 'mint.club-v2-sdk'
+
+mintclub           // 1. Start with mintclub
+  .network('base') // 2. Select network
+  .token('SYMBOL') // 3. Choose token or nft
+  .buy({...})      // 4. Call function
+```
+
+**Always follow this pattern:**
+1. **mintclub** - The main SDK entry point
+2. **network()** - Select blockchain network
+3. **token()** or **nft()** - Choose asset to interact with
+4. **function()** - Call the desired operation
+
+Resources
+- Docs: `https://sdk.mint.club`
+- Repo: root project
+- Bonding Curve Design: Understanding discrete bonding curves and step arrays
+- Version: 1.4.0 (check package.json for latest)
+
+Requirements
+- Node: v18+ recommended
+- Package: `mint.club-v2-sdk`
+- Viem: ^2.34.0 (automatically included)
+
+Install
+```bash
+npm install mint.club-v2-sdk viem
+# or
+pnpm install mint.club-v2-sdk viem
+# or
+bun install mint.club-v2-sdk viem
+```
+
+Import and Initialize (Follow the Core Pattern)
+```ts
+import { mintclub, MintClubSDK, supportedChains, supportedChainsMap } from 'mint.club-v2-sdk'
+
+// ⚡ CORE PATTERN STARTS HERE:
+mintclub           // ← Always start with mintclub
+  .network('base') // ← Then select network
+  .token('SYMBOL') // ← Then choose token/nft
+  .function(...)   // ← Then call your function
+
+// Option 1: Use default singleton (recommended)
+const sdk = mintclub
+
+// Option 2: Create your own instance
+const sdk2 = new MintClubSDK()
+
+// Option 3: Advanced - with custom wallet client
+const sdk3 = mintclub.withWalletClient(customWalletClient)
+```
+
+Supported chains
+- Names: see `supportedChains` constant
+  - Mainnets: "ethereum", "base", "arbitrum", "optimism", "polygon", "avalanche", "bsc", "kaia", "degen", "ham", "cyber", "shibarium", "unichain", "hashkey", "over", "zora", "apechain"
+  - Testnets: "sepolia", "basesepolia", "cybertestnet", "puppynet"
+- Map: `supportedChainsMap[name] -> chainId`
+- Chain IDs: 1, 8453, 42161, 10, 137, 43114, 56, 8217, 666666666, 5112, 7560, 27, 1301, 177, 5101, 7777777, 33139
+
+SDK Architecture
+```ts
+class MintClubSDK {
+  ipfs: IpfsClient
+  utils: Utils
+  network(id: SdkSupportedChainIds | LowerCaseChainNames): NetworkReturnType
+
+  // Client configuration (recommended approach)
+  withPublicClient(publicClient: PublicClient): MintClubSDK
+  withWalletClient(walletClient: WalletClient): MintClubSDK
+  withPrivateKey(privateKey: `0x${string}`): MintClubSDK
+
+  // Legacy methods (avoid using)
+  // withAccount() and withProvider() are deprecated - use withWalletClient instead
+}
+
+// Network client provides:
+interface NetworkReturnType {
+  // Core clients
+  getPublicClient(): PublicClient
+  getWalletClient(): WalletClient
+
+  // Asset helpers
+  token(symbolOrAddress: string): ERC20Helper
+  nft(symbolOrAddress: string): ERC1155Helper
+
+  // Protocol helpers
+  airdrop: AirdropHelper
+  lockup: LockupHelper
+  bond: BondHelper
+  stake: StakeHelper 
+}
+
+Wallet Client Integration (Environment-Specific)
+```ts
+// ===========================================
+// Node.js Environment (Server-side)
+// ===========================================
+import { mintclub } from 'mint.club-v2-sdk'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+
+// Method 1: Using private key directly
+const account = privateKeyToAccount('0x...')
+const walletClient = createWalletClient({
+  account,
+  chain: base,
+  transport: http()
+})
+
+const sdkWithWallet = mintclub.withWalletClient(walletClient)
+
+// Method 2: Using withPrivateKey helper
+const sdkWithPrivateKey = mintclub.withPrivateKey('0x...')
+
+// ===========================================
+// React/Next.js Environment (Any Wallet Connector)
+// ===========================================
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
+// Works with: MetaMask, Coinbase Wallet, WalletConnect, Rainbow, etc.
+
+function MyComponent() {
+  const { data: walletClient } = useWalletClient({
+    chainId: 8453, // Base network
+  })
+
+  const handleBuy = async () => {
+    if (!walletClient) return
+
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: base, // Ensure chain is set
+      })
+      .network('base')
+      .token('CHICKEN')
+      .buy({
+        amount: wei(1, 18),
+        onSuccess: (receipt) => console.log('Purchase successful!', receipt)
+      })
+  }
+
+  return <button onClick={handleBuy}>Buy CHICKEN Token</button>
+}
+
+// ===========================================
+// Browser Environment (Direct Wallet Integration)
+// ===========================================
+import { createWalletClient, custom } from 'viem'
+import { base } from 'viem/chains'
+
+// Example with MetaMask (or any injected wallet)
+async function setupMetaMaskWallet() {
+  if (!window.ethereum) throw new Error('MetaMask not found')
+
+  const walletClient = createWalletClient({
+    transport: custom(window.ethereum),
+    chain: base
+  })
+
+  return mintclub.withWalletClient(walletClient)
+}
+
+// ===========================================
+// Other Wallet Examples
+// ===========================================
+
+// Example with Coinbase Wallet
+async function setupCoinbaseWallet() {
+  if (!window.ethereum?.isCoinbaseWallet) throw new Error('Coinbase Wallet not found')
+
+  const walletClient = createWalletClient({
+    transport: custom(window.ethereum),
+    chain: base
+  })
+
+  return mintclub.withWalletClient(walletClient)
+}
+
+// Example with WalletConnect
+import { createWalletClient, custom } from 'viem'
+import { WalletConnectConnector } from 'wagmi/connectors/walletconnect'
+
+const walletConnectClient = createWalletClient({
+  transport: custom(window.ethereum), // WalletConnect provides ethereum
+  chain: base
+})
+
+const sdk = mintclub.withWalletClient(walletConnectClient)
+
+// ===========================================
+// Network-specific clients (read-only operations)
+const baseNet = sdk.network('base')
+const publicClient = baseNet.getPublicClient()
+const walletClientFromNetwork = baseNet.getWalletClient() // Requires wallet to be configured
+```
+
+Staking Helper
+```ts
+const { stake } = baseNet
+
+// Pool management
+await stake.createPool({
+  stakingToken: '0x...', // Token to stake (ERC20 or ERC1155)
+  isStakingTokenERC20: true,
+  rewardToken: '0x...', // Token for rewards (ERC20)
+  rewardAmount: BigInt('1000000000000000000'), // 1 token (18 decimals)
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // Start in 1 hour
+  rewardDuration: 7 * 24 * 60 * 60, // 7 days in seconds
+  onSuccess: (receipt) => console.log('Pool created!', receipt),
+})
+
+await stake.cancelPool({ poolId: 0, onSuccess: (receipt) => {} })
+
+// Staking operations
+await stake.stake({
+  poolId: 0,
+  amount: BigInt('100000000000000000'), // 0.1 token
+  onSuccess: (receipt) => console.log('Staked!', receipt),
+})
+
+await stake.unstake({
+  poolId: 0,
+  amount: BigInt('50000000000000000'), // 0.05 token
+  onSuccess: (receipt) => console.log('Unstaked!', receipt),
+})
+
+// Emergency operations (forfeit rewards)
+await stake.emergencyUnstake({
+  poolId: 0,
+  amount: BigInt('100000000000000000'),
+  onSuccess: (receipt) => console.log('Emergency unstaked!', receipt),
+})
+
+// Reward management
+const claimable = await stake.getClaimableReward({
+  poolId: 0,
+  staker: '0x...',
+})
+// Returns: [rewardClaimable, fee, claimedTotal, feeTotal]
+
+await stake.claim({
+  poolId: 0,
+  onSuccess: (receipt) => console.log('Rewards claimed!', receipt),
+})
+
+// Protocol management (admin only)
+await stake.updateCreationFee({ fee: BigInt('1000000000000000000') })
+await stake.updateClaimFee({ fee: 500 }) // 5% fee
+await stake.updateProtocolBeneficiary({ beneficiary: '0x...' })
+await stake.transferOwnership({ newOwner: '0x...' })
+await stake.renounceOwnership()
+
+// Read operations
+const pool = await stake.getPool({ poolId: 0 })
+const pools = await stake.getPools({ start: 0, end: 10 })
+const userStake = await stake.getUserPoolStake({ poolId: 0, staker: '0x...' })
+const poolsByCreator = await stake.getPoolsByCreator({ creator: '0x...', start: 0, end: 10 })
+const claimableBulk = await stake.getClaimableRewardBulk({ poolId: 0, stakers: ['0x...', '0x...'] })
+
+// Protocol info
+const creationFee = await stake.getCreationFee()
+const claimFee = await stake.getClaimFee()
+const owner = await stake.getOwner()
+const beneficiary = await stake.getProtocolBeneficiary()
+const poolCount = await stake.getPoolCount()
+const version = await stake.getVersion()
+const minDuration = await stake.getMinRewardDuration()
+const maxDuration = await stake.getMaxRewardDuration()
+```
+
+Network Selection (Step 2 of Core Pattern)
+```ts
+// ⚡ CORE PATTERN: mintclub → network → token/nft → function
+
+// Basic network selection (always step 2)
+const baseNet = sdk.network('base')        // By name
+const byId = sdk.network(supportedChainsMap.base)  // By chainId mapping
+const byChainId = sdk.network(8453)        // By chainId number
+
+// Advanced: Custom client configuration
+import { createPublicClient, http } from 'viem'
+import { base } from 'viem/chains'
+
+const customPublicClient = createPublicClient({
+  chain: base,
+  transport: http('https://base-mainnet.public.blastapi.io')
+})
+
+// Still follow the pattern: mintclub → network → token/nft → function
+const networkWithCustomClient = sdk
+  .withPublicClient(customPublicClient)
+  .network('base')
+  .token('CHICKEN')  // ← Continue with step 3
+  .buy({...})        // ← Then step 4
+```
+
+Token and NFT Helpers (Step 3 of Core Pattern)
+```ts
+// ⚡ CORE PATTERN: mintclub → network → token/nft → function
+
+// Step 3: Choose token or nft after selecting network
+const token = baseNet.token('MYTOKEN')    // ERC20 by symbol
+const tokenByAddress = baseNet.token('0x...')  // ERC20 by address
+const nft = baseNet.nft('MYNFT')          // ERC1155 by symbol
+const nftByAddress = baseNet.nft('0x...') // ERC1155 by address
+```
+
+**Token/NFT Selection Rules:**
+- **Symbol**: For new tokens (address computed via CREATE2)
+- **Address**: For existing tokens (20-byte hex string)
+- **ERC20**: Use `.token()` for fungible tokens
+- **ERC1155**: Use `.nft()` for NFTs
+
+**ERC20 Helper (Step 4: Call Functions):**
+```ts
+// Complete pattern: mintclub → network → token → function
+const erc20Token = baseNet.token('MYTOKEN')
+
+// reads
+await token.getAllowance({ owner, spender })
+await token.getBalanceOf(owner)
+await token.getBondAddress()
+await token.getDecimals()
+await token.getName()
+await token.getSymbol()
+await token.getTotalSupply()
+
+// writes
+await token.approve({ spender, amount, onSignatureRequest?, onSigned?, onSuccess?, onError? })
+
+// create token (bonded ERC20)
+await token.create({
+  name: 'My Token',
+  reserveToken: { address: '0x...', decimals: 18 },
+  buyRoyalty?: number,
+  sellRoyalty?: number,
+  // Either curveData or stepData (mutually exclusive)
+  curveData?: { curveType: 'LINEAR' | 'EXPONENTIAL' | 'LOGARITHMIC' | 'FLAT', stepCount: number, maxSupply: number, initialMintingPrice: number, finalMintingPrice: number, creatorAllocation?: number },
+  stepData?: { rangeTo: number; price: number }[],
+  onSignatureRequest?, onSigned?, onSuccess?, onError?
+})
+```
+
+ERC1155 helper
+```ts
+const nft = baseNet.nft('MYNFT') // or nft('0x...')
+
+// reads
+await nft.getBalanceOf(owner)
+await nft.getBalanceOfBatch([owner1, owner2])
+await nft.getBondAddress()
+await nft.getContractURI()
+await nft.getDecimals()
+await nft.getIsApprovedForAll({ owner, spender })
+await nft.getName()
+await nft.getSupportsInterface('0x...')
+await nft.getSymbol()
+await nft.getTotalSupply()
+await nft.getMetadataUri()
+await nft.getImageUri()
+
+// writes
+await nft.approve({ spender, approved: true, onSignatureRequest?, onSigned?, onSuccess?, onError? })
+
+// create ERC1155 (bonded)
+await nft.create({
+  name: 'My NFT',
+  metadataUrl: 'ipfs://... or https://...';
+  reserveToken: { address: '0x...', decimals: 18 },
+  buyRoyalty?: number,
+  sellRoyalty?: number,
+  curveData? or stepData?,
+  onSignatureRequest?, onSigned?, onSuccess?, onError?
+})
+```
+
+Common token/bond operations (both ERC20 and ERC1155)
+```ts
+// core queries
+await token.exists()
+await token.getDetail()
+await token.getTokenBond() // { creator, mintRoyalty, burnRoyalty, createdAt, reserveToken, reserveBalance }
+await token.getSteps()
+await token.getMaxSupply()
+await token.getPriceForNextMint()
+await token.getBuyEstimation(amountBigInt) // getReserveForToken
+await token.getSellEstimation(amountBigInt) // getRefundForTokens
+await token.getReserveToken() // { address, name, symbol, decimals }
+await token.getReserveTokenAddress()
+
+// pricing helpers
+await token.getUsdRate({ amount: 1, blockNumber? })
+await token.getReserveUsdRate({ blockNumber? })
+await token.get24HoursUsdRate() // { currentUsdRate, previousUsdRate, changePercent, cacheKey, timestamp }
+
+// trade (bond)
+await token.buy({ amount, slippage?: number, recipient?: address, onSignatureRequest?, onSigned?, onSuccess?, onError? })
+await token.sell({ amount, slippage?: number, recipient?: address, onSignatureRequest?, onSigned?, onSuccess?, onError? })
+
+// trade with Zap (if reserve is wrapped native)
+await token.buyWithZap({ amount, slippage?, recipient?, ...callbacks })
+await token.sellWithZap({ amount, slippage?, recipient?, ...callbacks })
+
+// transfers
+await token.transfer({ recipient, amount, ...callbacks })
+
+// airdrop creation (Merkle, uploads list to IPFS)
+await token.createAirdrop({ title, wallets: [`0x...`], amountPerClaim: number, startTime?: Date, endTime: Date, filebaseApiKey: string, ...callbacks })
+
+// Mint Club metadata (off-chain hosted UI metadata)
+await token.getMintClubMetadata()
+await token.createMintClubMetadata({
+  backgroundImage?: File,
+  logo?: File,
+  website?: string,
+  distributionPlan?: string,
+  creatorComment?: string
+})
+await token.updateMintClubMetadata({
+  signature, message,
+  backgroundImage?, logo?, website?, distributionPlan?, creatorComment?
+})
+
+// Advanced token operations
+await token.getTokenBond() // { creator, mintRoyalty, burnRoyalty, createdAt, reserveToken, reserveBalance }
+await token.getSteps() // Array of bonding curve steps
+await token.getMaxSupply()
+await token.getReserveToken() // { address, name, symbol, decimals }
+await token.getReserveTokenAddress()
+
+// Utility functions
+token.getTokenLogoUrl() => https URL
+token.exists() => boolean // Check if token exists
+token.getDetail() => TokenDetail // Comprehensive token information
+```
+
+Airdrop helper
+```ts
+const { airdrop } = baseNet
+await airdrop.getTotalAirdropCount()
+await airdrop.getAirdropById(id)
+await airdrop.getAmountClaimed(id)
+await airdrop.getAmountLeft(id)
+await airdrop.getAirdropIdsByOwner({ owner, start?, end? })
+await airdrop.getAirdropIdsByToken({ token, start?, end? })
+await airdrop.getIsClaimed(id, account)
+await airdrop.getIsWhitelistOnly(id)
+await airdrop.getMerkleProof(id)
+await airdrop.getIsWhitelisted(id, account)
+await airdrop.claimAirdrop({ airdropId, ...callbacks })
+await airdrop.createAirdrop({ token, isERC20, amountPerClaim, walletCount, startTime, endTime, merkleRoot, title, ipfsCID, ...callbacks })
+airdrop.cancelAirdrop({ airdropId, ...callbacks })
+```
+
+Lockup helper
+```ts
+const { lockup } = baseNet
+await lockup.getTotalLockUpCount()
+await lockup.getLockUpIdsByReceiver({ receiver, start?, end? })
+await lockup.getLockUpIdsByToken({ token, start?, end? })
+await lockup.getLockUpById(id) // { token, isERC20, unlockTime, unlocked, amount, receiver, title }
+await lockup.createLockUp({ token, isERC20, amount, unlockTime, receiver, title, ...callbacks })
+await lockup.unlock({ lockUpId, ...callbacks })
+```
+
+Bond helper
+```ts
+const { bond } = baseNet
+await bond.getCreationFee()
+await bond.getTokensByReserveToken({ reserveToken, start?, end? })
+await bond.getTokensByCreator({ creator, start?, end? })
+await bond.getList({ start?, end? })
+```
+
+IPFS Helper (Filebase Integration)
+```ts
+// File uploads (requires Filebase API key)
+sdk.ipfs.add(filebaseApiKey: string, blob: Blob) => Promise<string> // Returns CID
+sdk.ipfs.upload({
+  filebaseApiKey: string,
+  media: Blob | File
+}) => Promise<string> // Returns 'ipfs://...' URL
+
+// Metadata uploads for NFTs
+sdk.ipfs.uploadMetadata({
+  filebaseApiKey: string,
+  name: string,
+  image: string, // IPFS URL or HTTP URL
+  video?: string,
+  description?: string,
+  external_url?: string,
+  attributes?: Array<{ trait_type: string, value: string | number }>
+}) => Promise<string> // Returns 'ipfs://...' URL
+
+// URL conversions
+sdk.ipfs.hashToGatewayUrl('ipfs://Qm...') => 'https://ipfs.io/ipfs/Qm...'
+sdk.ipfs.gatewayUrlToHash('https://ipfs.io/ipfs/Qm...') => 'ipfs://Qm...'
+
+// Validation
+sdk.ipfs.validateIpfsHash('ipfs://...') // throws if invalid
+```
+
+Utils Helper (Advanced Price Feeds & Utilities)
+```ts
+// Merkle tree utilities for airdrops
+sdk.utils.generateMerkleRoot(addresses: string[]) => `0x...`
+
+// Price feeds (1inch integration)
+sdk.utils.oneinchUsdRate({
+  chainId: number,
+  tokenAddress: `0x${string}`,
+  tokenDecimals: number,
+  blockNumber?: bigint
+}) => { rate: number, stableCoin: string } | undefined
+
+sdk.utils.oneinchEthRate({
+  chainId: number,
+  tokenAddress: `0x${string}`,
+  tokenDecimals: number,
+  blockNumber?: bigint
+}) => { rate: number, nativeToken: string } | undefined
+
+// Price feeds (DefiLlama fallback)
+sdk.utils.defillamaUsdRate({
+  chainId: number,
+  tokenAddress: `0x${string}`,
+  timestamp?: number
+}) => number | undefined
+
+sdk.utils.defillama24HoursPercentage({
+  chainId: number,
+  tokenAddress: `0x${string}`
+}) => number | undefined
+
+// Chain utilities
+sdk.utils.getBlockNumber({
+  chainId: number,
+  timestamp: number
+}) => bigint | undefined
+
+sdk.utils.getTimestampFromBlock({
+  chainId: number,
+  blockNumber: bigint
+}) => number | undefined
+
+// Specialized price feeds
+sdk.utils.getSwapscannerPrice(tokenAddress: `0x${string}`) // Kaia network only
+```
+
+Bonding Curve Design Concepts
+```ts
+// Mint Club V2 uses discrete bonding curves instead of continuous formulas
+// This provides more customization and simpler calculations
+
+// Step-based pricing arrays
+type BondStep = {
+  rangeTo: number,    // Supply threshold for this step
+  price: number       // Price per token at this step
+}
+
+// Example step array for linear-ish curve
+const linearSteps = [
+  { rangeTo: 1000, price: 0.01 },     // First 1000 tokens at $0.01 each
+  { rangeTo: 10000, price: 0.02 },    // Next 9000 tokens at $0.02 each
+  { rangeTo: 100000, price: 0.05 },   // Next 90k tokens at $0.05 each
+  { rangeTo: 1000000, price: 0.10 }   // Final tokens at $0.10 each
+]
+
+// When creating tokens, you can provide either:
+// 1. curveData (automatic step generation)
+curveData: {
+  curveType: 'LINEAR' | 'EXPONENTIAL' | 'LOGARITHMIC' | 'FLAT',
+  stepCount: number,
+  maxSupply: number,
+  initialMintingPrice: number,
+  finalMintingPrice: number,
+  creatorAllocation?: number
+}
+
+// 2. stepData (custom step array)
+stepData: Array<{ rangeTo: number; price: number }>
+```
+
+Numbers and helpers
+```ts
+import { wei } from 'mint.club-v2-sdk' // or from sdk.utils
+wei(1.23, 18) => bigint
+```
+
+Advanced Contract Integration
+```ts
+import {
+  bondContract,
+  erc20Contract,
+  erc1155Contract,
+  airdropContract,
+  lockupContract,
+  zapContract,
+  oneInchContract,
+  stakeContract // Staking contract
+} from 'mint.club-v2-sdk'
+
+// Each contract provides network-specific methods
+const bond = bondContract.network('base')
+const erc20 = erc20Contract.network('base')
+const stake = stakeContract.network('base') // NEW
+
+// Low-level read operations
+const totalSupply = await erc20.read({
+  functionName: 'totalSupply',
+  args: []
+})
+
+// Low-level write operations (auto-handles wallet)
+const result = await erc20.write({
+  functionName: 'transfer',
+  args: [recipient, amount],
+  onSuccess: (receipt) => console.log('Transfer successful', receipt)
+})
+```
+
+RPC Configuration and Fallbacks
+```ts
+// SDK automatically uses fallback RPCs for high availability
+// Each network has multiple RPC endpoints that are tested for latency
+
+// Available RPCs per network (auto-selected by latency):
+// - Ethereum: 30+ endpoints (Infura, Alchemy, public nodes, etc.)
+// - Base: 5+ endpoints (public, BlastAPI, etc.)
+// - Arbitrum: 10+ endpoints (Infura, Alchemy, public nodes, etc.)
+// - Optimism: 10+ endpoints (Infura, Alchemy, public nodes, etc.)
+// - Polygon: 10+ endpoints (Infura, Alchemy, public nodes, etc.)
+// - BSC: 15+ endpoints (public nodes, Binance, etc.)
+// - Avalanche: 5+ endpoints (public nodes, etc.)
+// - And more...
+
+// SDK pings all RPCs and selects fastest one
+// Automatically switches if current RPC fails
+```
+
+Common Write Callbacks and Debugging
+```ts
+// All write operations support these callbacks
+{
+  // Debug the transaction before signing (recommended for development)
+  debug?: (simulationArgs: any) => void,
+
+  // Allowance flow (for token approvals)
+  onAllowanceSignatureRequest?: () => void,
+  onAllowanceSigned?: () => void,
+  onAllowanceSuccess?: (receipt: TransactionReceipt) => void,
+
+  // Main transaction flow
+  onSignatureRequest?: () => void,
+  onSigned?: (txHash: `0x${string}`) => void,
+  onSuccess?: (receipt: TransactionReceipt) => void,
+  onError?: (error: unknown) => void,
+}
+
+// Debug example - inspect transaction details before signing
+await token.buy({
+  amount: BigInt('1000000000000000000'),
+  debug: (args) => {
+    console.log('Transaction details:', args)
+    // Inspect: to, value, data, gas estimates, etc.
+  },
+  onSignatureRequest: () => console.log('Please sign the transaction'),
+  onSuccess: (receipt) => console.log('Purchase successful!', receipt)
+})
+```
+
+Error Handling and Exception Types
+```ts
+// SDK throws specific error types for different scenarios
+import {
+  ChainNotSupportedError,
+  NoEthereumProviderError,
+  WalletNotConnectedError,
+  InvalidClientError,
+  TokenAlreadyExistsError,
+  SymbolNotDefinedError,
+  InvalidImageProvidedError,
+  FilebaseKeyNeededError,
+  AirdropContainsInvalidWalletError,
+  MetadataValidationError
+} from 'mint.club-v2-sdk'
+
+// Error handling patterns
+try {
+  await sdk.network('unsupported-chain').token('TEST').buy({ amount: 100n })
+} catch (error) {
+  if (error instanceof ChainNotSupportedError) {
+    console.log('Chain not supported by SDK')
+  } else if (error instanceof WalletNotConnectedError) {
+    console.log('Please connect your wallet first')
+  } else {
+    console.log('Unexpected error:', error)
+  }
+}
+
+// Common error scenarios:
+// - ChainNotSupportedError: Network not in supportedChains
+// - NoEthereumProviderError: No wallet extension detected
+// - WalletNotConnectedError: User hasn't connected wallet
+// - InvalidClientError: Viem client configuration issues
+// - TokenAlreadyExistsError: CREATE2 collision or existing token
+// - SymbolNotDefinedError: Using symbol for existing token check
+// - InvalidImageProvidedError: Image upload failed validation
+// - FilebaseKeyNeededError: IPFS operations without API key
+// - AirdropContainsInvalidWalletError: Invalid addresses in airdrop list
+// - MetadataValidationError: Invalid metadata structure
+
+Guidance and Best Practices
+```ts
+// ⚡ ALWAYS FOLLOW THE CORE PATTERN:
+// mintclub → network → token/nft → function
+
+// Essential patterns for successful integration
+
+// 1. Always configure wallet client first (environment-specific)
+import { mintclub } from 'mint.club-v2-sdk'
+
+// IMPORTANT: withWalletClient works with ANY viem-compatible wallet client
+// Not limited to specific wallets - use any wallet that provides a viem wallet client
+
+// Node.js: Use private key
+const sdk = mintclub.withPrivateKey(process.env.PRIVATE_KEY!)
+
+// React: Use any wagmi-compatible wallet client (MetaMask, Coinbase, WalletConnect, etc.)
+const sdk = mintclub.withWalletClient(walletClientFromWagmi)
+
+// 2. Always select network first (CORE PATTERN STEP 2)
+const baseSdk = sdk.network('base') // Do this once, reuse the client
+
+// 3. Token creation uses CREATE2 - use symbols, not addresses
+await baseSdk.token('MYSYMBOL').create({ /* params */ }) // ✅ Correct
+// await baseSdk.token('0x123...').create({ /* params */ }) // ❌ Wrong
+
+// 4. Use wei() helper for precise amounts
+import { wei } from 'mint.club-v2-sdk'
+const amount = wei(1.5, 18) // 1.5 * 10^18 as bigint
+
+// 5. Zap methods only work with wrapped native tokens
+const wethAddress = '0x4200000000000000000000000000000000000006' // WETH on Base
+await baseSdk.token('TOKEN').buyWithZap({
+  amount,
+  reserveToken: wethAddress // Must be wrapped native
+})
+
+// 6. Price feeds have fallbacks
+const usdRate = await token.getUsdRate({ amount: 1 })
+// Uses 1inch first, falls back to DefiLlama if needed
+// Pass blockNumber for historical prices
+
+// 7. Time units are in seconds (not milliseconds)
+const futureTime = Math.floor(Date.now() / 1000) + 86400 // 24 hours from now
+
+// 8. Handle decimals properly
+const tokenDecimals = await token.getDecimals()
+const humanAmount = 100 // 100 tokens
+const weiAmount = BigInt(humanAmount) * BigInt(10) ** BigInt(tokenDecimals)
+
+// 9. Use callbacks for better UX
+await token.buy({
+  amount: weiAmount,
+  slippage: 100, // 1% slippage
+  onSignatureRequest: () => showLoadingSpinner(),
+  onSuccess: (receipt) => showSuccessMessage(),
+  onError: (error) => showErrorMessage(error)
+})
+
+// 10. Batch read operations when possible
+const [supply, balance, price] = await Promise.all([
+  token.getTotalSupply(),
+  token.getBalanceOf(userAddress),
+  token.getPriceForNextMint()
+])
+
+// 11. Environment-specific wallet setup patterns:
+
+// Node.js backend pattern:
+import { privateKeyToAccount } from 'viem/accounts'
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY!)
+const walletClient = createWalletClient({
+  account,
+  chain: base,
+  transport: http()
+})
+
+const sdk = mintclub.withWalletClient(walletClient)
+
+// React/Next.js pattern (with wagmi):
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
+
+function MyComponent() {
+  const { data: walletClient } = useWalletClient({ chainId: 8453 })
+
+  const sdk = walletClient
+    ? mintclub.withWalletClient({ ...walletClient, chain: base })
+    : mintclub // fallback to read-only operations
+
+  // Works with any wagmi-compatible wallet: MetaMask, Coinbase, WalletConnect, etc.
+  const handleBuy = () => sdk.network('base').token('TOKEN').buy({...})
+}
+```
+
+Comprehensive Examples
+```ts
+// ================================
+// ⚡ CORE PATTERN EXAMPLES
+// ================================
+// Always: mintclub → network → token/nft → function
+
+// ================================
+// Node.js Backend Setup
+// ================================
+import { mintclub, wei } from 'mint.club-v2-sdk'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+
+// Setup wallet client for Node.js
+const account = privateKeyToAccount(process.env.PRIVATE_KEY!)
+const walletClient = createWalletClient({
+  account,
+  chain: base,
+  transport: http()
+})
+
+// Initialize SDK with wallet (step 1)
+const sdk = mintclub.withWalletClient(walletClient)
+
+// Follow core pattern: mintclub → network → token/nft → function
+const baseSdk = sdk.network('base')
+
+// ================================
+// React/Next.js Frontend Setup (Any Wallet)
+// ================================
+"use client"
+import { mintclub, wei } from 'mint.club-v2-sdk'
+import { base } from 'viem/chains'
+import { useWalletClient, useAccount } from 'wagmi'
+// Works with any wagmi connector: MetaMask, Coinbase, WalletConnect, etc.
+
+function TokenTradingComponent() {
+  const { address } = useAccount()
+  const { data: walletClient } = useWalletClient({ chainId: 8453 })
+
+  // Setup SDK with wallet client (step 1 - works with any wagmi-compatible wallet)
+  const sdk = walletClient
+    ? mintclub.withWalletClient({ ...walletClient, chain: base })
+    : null
+
+  // Follow core pattern: mintclub → network → token/nft → function
+  const baseSdk = sdk?.network('base')
+
+// ================================
+// Token Creation and Management
+// ================================
+
+// Create ERC20 with custom bonding curve
+const erc20Token = await baseSdk.token('MYCOIN').create({
+  name: 'My Awesome Coin',
+  reserveToken: { address: '0x4200000000000000000000000000000000000006', decimals: 18 }, // WETH
+  buyRoyalty: 500, // 5%
+  sellRoyalty: 300, // 3%
+  curveData: {
+    curveType: 'EXPONENTIAL',
+    stepCount: 50,
+    maxSupply: 1_000_000,
+    initialMintingPrice: 0.001,
+    finalMintingPrice: 10,
+    creatorAllocation: wei(1000, 18) // 1000 tokens for creator
+  },
+  onSuccess: (receipt) => console.log('Token created!', receipt.transactionHash)
+})
+
+// Create NFT collection
+const nftCollection = await baseSdk.nft('MYART').create({
+  name: 'My NFT Collection',
+  metadataUrl: 'ipfs://Qm...', // or use sdk.ipfs.uploadMetadata()
+  reserveToken: { address: '0x4200000000000000000000000000000000000006', decimals: 18 },
+  buyRoyalty: 1000, // 10%
+  sellRoyalty: 500,  // 5%
+  stepData: [
+    { rangeTo: 100, price: 0.1 },
+    { rangeTo: 500, price: 0.5 },
+    { rangeTo: 1000, price: 1.0 }
+  ]
+})
+
+// ================================
+// Trading Operations
+// ================================
+
+// Buy tokens with regular transaction
+const buyAmount = wei(100, 18) // 100 tokens
+await erc20Token.buy({
+  amount: buyAmount,
+  slippage: 100, // 1% slippage tolerance
+  recipient: '0x...', // optional - defaults to connected wallet
+  onSignatureRequest: () => console.log('Please sign the transaction'),
+  onSuccess: (receipt) => console.log('Purchase successful!')
+})
+
+// Buy with Zap (automatic ETH wrapping)
+await erc20Token.buyWithZap({
+  amount: buyAmount,
+  slippage: 200, // 2% slippage for zap operations
+  onSuccess: (receipt) => console.log('Zap purchase successful!')
+})
+
+// Get pricing information
+const nextMintPrice = await erc20Token.getPriceForNextMint()
+const sellEstimation = await erc20Token.getSellEstimation(buyAmount)
+const usdRate = await erc20Token.getUsdRate({ amount: 1 })
+
+// ================================
+// Staking Operations
+// ================================
+
+const { stake } = baseSdk
+
+// Create a staking pool
+await stake.createPool({
+  stakingToken: erc20Token.address, // Use our created token
+  isStakingTokenERC20: true,
+  rewardToken: '0x4200000000000000000000000000000000000006', // WETH rewards
+  rewardAmount: wei(1000, 18), // 1000 WETH total rewards
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // Start in 1 hour
+  rewardDuration: 30 * 24 * 60 * 60, // 30 days
+  onSuccess: (receipt) => console.log('Staking pool created!')
+})
+
+// Stake tokens
+await stake.stake({
+  poolId: 0,
+  amount: wei(100, 18), // Stake 100 tokens
+  onSuccess: (receipt) => console.log('Tokens staked!')
+})
+
+// Check claimable rewards
+const claimable = await stake.getClaimableReward({
+  poolId: 0,
+  staker: address // From wallet client
+})
+const [rewardAmount, fee] = claimable
+
+if (rewardAmount > 0n) {
+  await stake.claim({
+    poolId: 0,
+    onSuccess: (receipt) => console.log('Rewards claimed!')
+  })
+}
+
+// ================================
+// Airdrop Creation with IPFS
+// ================================
+
+// Upload metadata to IPFS
+const metadataUrl = await sdk.ipfs.uploadMetadata({
+  filebaseApiKey: process.env.FILEBASE_KEY!,
+  name: 'Genesis Airdrop',
+  description: 'Airdrop for early supporters',
+  image: 'ipfs://Qm...', // Previously uploaded image
+  attributes: [
+    { trait_type: 'Type', value: 'Genesis' },
+    { trait_type: 'Rarity', value: 'Common' }
+  ]
+})
+
+// Create airdrop
+await erc20Token.createAirdrop({
+  title: 'Genesis Airdrop',
+  wallets: [
+    '0x1234567890123456789012345678901234567890',
+    '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd'
+  ],
+  amountPerClaim: 100,
+  startTime: new Date(),
+  endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+  filebaseApiKey: process.env.FILEBASE_KEY!,
+  onSuccess: (receipt) => console.log('Airdrop created!')
+})
+
+// ================================
+// Advanced Patterns
+// ================================
+
+// Batch operations for better performance
+const [supply, balance, price, usdRate24h] = await Promise.all([
+  erc20Token.getTotalSupply(),
+  erc20Token.getBalanceOf(address), // From wallet client
+  erc20Token.getPriceForNextMint(),
+  erc20Token.get24HoursUsdRate()
+])
+
+// Custom client configuration for better performance
+import { createPublicClient, http } from 'viem'
+import { base } from 'viem/chains'
+
+const fastClient = createPublicClient({
+  chain: base,
+  transport: http('https://base.drpc.org') // Fast RPC
+})
+
+const customSdk = sdk.withPublicClient(fastClient).network('base')
+
+// Lockup tokens for vesting
+const { lockup } = baseSdk
+await lockup.createLockUp({
+  token: erc20Token.address,
+  isERC20: true,
+  amount: wei(10000, 18),
+  unlockTime: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60, // 1 year
+  receiver: '0x...',
+  title: 'Team Vesting',
+  onSuccess: (receipt) => console.log('Tokens locked!')
+})
+```
+
+Version and Getting Help
+- SDK version: 1.4.0 (check package.json for latest)
+- Get version programmatically: `await sdk.network('base').stake.getVersion()`
+- Docs: `https://sdk.mint.club`
+- GitHub: `https://github.com/Steemhunt/mint.club-v2-contract`
+
+Quick Start Checklist
+- ✅ Install `mint.club-v2-sdk`
+- ✅ **Remember the core pattern**: `mintclub → network → token/nft → function`
+- ✅ Choose network from `supportedChains`
+- ✅ Setup wallet client (see environment-specific patterns below)
+- ✅ Initialize SDK with `mintclub.withWalletClient(walletClient)`
+- ✅ Select network with `sdk.network('base')` (step 2)
+- ✅ Choose token/nft with `.token()` or `.nft()` (step 3)
+- ✅ Call functions like `.buy()`, `.sell()`, etc. (step 4)
+- ✅ Handle errors with try/catch blocks
+- ✅ Use callbacks for better UX
+- ✅ Test with small amounts first
+
+**⚡ Core Pattern Reminder:**
+```ts
+mintclub           // Step 1: Start with mintclub
+  .network('base') // Step 2: Select network
+  .token('SYMBOL') // Step 3: Choose token or nft
+  .buy({...})      // Step 4: Call function
+```
+
+Wallet Setup by Environment:
+- Node.js: Use `withPrivateKey()` or `withWalletClient()` with viem wallet client
+- React/Next.js: Use `useWalletClient()` from wagmi + `withWalletClient()` (any connector)
+- Browser (vanilla): Use `withWalletClient()` with any viem-compatible wallet client
+- Any Wallet: `withWalletClient()` works with any viem-compatible wallet client
+
+Common Integration Patterns
+```ts
+// ================================
+// Pattern 1: Node.js Backend Trading
+// ================================
+import { privateKeyToAccount } from 'viem/accounts'
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY!)
+const walletClient = createWalletClient({
+  account,
+  chain: base,
+  transport: http()
+})
+
+const sdk = mintclub.withWalletClient(walletClient)
+const token = sdk.network('base').token('CHICKEN')
+await token.buy({ amount: wei(10, 18), slippage: 100 })
+
+// Pattern 2: Advanced with error handling
+try {
+  // Wallet already configured via withWalletClient
+  const baseSdk = sdk.network('base')
+  const token = baseSdk.token('MYTOKEN')
+
+  await token.buy({
+    amount: wei(100, 18),
+    slippage: 200,
+    debug: (args) => console.log('Transaction:', args),
+    onSuccess: (receipt) => console.log('Success!'),
+    onError: (error) => console.error('Failed:', error)
+  })
+} catch (error) {
+  console.error('Error:', error)
+}
+
+// Pattern 3: Staking workflow
+const { stake } = sdk.network('base')
+await stake.createPool({ /* pool config */ })
+await stake.stake({ poolId: 0, amount: wei(1000, 18) })
+const rewards = await stake.getClaimableReward({ poolId: 0, staker: '0x...' })
+if (rewards[0] > 0n) await stake.claim({ poolId: 0 })
+```
+
+License
+- BSD-3-Clause (see repository)

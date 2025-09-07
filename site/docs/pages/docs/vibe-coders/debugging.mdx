@@ -1,0 +1,417 @@
+# 🔍 Debugging Guide for AI Assistants
+
+> **For AI Assistants:** When things go wrong, use this systematic debugging approach.
+
+## 🐛 Common Issues & Solutions
+
+### 1. "Wallet Not Connected" Error
+
+**Symptoms:**
+
+```
+WalletNotConnectedError: Wallet not connected
+```
+
+**Solutions:**
+
+```ts
+// ✅ CORRECT: Configure wallet first
+import { mintclub } from 'mint.club-v2-sdk'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+
+// Node.js
+const account = privateKeyToAccount(process.env.PRIVATE_KEY!)
+const walletClient = createWalletClient({
+  account,
+  chain: base,
+  transport: http()
+})
+const sdk = mintclub.withWalletClient(walletClient)
+
+// React
+const { data: walletClient } = useWalletClient({ chainId: 8453 })
+const sdk = walletClient
+  ? mintclub.withWalletClient({ ...walletClient, chain: base })
+  : null
+
+// ❌ WRONG: No wallet configuration
+const sdk = mintclub // This only works for reads
+await sdk.network('base').token('CHICKEN').buy({...}) // Will fail
+```
+
+### 2. "Chain Not Supported" Error
+
+**Symptoms:**
+
+```
+ChainNotSupportedError: Chain not supported
+```
+
+**Solutions:**
+
+```ts
+// ✅ CORRECT: Use supported chain names
+const sdk = mintclub.withWalletClient(walletClient)
+
+await sdk.network('base').token('SYMBOL').buy({...})        // ✅
+await sdk.network('ethereum').token('SYMBOL').buy({...})   // ✅
+await sdk.network('arbitrum').token('SYMBOL').buy({...})   // ✅
+
+// ❌ WRONG: Unsupported chains
+await sdk.network('solana').token('SYMBOL').buy({...})     // ❌
+await sdk.network('polygon-mumbai').token('SYMBOL').buy({...}) // ❌
+
+// Check supported chains
+import { supportedChains } from 'mint.club-v2-sdk'
+console.log('Supported chains:', supportedChains)
+// Output: ['ethereum', 'base', 'arbitrum', 'optimism', ...]
+```
+
+### 3. "Insufficient Funds" Error
+
+**Symptoms:**
+
+```
+Error: insufficient funds for gas * price + value
+```
+
+**Solutions:**
+
+```ts
+// Check wallet balance first
+const balance = await sdk.network('base').wallet.getNativeBalance({
+  walletAddress: walletClient.account.address,
+})
+console.log('Wallet balance:', balance)
+
+// For token purchases, ensure you have enough tokens
+const tokenBalance = await sdk.network('base').token('CHICKEN').getBalanceOf(walletClient.account.address)
+console.log('Token balance:', tokenBalance)
+
+// For buys, you need the reserve token (usually ETH/native)
+const ethBalance = await sdk.network('base').token('WETH').getBalanceOf(walletClient.account.address)
+
+// For sells, you need the token you're selling
+const chickenBalance = await sdk.network('base').token('CHICKEN').getBalanceOf(walletClient.account.address)
+
+// Use smaller amounts for testing
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(0.1, 18), // Small amount for testing
+    slippage: 100,
+  })
+```
+
+### 4. "Slippage Too High" Error
+
+**Symptoms:**
+
+```
+Error: slippage too high
+```
+
+**Solutions:**
+
+```ts
+// Increase slippage tolerance
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(100, 18),
+    slippage: 500, // 5% instead of 1%
+  })
+
+// Or 1000 for 10% in volatile markets
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(100, 18),
+    slippage: 1000, // 10%
+  })
+
+// Check current price first
+const currentPrice = await sdk.network('base').token('CHICKEN').getPriceForNextMint()
+console.log('Current price:', currentPrice)
+
+// Use debug callback to see transaction details
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(100, 18),
+    slippage: 500,
+    debug: (simulationArgs) => {
+      console.log('Transaction simulation:', simulationArgs)
+    },
+  })
+```
+
+### 5. "Token Does Not Exist" Error
+
+**Symptoms:**
+
+```
+Error: token does not exist
+```
+
+**Solutions:**
+
+```ts
+// ✅ CORRECT: Use existing tokens or create new ones
+// Check if token exists first
+const exists = await sdk.network('base').token('CHICKEN').exists()
+if (!exists) {
+  console.log('Token does not exist yet')
+  // Create it or use a different token
+}
+
+// For new tokens, use CREATE2 predictable addresses
+await sdk.network('base').token('MYTOKEN').create({
+  name: 'My Token',
+  reserveToken: { address: '0x4200000000000000000000000000000000000006', decimals: 18 },
+  curveData: { /* curve configuration */ }
+})
+
+// ❌ WRONG: Random addresses won't work
+await sdk.network('base').token('0x1234567890123456789012345678901234567890').buy({...})
+```
+
+## 🛠️ Debugging Tools
+
+### Debug Callback
+
+```ts
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(100, 18),
+    slippage: 100,
+    debug: (simulationArgs) => {
+      console.log('🛠️ Transaction Details:')
+      console.log('To:', simulationArgs.to)
+      console.log('Value:', simulationArgs.value)
+      console.log('Data:', simulationArgs.data)
+      console.log('Gas Estimate:', simulationArgs.gasEstimate)
+    },
+    onSuccess: (receipt) => {
+      console.log('✅ Transaction successful:', receipt.transactionHash)
+    },
+  })
+```
+
+### Transaction Monitoring
+
+```ts
+// Monitor transaction status
+const monitorTransaction = async (txHash: string) => {
+  const receipt = await sdk.network('base').getPublicClient().getTransactionReceipt({
+    hash: txHash,
+  })
+
+  if (receipt) {
+    if (receipt.status === 'success') {
+      console.log('✅ Transaction confirmed!')
+    } else {
+      console.log('❌ Transaction failed')
+      console.log('Gas used:', receipt.gasUsed)
+      console.log('Block number:', receipt.blockNumber)
+    }
+  } else {
+    console.log('⏳ Transaction not mined yet...')
+  }
+}
+```
+
+### Balance Checker
+
+```ts
+const checkBalances = async (address: string) => {
+  const balances = await Promise.all([
+    sdk.network('base').getPublicClient().getBalance({ address }),
+    sdk.network('base').token('WETH').getBalanceOf(address),
+    sdk.network('base').token('CHICKEN').getBalanceOf(address),
+  ])
+
+  console.log('💰 Balances:')
+  console.log('ETH:', balances[0])
+  console.log('WETH:', balances[1])
+  console.log('CHICKEN:', balances[2])
+}
+```
+
+### Network Checker
+
+```ts
+const checkNetwork = async () => {
+  try {
+    const blockNumber = await sdk.network('base').getPublicClient().getBlockNumber()
+    console.log('✅ Network connected, current block:', blockNumber)
+  } catch (error) {
+    console.error('❌ Network connection failed:', error)
+  }
+}
+```
+
+## 🔍 Step-by-Step Debugging Process
+
+### Step 1: Verify Setup
+
+```ts
+// 1. Check wallet configuration
+console.log('Wallet configured:', !!walletClient)
+
+// 2. Check network connection
+await checkNetwork()
+
+// 3. Check balances
+await checkBalances(walletClient.account.address)
+
+// 4. Test read operations first
+const supply = await sdk.network('base').token('CHICKEN').getTotalSupply()
+console.log('✅ Read operations work, supply:', supply)
+```
+
+### Step 2: Test Small Transactions
+
+```ts
+// Start with very small amounts
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(0.01, 18), // Very small amount
+    slippage: 1000, // High slippage for testing
+    debug: (args) => console.log('Debug:', args),
+    onSuccess: (receipt) => console.log('✅ Small transaction successful!'),
+    onError: (error) => console.log('❌ Small transaction failed:', error),
+  })
+```
+
+### Step 3: Scale Up Gradually
+
+```ts
+// Once small transactions work, try larger amounts
+const amounts = [0.1, 1, 10, 100]
+
+for (const amount of amounts) {
+  try {
+    await sdk
+      .network('base')
+      .token('CHICKEN')
+      .buy({
+        amount: wei(amount, 18),
+        slippage: 500,
+        onSuccess: () => console.log(`✅ ${amount} tokens successful!`),
+      })
+
+    // Wait between transactions
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+  } catch (error) {
+    console.log(`❌ ${amount} tokens failed:`, error.message)
+    break // Stop on first failure
+  }
+}
+```
+
+### Step 4: Environment-Specific Debugging
+
+**Node.js Issues:**
+
+```ts
+// Check private key format
+console.log('Private key starts with 0x:', process.env.PRIVATE_KEY!.startsWith('0x'))
+
+// Check RPC connection
+const client = sdk.network('base').getPublicClient()
+const block = await client.getBlock({ blockTag: 'latest' })
+console.log('Latest block:', block.number)
+```
+
+**React Issues:**
+
+```tsx
+// Check wallet connection status
+const { address, isConnected, chainId } = useAccount()
+console.log('Connected:', isConnected)
+console.log('Address:', address)
+console.log('Chain ID:', chainId)
+
+// Check wallet client
+const { data: walletClient, isLoading } = useWalletClient()
+console.log('Wallet client loading:', isLoading)
+console.log('Wallet client available:', !!walletClient)
+```
+
+## 🚨 Emergency Solutions
+
+### Transaction Stuck?
+
+```ts
+// Check transaction status
+const receipt = await sdk.network('base').getPublicClient().getTransactionReceipt({
+  hash: '0x...', // Your transaction hash
+})
+
+if (!receipt) {
+  console.log('Transaction not mined yet')
+} else if (receipt.status === 'reverted') {
+  console.log('Transaction failed - check gas or contract logic')
+}
+```
+
+### Out of Gas?
+
+```ts
+// Increase gas limit
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(100, 18),
+    slippage: 100,
+    // The SDK automatically estimates gas, but you can override
+    onSignatureRequest: () => console.log('Please check gas settings'),
+  })
+```
+
+### Rate Limited?
+
+```ts
+// Add delays between requests
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+await sdk.network('base').token('CHICKEN').buy({...})
+await delay(1000) // Wait 1 second
+await sdk.network('base').token('DOGE').buy({...})
+```
+
+## 📞 Getting Help
+
+When asking for help, include:
+
+```ts
+// Essential debugging info
+console.log('🔍 Debug Info:')
+console.log('SDK Version:', sdk.getVersion?.() || 'Unknown')
+console.log('Network:', 'base')
+console.log('Wallet Address:', walletClient.account.address)
+console.log('Token Symbol:', 'CHICKEN')
+console.log('Transaction Amount:', wei(100, 18).toString())
+console.log('Slippage:', 100)
+
+// Environment info
+console.log('Node Version:', process.version)
+console.log('Platform:', process.platform)
+console.log('Is Browser:', typeof window !== 'undefined')
+```
+
+---
+
+**Remember:** Start simple, test incrementally, and use the debug tools! Most issues are caught with proper error handling and small test transactions. 🐛➡️✅

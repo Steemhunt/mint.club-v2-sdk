@@ -1,0 +1,1018 @@
+# 🥩 Staking Operations — Complete LLM Guide
+
+> **For AI Assistants:** This comprehensive guide covers all staking operations in the Mint Club SDK. Use this when implementing staking pools, reward distribution, or liquidity mining features.
+
+## ⚡ Core Stake Pattern
+
+```ts
+import { mintclub, wei } from 'mint.club-v2-sdk'
+
+// Always follow this pattern for staking:
+mintclub
+  .network('base')      // Step 1: Select network
+  .stake                 // Step 2: Access stake module
+  .createPool({...})     // Step 3: Call stake operation
+```
+
+## 📋 Complete Staking Operations Guide
+
+### Pool Creation
+
+**Pattern:** `sdk.network().stake.createPool()`
+
+```ts
+// Create a staking pool
+await sdk.network('base').stake.createPool({
+  stakingToken: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Token to stake
+  isStakingTokenERC20: true, // true for ERC20, false for ERC1155
+  rewardToken: '0x4200000000000000000000000000000000000006', // WETH rewards
+  rewardAmount: wei(1000, 18), // Total rewards to distribute
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // Start in 1 hour
+  rewardDuration: 30 * 24 * 60 * 60, // 30 days distribution
+  onSuccess: (receipt) => {
+    console.log('✅ Staking pool created:', receipt.transactionHash)
+  },
+  onError: (error) => {
+    console.error('❌ Pool creation failed:', error)
+  },
+})
+```
+
+**Parameters Reference:**
+
+```ts
+interface CreatePoolParams {
+  stakingToken: string // Token contract to be staked
+  isStakingTokenERC20: boolean // true for ERC20, false for ERC1155
+  rewardToken: string // Token contract for rewards
+  rewardAmount: bigint // Total reward tokens (use wei() helper)
+  rewardStartsAt: number // Unix timestamp when rewards start
+  rewardDuration: number // Duration in seconds for reward distribution
+  onSuccess?: (receipt: any) => void
+  onError?: (error: any) => void
+}
+```
+
+### Staking Operations
+
+#### Stake Tokens
+
+**Pattern:** `sdk.network().stake.stake()`
+
+```ts
+// Stake tokens in a pool
+await sdk.network('base').stake.stake({
+  poolId: 0, // Pool ID to stake in
+  amount: wei(100, 18), // Amount to stake
+  onSuccess: (receipt) => {
+    console.log('✅ Tokens staked successfully')
+    console.log('Transaction:', receipt.transactionHash)
+  },
+  onError: (error) => {
+    console.error('❌ Staking failed:', error)
+  },
+})
+```
+
+#### Unstake Tokens
+
+**Pattern:** `sdk.network().stake.unstake()`
+
+```ts
+// Unstake tokens from a pool
+await sdk.network('base').stake.unstake({
+  poolId: 0, // Pool ID to unstake from
+  amount: wei(50, 18), // Amount to unstake
+  onSuccess: (receipt) => {
+    console.log('✅ Tokens unstaked successfully')
+    // Note: Unstaking forfeits remaining rewards in that period
+  },
+  onError: (error) => {
+    console.error('❌ Unstaking failed:', error)
+  },
+})
+```
+
+#### Emergency Unstake
+
+**Pattern:** `sdk.network().stake.emergencyUnstake()`
+
+```ts
+// Emergency unstake (forfeit all rewards)
+await sdk.network('base').stake.emergencyUnstake({
+  poolId: 0,
+  amount: wei(100, 18), // Amount to emergency unstake
+  onSuccess: (receipt) => {
+    console.log('🚨 Emergency unstaked - rewards forfeited')
+    console.log('Retrieved tokens:', receipt) // Check receipt for actual amount
+  },
+  onError: (error) => {
+    console.error('❌ Emergency unstake failed:', error)
+  },
+})
+```
+
+### Reward Management
+
+#### Claim Rewards
+
+**Pattern:** `sdk.network().stake.claim()`
+
+```ts
+// Claim available rewards
+await sdk.network('base').stake.claim({
+  poolId: 0, // Pool ID to claim from
+  onSuccess: (receipt) => {
+    console.log('🎉 Rewards claimed successfully!')
+    console.log('Transaction:', receipt.transactionHash)
+  },
+  onError: (error) => {
+    console.error('❌ Claim failed:', error)
+  },
+})
+```
+
+#### Check Claimable Rewards
+
+**Pattern:** `sdk.network().stake.getClaimableReward()`
+
+```ts
+// Get claimable rewards for a user
+const claimableRewards = await sdk.network('base').stake.getClaimableReward({
+  poolId: 0,
+  staker: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+})
+
+// Returns tuple: [rewardClaimable, fee, claimedTotal, feeTotal]
+const [rewardAmount, claimFee, totalClaimed, totalFees] = claimableRewards
+
+console.log('🎁 Claimable rewards:', rewardAmount)
+console.log('💰 Claim fee:', claimFee)
+console.log('📊 Total claimed so far:', totalClaimed)
+console.log('💸 Total fees paid:', totalFees)
+
+// Check if worth claiming
+if (rewardAmount > claimFee) {
+  console.log('✅ Worth claiming (rewards > fee)')
+} else {
+  console.log('⏳ Not worth claiming yet (fee > rewards)')
+}
+```
+
+#### Bulk Reward Checking
+
+**Pattern:** `sdk.network().stake.getClaimableRewardBulk()`
+
+```ts
+// Check rewards for multiple users at once
+const bulkRewards = await sdk.network('base').stake.getClaimableRewardBulk({
+  poolId: 0,
+  stakers: [
+    '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+    '0x742d35Cc6634C0532925a3b844Bc454e4438f44f',
+    '0x742d35Cc6634C0532925a3b844Bc454e4438f44g',
+  ],
+})
+
+// Returns array of tuples for each staker
+bulkRewards.forEach((rewardData, index) => {
+  const [rewardAmount, claimFee] = rewardData
+  console.log(`User ${index + 1}: ${rewardAmount} rewards, ${claimFee} fee`)
+})
+```
+
+### Pool Management
+
+#### Get Pool Information
+
+**Pattern:** `sdk.network().stake.getPool()`
+
+```ts
+// Get detailed pool information
+const poolInfo = await sdk.network('base').stake.getPool({
+  poolId: 0,
+})
+
+console.log('🏊 Pool Information:')
+console.log('Staking Token:', poolInfo.stakingToken)
+console.log('Reward Token:', poolInfo.rewardToken)
+console.log('Total Rewards:', poolInfo.rewardAmount)
+console.log('Rewards Remaining:', poolInfo.rewardRemaining)
+console.log('Start Time:', new Date(poolInfo.rewardStartsAt * 1000))
+console.log('End Time:', new Date((poolInfo.rewardStartsAt + poolInfo.rewardDuration) * 1000))
+console.log('Total Staked:', poolInfo.totalStaked)
+console.log('Creator:', poolInfo.creator)
+```
+
+#### Get Multiple Pools
+
+**Pattern:** `sdk.network().stake.getPools()`
+
+```ts
+// Get list of pools
+const pools = await sdk.network('base').stake.getPools({
+  start: 0, // Starting index
+  end: 50, // Ending index (max 100)
+})
+
+console.log(`Found ${pools.length} pools:`)
+pools.forEach((pool, index) => {
+  console.log(`${index + 1}. Pool ${pool.id}: ${pool.totalStaked} staked, ${pool.rewardRemaining} rewards left`)
+})
+```
+
+#### Get Pools by Creator
+
+**Pattern:** `sdk.network().stake.getPoolsByCreator()`
+
+```ts
+// Get all pools created by an address
+const creatorPools = await sdk.network('base').stake.getPoolsByCreator({
+  creator: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+  start: 0,
+  end: 100,
+})
+
+console.log(`Creator has ${creatorPools.length} pools:`)
+creatorPools.forEach((pool) => {
+  console.log(`- Pool ${pool.id}: ${pool.rewardAmount} total rewards`)
+})
+```
+
+### User-Specific Operations
+
+#### Get User Pool Stake
+
+**Pattern:** `sdk.network().stake.getUserPoolStake()`
+
+```ts
+// Get user's stake in a specific pool
+const userStake = await sdk.network('base').stake.getUserPoolStake({
+  poolId: 0,
+  staker: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+})
+
+// Returns: [stakedAmount, rewardDebt, lastStakeTime]
+const [stakedAmount, rewardDebt, lastStakeTime] = userStake
+
+console.log('💰 Staked amount:', stakedAmount)
+console.log('📈 Reward debt:', rewardDebt)
+console.log('⏰ Last stake time:', new Date(lastStakeTime * 1000))
+```
+
+### Protocol Management
+
+#### Fee Management
+
+**Get Creation Fee:**
+
+```ts
+const creationFee = await sdk.network('base').stake.getCreationFee()
+console.log('Pool creation fee:', creationFee, 'wei')
+```
+
+**Get Claim Fee:**
+
+```ts
+const claimFee = await sdk.network('base').stake.getClaimFee()
+console.log('Claim fee (basis points):', claimFee) // e.g., 500 = 5%
+```
+
+**Update Fees (Admin Only):**
+
+```ts
+// Update creation fee
+await sdk.network('base').stake.updateCreationFee({
+  fee: wei(0.01, 18), // 0.01 ETH creation fee
+  onSuccess: () => console.log('✅ Creation fee updated'),
+})
+
+// Update claim fee
+await sdk.network('base').stake.updateClaimFee({
+  fee: 300, // 3% claim fee
+  onSuccess: () => console.log('✅ Claim fee updated'),
+})
+```
+
+#### Protocol Beneficiary
+
+**Get Current Beneficiary:**
+
+```ts
+const beneficiary = await sdk.network('base').stake.getProtocolBeneficiary()
+console.log('Protocol beneficiary:', beneficiary)
+```
+
+**Update Beneficiary (Admin Only):**
+
+```ts
+await sdk.network('base').stake.updateProtocolBeneficiary({
+  beneficiary: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+  onSuccess: () => console.log('✅ Beneficiary updated'),
+})
+```
+
+#### Ownership Management
+
+**Get Owner:**
+
+```ts
+const owner = await sdk.network('base').stake.getOwner()
+console.log('Contract owner:', owner)
+```
+
+**Transfer Ownership (Admin Only):**
+
+```ts
+await sdk.network('base').stake.transferOwnership({
+  newOwner: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+  onSuccess: () => console.log('✅ Ownership transferred'),
+})
+```
+
+**Renounce Ownership (Admin Only):**
+
+```ts
+await sdk.network('base').stake.renounceOwnership({
+  onSuccess: () => console.log('✅ Ownership renounced'),
+})
+```
+
+### Pool Operations
+
+#### Cancel Pool (Creator Only)
+
+**Pattern:** `sdk.network().stake.cancelPool()`
+
+```ts
+await sdk.network('base').stake.cancelPool({
+  poolId: 0,
+  onSuccess: (receipt) => {
+    console.log('✅ Pool cancelled, remaining rewards returned to creator')
+  },
+  onError: (error) => {
+    console.error('❌ Pool cancellation failed:', error)
+  },
+})
+```
+
+### Global Statistics
+
+#### Get Total Pool Count
+
+**Pattern:** `sdk.network().stake.getPoolCount()`
+
+```ts
+const totalPools = await sdk.network('base').stake.getPoolCount()
+console.log('Total staking pools:', totalPools)
+```
+
+#### Get Version
+
+**Pattern:** `sdk.network().stake.getVersion()`
+
+```ts
+const version = await sdk.network('base').stake.getVersion()
+console.log('Staking contract version:', version)
+```
+
+#### Get Duration Limits
+
+**Pattern:** `sdk.network().stake.getMinRewardDuration()` and `sdk.network().stake.getMaxRewardDuration()`
+
+```ts
+const [minDuration, maxDuration] = await Promise.all([
+  sdk.network('base').stake.getMinRewardDuration(),
+  sdk.network('base').stake.getMaxRewardDuration(),
+])
+
+console.log('Min duration:', minDuration / 86400, 'days')
+console.log('Max duration:', maxDuration / 86400, 'days')
+```
+
+## 🔧 Advanced Staking Operations
+
+### Comprehensive Staking Manager
+
+**Complete Staking Workflow:**
+
+```ts
+class AdvancedStakingManager {
+  constructor(
+    private sdk: any,
+    private userAddress: string,
+  ) {}
+
+  async createAndManagePool(poolConfig: {
+    stakingToken: string
+    rewardToken: string
+    rewardAmount: string
+    durationDays: number
+  }) {
+    try {
+      // 1. Create the pool
+      console.log('🏗️ Creating staking pool...')
+      await this.sdk.network('base').stake.createPool({
+        stakingToken: poolConfig.stakingToken,
+        isStakingTokenERC20: true,
+        rewardToken: poolConfig.rewardToken,
+        rewardAmount: wei(poolConfig.rewardAmount, 18),
+        rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // Start in 1 hour
+        rewardDuration: poolConfig.durationDays * 24 * 60 * 60,
+        onSuccess: (receipt) => {
+          console.log('✅ Pool created successfully')
+        },
+      })
+
+      // 2. Get pool ID (assuming it's the latest)
+      const totalPools = await this.sdk.network('base').stake.getPoolCount()
+      const poolId = totalPools - 1
+
+      // 3. Stake initial amount
+      console.log('💰 Staking initial amount...')
+      await this.sdk.network('base').stake.stake({
+        poolId,
+        amount: wei('100', 18), // Stake 100 tokens
+        onSuccess: () => {
+          console.log('✅ Initial stake successful')
+        },
+      })
+
+      return poolId
+    } catch (error) {
+      console.error('❌ Pool creation/management failed:', error)
+      throw error
+    }
+  }
+
+  async optimizeStakingStrategy(poolId: number) {
+    try {
+      // Get pool info
+      const pool = await this.sdk.network('base').stake.getPool({ poolId })
+      const userStake = await this.sdk.network('base').stake.getUserPoolStake({
+        poolId,
+        staker: this.userAddress,
+      })
+
+      // Calculate optimal actions
+      const [stakedAmount] = userStake
+      const poolEndTime = pool.rewardStartsAt + pool.rewardDuration
+      const currentTime = Math.floor(Date.now() / 1000)
+      const timeRemaining = poolEndTime - currentTime
+
+      console.log('📊 Pool Analysis:')
+      console.log(`   Time remaining: ${Math.ceil(timeRemaining / 86400)} days`)
+      console.log(`   Your stake: ${stakedAmount}`)
+      console.log(`   Rewards remaining: ${pool.rewardRemaining}`)
+
+      // Recommendations
+      if (timeRemaining < 86400) {
+        // Less than 1 day
+        console.log('⏰ Pool ending soon - consider claiming rewards')
+      }
+
+      if (pool.rewardRemaining < pool.rewardAmount * 0.1) {
+        // Less than 10% remaining
+        console.log('⚠️ Low rewards remaining - consider unstaking')
+      }
+
+      return {
+        poolId,
+        recommendations: this.generateRecommendations(pool, userStake, timeRemaining),
+      }
+    } catch (error) {
+      console.error('❌ Strategy optimization failed:', error)
+      throw error
+    }
+  }
+
+  private generateRecommendations(pool: any, userStake: any, timeRemaining: number) {
+    const recommendations = []
+
+    if (timeRemaining < 86400) {
+      recommendations.push('claim-rewards')
+    }
+
+    if (pool.rewardRemaining < pool.rewardAmount * 0.2) {
+      recommendations.push('consider-unstaking')
+    }
+
+    if (userStake[0] < pool.totalStaked * 0.01) {
+      // Less than 1% of total stake
+      recommendations.push('increase-stake')
+    }
+
+    return recommendations
+  }
+
+  async autoCompoundRewards(poolId: number) {
+    try {
+      // Check claimable rewards
+      const claimable = await this.sdk.network('base').stake.getClaimableReward({
+        poolId,
+        staker: this.userAddress,
+      })
+
+      const [rewardAmount, claimFee] = claimable
+
+      if (rewardAmount > claimFee * 2) {
+        // Only compound if rewards > 2x fee
+        console.log('🔄 Auto-compounding rewards...')
+
+        // Claim rewards
+        await this.sdk.network('base').stake.claim({ poolId })
+
+        // Wait for claim to process
+        await new Promise((resolve) => setTimeout(resolve, 5000))
+
+        // Restake the rewards (assuming reward token = staking token)
+        const pool = await this.sdk.network('base').stake.getPool({ poolId })
+        if (pool.rewardToken.toLowerCase() === pool.stakingToken.toLowerCase()) {
+          await this.sdk.network('base').stake.stake({
+            poolId,
+            amount: rewardAmount - claimFee, // Stake rewards minus fee
+            onSuccess: () => {
+              console.log('✅ Rewards compounded successfully')
+            },
+          })
+        }
+      }
+    } catch (error) {
+      console.error('❌ Auto-compound failed:', error)
+      throw error
+    }
+  }
+}
+```
+
+### Staking Analytics Dashboard
+
+**Complete Analytics System:**
+
+```ts
+class StakingAnalytics {
+  constructor(private sdk: any) {}
+
+  async generateStakingReport(userAddress: string) {
+    try {
+      // Get all pools
+      const totalPools = await this.sdk.network('base').stake.getPoolCount()
+      const allPools = []
+
+      // Fetch all pools in batches
+      for (let i = 0; i < totalPools; i += 50) {
+        const batch = await this.sdk.network('base').stake.getPools({
+          start: i,
+          end: Math.min(i + 50, totalPools),
+        })
+        allPools.push(...batch)
+      }
+
+      // Analyze user's participation
+      const userParticipation = []
+
+      for (const pool of allPools) {
+        try {
+          const userStake = await this.sdk.network('base').stake.getUserPoolStake({
+            poolId: pool.id,
+            staker: userAddress,
+          })
+
+          const claimable = await this.sdk.network('base').stake.getClaimableReward({
+            poolId: pool.id,
+            staker: userAddress,
+          })
+
+          const [stakedAmount] = userStake
+          const [rewardAmount, claimFee] = claimable
+
+          if (stakedAmount > 0 || rewardAmount > 0) {
+            userParticipation.push({
+              poolId: pool.id,
+              stakedAmount,
+              claimableRewards: rewardAmount,
+              claimFee,
+              netRewards: rewardAmount - claimFee,
+              poolInfo: pool,
+            })
+          }
+        } catch (error) {
+          console.log(`⚠️ Could not analyze pool ${pool.id}:`, error.message)
+        }
+      }
+
+      // Generate summary
+      const summary = {
+        totalPools: allPools.length,
+        userParticipatingPools: userParticipation.length,
+        totalStaked: userParticipation.reduce((sum, p) => sum + p.stakedAmount, 0n),
+        totalClaimableRewards: userParticipation.reduce((sum, p) => sum + p.claimableRewards, 0n),
+        totalNetRewards: userParticipation.reduce((sum, p) => sum + p.netRewards, 0n),
+        poolsByValue: userParticipation.sort((a, b) => Number(b.stakedAmount) - Number(a.stakedAmount)),
+        poolsByRewards: userParticipation.sort((a, b) => Number(b.netRewards) - Number(a.netRewards)),
+      }
+
+      console.log('📊 Staking Report for:', userAddress)
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+      console.log(`Total Pools: ${summary.totalPools}`)
+      console.log(`Participating: ${summary.userParticipatingPools}`)
+      console.log(`Total Staked: ${summary.totalStaked}`)
+      console.log(`Claimable Rewards: ${summary.totalClaimableRewards}`)
+      console.log(`Net Rewards: ${summary.totalNetRewards}`)
+
+      return { summary, participation: userParticipation }
+    } catch (error) {
+      console.error('❌ Analytics generation failed:', error)
+      throw error
+    }
+  }
+
+  async findBestStakingOpportunities() {
+    try {
+      const totalPools = await this.sdk.network('base').stake.getPoolCount()
+      const pools = await this.sdk.network('base').stake.getPools({
+        start: 0,
+        end: Math.min(100, totalPools),
+      })
+
+      // Calculate APY for each pool
+      const poolsWithApy = await Promise.all(
+        pools.map(async (pool) => {
+          try {
+            const durationYears = pool.rewardDuration / (365 * 24 * 60 * 60)
+            const totalStaked = pool.totalStaked
+
+            if (totalStaked === 0n) {
+              return { ...pool, apy: 0 }
+            }
+
+            // APY = (rewardAmount / totalStaked) / durationYears * 100
+            const apy = Number((pool.rewardAmount * 100n) / totalStaked) / durationYears
+
+            return { ...pool, apy }
+          } catch (error) {
+            return { ...pool, apy: 0 }
+          }
+        }),
+      )
+
+      // Sort by APY
+      const sortedPools = poolsWithApy.filter((p) => p.apy > 0).sort((a, b) => b.apy - a.apy)
+
+      console.log('🏆 Best Staking Opportunities:')
+      sortedPools.slice(0, 10).forEach((pool, index) => {
+        console.log(`${index + 1}. Pool ${pool.id}: ${pool.apy.toFixed(2)}% APY (${pool.totalStaked} staked)`)
+      })
+
+      return sortedPools
+    } catch (error) {
+      console.error('❌ Opportunity analysis failed:', error)
+      throw error
+    }
+  }
+}
+```
+
+## 🚨 Error Handling & Troubleshooting
+
+### Common Staking Errors
+
+#### "Pool Not Found"
+
+```ts
+// Check if pool exists
+const totalPools = await sdk.network('base').stake.getPoolCount()
+
+if (poolId >= totalPools) {
+  throw new Error(`Pool ${poolId} does not exist. Total pools: ${totalPools}`)
+}
+
+// Verify pool details
+const pool = await sdk.network('base').stake.getPool({ poolId })
+console.log('✅ Pool exists:', pool)
+```
+
+#### "Insufficient Balance"
+
+```ts
+// Check token balance before staking
+const tokenBalance = await sdk.network('base').token('TOKEN_ADDRESS').getBalanceOf(userAddress)
+const stakeAmount = wei('100', 18)
+
+if (tokenBalance < stakeAmount) {
+  throw new Error(`Insufficient balance. Have: ${tokenBalance}, Need: ${stakeAmount}`)
+}
+
+// Check allowance
+const allowance = await sdk.network('base').token('TOKEN_ADDRESS').getAllowance({
+  owner: userAddress,
+  spender: 'STAKING_CONTRACT_ADDRESS',
+})
+
+if (allowance < stakeAmount) {
+  // Approve spending first
+  await sdk.network('base').token('TOKEN_ADDRESS').approve({
+    spender: 'STAKING_CONTRACT_ADDRESS',
+    amount: stakeAmount,
+  })
+}
+```
+
+#### "Reward Period Not Started"
+
+```ts
+// Check reward timing
+const pool = await sdk.network('base').stake.getPool({ poolId })
+const currentTime = Math.floor(Date.now() / 1000)
+
+if (currentTime < pool.rewardStartsAt) {
+  const timeUntilStart = pool.rewardStartsAt - currentTime
+  console.log(`⏰ Rewards start in ${Math.ceil(timeUntilStart / 3600)} hours`)
+  return
+}
+
+// Check if rewards have ended
+const rewardEndTime = pool.rewardStartsAt + pool.rewardDuration
+if (currentTime > rewardEndTime) {
+  console.log('⏰ Reward period has ended')
+  return
+}
+```
+
+#### "No Rewards Available"
+
+```ts
+// Check claimable rewards
+const claimable = await sdk.network('base').stake.getClaimableReward({
+  poolId,
+  staker: userAddress,
+})
+
+const [rewardAmount, claimFee] = claimable
+
+if (rewardAmount === 0n) {
+  console.log('⏳ No rewards available yet')
+  console.log('   - Make sure rewards have started')
+  console.log('   - Check if you have tokens staked')
+  return
+}
+
+if (rewardAmount <= claimFee) {
+  console.log('⏳ Rewards too small to claim profitably')
+  console.log(`   Rewards: ${rewardAmount}, Fee: ${claimFee}`)
+  return
+}
+```
+
+### Timing-Related Errors
+
+#### "Cannot Unstake Yet"
+
+```ts
+// Check unstake timing (if applicable)
+const pool = await sdk.network('base').stake.getPool({ poolId })
+const userStake = await sdk.network('base').stake.getUserPoolStake({
+  poolId,
+  staker: userAddress,
+})
+
+const [, , lastStakeTime] = userStake
+const currentTime = Math.floor(Date.now() / 1000)
+
+// Some pools may have lock periods
+const lockPeriod = 7 * 24 * 60 * 60 // 7 days
+if (currentTime < lastStakeTime + lockPeriod) {
+  const timeUntilUnlock = lastStakeTime + lockPeriod - currentTime
+  console.log(`⏰ Cannot unstake yet. ${Math.ceil(timeUntilUnlock / 86400)} days remaining`)
+}
+```
+
+### Pool Management Errors
+
+#### "Unauthorized Operation"
+
+```ts
+// Check if user is pool creator
+const pool = await sdk.network('base').stake.getPool({ poolId })
+
+if (pool.creator.toLowerCase() !== userAddress.toLowerCase()) {
+  throw new Error('Only pool creator can perform this operation')
+}
+
+// Check if user is contract owner (for admin operations)
+const owner = await sdk.network('base').stake.getOwner()
+if (owner.toLowerCase() !== userAddress.toLowerCase()) {
+  throw new Error('Only contract owner can perform this operation')
+}
+```
+
+#### "Pool Already Cancelled"
+
+```ts
+// Check pool status
+const pool = await sdk.network('base').stake.getPool({ poolId })
+
+// Pools don't have explicit cancelled status, but you can check:
+if (pool.rewardRemaining === 0n && pool.totalStaked === 0n) {
+  console.log('⚠️ Pool appears to be inactive or cancelled')
+}
+```
+
+## 🎯 Best Practices
+
+### Pool Creation Best Practices
+
+```ts
+// 1. Validate all parameters
+function validatePoolParams(params: CreatePoolParams) {
+  // Check token addresses
+  if (!isValidAddress(params.stakingToken)) {
+    throw new Error('Invalid staking token address')
+  }
+
+  if (!isValidAddress(params.rewardToken)) {
+    throw new Error('Invalid reward token address')
+  }
+
+  // Check reward amount
+  if (params.rewardAmount <= 0n) {
+    throw new Error('Reward amount must be positive')
+  }
+
+  // Check timing
+  const currentTime = Math.floor(Date.now() / 1000)
+  if (params.rewardStartsAt <= currentTime) {
+    throw new Error('Reward start time must be in the future')
+  }
+
+  // Check duration limits
+  const [minDuration, maxDuration] = await Promise.all([
+    sdk.network('base').stake.getMinRewardDuration(),
+    sdk.network('base').stake.getMaxRewardDuration(),
+  ])
+
+  if (params.rewardDuration < minDuration) {
+    throw new Error(`Duration too short. Minimum: ${minDuration} seconds`)
+  }
+
+  if (params.rewardDuration > maxDuration) {
+    throw new Error(`Duration too long. Maximum: ${maxDuration} seconds`)
+  }
+
+  return true
+}
+
+// 2. Calculate optimal reward distribution
+function calculateOptimalRewards(totalStaked: bigint, durationDays: number) {
+  const durationSeconds = durationDays * 24 * 60 * 60
+
+  // Target APY (e.g., 10%)
+  const targetApy = 0.1
+  const durationYears = durationSeconds / (365 * 24 * 60 * 60)
+
+  // rewardAmount = totalStaked * targetApy * durationYears
+  const rewardAmount =
+    (totalStaked * BigInt(Math.floor(targetApy * 1000000)) * BigInt(Math.floor(durationYears * 1000000))) /
+    1000000000000n
+
+  return rewardAmount
+}
+
+// 3. Set reasonable timeframes
+const recommendedDurations = {
+  short: 7 * 24 * 60 * 60, // 1 week
+  medium: 30 * 24 * 60 * 60, // 1 month
+  long: 90 * 24 * 60 * 60, // 3 months
+  extended: 365 * 24 * 60 * 60, // 1 year
+}
+```
+
+### User Experience Best Practices
+
+```ts
+// 1. Provide clear pool information
+async function displayPoolInfo(poolId: number) {
+  const pool = await sdk.network('base').stake.getPool({ poolId })
+
+  console.log('🏊 Pool Information:')
+  console.log(`   Staking Token: ${pool.stakingToken}`)
+  console.log(`   Reward Token: ${pool.rewardToken}`)
+  console.log(`   Total Rewards: ${pool.rewardAmount}`)
+  console.log(`   Remaining Rewards: ${pool.rewardRemaining}`)
+  console.log(`   Total Staked: ${pool.totalStaked}`)
+  console.log(`   Start Time: ${new Date(pool.rewardStartsAt * 1000).toLocaleString()}`)
+  console.log(`   Duration: ${pool.rewardDuration / 86400} days`)
+  console.log(`   Progress: ${(((Date.now() / 1000 - pool.rewardStartsAt) / pool.rewardDuration) * 100).toFixed(1)}%`)
+}
+
+// 2. Show user's position clearly
+async function showUserPosition(poolId: number, userAddress: string) {
+  const [pool, userStake, claimable] = await Promise.all([
+    sdk.network('base').stake.getPool({ poolId }),
+    sdk.network('base').stake.getUserPoolStake({ poolId, staker: userAddress }),
+    sdk.network('base').stake.getClaimableReward({ poolId, staker: userAddress }),
+  ])
+
+  const [stakedAmount] = userStake
+  const [rewardAmount, claimFee] = claimable
+
+  console.log('👤 Your Position:')
+  console.log(`   Staked Amount: ${stakedAmount}`)
+  console.log(`   Pool Share: ${(Number(stakedAmount) / Number(pool.totalStaked)) * 100}%`)
+  console.log(`   Claimable Rewards: ${rewardAmount}`)
+  console.log(`   Claim Fee: ${claimFee}`)
+  console.log(`   Net Rewards: ${rewardAmount - claimFee}`)
+}
+
+// 3. Implement confirmation dialogs
+async function confirmUnstaking(poolId: number, amount: string) {
+  const claimable = await sdk.network('base').stake.getClaimableReward({
+    poolId,
+    staker: userAddress,
+  })
+
+  const [rewardAmount, claimFee] = claimable
+
+  if (rewardAmount > claimFee) {
+    console.log('⚠️ Warning: You have unclaimed rewards!')
+    console.log(`   Unclaimed: ${rewardAmount}`)
+    console.log(`   Claim Fee: ${claimFee}`)
+    console.log(`   You'll lose: ${rewardAmount} rewards`)
+
+    // In a real app, show confirmation dialog
+    const confirmed = await getUserConfirmation('Unstake and forfeit rewards?')
+    if (!confirmed) {
+      throw new Error('Unstaking cancelled by user')
+    }
+  }
+}
+```
+
+### Performance Optimization
+
+```ts
+// 1. Batch read operations
+async function batchUserStatus(poolIds: number[], userAddress: string) {
+  const statusPromises = poolIds.map(async (poolId) => {
+    const [pool, userStake, claimable] = await Promise.all([
+      sdk.network('base').stake.getPool({ poolId }),
+      sdk.network('base').stake.getUserPoolStake({ poolId, staker: userAddress }),
+      sdk.network('base').stake.getClaimableReward({ poolId, staker: userAddress }),
+    ])
+
+    return {
+      poolId,
+      pool,
+      userStake,
+      claimable,
+    }
+  })
+
+  return await Promise.all(statusPromises)
+}
+
+// 2. Cache pool data
+class PoolCache {
+  private cache = new Map()
+  private ttl = 30000 // 30 seconds
+
+  async getPool(poolId: number) {
+    const key = `pool_${poolId}`
+    const cached = this.cache.get(key)
+
+    if (cached && Date.now() - cached.timestamp < this.ttl) {
+      return cached.data
+    }
+
+    const data = await sdk.network('base').stake.getPool({ poolId })
+    this.cache.set(key, { data, timestamp: Date.now() })
+    return data
+  }
+}
+
+// 3. Implement rate limiting for bulk operations
+async function rateLimitedBatchOperation(operations: (() => Promise<any>)[]) {
+  const results = []
+  const batchSize = 5 // Process 5 operations at a time
+  const delay = 1000 // 1 second between batches
+
+  for (let i = 0; i < operations.length; i += batchSize) {
+    const batch = operations.slice(i, i + batchSize)
+
+    const batchResults = await Promise.allSettled(batch.map((op) => op()))
+
+    results.push(...batchResults)
+
+    // Rate limiting
+    if (i + batchSize < operations.length) {
+      await new Promise((resolve) => setTimeout(resolve, delay))
+    }
+  }
+
+  return results
+}
+```
+
+---
+
+**AI Assistants:** This guide covers every aspect of staking operations from pool creation to reward claiming. Remember to always check pool status and timing before operations, validate user permissions for admin functions, and implement proper error handling. For complex staking applications, consider using the analytics and management classes provided above! 🥩

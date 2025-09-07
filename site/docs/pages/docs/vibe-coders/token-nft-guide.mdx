@@ -1,0 +1,751 @@
+# 🪙 Token & NFT Operations — Complete LLM Guide
+
+> **For AI Assistants:** This comprehensive guide covers all token and NFT operations in the Mint Club SDK. Use this when working with ERC20 tokens and ERC1155 NFTs.
+
+## ⚡ Core Token/NFT Pattern
+
+```ts
+import { mintclub, wei } from 'mint.club-v2-sdk'
+
+// Always follow this pattern for tokens/NFTs:
+mintclub
+  .network('base')      // Step 1: Select network
+  .token('SYMBOL')      // Step 2: Choose token (ERC20)
+  .create({...})        // Step 3: Call operation
+
+// OR for NFTs:
+mintclub
+  .network('base')      // Step 1: Select network
+  .nft('SYMBOL')        // Step 2: Choose NFT (ERC1155)
+  .create({...})        // Step 3: Call operation
+```
+
+## 📋 Complete Token Operations Guide
+
+### Token Creation (ERC20)
+
+**Pattern:** `sdk.network().token().create()`
+
+```ts
+// Basic token creation
+await sdk
+  .network('base')
+  .token('MYTOKEN')
+  .create({
+    name: 'My Token',
+    reserveToken: {
+      address: '0x4200000000000000000000000000000000000006', // WETH on Base
+      decimals: 18,
+    },
+    curveData: {
+      curveType: 'LINEAR',
+      stepCount: 20,
+      maxSupply: 1_000_000,
+      initialMintingPrice: 0.001,
+      finalMintingPrice: 1,
+    },
+    buyRoyalty: 300, // 3%
+    sellRoyalty: 300, // 3%
+    creatorAllocation: wei(10000, 18), // 10k tokens for creator
+    onSuccess: (receipt) => {
+      console.log('✅ Token created:', receipt.transactionHash)
+    },
+  })
+```
+
+**Curve Types Available:**
+
+- `'LINEAR'` - Price increases linearly
+- `'EXPONENTIAL'` - Price increases exponentially
+- `'LOGARITHMIC'` - Price increases logarithmically
+- `'FLAT'` - Fixed price (not recommended)
+
+**Parameters Reference:**
+
+```ts
+interface TokenCreateParams {
+  name: string // Token name
+  reserveToken: {
+    address: string // Reserve token contract address
+    decimals: number // Reserve token decimals (usually 18)
+  }
+  curveData: {
+    curveType: 'LINEAR' | 'EXPONENTIAL' | 'LOGARITHMIC' | 'FLAT'
+    stepCount: number // Number of price steps (10-1000)
+    maxSupply: number // Maximum token supply
+    initialMintingPrice: number // Starting price per token
+    finalMintingPrice: number // Final price per token
+    creatorAllocation?: bigint // Tokens allocated to creator
+  }
+  buyRoyalty?: number // Buy royalty in basis points (0-10000)
+  sellRoyalty?: number // Sell royalty in basis points (0-10000)
+  onSuccess?: (receipt: any) => void
+  onError?: (error: any) => void
+}
+```
+
+### Token Trading Operations
+
+#### Buying Tokens
+
+```ts
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(100, 18), // Amount to buy (in wei)
+    slippage: 100, // Slippage tolerance (1%)
+    recipient: '0x...', // Optional recipient address
+    onSuccess: (receipt) => {
+      console.log('✅ Purchase successful')
+      console.log('Transaction:', receipt.transactionHash)
+    },
+    onError: (error) => {
+      console.error('❌ Purchase failed:', error)
+    },
+  })
+```
+
+#### Selling Tokens
+
+```ts
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .sell({
+    amount: wei(50, 18), // Amount to sell (in wei)
+    slippage: 100, // Slippage tolerance (1%)
+    recipient: '0x...', // Optional recipient address
+    onSuccess: (receipt) => {
+      console.log('✅ Sale successful')
+    },
+    onError: (error) => {
+      console.error('❌ Sale failed:', error)
+    },
+  })
+```
+
+#### Zap Operations (Buy/Sell with ETH)
+
+```ts
+// Buy tokens with ETH directly
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buyWithZap({
+    amount: wei(100, 18),
+    slippage: 200, // Higher slippage for zap (2%)
+    onSuccess: (receipt) => {
+      console.log('✅ Zap purchase successful')
+    },
+  })
+
+// Sell tokens for ETH directly
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .sellWithZap({
+    amount: wei(50, 18),
+    slippage: 200,
+    onSuccess: (receipt) => {
+      console.log('✅ Zap sale successful')
+    },
+  })
+```
+
+### Reading Token Data
+
+#### Basic Token Information
+
+```ts
+const token = sdk.network('base').token('CHICKEN')
+
+// Get basic token info
+const [name, symbol, decimals, totalSupply] = await Promise.all([
+  token.getName(),
+  token.getSymbol(),
+  token.getDecimals(),
+  token.getTotalSupply(),
+])
+
+console.log(`${name} (${symbol}) - ${totalSupply} total supply`)
+```
+
+#### Price Information
+
+```ts
+const token = sdk.network('base').token('CHICKEN')
+
+// Get current price
+const currentPrice = await token.getPriceForNextMint()
+console.log('Current price:', currentPrice)
+
+// Get next buy estimation
+const buyEstimate = await token.getBuyEstimation(wei(100, 18))
+console.log('Buy 100 tokens costs:', buyEstimate)
+
+// Get next sell estimation
+const sellEstimate = await token.getSellEstimation(wei(50, 18))
+console.log('Sell 50 tokens returns:', sellEstimate)
+```
+
+#### USD Price Information
+
+```ts
+const token = sdk.network('base').token('CHICKEN')
+
+// Get USD rate
+const usdRate = await token.getUsdRate({ amount: 1 })
+console.log('USD rate per token:', usdRate)
+
+// Get 24h price change
+const usdRate24h = await token.get24HoursUsdRate()
+if (usdRate24h) {
+  console.log('24h change:', usdRate24h.changePercent + '%')
+  console.log('Previous USD rate:', usdRate24h.previousUsdRate)
+}
+```
+
+#### Balance Information
+
+```ts
+const token = sdk.network('base').token('CHICKEN')
+const userAddress = '0x...' // Your user address
+
+// Get token balance
+const balance = await token.getBalanceOf(userAddress)
+console.log('Token balance:', balance)
+
+// Get allowance (for spending approval)
+const allowance = await token.getAllowance({
+  owner: userAddress,
+  spender: '0x...', // Spender contract address
+})
+console.log('Allowance:', allowance)
+```
+
+#### Advanced Token Data
+
+```ts
+const token = sdk.network('base').token('CHICKEN')
+
+// Get comprehensive token details
+const details = await token.getDetail()
+console.log('Token details:', details)
+
+// Get bonding curve steps
+const steps = await token.getSteps()
+console.log('Bonding curve steps:', steps)
+
+// Get reserve token information
+const reserveToken = await token.getReserveToken()
+console.log('Reserve token:', reserveToken)
+
+// Get maximum supply
+const maxSupply = await token.getMaxSupply()
+console.log('Max supply:', maxSupply)
+
+// Check if token exists
+const exists = await token.exists()
+console.log('Token exists:', exists)
+```
+
+## 🎨 Complete NFT Operations Guide
+
+### NFT Creation (ERC1155)
+
+**Pattern:** `sdk.network().nft().create()`
+
+```ts
+// Basic NFT collection creation
+await sdk
+  .network('base')
+  .nft('MYART')
+  .create({
+    name: 'My NFT Collection',
+    metadataUrl: 'ipfs://Qm...', // IPFS URL to metadata
+    reserveToken: {
+      address: '0x4200000000000000000000000000000000000006',
+      decimals: 18,
+    },
+    curveData: {
+      curveType: 'LINEAR',
+      stepCount: 50,
+      maxSupply: 10_000,
+      initialMintingPrice: 0.01,
+      finalMintingPrice: 2,
+    },
+    buyRoyalty: 500, // 5%
+    sellRoyalty: 300, // 3%
+    onSuccess: (receipt) => {
+      console.log('✅ NFT collection created:', receipt.transactionHash)
+    },
+  })
+```
+
+### NFT Trading Operations
+
+#### Buying NFTs
+
+```ts
+await sdk
+  .network('base')
+  .nft('ART')
+  .buy({
+    amount: wei(1, 18), // Amount to buy (usually 1 for NFTs)
+    slippage: 100,
+    onSuccess: (receipt) => {
+      console.log('✅ NFT purchase successful')
+    },
+  })
+```
+
+#### Approving NFT Transfers
+
+```ts
+await sdk
+  .network('base')
+  .nft('ART')
+  .approve({
+    spender: '0x...', // Address to approve
+    approved: true, // true to approve, false to revoke
+    onSuccess: (receipt) => {
+      console.log('✅ Approval successful')
+    },
+  })
+```
+
+### Reading NFT Data
+
+#### Basic NFT Information
+
+```ts
+const nft = sdk.network('base').nft('ART')
+
+const [name, symbol, totalSupply] = await Promise.all([nft.getName(), nft.getSymbol(), nft.getTotalSupply()])
+
+console.log(`${name} (${symbol}) - ${totalSupply} total supply`)
+```
+
+#### Balance Information
+
+```ts
+const nft = sdk.network('base').nft('ART')
+const userAddress = '0x...'
+
+// Get NFT balance
+const balance = await nft.getBalanceOf(userAddress)
+console.log('NFT balance:', balance)
+
+// Get batch balances
+const addresses = ['0x...', '0x...', '0x...']
+const batchBalances = await nft.getBalanceOfBatch(addresses)
+console.log('Batch balances:', batchBalances)
+```
+
+#### NFT Metadata
+
+```ts
+const nft = sdk.network('base').nft('ART')
+
+// Get contract URI
+const contractURI = await nft.getContractURI()
+console.log('Contract URI:', contractURI)
+
+// Get metadata URI
+const metadataURI = await nft.getMetadataUri()
+console.log('Metadata URI:', metadataURI)
+
+// Get image URI
+const imageURI = await nft.getImageUri()
+console.log('Image URI:', imageURI)
+```
+
+#### Approval Status
+
+```ts
+const nft = sdk.network('base').nft('ART')
+
+// Check approval status
+const isApproved = await nft.getIsApprovedForAll({
+  owner: '0x...',
+  spender: '0x...',
+})
+console.log('Is approved:', isApproved)
+
+// Check interface support
+const supportsERC1155 = await nft.getSupportsInterface('0xd9b67a26')
+console.log('Supports ERC1155:', supportsERC1155)
+```
+
+## 🔧 Advanced Token/NFT Operations
+
+### Mint Club Metadata Management
+
+```ts
+const token = sdk.network('base').token('MYTOKEN')
+
+// Create metadata
+await token.createMintClubMetadata({
+  backgroundImage: backgroundFile, // File object
+  logo: logoFile, // File object
+  website: 'https://myproject.com',
+  distributionPlan: 'Fair launch with community rewards',
+  creatorComment: 'Built with Mint Club SDK',
+})
+
+// Update metadata
+await token.updateMintClubMetadata({
+  signature: '0x...', // Signature for verification
+  message: 'Update metadata', // Message that was signed
+  backgroundImage: newBackgroundFile,
+  website: 'https://updated-site.com',
+})
+
+// Get existing metadata
+const metadata = await token.getMintClubMetadata()
+console.log('Current metadata:', metadata)
+```
+
+### Transfer Operations
+
+```ts
+const token = sdk.network('base').token('CHICKEN')
+
+// Transfer tokens
+await token.transfer({
+  recipient: '0x...',
+  amount: wei(100, 18),
+  onSuccess: (receipt) => {
+    console.log('✅ Transfer successful')
+  },
+})
+```
+
+### Approval Operations
+
+```ts
+const token = sdk.network('base').token('CHICKEN')
+
+// Approve spending
+await token.approve({
+  spender: '0x...', // Contract to approve
+  amount: wei(1000, 18), // Amount to approve
+  onSuccess: (receipt) => {
+    console.log('✅ Approval successful')
+  },
+})
+```
+
+## 📊 Token/NFT Analytics
+
+### Comprehensive Token Analysis
+
+```ts
+async function analyzeToken(sdk: any, symbol: string) {
+  const token = sdk.network('base').token(symbol)
+
+  try {
+    // Gather all token data
+    const [
+      name,
+      symbol,
+      totalSupply,
+      decimals,
+      currentPrice,
+      maxSupply,
+      reserveToken,
+      steps,
+      usdRate,
+      usdRate24h,
+      details,
+    ] = await Promise.all([
+      token.getName(),
+      token.getSymbol(),
+      token.getTotalSupply(),
+      token.getDecimals(),
+      token.getPriceForNextMint(),
+      token.getMaxSupply(),
+      token.getReserveToken(),
+      token.getSteps(),
+      token.getUsdRate({ amount: 1 }),
+      token.get24HoursUsdRate(),
+      token.getDetail(),
+    ])
+
+    return {
+      basic: { name, symbol, decimals },
+      supply: { totalSupply, maxSupply },
+      pricing: {
+        currentPrice,
+        usdRate,
+        usdRate24h: usdRate24h
+          ? {
+              changePercent: usdRate24h.changePercent,
+              previousRate: usdRate24h.previousUsdRate,
+            }
+          : null,
+      },
+      bonding: { reserveToken, steps },
+      details,
+    }
+  } catch (error) {
+    console.error('❌ Token analysis failed:', error)
+    throw error
+  }
+}
+```
+
+### NFT Collection Analysis
+
+```ts
+async function analyzeNFT(sdk: any, symbol: string) {
+  const nft = sdk.network('base').nft(symbol)
+
+  try {
+    const [name, symbol, totalSupply, contractURI, metadataURI, imageURI] = await Promise.all([
+      nft.getName(),
+      nft.getSymbol(),
+      nft.getTotalSupply(),
+      nft.getContractURI(),
+      nft.getMetadataUri(),
+      nft.getImageUri(),
+    ])
+
+    return {
+      basic: { name, symbol },
+      supply: { totalSupply },
+      metadata: { contractURI, metadataURI, imageURI },
+    }
+  } catch (error) {
+    console.error('❌ NFT analysis failed:', error)
+    throw error
+  }
+}
+```
+
+## 🚨 Error Handling & Troubleshooting
+
+### Common Token Errors
+
+#### "Token Does Not Exist"
+
+```ts
+const token = sdk.network('base').token('NONEXISTENT')
+const exists = await token.exists()
+
+if (!exists) {
+  // Token doesn't exist, create it or use existing token
+  await token.create({
+    name: 'New Token',
+    reserveToken: { address: '0x...', decimals: 18 },
+    curveData: {
+      /* curve config */
+    },
+  })
+}
+```
+
+#### "Insufficient Balance"
+
+```ts
+const token = sdk.network('base').token('CHICKEN')
+const userBalance = await token.getBalanceOf(userAddress)
+const requestedAmount = wei(100, 18)
+
+if (userBalance < requestedAmount) {
+  throw new Error(`Insufficient balance. Have: ${userBalance}, Need: ${requestedAmount}`)
+}
+```
+
+#### "Slippage Too High"
+
+```ts
+// Increase slippage tolerance
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(100, 18),
+    slippage: 500, // 5% instead of 1%
+    onSuccess: (receipt) => console.log('Success with higher slippage'),
+  })
+```
+
+#### "Invalid Amount"
+
+```ts
+// Ensure amount is positive and within limits
+const amount = wei(100, 18)
+if (amount <= 0n) {
+  throw new Error('Amount must be positive')
+}
+
+// Check against max supply
+const maxSupply = await token.getMaxSupply()
+const currentSupply = await token.getTotalSupply()
+if (currentSupply + amount > maxSupply) {
+  throw new Error('Would exceed max supply')
+}
+```
+
+### Common NFT Errors
+
+#### "NFT Collection Not Found"
+
+```ts
+const nft = sdk.network('base').nft('MISSING')
+const totalSupply = await nft.getTotalSupply()
+
+if (totalSupply === 0n) {
+  console.log('NFT collection is empty or does not exist')
+}
+```
+
+#### "Invalid Metadata URL"
+
+```ts
+// Validate metadata URL before creating
+const metadataUrl = 'ipfs://Qm...'
+if (!metadataUrl.startsWith('ipfs://') && !metadataUrl.startsWith('https://')) {
+  throw new Error('Invalid metadata URL format')
+}
+
+// Test URL accessibility (optional)
+try {
+  const response = await fetch(metadataUrl.replace('ipfs://', 'https://ipfs.io/ipfs/'))
+  if (!response.ok) {
+    throw new Error('Metadata URL not accessible')
+  }
+} catch (error) {
+  console.error('Metadata URL validation failed:', error)
+}
+```
+
+## 🎯 Best Practices
+
+### Token Creation Best Practices
+
+```ts
+// 1. Use descriptive names and symbols
+await sdk.network('base').token('MY_PROJECT_TOKEN').create({
+  name: 'My Project Governance Token',
+  // ... other params
+})
+
+// 2. Set reasonable curve parameters
+curveData: {
+  curveType: 'LINEAR',      // Start with linear for predictability
+  stepCount: 50,           // 50 steps for smooth curve
+  maxSupply: 1_000_000,    // Reasonable supply cap
+  initialMintingPrice: 0.001, // Low entry price
+  finalMintingPrice: 1     // Reasonable max price
+}
+
+// 3. Include creator allocation for liquidity
+creatorAllocation: wei(50000, 18) // 5% for creator/liquidity
+
+// 4. Set appropriate royalties
+buyRoyalty: 300,   // 3% buy royalty
+sellRoyalty: 300   // 3% sell royalty
+```
+
+### NFT Creation Best Practices
+
+```ts
+// 1. Use IPFS for metadata
+const metadataUrl = await sdk.ipfs.uploadMetadata({
+  filebaseApiKey: process.env.FILEBASE_KEY,
+  name: 'My NFT',
+  description: 'Unique digital artwork',
+  image: 'ipfs://Qm...',
+  attributes: [
+    { trait_type: 'Rarity', value: 'Legendary' },
+    { trait_type: 'Type', value: 'Artwork' },
+  ],
+})
+
+// 2. Create collection with metadata
+await sdk
+  .network('base')
+  .nft('MY_ART')
+  .create({
+    name: 'My Art Collection',
+    metadataUrl,
+    reserveToken: { address: '0x...', decimals: 18 },
+    curveData: {
+      curveType: 'LINEAR',
+      stepCount: 20,
+      maxSupply: 1000, // Limited supply for NFTs
+      initialMintingPrice: 0.1,
+      finalMintingPrice: 10,
+    },
+  })
+```
+
+### Trading Best Practices
+
+```ts
+// 1. Always check balances first
+const balance = await token.getBalanceOf(userAddress)
+if (balance < amount) {
+  throw new Error('Insufficient balance')
+}
+
+// 2. Use appropriate slippage
+const slippage = marketVolatility > 0.1 ? 500 : 100 // Higher slippage for volatile markets
+
+// 3. Implement proper error handling
+try {
+  await token.buy({
+    amount,
+    slippage,
+    onSuccess: (receipt) => {
+      console.log('Trade successful:', receipt.transactionHash)
+      // Update UI, refresh balances, etc.
+    },
+    onError: (error) => {
+      console.error('Trade failed:', error)
+      // Show user-friendly error message
+      // Offer retry with higher slippage
+    },
+  })
+} catch (error) {
+  // Handle network errors, wallet issues, etc.
+}
+```
+
+### Performance Optimization
+
+```ts
+// Batch read operations
+const [balance, price, usdRate, allowance] = await Promise.all([
+  token.getBalanceOf(address),
+  token.getPriceForNextMint(),
+  token.getUsdRate({ amount: 1 }),
+  token.getAllowance({ owner: address, spender: spenderAddress }),
+])
+
+// Cache frequently accessed data
+class TokenCache {
+  private cache = new Map()
+  private ttl = 30000 // 30 seconds
+
+  async getTokenData(symbol: string) {
+    const key = `token_${symbol}`
+    const cached = this.cache.get(key)
+
+    if (cached && Date.now() - cached.timestamp < this.ttl) {
+      return cached.data
+    }
+
+    const data = await this.fetchTokenData(symbol)
+    this.cache.set(key, { data, timestamp: Date.now() })
+    return data
+  }
+}
+```
+
+---
+
+**AI Assistants:** This guide covers every aspect of token and NFT operations. If you encounter any issues not covered here, reference the main LLM guide or debugging section. The core pattern will always guide you to the correct implementation! 🚀

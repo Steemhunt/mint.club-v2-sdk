@@ -1,0 +1,820 @@
+# 💎 Bond Operations — Complete LLM Guide
+
+> **For AI Assistants:** This comprehensive guide covers all bond operations in the Mint Club SDK. Use this when working with the bonding protocol, token discovery, or fee management.
+
+## ⚡ Core Bond Pattern
+
+```ts
+import { mintclub } from 'mint.club-v2-sdk'
+
+// Always follow this pattern for bonds:
+mintclub
+  .network('base') // Step 1: Select network
+  .bond // Step 2: Access bond module
+  .getCreationFee() // Step 3: Call bond operation
+```
+
+## 📋 Complete Bond Operations Guide
+
+### Fee Management
+
+**Pattern:** `sdk.network().bond.getCreationFee()`
+
+```ts
+// Get current token creation fee
+const creationFee = await sdk.network('base').bond.getCreationFee()
+console.log('Current creation fee:', creationFee, 'wei')
+
+// Convert to ETH for display
+const feeInEth = Number(creationFee) / 1e18
+console.log('Creation fee in ETH:', feeInEth)
+```
+
+### Token Discovery
+
+#### Get Tokens by Reserve Token
+
+**Pattern:** `sdk.network().bond.getTokensByReserveToken()`
+
+```ts
+// Get all tokens using WETH as reserve
+const wethTokens = await sdk.network('base').bond.getTokensByReserveToken({
+  reserveToken: '0x4200000000000000000000000000000000000006', // WETH on Base
+  start: 0, // Starting index
+  end: 50, // Ending index (max 100)
+})
+
+console.log('Tokens using WETH:', wethTokens.length)
+wethTokens.forEach((token) => {
+  console.log('- Token:', token.tokenAddress)
+  console.log('  Creator:', token.creator)
+  console.log('  Created:', new Date(Number(token.createdAt) * 1000))
+})
+```
+
+#### Get Tokens by Creator
+
+**Pattern:** `sdk.network().bond.getTokensByCreator()`
+
+```ts
+// Get all tokens created by an address
+const creatorTokens = await sdk.network('base').bond.getTokensByCreator({
+  creator: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+  start: 0,
+  end: 100,
+})
+
+console.log('Tokens by creator:', creatorTokens.length)
+creatorTokens.forEach((token, index) => {
+  console.log(`${index + 1}. ${token.tokenAddress}`)
+  console.log(`   Created: ${new Date(Number(token.createdAt) * 1000)}`)
+})
+```
+
+#### Get All Tokens
+
+**Pattern:** `sdk.network().bond.getList()`
+
+```ts
+// Get complete token list
+const allTokens = await sdk.network('base').bond.getList({
+  start: 0,
+  end: 1000, // Large batch for comprehensive list
+})
+
+console.log('Total tokens on Mint Club:', allTokens.length)
+
+// Group by creation date
+const tokensByMonth = allTokens.reduce(
+  (acc, token) => {
+    const month = new Date(Number(token.createdAt) * 1000).toISOString().slice(0, 7)
+    acc[month] = (acc[month] || 0) + 1
+    return acc
+  },
+  {} as Record<string, number>,
+)
+
+console.log('Tokens created by month:', tokensByMonth)
+```
+
+### Advanced Token Analysis
+
+#### Comprehensive Token Statistics
+
+```ts
+async function analyzeTokenEcosystem(sdk: any, network: string) {
+  const bond = sdk.network(network).bond
+
+  try {
+    // Get all tokens
+    const allTokens = await bond.getList({ start: 0, end: 10000 })
+    console.log(`📊 Total tokens on ${network}:`, allTokens.length)
+
+    // Analyze by reserve token
+    const reserveTokenStats = allTokens.reduce(
+      (acc, token) => {
+        acc[token.reserveToken] = (acc[token.reserveToken] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>,
+    )
+
+    console.log('🎯 Tokens by reserve token:')
+    Object.entries(reserveTokenStats).forEach(([reserveToken, count]) => {
+      console.log(`   ${reserveToken}: ${count} tokens`)
+    })
+
+    // Analyze by creator activity
+    const creatorStats = allTokens.reduce(
+      (acc, token) => {
+        acc[token.creator] = (acc[token.creator] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>,
+    )
+
+    const topCreators = Object.entries(creatorStats)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+
+    console.log('🏆 Top 10 creators:')
+    topCreators.forEach(([creator, count], index) => {
+      console.log(`   ${index + 1}. ${creator.slice(0, 10)}...: ${count} tokens`)
+    })
+
+    // Analyze creation timeline
+    const creationTimeline = allTokens.map((token) => Number(token.createdAt)).sort((a, b) => a - b)
+
+    const oldestToken = new Date(creationTimeline[0] * 1000)
+    const newestToken = new Date(creationTimeline[creationTimeline.length - 1] * 1000)
+
+    console.log('📅 Creation timeline:')
+    console.log(`   Oldest: ${oldestToken.toISOString().split('T')[0]}`)
+    console.log(`   Newest: ${newestToken.toISOString().split('T')[0]}`)
+
+    // Calculate average tokens per day
+    const daysDiff = (creationTimeline[creationTimeline.length - 1] - creationTimeline[0]) / 86400
+    const avgPerDay = allTokens.length / daysDiff
+    console.log(`   Average per day: ${avgPerDay.toFixed(2)}`)
+
+    return {
+      totalTokens: allTokens.length,
+      reserveTokenStats,
+      topCreators,
+      oldestToken: oldestToken.getTime(),
+      newestToken: newestToken.getTime(),
+      avgTokensPerDay: avgPerDay,
+    }
+  } catch (error) {
+    console.error('❌ Ecosystem analysis failed:', error)
+    throw error
+  }
+}
+```
+
+#### Creator Analytics
+
+```ts
+async function analyzeCreator(sdk: any, creatorAddress: string) {
+  const bond = sdk.network('base').bond
+
+  try {
+    const creatorTokens = await bond.getTokensByCreator({
+      creator: creatorAddress,
+      start: 0,
+      end: 1000,
+    })
+
+    console.log(`👨‍💻 Creator ${creatorAddress.slice(0, 10)}... analysis:`)
+    console.log(`   Total tokens created: ${creatorTokens.length}`)
+
+    if (creatorTokens.length === 0) return null
+
+    // Analyze creation frequency
+    const creationDates = creatorTokens.map((token) => Number(token.createdAt)).sort((a, b) => a - b)
+
+    const firstCreation = new Date(creationDates[0] * 1000)
+    const lastCreation = new Date(creationDates[creationDates.length - 1] * 1000)
+
+    console.log(`   First token: ${firstCreation.toISOString().split('T')[0]}`)
+    console.log(`   Latest token: ${lastCreation.toISOString().split('T')[0]}`)
+
+    // Calculate average time between creations
+    if (creationDates.length > 1) {
+      const intervals = []
+      for (let i = 1; i < creationDates.length; i++) {
+        intervals.push(creationDates[i] - creationDates[i - 1])
+      }
+      const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length
+      console.log(`   Avg days between tokens: ${(avgInterval / 86400).toFixed(1)}`)
+    }
+
+    // Analyze reserve token preferences
+    const reserveTokens = creatorTokens.reduce(
+      (acc, token) => {
+        acc[token.reserveToken] = (acc[token.reserveToken] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>,
+    )
+
+    console.log('   Reserve token preferences:')
+    Object.entries(reserveTokens).forEach(([reserveToken, count]) => {
+      console.log(`     ${reserveToken.slice(0, 10)}...: ${count} tokens`)
+    })
+
+    return {
+      totalTokens: creatorTokens.length,
+      firstCreation: creationDates[0],
+      lastCreation: creationDates[creationDates.length - 1],
+      reserveTokenPreferences: reserveTokens,
+    }
+  } catch (error) {
+    console.error('❌ Creator analysis failed:', error)
+    throw error
+  }
+}
+```
+
+## 🔧 Advanced Bond Operations
+
+### Token Discovery Engine
+
+**Comprehensive Token Search:**
+
+```ts
+class TokenDiscoveryEngine {
+  constructor(private sdk: any) {}
+
+  async searchTokens(criteria: {
+    reserveToken?: string
+    creator?: string
+    minCreationDate?: number
+    maxCreationDate?: number
+    limit?: number
+  }) {
+    const bond = this.sdk.network('base').bond
+
+    try {
+      // Get all tokens matching criteria
+      let allTokens = []
+
+      if (criteria.creator) {
+        // Search by creator
+        allTokens = await bond.getTokensByCreator({
+          creator: criteria.creator,
+          start: 0,
+          end: criteria.limit || 1000,
+        })
+      } else if (criteria.reserveToken) {
+        // Search by reserve token
+        allTokens = await bond.getTokensByReserveToken({
+          reserveToken: criteria.reserveToken,
+          start: 0,
+          end: criteria.limit || 1000,
+        })
+      } else {
+        // Get all tokens
+        allTokens = await bond.getList({
+          start: 0,
+          end: criteria.limit || 1000,
+        })
+      }
+
+      // Apply date filters
+      if (criteria.minCreationDate || criteria.maxCreationDate) {
+        allTokens = allTokens.filter((token) => {
+          const createdAt = Number(token.createdAt)
+          const afterMin = !criteria.minCreationDate || createdAt >= criteria.minCreationDate
+          const beforeMax = !criteria.maxCreationDate || createdAt <= criteria.maxCreationDate
+          return afterMin && beforeMax
+        })
+      }
+
+      // Sort by creation date (newest first)
+      allTokens.sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
+
+      return allTokens
+    } catch (error) {
+      console.error('❌ Token search failed:', error)
+      throw error
+    }
+  }
+
+  async getTrendingTokens(timeframeDays: number = 7) {
+    const bond = this.sdk.network('base').bond
+
+    try {
+      const cutoffTime = Math.floor(Date.now() / 1000) - timeframeDays * 24 * 60 * 60
+      const recentTokens = await bond.getList({ start: 0, end: 5000 })
+
+      // Filter to recent tokens
+      const trendingTokens = recentTokens
+        .filter((token) => Number(token.createdAt) >= cutoffTime)
+        .sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
+
+      console.log(`📈 Trending tokens (${timeframeDays} days):`)
+      trendingTokens.slice(0, 10).forEach((token, index) => {
+        const createdAt = new Date(Number(token.createdAt) * 1000)
+        console.log(
+          `${index + 1}. ${token.tokenAddress.slice(0, 10)}... by ${token.creator.slice(0, 10)}... (${createdAt.toISOString().split('T')[0]})`,
+        )
+      })
+
+      return trendingTokens
+    } catch (error) {
+      console.error('❌ Trending tokens fetch failed:', error)
+      throw error
+    }
+  }
+}
+```
+
+### Fee Optimization
+
+**Fee Analysis and Optimization:**
+
+```ts
+async function analyzeCreationFees(sdk: any) {
+  const networks = ['ethereum', 'base', 'arbitrum', 'optimism', 'polygon']
+
+  console.log('💰 Creation Fee Analysis Across Networks:')
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+
+  const feeAnalysis = []
+
+  for (const network of networks) {
+    try {
+      const fee = await sdk.network(network).bond.getCreationFee()
+      const feeInEth = Number(fee) / 1e18
+
+      // Estimate gas cost for token creation (rough estimate)
+      const estimatedGas = 200000n // Rough estimate for token creation
+      const gasPrice = 20000000000n // 20 gwei
+      const gasCost = estimatedGas * gasPrice
+      const totalCost = fee + gasCost
+      const totalCostEth = Number(totalCost) / 1e18
+
+      feeAnalysis.push({
+        network,
+        creationFee: fee,
+        creationFeeEth: feeInEth,
+        estimatedGasCost: gasCost,
+        estimatedGasCostEth: Number(gasCost) / 1e18,
+        totalEstimatedCost: totalCost,
+        totalEstimatedCostEth: totalCostEth,
+      })
+
+      console.log(
+        `${network.padEnd(10)} | ${feeInEth.toFixed(4).padStart(8)} ETH | ${totalCostEth.toFixed(4).padStart(8)} ETH`,
+      )
+    } catch (error) {
+      console.log(`${network.padEnd(10)} | Error: ${error.message}`)
+    }
+  }
+
+  // Find cheapest network
+  const validFees = feeAnalysis.filter((f) => f.creationFee)
+  if (validFees.length > 0) {
+    const cheapest = validFees.reduce((min, current) =>
+      current.totalEstimatedCost < min.totalEstimatedCost ? current : min,
+    )
+
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.log(`💡 Cheapest network: ${cheapest.network} (${cheapest.totalEstimatedCostEth.toFixed(4)} ETH total)`)
+  }
+
+  return feeAnalysis
+}
+```
+
+### Batch Token Analysis
+
+**Analyze Multiple Tokens Efficiently:**
+
+```ts
+async function batchTokenAnalysis(sdk: any, tokenAddresses: string[]) {
+  const bond = sdk.network('base').bond
+
+  try {
+    // Get all tokens to find our targets
+    const allTokens = await bond.getList({ start: 0, end: 10000 })
+    const tokenMap = new Map(allTokens.map((t) => [t.tokenAddress.toLowerCase(), t]))
+
+    const analysisResults = []
+
+    for (const address of tokenAddresses) {
+      const tokenData = tokenMap.get(address.toLowerCase())
+
+      if (!tokenData) {
+        analysisResults.push({
+          address,
+          found: false,
+          error: 'Token not found in Mint Club',
+        })
+        continue
+      }
+
+      // Analyze token
+      const createdDate = new Date(Number(tokenData.createdAt) * 1000)
+      const daysSinceCreation = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24))
+
+      analysisResults.push({
+        address,
+        found: true,
+        creator: tokenData.creator,
+        reserveToken: tokenData.reserveToken,
+        createdAt: tokenData.createdAt,
+        createdDate: createdDate.toISOString(),
+        daysSinceCreation,
+        age:
+          daysSinceCreation < 30
+            ? 'New'
+            : daysSinceCreation < 90
+              ? 'Recent'
+              : daysSinceCreation < 365
+                ? 'Established'
+                : 'Veteran',
+      })
+    }
+
+    // Summary statistics
+    const foundTokens = analysisResults.filter((r) => r.found)
+    const notFoundTokens = analysisResults.filter((r) => !r.found)
+
+    console.log('📊 Batch Analysis Summary:')
+    console.log(`   Found: ${foundTokens.length}/${tokenAddresses.length}`)
+    console.log(`   Not found: ${notFoundTokens.length}`)
+
+    if (foundTokens.length > 0) {
+      const ageGroups = foundTokens.reduce(
+        (acc, token: any) => {
+          acc[token.age] = (acc[token.age] || 0) + 1
+          return acc
+        },
+        {} as Record<string, number>,
+      )
+
+      console.log('   Age distribution:', ageGroups)
+    }
+
+    return analysisResults
+  } catch (error) {
+    console.error('❌ Batch analysis failed:', error)
+    throw error
+  }
+}
+```
+
+## 🚨 Error Handling & Troubleshooting
+
+### Common Bond Errors
+
+#### "Network Not Supported"
+
+```ts
+// Check if network is supported
+const supportedNetworks = ['ethereum', 'base', 'arbitrum', 'optimism', 'polygon', 'avalanche', 'bsc']
+
+if (!supportedNetworks.includes(networkName)) {
+  throw new Error(`Network '${networkName}' not supported. Supported: ${supportedNetworks.join(', ')}`)
+}
+
+// Verify network connection
+try {
+  await sdk.network(networkName).bond.getCreationFee()
+  console.log('✅ Network connection successful')
+} catch (error) {
+  console.error('❌ Network connection failed:', error)
+}
+```
+
+#### "Token Not Found"
+
+```ts
+// Check if token exists in the list
+const bond = sdk.network('base').bond
+const allTokens = await bond.getList({ start: 0, end: 10000 })
+const tokenExists = allTokens.some((token) => token.tokenAddress.toLowerCase() === searchAddress.toLowerCase())
+
+if (!tokenExists) {
+  console.log('❌ Token not found in Mint Club')
+  console.log('💡 This might be a regular ERC20 token, not a Mint Club bonded token')
+}
+```
+
+#### "Invalid Parameters"
+
+```ts
+// Validate pagination parameters
+function validatePagination(start: number, end: number) {
+  if (start < 0) {
+    throw new Error('Start index cannot be negative')
+  }
+
+  if (end <= start) {
+    throw new Error('End index must be greater than start index')
+  }
+
+  if (end - start > 1000) {
+    throw new Error('Cannot fetch more than 1000 tokens at once')
+  }
+
+  return { start, end }
+}
+
+// Validate address format
+function validateAddress(address: string) {
+  if (!address.startsWith('0x')) {
+    throw new Error('Address must start with 0x')
+  }
+
+  if (address.length !== 42) {
+    throw new Error('Address must be 42 characters long')
+  }
+
+  return address.toLowerCase()
+}
+```
+
+### Network-Specific Issues
+
+#### RPC Rate Limiting
+
+```ts
+// Implement retry logic with exponential backoff
+async function retryWithBackoff<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000,
+): Promise<T> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation()
+    } catch (error: any) {
+      if (attempt === maxRetries) {
+        throw error
+      }
+
+      // Check if it's a rate limit error
+      if (error.message?.includes('rate limit') || error.message?.includes('429')) {
+        const delay = baseDelay * Math.pow(2, attempt - 1)
+        console.log(`⏳ Rate limited, waiting ${delay}ms before retry ${attempt}`)
+        await new Promise((resolve) => setTimeout(resolve, delay))
+      } else {
+        // Not a rate limit error, don't retry
+        throw error
+      }
+    }
+  }
+
+  throw new Error('Max retries exceeded')
+}
+
+// Usage
+const tokens = await retryWithBackoff(() => sdk.network('base').bond.getList({ start: 0, end: 100 }))
+```
+
+#### Large Dataset Handling
+
+```ts
+// Handle large token lists with pagination
+async function fetchAllTokens(sdk: any, network: string, batchSize: number = 1000) {
+  const bond = sdk.network(network).bond
+  const allTokens = []
+  let start = 0
+
+  while (true) {
+    try {
+      const batch = await bond.getList({
+        start,
+        end: start + batchSize,
+      })
+
+      if (batch.length === 0) {
+        break // No more tokens
+      }
+
+      allTokens.push(...batch)
+      start += batchSize
+
+      console.log(`📊 Fetched ${allTokens.length} tokens so far...`)
+
+      // Rate limiting between batches
+      if (batch.length === batchSize) {
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+    } catch (error) {
+      console.error(`❌ Failed to fetch batch starting at ${start}:`, error)
+      break
+    }
+  }
+
+  console.log(`✅ Successfully fetched ${allTokens.length} total tokens`)
+  return allTokens
+}
+```
+
+## 🎯 Best Practices
+
+### Efficient Data Fetching
+
+```ts
+// 1. Use appropriate batch sizes
+const optimalBatchSize = 500 // Balance between speed and reliability
+
+// 2. Implement caching for frequently accessed data
+class BondDataCache {
+  private cache = new Map()
+  private ttl = 300000 // 5 minutes
+
+  async getTokensByCreator(creator: string) {
+    const key = `creator_${creator}`
+    const cached = this.cache.get(key)
+
+    if (cached && Date.now() - cached.timestamp < this.ttl) {
+      return cached.data
+    }
+
+    const data = await sdk.network('base').bond.getTokensByCreator({
+      creator,
+      start: 0,
+      end: 1000,
+    })
+
+    this.cache.set(key, { data, timestamp: Date.now() })
+    return data
+  }
+}
+
+// 3. Use parallel requests when possible
+async function parallelTokenFetch(sdk: any, addresses: string[]) {
+  const promises = addresses.map((address) =>
+    sdk.network('base').bond.getTokensByCreator({
+      creator: address,
+      start: 0,
+      end: 100,
+    }),
+  )
+
+  return await Promise.allSettled(promises)
+}
+```
+
+### Error Recovery Strategies
+
+```ts
+// 1. Implement fallback networks
+async function getCreationFeeWithFallback(sdk: any, primaryNetwork: string) {
+  const fallbackNetworks = ['base', 'ethereum', 'arbitrum']
+
+  for (const network of [primaryNetwork, ...fallbackNetworks]) {
+    try {
+      const fee = await sdk.network(network).bond.getCreationFee()
+      console.log(`✅ Got fee from ${network}:`, fee)
+      return { network, fee }
+    } catch (error) {
+      console.log(`❌ Failed to get fee from ${network}:`, error.message)
+    }
+  }
+
+  throw new Error('Unable to get creation fee from any network')
+}
+
+// 2. Graceful degradation
+async function getTokenListWithFallback(sdk: any) {
+  try {
+    // Try to get comprehensive list
+    return await sdk.network('base').bond.getList({ start: 0, end: 1000 })
+  } catch (error) {
+    console.log('⚠️ Full list failed, trying smaller batch')
+
+    try {
+      // Fallback to smaller batch
+      return await sdk.network('base').bond.getList({ start: 0, end: 100 })
+    } catch (error) {
+      console.log('⚠️ Small batch failed, returning empty array')
+      return []
+    }
+  }
+}
+```
+
+### Performance Monitoring
+
+```ts
+// Monitor API performance
+class BondPerformanceMonitor {
+  private metrics: Map<string, number[]> = new Map()
+
+  async measureOperation(operationName: string, operation: () => Promise<any>) {
+    const startTime = Date.now()
+
+    try {
+      const result = await operation()
+      const duration = Date.now() - startTime
+
+      this.recordMetric(operationName, duration)
+      console.log(`✅ ${operationName} completed in ${duration}ms`)
+
+      return result
+    } catch (error) {
+      const duration = Date.now() - startTime
+      console.log(`❌ ${operationName} failed after ${duration}ms`)
+      throw error
+    }
+  }
+
+  private recordMetric(operation: string, duration: number) {
+    if (!this.metrics.has(operation)) {
+      this.metrics.set(operation, [])
+    }
+
+    const metrics = this.metrics.get(operation)!
+    metrics.push(duration)
+
+    // Keep only last 50 measurements
+    if (metrics.length > 50) {
+      metrics.shift()
+    }
+  }
+
+  getAverageTime(operation: string): number {
+    const metrics = this.metrics.get(operation) || []
+    if (metrics.length === 0) return 0
+
+    return metrics.reduce((a, b) => a + b, 0) / metrics.length
+  }
+
+  logPerformanceReport() {
+    console.log('📊 Bond API Performance Report:')
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+
+    for (const [operation, times] of this.metrics.entries()) {
+      const avg = this.getAverageTime(operation)
+      const min = Math.min(...times)
+      const max = Math.max(...times)
+
+      console.log(
+        `${operation.padEnd(25)} | ${avg.toFixed(0).padStart(4)}ms avg | ${min.toFixed(0).padStart(3)}ms min | ${max.toFixed(0).padStart(3)}ms max | ${times.length.toString().padStart(2)} calls`,
+      )
+    }
+  }
+}
+```
+
+### Data Validation
+
+```ts
+// Validate token data
+function validateTokenData(token: any) {
+  const requiredFields = ['tokenAddress', 'creator', 'reserveToken', 'createdAt']
+
+  for (const field of requiredFields) {
+    if (!token[field]) {
+      throw new Error(`Missing required field: ${field}`)
+    }
+  }
+
+  // Validate address format
+  if (!token.tokenAddress.startsWith('0x') || token.tokenAddress.length !== 42) {
+    throw new Error('Invalid token address format')
+  }
+
+  if (!token.creator.startsWith('0x') || token.creator.length !== 42) {
+    throw new Error('Invalid creator address format')
+  }
+
+  // Validate timestamp
+  const createdAt = Number(token.createdAt)
+  const now = Math.floor(Date.now() / 1000)
+  const oneYearAgo = now - 365 * 24 * 60 * 60
+
+  if (createdAt < oneYearAgo || createdAt > now + 86400) {
+    throw new Error('Invalid creation timestamp')
+  }
+
+  return true
+}
+
+// Validate bond parameters
+function validateBondParams(params: any) {
+  if (params.start < 0) {
+    throw new Error('Start index cannot be negative')
+  }
+
+  if (params.end <= params.start) {
+    throw new Error('End index must be greater than start index')
+  }
+
+  if (params.end - params.start > 1000) {
+    throw new Error('Cannot request more than 1000 items')
+  }
+
+  return params
+}
+```
+
+---
+
+**AI Assistants:** This guide covers all bond operations from fee management to comprehensive token discovery. Remember to implement proper pagination for large datasets, use caching for frequently accessed data, and handle rate limits gracefully. For production applications, consider implementing the performance monitoring patterns shown above! 💎
