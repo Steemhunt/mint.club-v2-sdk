@@ -4,7 +4,7 @@ description: Get a user's staking information for a specific pool
 
 # getUserPoolStake
 
-Get detailed information about a user's stake in a specific pool, including staked amount and claimed rewards.
+Get detailed information about a user's stake in a specific pool, including staked amount, claimed rewards, fees paid, and reward debt.
 
 ## Usage
 
@@ -20,17 +20,17 @@ console.log('User stake info:', userStake)
 
 ## Return Value
 
-`Promise<UserPoolStake>`
+`Promise<UserPoolStakeInfo>`
 
-Returns a promise that resolves to a `UserPoolStake` object containing:
+Returns a promise that resolves to a `UserPoolStakeInfo` object containing:
 
 ```ts
-type UserPoolStake = readonly [
-  bigint, // stakedAmount - Amount of tokens staked
-  bigint, // claimedTotal - Total rewards claimed so far
-  bigint, // feeTotal - Total fees paid on claims
-  bigint, // rewardDebt - Internal accounting for rewards
-]
+type UserPoolStakeInfo = {
+  stakedAmount: bigint // Amount of tokens staked
+  claimedTotal: bigint // Total rewards claimed so far
+  feeTotal: bigint // Total fees paid on claims
+  rewardDebt: bigint // Internal accounting for rewards
+}
 ```
 
 ## Parameters
@@ -80,8 +80,8 @@ const userStake = await mintclub.network('base').stake.getUserPoolStake({
 const poolInfo = await mintclub.network('base').stake.getPool({ poolId })
 const { stakingToken, rewardToken } = poolInfo
 
-// Destructure the tuple
-const [stakedAmount, claimedTotal, feeTotal, rewardDebt] = userStake
+// Access properties directly from the object
+const { stakedAmount, claimedTotal, feeTotal, rewardDebt } = userStake
 
 // Format amounts
 const stakedAmountFormatted = formatUnits(stakedAmount, stakingToken.decimals)
@@ -92,6 +92,7 @@ console.log(`User Stake Information for Pool ${poolId}:`)
 console.log(`Staked: ${stakedAmountFormatted} ${stakingToken.symbol}`)
 console.log(`Claimed: ${claimedTotalFormatted} ${rewardToken.symbol}`)
 console.log(`Fees Paid: ${feeTotalFormatted} ${rewardToken.symbol}`)
+console.log(`Reward Debt: ${rewardDebt}`)
 
 // Check if user has any stake
 if (stakedAmount > 0n) {

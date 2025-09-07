@@ -13,6 +13,7 @@ import {
   StakeParams,
   UnstakeParams,
 } from '../types/stake.types';
+import { CommonWriteParams } from '../types/transactions.types';
 
 export class Stake {
   protected chainId: SdkSupportedChainIds;
@@ -94,12 +95,19 @@ export class Stake {
     });
   }
 
-  public getUserPoolStake(params: GetUserPoolStakeParams) {
+  public async getUserPoolStake(params: GetUserPoolStakeParams) {
     const { user, poolId } = params;
-    return stakeContract.network(this.chainId).read({
+    const [stakedAmount, claimedTotal, feeTotal, rewardDebt] = await stakeContract.network(this.chainId).read({
       functionName: 'userPoolStake',
       args: [user, BigInt(poolId)],
     });
+
+    return {
+      stakedAmount,
+      claimedTotal,
+      feeTotal,
+      rewardDebt,
+    };
   }
 
   public getClaimableReward(params: GetClaimableRewardParams) {
@@ -179,48 +187,48 @@ export class Stake {
     });
   }
 
-  public updateClaimFee(params: { claimFee: bigint }) {
-    const { claimFee } = params;
+  public updateClaimFee(params: { claimFee: bigint } & CommonWriteParams) {
+    const { claimFee, ...writeParams } = params;
 
     return stakeContract.network(this.chainId).write({
-      ...params,
+      ...writeParams,
       functionName: 'updateClaimFee',
       args: [claimFee],
     });
   }
 
-  public updateCreationFee(params: { creationFee: bigint }) {
-    const { creationFee } = params;
+  public updateCreationFee(params: { creationFee: bigint } & CommonWriteParams) {
+    const { creationFee, ...writeParams } = params;
 
     return stakeContract.network(this.chainId).write({
-      ...params,
+      ...writeParams,
       functionName: 'updateCreationFee',
       args: [creationFee],
     });
   }
 
-  public updateProtocolBeneficiary(params: { protocolBeneficiary: `0x${string}` }) {
-    const { protocolBeneficiary } = params;
+  public updateProtocolBeneficiary(params: { protocolBeneficiary: `0x${string}` } & CommonWriteParams) {
+    const { protocolBeneficiary, ...writeParams } = params;
 
     return stakeContract.network(this.chainId).write({
-      ...params,
+      ...writeParams,
       functionName: 'updateProtocolBeneficiary',
       args: [protocolBeneficiary],
     });
   }
 
-  public renounceOwnership(params: {} = {}) {
+  public renounceOwnership(params: CommonWriteParams = {}) {
     return stakeContract.network(this.chainId).write({
       ...params,
       functionName: 'renounceOwnership',
     });
   }
 
-  public transferOwnership(params: { newOwner: `0x${string}` }) {
-    const { newOwner } = params;
+  public transferOwnership(params: { newOwner: `0x${string}` } & CommonWriteParams) {
+    const { newOwner, ...writeParams } = params;
 
     return stakeContract.network(this.chainId).write({
-      ...params,
+      ...writeParams,
       functionName: 'transferOwnership',
       args: [newOwner],
     });
