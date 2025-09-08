@@ -1,12 +1,5 @@
-import MerkleTree from 'merkletreejs';
+import { MerkleTree } from 'merkletreejs';
 import { getAddress, isAddress, keccak256 } from 'viem';
-import { baseFetcher } from '../utils/api';
-import { getTwentyFourHoursAgoTimestamp } from '../utils';
-import { chainIdToViemChain, SdkSupportedChainIds, getMintClubContractAddress, toNumber, over } from '../exports';
-import { retry } from '../utils/retry';
-import { oneInchContract } from '../contracts';
-import { FALLBACK_USD_MAP } from '../constants/usd/fallbackUsdMap';
-import { Client } from './ClientHelper';
 import {
   apeChain,
   arbitrum,
@@ -32,6 +25,13 @@ import {
   unichain,
   zora,
 } from 'viem/chains';
+import { FALLBACK_USD_MAP } from '../constants/usd/fallbackUsdMap';
+import { oneInchContract } from '../contracts';
+import { SdkSupportedChainIds, chainIdToViemChain, getMintClubContractAddress, over, toNumber } from '../exports';
+import { getTwentyFourHoursAgoTimestamp } from '../utils';
+import { baseFetcher } from '../utils/api';
+import { retry } from '../utils/retry';
+import { Client } from './ClientHelper';
 
 export class Utils {
   // ETH cache for efficient pricing (TOKEN -> ETH -> USD)

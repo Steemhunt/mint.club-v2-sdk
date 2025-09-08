@@ -1,13 +1,16 @@
-import MerkleTree from 'merkletreejs';
+import fetch from 'cross-fetch';
+import { MerkleTree } from 'merkletreejs';
 import { Chain, isAddress, keccak256, maxUint256 } from 'viem';
+import { kaia } from 'viem/chains';
 import { ContractNames, SdkSupportedChainIds, TokenType, getMintClubContractAddress } from '../constants/contracts';
+import { FALLBACK_USD_MAP } from '../constants/usd/fallbackUsdMap';
 import { bondContract, erc1155Contract, erc20Contract, zapContract } from '../contracts';
 import {
   AirdropContainsInvalidWalletError,
+  MetadataValidationError,
   SymbolNotDefinedError,
   TokenAlreadyExistsError,
   WalletNotConnectedError,
-  MetadataValidationError,
 } from '../errors/sdk.errors';
 import { WRAPPED_NATIVE_TOKENS, getChain, toNumber } from '../exports';
 import {
@@ -23,14 +26,11 @@ import { ApproveParams, CommonWriteParams, TradeType, WriteTransactionCallbacks 
 import { getTwentyFourHoursAgoTimestamp, wei } from '../utils';
 import { computeCreate2Address } from '../utils/addresses';
 import { generateCreateArgs } from '../utils/bond';
+import { isFalse } from '../utils/logic';
 import { Airdrop } from './AirdropHelper';
 import { Client } from './ClientHelper';
 import { Ipfs } from './IpfsHelper';
-import { isFalse } from '../utils/logic';
-import fetch from 'cross-fetch';
 import { Utils } from './UtilsHelper';
-import { kaia } from 'viem/chains';
-import { FALLBACK_USD_MAP } from '../constants/usd/fallbackUsdMap';
 
 interface MetadataCommonParams {
   backgroundImage?: File | null;
