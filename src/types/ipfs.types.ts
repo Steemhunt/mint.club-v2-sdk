@@ -12,7 +12,7 @@ export type NFTMetadata = {
 
 export type MediaUploadParams = {
   filebaseApiKey: string;
-  media: Blob;
+  media: Blob | Uint8Array;
 };
 
 export type MetadataUploadParams = {

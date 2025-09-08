@@ -3,10 +3,18 @@ import { FilebaseKeyNeededErrror, InvalidImageProvidedError } from '../errors/sd
 import { IpfsHashUrl, MediaUploadParams, MetadataUploadParams, NFTMetadata } from '../types/ipfs.types';
 
 export class Ipfs {
-  public async add(apiKey: string, blob: Blob): Promise<CIDString> {
+  public async add(apiKey: string, data: Blob | Uint8Array): Promise<CIDString> {
     if (!apiKey) throw new FilebaseKeyNeededErrror();
 
     const client = new FilebaseClient({ token: apiKey });
+
+    let blob: Blob;
+    if (data instanceof Uint8Array) {
+      blob = new Blob([data], { type: 'application/json' });
+    } else {
+      blob = data;
+    }
+
     const cid = await client.storeBlob(blob);
     return cid;
   }
@@ -96,7 +104,9 @@ export class Ipfs {
 
     const metadata = JSON.stringify(finalMetadata);
     const metadataBuffer = new Blob([metadata], { type: 'application/json' });
-    const jsonHash = await this.add(filebaseApiKey, metadataBuffer);
+    const arrayBuffer = await metadataBuffer.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    const jsonHash = await this.add(filebaseApiKey, uint8Array);
 
     return `ipfs://${jsonHash}`;
   }

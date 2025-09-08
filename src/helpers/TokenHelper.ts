@@ -943,7 +943,12 @@ export class Token<T extends TokenType> {
 
     const json = JSON.stringify(wallets, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
-    const ipfsCID = await this.ipfsHelper.add(filebaseApiKey, blob);
+
+    // Convert Blob to Uint8Array for better compatibility
+    const arrayBuffer = await blob.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    const ipfsCID = await this.ipfsHelper.add(filebaseApiKey, uint8Array);
 
     return this.airdropHelper.createAirdrop({
       token: this.tokenAddress,
