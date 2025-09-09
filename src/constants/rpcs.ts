@@ -1,13 +1,17 @@
 import { Chain, FallbackTransportConfig, HttpTransportConfig, http } from 'viem';
 import {
+  apeChain,
   arbitrum,
   avalanche,
   base,
+  baseSepolia,
   blast,
   bsc,
   cyber,
   cyberTestnet,
   degen,
+  ham,
+  hashkey,
   kaia,
   mainnet,
   optimism,
@@ -17,9 +21,6 @@ import {
   shibariumTestnet,
   unichain,
   zora,
-  apeChain,
-  hashkey,
-  ham,
 } from 'viem/chains';
 
 const overId = 54176;
@@ -219,10 +220,7 @@ export const RPCS: Array<RPCList> = [
   },
   {
     id: hashkey.id,
-    rpcs: [
-      'https://mainnet.hsk.xyz',
-      'https://hashkey.drpc.org',
-    ],
+    rpcs: ['https://mainnet.hsk.xyz', 'https://hashkey.drpc.org'],
   },
   {
     id: overId,
@@ -233,6 +231,14 @@ export const RPCS: Array<RPCList> = [
     rpcs: [
       'https://rpc.zora.energy', // ✅ - All checks passed
       'https://zora.drpc.org', // ✅ - All checks passed
+    ],
+  },
+  {
+    id: baseSepolia.id,
+    rpcs: [
+      'https://sepolia.base.org',
+      'https://base-sepolia.drpc.org',
+      'https://base-sepolia.api.onfinality.io/public',
     ],
   },
 ];
