@@ -26,7 +26,6 @@ import { ApproveParams, CommonWriteParams, TradeType, WriteTransactionCallbacks 
 import { getTwentyFourHoursAgoTimestamp, wei } from '../utils';
 import { computeCreate2Address } from '../utils/addresses';
 import { generateCreateArgs } from '../utils/bond';
-import { isFalse } from '../utils/logic';
 import { Airdrop } from './AirdropHelper';
 import { Client } from './ClientHelper';
 import { Ipfs } from './IpfsHelper';
@@ -275,7 +274,18 @@ export class Token<T extends TokenType> {
         if (blockNumber === undefined) {
           const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: reserve.address });
           if (llama !== undefined) {
-            return { usdRate: llama, reserveToken: reserve, path: [] } as const;
+            return {
+              usdRate: llama,
+              reserveToken: reserve,
+              path: [
+                {
+                  address: reserve.address as `0x${string}`,
+                  method: 'defillama' as const,
+                  note: 'defillama api',
+                  rate: llama,
+                },
+              ],
+            } as const;
           }
         } else {
           const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
@@ -286,7 +296,18 @@ export class Token<T extends TokenType> {
               timestamp: ts,
             });
             if (llama !== undefined) {
-              return { usdRate: llama, reserveToken: reserve, path: [] } as const;
+              return {
+                usdRate: llama,
+                reserveToken: reserve,
+                path: [
+                  {
+                    address: reserve.address as `0x${string}`,
+                    method: 'defillama' as const,
+                    note: 'defillama api',
+                    rate: llama,
+                  },
+                ],
+              } as const;
             }
           }
         }
@@ -311,12 +332,23 @@ export class Token<T extends TokenType> {
       ...(remap.chainId === this.chainId && blockNumber !== undefined ? { blockNumber } : {}),
     });
 
-    if (isFalse(rateData)) {
+    if (!rateData) {
       // Fallback to DefiLlama for reserve token
       if (blockNumber === undefined) {
         const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: reserve.address });
         if (llama !== undefined) {
-          return { usdRate: llama, reserveToken: reserve, path: [] } as const;
+          return {
+            usdRate: llama,
+            reserveToken: reserve,
+            path: [
+              {
+                address: reserve.address as `0x${string}`,
+                method: 'defillama' as const,
+                note: 'defillama api',
+                rate: llama,
+              },
+            ],
+          } as const;
         }
       } else {
         const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
@@ -327,7 +359,18 @@ export class Token<T extends TokenType> {
             timestamp: ts,
           });
           if (llama !== undefined) {
-            return { usdRate: llama, reserveToken: reserve, path: [] } as const;
+            return {
+              usdRate: llama,
+              reserveToken: reserve,
+              path: [
+                {
+                  address: reserve.address as `0x${string}`,
+                  method: 'defillama' as const,
+                  note: 'defillama api',
+                  rate: llama,
+                },
+              ],
+            } as const;
           }
         }
       }
@@ -352,7 +395,7 @@ export class Token<T extends TokenType> {
     path: Array<
       | {
           address: `0x${string}`;
-          method: 'oneinch';
+          method: 'oneinch' | 'defillama';
           stableSymbol?: string;
           note?: string;
           reserveSymbol?: string;
@@ -413,7 +456,7 @@ export class Token<T extends TokenType> {
       tokenDecimals: decimalsForQuote,
       ...(remap.chainId === this.chainId && blockNumber !== undefined ? { blockNumber } : {}),
     });
-    if (!isFalse(reserveRateData)) {
+    if (reserveRateData) {
       const { rate, stableCoin } = reserveRateData!;
       return {
         usdRate: rate * reservePerToken,
@@ -453,6 +496,12 @@ export class Token<T extends TokenType> {
               reserveSymbol: reserveTokenSymbol,
               reserveUsdRate: llama,
             },
+            {
+              address: reserveTokenAddress,
+              method: 'defillama' as const,
+              note: 'defillama api',
+              rate: llama,
+            },
           ],
         };
       }
@@ -475,6 +524,12 @@ export class Token<T extends TokenType> {
                 note: 'bond price in reserve',
                 reserveSymbol: reserveTokenSymbol,
                 reserveUsdRate: llama,
+              },
+              {
+                address: reserveTokenAddress,
+                method: 'defillama' as const,
+                note: 'defillama api',
+                rate: llama,
               },
             ],
           };
@@ -513,7 +568,11 @@ export class Token<T extends TokenType> {
       if (blockNumber === undefined) {
         const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: this.tokenAddress });
         if (llama !== undefined) {
-          return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+          return {
+            usdRate: llama * amount,
+            reserveToken: null,
+            path: [{ address: this.tokenAddress, method: 'defillama' as const, note: 'defillama api', rate: llama }],
+          } as const;
         }
       } else {
         const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
@@ -524,7 +583,11 @@ export class Token<T extends TokenType> {
             timestamp: ts,
           });
           if (llama !== undefined) {
-            return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+            return {
+              usdRate: llama * amount,
+              reserveToken: null,
+              path: [{ address: this.tokenAddress, method: 'defillama' as const, note: 'defillama api', rate: llama }],
+            } as const;
           }
         }
       }
@@ -554,12 +617,16 @@ export class Token<T extends TokenType> {
         ...(remap.chainId === this.chainId && blockNumber !== undefined ? { blockNumber } : {}),
       });
 
-      if (isFalse(rateData)) {
+      if (!rateData) {
         // Fallback to DefiLlama
         if (blockNumber === undefined) {
           const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: this.tokenAddress });
           if (llama !== undefined) {
-            return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+            return {
+              usdRate: llama * amount,
+              reserveToken: null,
+              path: [{ address: this.tokenAddress, method: 'defillama' as const, note: 'defillama api', rate: llama }],
+            } as const;
           }
         } else {
           const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
@@ -570,7 +637,13 @@ export class Token<T extends TokenType> {
               timestamp: ts,
             });
             if (llama !== undefined) {
-              return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+              return {
+                usdRate: llama * amount,
+                reserveToken: null,
+                path: [
+                  { address: this.tokenAddress, method: 'defillama' as const, note: 'defillama api', rate: llama },
+                ],
+              } as const;
             }
           }
         }
@@ -597,7 +670,11 @@ export class Token<T extends TokenType> {
       if (blockNumber === undefined) {
         const llama = await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: this.tokenAddress });
         if (llama !== undefined) {
-          return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+          return {
+            usdRate: llama * amount,
+            reserveToken: null,
+            path: [{ address: this.tokenAddress, method: 'defillama' as const, note: 'defillama api', rate: llama }],
+          } as const;
         }
       } else {
         const ts = await this.utils.getTimestampFromBlock({ chainId: this.chainId, blockNumber });
@@ -608,7 +685,11 @@ export class Token<T extends TokenType> {
             timestamp: ts,
           });
           if (llama !== undefined) {
-            return { usdRate: llama * amount, reserveToken: null, path: [] } as const;
+            return {
+              usdRate: llama * amount,
+              reserveToken: null,
+              path: [{ address: this.tokenAddress, method: 'defillama' as const, note: 'defillama api', rate: llama }],
+            } as const;
           }
         }
       }

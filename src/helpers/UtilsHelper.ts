@@ -301,6 +301,9 @@ export class Utils {
     }
 
     const finalUsdRate = ethRate.rate * ethUsdRate;
+
+    if (!finalUsdRate) return undefined;
+
     return { rate: finalUsdRate, stableCoin: stable } as const;
   }
 
