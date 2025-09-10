@@ -1,6 +1,6 @@
-import { createClientV2 } from '@0x/swap-ts-sdk';
 import { getAddress, isAddress, parseUnits } from 'viem';
 import { SdkSupportedChainIds } from '../../constants/contracts';
+import { baseFetcher } from '../api';
 import { toNumber } from '../numbers';
 import { STABLE_COINS } from './common';
 
@@ -25,19 +25,17 @@ export async function get0xSwapUsdRate(params: {
   const isSame = getAddress(tokenAddress) === getAddress(stable.address);
   if (isSame) return { rate: 1, stableCoin: stable } as const;
 
-  // this api key can be exposed to the public
-  const client = createClientV2({ apiKey: '44dd5e10-4062-42e1-9c2c-67e90d99972b' });
-
   // Price 1 whole token to get USD rate per token
   const sellAmount = parseUnits('1', tokenDecimals).toString();
 
   try {
-    const res: any = await client.swap.permit2.getPrice.query({
-      chainId,
+    const qs = new URLSearchParams({
+      chainId: String(chainId),
       sellToken: tokenAddress,
       buyToken: stable.address,
       sellAmount,
-    });
+    }).toString();
+    const res: any = await baseFetcher.get(`price?${qs}`, { prefixUrl: 'https://api.hyped.club' });
 
     // Prefer buyAmount if provided; fallback to price * sellAmount
     const buyAmount: string | undefined = res?.buyAmount;
