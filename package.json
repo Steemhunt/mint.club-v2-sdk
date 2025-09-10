@@ -37,7 +37,7 @@
     "purge": "npx rimraf ./dist",
     "test": "npx bun test",
     "test:watch": "npx bun test --watch",
-    "hardhat": "NODE_ENV=hardhat npx bun test hardhat"
+    "deploy": "npm version patch && git push && npm publish"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
