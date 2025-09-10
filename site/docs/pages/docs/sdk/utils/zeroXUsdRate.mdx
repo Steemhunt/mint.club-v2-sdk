@@ -1,0 +1,41 @@
+---
+description: Get a spot USD rate for any ERC-20 via 0x Swap API (live only, no historical block pinning).
+---
+
+## utils.zeroXUsdRate
+
+Returns a live USD rate for a token by quoting TOKEN → STABLE via the public 0x Swap API.
+
+- Parameters:
+
+  - `chainId` (number): Supported chain ID used by the SDK
+  - `tokenAddress` (`0x…`): ERC-20 address to quote
+  - `tokenDecimals` (number): Decimals of `tokenAddress`
+  - `blockNumber?` (bigint | number | 'now'): Only `'now'` is supported; any other value will return `undefined`
+  - `tryCount?` (number): Optional attempt counter; if `> 5` returns `undefined`
+
+- Returns: `{ rate: number; stableCoin: { address: string; symbol: string; decimals: bigint } } | undefined`
+
+### Example
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const res = await mintclub.utils.zeroXUsdRate({
+  chainId: 8453, // base
+  tokenAddress: '0x0000000000000000000000000000000000000000',
+  tokenDecimals: 18,
+  blockNumber: 'now',
+})
+
+if (res) {
+  console.log('USD rate:', res.rate, 'stable:', res.stableCoin.symbol)
+} else {
+  console.log('Rate not available')
+}
+```
+
+### Notes
+
+- Live quotes only; historical block pinning is not supported by 0x and will return `undefined`.
+- Returns `undefined` if params are invalid or the chain/stable mapping is unavailable.

@@ -543,6 +543,7 @@ export const sidebar = {
             { text: 'getBlockNumber', link: '/docs/sdk/utils/getBlockNumber' },
             { text: 'getSwapscannerPrice', link: '/docs/sdk/utils/getSwapscannerPrice' },
             { text: 'oneinchUsdRate', link: '/docs/sdk/utils/oneinchUsdRate' },
+            { text: 'zeroXUsdRate', link: '/docs/sdk/utils/zeroXUsdRate' },
           ],
         },
 

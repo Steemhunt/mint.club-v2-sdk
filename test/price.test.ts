@@ -1,6 +1,10 @@
 import { mintclub } from '../src';
 
 (async () => {
+  const drakhonen = await mintclub.network('base').token('0x23EBD99b8ada11420d6149d15c822606d30ABf26').getUsdRate();
+  console.log('========== DRAKHONEN RATE ==========');
+  console.log(drakhonen);
+
   const rate = await mintclub.network('base').token('GMFR').getUsdRate();
   console.log('========== GMFR RATE ==========');
   console.log(rate);
