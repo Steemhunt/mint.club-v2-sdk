@@ -72,12 +72,12 @@ export class Utils {
     { address: `0x${string}`; symbol: string; decimals: bigint }
   > = {
     [mainnet.id]: { address: '0xdac17f958d2ee523a2206206994597c13d831ec7', symbol: 'USDT', decimals: 6n },
-    [optimism.id]: { address: '0x94b008aa00579c1307b0ef2c499ad98a8ce58e58', symbol: 'USDT', decimals: 6n },
-    [arbitrum.id]: { address: '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9', symbol: 'USDT', decimals: 6n },
+    [optimism.id]: { address: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85', symbol: 'USDC', decimals: 6n },
+    [arbitrum.id]: { address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', symbol: 'USDC', decimals: 6n },
     [avalanche.id]: { address: '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7', symbol: 'USDT', decimals: 6n },
     [polygon.id]: { address: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', symbol: 'USDT', decimals: 6n },
-    [bsc.id]: { address: '0x55d398326f99059ff775485246999027b3197955', symbol: 'USDT', decimals: 18n },
-    [base.id]: { address: '0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca', symbol: 'USDBC', decimals: 6n },
+    [bsc.id]: { address: '0x55d398326f99059ff775485246999027b3197955', symbol: 'BSC-USD', decimals: 18n },
+    [base.id]: { address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', symbol: 'USDC', decimals: 6n },
     [baseSepolia.id]: { address: '0x', symbol: '', decimals: 0n },
     [sepolia.id]: { address: '0x', symbol: '', decimals: 0n },
     [blast.id]: { address: '0x', symbol: '', decimals: 0n },
@@ -86,27 +86,15 @@ export class Utils {
     [degen.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyber.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyberTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
-    [kaia.id]: { address: '0x', symbol: '', decimals: 0n },
+    [kaia.id]: { address: '0xd077a400968890eacc75cdc901f0356c943e4fdb', symbol: 'USDT', decimals: 6n },
     [ham.id]: { address: '0x', symbol: '', decimals: 0n },
     [shibarium.id]: { address: '0x', symbol: '', decimals: 0n },
     [shibariumTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
     [apeChain.id]: { address: '0x', symbol: '', decimals: 0n },
     [zora.id]: { address: '0x', symbol: '', decimals: 0n },
-    [hashkey.id]: {
-      address: '0xf1b50ed67a9e2cc94ad3c477779e2d4cbfff9029',
-      symbol: 'USDT',
-      decimals: 6n,
-    },
-    [unichain.id]: {
-      address: '0x078D782b760474a361dDA0AF3839290b0EF57AD6',
-      symbol: 'USDT',
-      decimals: 6n,
-    },
-    [over.id]: {
-      address: '0xA510432E4aa60B4acd476fb850EC84B7EE226b2d',
-      symbol: 'USDT',
-      decimals: 18n,
-    }, // USDT
+    [hashkey.id]: { address: '0x', symbol: '', decimals: 0n },
+    [unichain.id]: { address: '0x078D782b760474a361dDA0AF3839290b0EF57AD6', symbol: 'USDC', decimals: 6n },
+    [over.id]: { address: '0x', symbol: '', decimals: 0n },
   };
   public generateMerkleRoot(wallets: `0x${string}`[]) {
     const leaves = wallets.map((address) => keccak256(address));

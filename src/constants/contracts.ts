@@ -207,6 +207,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [zora.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
   },
 
+  // REF: https://github.com/1inch/spot-price-aggregator
   ONEINCH: {
     [mainnet.id]: '0x00000000000D6FFc74A8feb35aF5827bf57f6786',
     [optimism.id]: '0x00000000000D6FFc74A8feb35aF5827bf57f6786',
@@ -227,7 +228,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [ham.id]: '0x',
     [shibarium.id]: '0x',
     [shibariumTestnet.id]: '0x',
-    [unichain.id]: '0x',
+    [unichain.id]: '0x00000000000D6FFc74A8feb35aF5827bf57f6786',
     [apeChain.id]: '0x',
     [zora.id]: '0x',
     [hashkey.id]: '0x',
