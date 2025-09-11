@@ -564,14 +564,18 @@ export class Token<T extends TokenType> {
       return this.getUsdRateOnKaia({ amount, blockNumber });
     }
 
-    // 2) Non-Mint Club tokens priced directly
     const isMintClub = await this.exists();
-    if (!isMintClub) {
-      return this.getUsdRateForNonMintClub({ amount, blockNumber });
+    if (isMintClub) {
+      // 2) Mint Club tokens via bond path
+      const mintClubRate = await this.getUsdRateViaBond({ amount, blockNumber });
+      if (mintClubRate.usdRate !== null) {
+        return mintClubRate;
+      } // Even if Mint Club doesn't have any reserves, the token could have liquidity on other DEXes
+      // So keep fallback to non-Mint Club tokens
     }
 
-    // 3) Mint Club tokens via bond path
-    return this.getUsdRateViaBond({ amount, blockNumber });
+    // 3) Non-Mint Club tokens priced directly
+    return this.getUsdRateForNonMintClub({ amount, blockNumber });
   }
 
   private async getUsdRateOnKaia(params: { amount: number; blockNumber?: bigint }) {
