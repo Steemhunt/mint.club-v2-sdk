@@ -1,6 +1,14 @@
 import { mintclub } from '../src';
 
 (async () => {
+  const farpixel = await mintclub.network('base').token('0xA20Eb729cd9a0753B479C95fbd60B4caa4e7eb07').getUsdRate();
+  console.log('========== FARPIXEL RATE ==========');
+  console.log(farpixel);
+
+  const FREE = await mintclub.network('base').token('0xc435b542acb241185c72d3653447e070994da59f').getUsdRate();
+  console.log('========== FREE RATE ==========');
+  console.log(FREE);
+
   const drakhonen = await mintclub.network('base').token('0x23EBD99b8ada11420d6149d15c822606d30ABf26').getUsdRate();
   console.log('========== DRAKHONEN RATE ==========');
   console.log(drakhonen);

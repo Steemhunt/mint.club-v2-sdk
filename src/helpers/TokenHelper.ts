@@ -568,7 +568,7 @@ export class Token<T extends TokenType> {
     if (isMintClub) {
       // 2) Mint Club tokens via bond path
       const mintClubRate = await this.getUsdRateViaBond({ amount, blockNumber });
-      if (mintClubRate.usdRate !== null) {
+      if (!!mintClubRate.usdRate) {
         return mintClubRate;
       } // Even if Mint Club doesn't have any reserves, the token could have liquidity on other DEXes
       // So keep fallback to non-Mint Club tokens
@@ -657,6 +657,7 @@ export class Token<T extends TokenType> {
           tokenDecimals: decimalsForQuote,
           blockNumber,
         });
+
         if (ox) {
           const path = [
             {

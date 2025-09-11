@@ -107,6 +107,30 @@ export async function oneinchUsdRate(params: {
     }
   }
 
+  // Fallback 1: reverse-quote for precision (STABLE -> TOKEN) and invert
+  // This avoids precision loss when quoting directly into 6-decimal stables for tiny USD prices
+  const reverseRate = await retry(
+    () =>
+      oneInchContract.network(chainId as SdkSupportedChainIds).read({
+        functionName: 'getRate',
+        args: [stable.address, tokenAddress, false],
+        ...(bn !== undefined ? { blockNumber: bn } : {}),
+      }),
+    { retries: 5, retryIntervalMs: 1000 },
+  ).catch(() => undefined as unknown as bigint);
+
+  if (reverseRate !== undefined && reverseRate !== null) {
+    // tokens per 1 stable
+    const tokensPerStable = toNumber(reverseRate, Number(18n + BigInt(tokenDecimals) - stable.decimals));
+    if (tokensPerStable > 0) {
+      const invertedUsdPerToken = 1 / tokensPerStable;
+      if (Number.isFinite(invertedUsdPerToken) && invertedUsdPerToken > 0) {
+        return { rate: invertedUsdPerToken, stableCoin: stable } as const;
+      }
+    }
+  }
+
+  // Fallback 2: TOKEN -> ETH -> USD path
   const ethRate = await oneinchEthRate({
     chainId,
     tokenAddress,
@@ -138,6 +162,7 @@ export async function oneinchUsdRate(params: {
     ethUsdRate = toNumber(ethToUsdRate, Number(18n + stable.decimals) - 18);
     ethRateCache.set(cacheKey, { rate: ethUsdRate, timestamp: Date.now() });
   }
+
   const finalUsdRate = ethRate.rate * ethUsdRate;
   if (!finalUsdRate) return undefined;
   return { rate: finalUsdRate, stableCoin: stable } as const;

@@ -42,14 +42,43 @@ export async function get0xSwapUsdRate(params: {
     if (buyAmount) {
       const amountOut = BigInt(buyAmount);
       const rate = toNumber(amountOut, Number(stable.decimals));
-      return { rate, stableCoin: stable } as const;
+      if (rate >= 0.000001) return { rate, stableCoin: stable } as const;
     }
 
     const unitPrice: string | number | undefined = (res?.price as string | undefined) ?? undefined;
     if (unitPrice !== undefined) {
       const rate = Number(unitPrice);
-      if (Number.isFinite(rate)) return { rate, stableCoin: stable } as const;
+      if (Number.isFinite(rate) && rate >= 0.000001) return { rate, stableCoin: stable } as const;
     }
+    // Reverse-quote fallback: STABLE -> TOKEN, then invert to get USD per token
+    try {
+      const reverseSellAmount = parseUnits('1', Number(stable.decimals)).toString();
+      const reverseQs = new URLSearchParams({
+        chainId: String(chainId),
+        sellToken: stable.address,
+        buyToken: tokenAddress,
+        sellAmount: reverseSellAmount,
+      }).toString();
+      const reverseRes: any = await baseFetcher.get(`price?${reverseQs}`, { prefixUrl: 'https://api.hyped.club' });
+
+      const reverseBuyAmount: string | undefined = reverseRes?.buyAmount;
+      if (reverseBuyAmount) {
+        const tokensPerStable = toNumber(BigInt(reverseBuyAmount), tokenDecimals);
+        if (tokensPerStable > 0) {
+          const inverted = 1 / tokensPerStable;
+          if (Number.isFinite(inverted) && inverted > 0) return { rate: inverted, stableCoin: stable } as const;
+        }
+      }
+
+      const reverseUnitPrice: string | number | undefined = (reverseRes?.price as string | undefined) ?? undefined;
+      if (reverseUnitPrice !== undefined) {
+        const tokensPerStable2 = Number(reverseUnitPrice);
+        if (Number.isFinite(tokensPerStable2) && tokensPerStable2 > 0) {
+          const inverted2 = 1 / tokensPerStable2;
+          if (Number.isFinite(inverted2) && inverted2 > 0) return { rate: inverted2, stableCoin: stable } as const;
+        }
+      }
+    } catch {}
 
     return undefined;
   } catch {
