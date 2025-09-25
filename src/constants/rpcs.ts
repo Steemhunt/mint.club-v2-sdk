@@ -60,12 +60,27 @@ export const RPCS: Array<RPCList> = [
   {
     id: base.id,
     rpcs: [
-      'https://mainnet.base.org',
-      'https://base-pokt.nodies.app',
-      // 'https://base.gateway.tenderly.co', // NOTE: 400 on `eth_getFilterChanges`
-      // 'https://gateway.tenderly.co/public/base', // NOTE: 400 on `eth_getFilterChanges`
       'https://base-rpc.publicnode.com',
-      'https://base.meowrpc.com',
+      // 'https://base.llamarpc.com', // CORS error
+      'https://rpc.poolz.finance/base',
+      'https://api.zan.top/base-mainnet',
+      'https://1rpc.io/base',
+      'https://base.drpc.org',
+      'https://base.rpc.subquery.network/public',
+      'https://base-mainnet.gateway.tatum.io',
+      'https://mainnet.base.org',
+      'https://developer-access-mainnet.base.org',
+      'https://base-mainnet.public.blastapi.io',
+      'https://base-public.nodies.app',
+      'https://endpoints.omniatech.io/v1/base/mainnet/public',
+      // 'https://base.meowrpc.com', // 400 error?
+      'https://base.therpc.io',
+      'https://rpc.owlracle.info/base/70d38ce1826c4a60bb2a8e05a6c8b20f',
+      'https://base.public.blockpi.network/v1/rpc/public',
+      'https://base.lava.build',
+      'https://gateway.tenderly.co/public/base',
+      'https://base.gateway.tenderly.co',
+      'https://0xrpc.io/base',
     ],
   },
   {
