@@ -1,0 +1,222 @@
+Mint Club SDK — Airdrop LLM Guideline
+
+Wallet setup required for writes
+- All write operations (createAirdrop, claimAirdrop, cancelAirdrop, approvals) require an active wallet client.
+- In browser, the SDK will try `window.ethereum` by default; for app integrations (e.g., wagmi/RainbowKit), explicitly configure one of:
+  - `mintclub.withWalletClient({ account, chain, transport })`
+  - `mintclub.network(chain).withAccount('0x...', provider)`
+  - `mintclub.network(chain).withProvider(provider)`
+- Refer to vibe-coders wallet docs and SDK pages: withWalletClient, withAccount, withProvider.
+
+Quick wallet setup example (React + wagmi)
+"use client";
+import { mintclub } from "mint.club-v2-sdk";
+import { base } from "viem/chains";
+import { useAccount, useWalletClient } from "wagmi";
+
+const { address } = useAccount();
+const { data: walletClient } = useWalletClient({ account: address, chainId: 8453 });
+
+mintclub
+  .withWalletClient({ ...walletClient, chain: base } as any)
+  .network("base")
+  // proceed with airdrop calls, e.g.:
+  .airdrop.claimAirdrop({ airdropId: 1 });
+
+Purpose: This guide instructs agents how to create, query, and claim airdrops using the Mint Club v2 SDK without hallucination. All flows and parameters below are taken from the SDK source (`src/helpers/AirdropHelper.ts`, `src/helpers/TokenHelper.ts`, and `src/types`).
+
+Core objects and entry points
+- Use `mintclub` from the package root. Pattern: `mintclub.network(chain).airdrop` for read/claim routes, and `mintclub.network(chain).token(symbolOrAddress).createAirdrop` for creation.
+- Network can be one of supported IDs or lowercase names accepted by `sdk.network(...)`.
+- The airdrop contract is referred to internally as `MERKLE`.
+
+Capabilities overview
+- Create airdrop for a token (ERC20 or ERC1155): `token().createAirdrop({...})`.
+- Claim an airdrop: `airdrop.claimAirdrop({ airdropId, ...callbacks })`.
+- Read airdrop state: `getAirdropById`, `getAmountClaimed`, `getAmountLeft`, `getAirdropIdsByOwner`, `getAirdropIdsByToken`, `getIsClaimed`, `getIsWhitelistOnly`.
+- Helper: `utils.generateMerkleRoot(wallets)` is available if needed (creation via `token().createAirdrop` builds the Merkle root internally).
+
+Callbacks (write operations)
+All write methods accept the following optional callbacks:
+- `onSignatureRequest?: () => void`
+- `onSigned?: (txHash: '0x${string}') => void`
+- `onSuccess?: (receipt: TransactionReceipt) => void`
+- `onError?: (error: unknown) => void`
+Additionally, allowance-related flows may use:
+- `onAllowanceSignatureRequest?: () => void`
+- `onAllowanceSigned?: () => void`
+- `onAllowanceSuccess?: (receipt: TransactionReceipt) => void`
+
+Flow A — Creating an airdrop (Token context)
+Use `token(symbolOrAddress).createAirdrop(params)`.
+
+Required/Supported params (TokenCreateAirdropParams):
+- `title: string`
+- `wallets: \`0x${string}\`[]` (array of EVM addresses)
+- `amountPerClaim: number`
+- `startTime?: Date`
+- `endTime: Date`
+- `filebaseApiKey: string` (used to upload the whitelist JSON to IPFS)
+- Optional callbacks listed above
+
+What the SDK does internally:
+1) Determines token type (ERC20 vs ERC1155), sets `isERC20` accordingly.
+2) For ERC20, fetches token `decimals` and converts `amountPerClaim` to wei via `wei(amountPerClaim, decimals)`.
+3) Computes `walletCount = wallets.length` and `totalAmount = amountPerClaimWei * walletCount`.
+4) Checks approval on `MERKLE` contract for `totalAmount` and, if missing, triggers approval flow automatically (may call `approve`).
+5) Builds the Merkle tree from `wallets` using `keccak256(address)` leaves with `sortPairs: true`; sets `merkleRoot`.
+6) Uploads `wallets` JSON to IPFS using `ipfs.add(filebaseApiKey, uint8Array)` and returns `ipfsCID`.
+7) Calls on-chain `createDistribution` through `airdrop.createAirdrop` with:
+   - `token: '0x...'`
+   - `isERC20: boolean`
+   - `amountPerClaim: bigint` (wei for ERC20)
+   - `walletCount: number`
+   - `startTime: number` (unix seconds; 0 means immediate)
+   - `endTime: number` (unix seconds)
+   - `merkleRoot: '0x...'`
+   - `title: string`
+   - `ipfsCID: string`
+
+Example (creation):
+```ts
+import { mintclub } from 'mint.club-v2-sdk'
+
+const wallets = [
+  '0x...',
+  '0x...',
+] as `0x${string}`[]
+
+await mintclub
+  .network('base')
+  .token('MYTOKEN')
+  .createAirdrop({
+    title: 'Community Airdrop',
+    wallets,
+    amountPerClaim: 100,
+    // omit startTime for immediate (internally becomes 0)
+    endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    filebaseApiKey: process.env.FILEBASE_KEY as string,
+    onSuccess: (receipt) => console.log('Airdrop created', receipt.transactionHash),
+  })
+```
+
+Notes:
+- If approval is required, the first call returns an approval transaction. Call again after approval to complete creation.
+- IPFS upload security: Uploading the whitelist to IPFS via Filebase requires an API key. Perform this upload server-side only and never expose the API key in the browser. For client apps, precompute `merkleRoot` and `ipfsCID` on your server and then call `mintclub.network(chain).airdrop.createAirdrop({ ... merkleRoot, ipfsCID ... })`, or proxy the entire create operation through your backend.
+
+Flow B — Claiming an airdrop (Network airdrop context)
+Use `airdrop.claimAirdrop({ airdropId, ...callbacks })`. The SDK auto-resolves Merkle proof via IPFS using the distribution’s `ipfsCID`.
+
+Parameters:
+- `airdropId: number`
+- Optional callbacks listed above
+
+Behavior:
+1) Fetches distribution by ID to obtain `ipfsCID` and `merkleRoot`.
+2) If `merkleRoot` equals the empty root (`0x0000000000000000000000000000000000000000000000000000000000000000`), whitelist check is skipped and claim proceeds without proof.
+3) Otherwise, SDK fetches the Merkle proof via `https://mint.club/api/ipfs/whitelist?cid=...` with fallback to `https://ipfs.io/ipfs/...`.
+4) Sends on-chain `claim(airdropId, proof)`.
+
+Example (claim):
+```ts
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').airdrop.claimAirdrop({
+  airdropId: 1,
+  onSuccess: (receipt) => console.log('Claimed!', receipt.transactionHash),
+})
+```
+
+Optional pre-checks:
+```ts
+const sdk = mintclub.network('base')
+const isClaimed = await sdk.airdrop.getIsClaimed(1, userAddress)
+const isWhitelistOnly = await sdk.airdrop.getIsWhitelistOnly(1)
+```
+
+Flow C — Reading airdrop data
+- `getAirdropById(airdropId: number)` -> returns object with:
+  - `token`, `isERC20`, `walletCount`, `claimCount`, `amountPerClaim`, `startTime`, `endTime`, `owner`, `refundedAt`, `merkleRoot`, `title`, `ipfsCID`
+- `getAmountClaimed(airdropId: number)` -> bigint
+- `getAmountLeft(airdropId: number)` -> bigint
+- `getAirdropIdsByOwner({ owner, start = 0, end = 1000 })` -> bigint[]
+- `getAirdropIdsByToken({ token, start = 0, end = 1000 })` -> bigint[]
+- `getIsClaimed(airdropId: number, account: '0x...')` -> boolean
+- `getIsWhitelistOnly(airdropId: number)` -> boolean
+
+Examples (reads):
+```ts
+const airdrop = mintclub.network('base').airdrop
+
+const details = await airdrop.getAirdropById(1)
+const claimedAmount = await airdrop.getAmountClaimed(1)
+const remainingAmount = await airdrop.getAmountLeft(1)
+const byOwner = await airdrop.getAirdropIdsByOwner({ owner: '0x...' })
+const byToken = await airdrop.getAirdropIdsByToken({ token: '0x...' })
+const hasClaimed = await airdrop.getIsClaimed(1, '0x...')
+const whitelistOnly = await airdrop.getIsWhitelistOnly(1)
+```
+
+Flow D — Cancel/refund an airdrop (owner only)
+- `airdrop.cancelAirdrop({ airdropId, ...callbacks })` calls on-chain `refund(airdropId)`.
+
+Error considerations (contract errors mapped in SDK)
+Common Merkle Distributor errors surfaced by the SDK’s error dictionary include:
+- `MerkleDistributor__AlreadyClaimed`
+- `MerkleDistributor__AlreadyRefunded`
+- `MerkleDistributor__Finished`
+- `MerkleDistributor__InvalidCaller`
+- `MerkleDistributor__InvalidPaginationParameters`
+- `MerkleDistributor__InvalidParams`
+- `MerkleDistributor__InvalidProof`
+- `MerkleDistributor__NoClaimableTokensLeft`
+- `MerkleDistributor__NothingToRefund`
+- `MerkleDistributor__NotStarted`
+- `MerkleDistributor__PermissionDenied`
+- `MerkleDistributor__Refunded`
+
+Eligibility and private airdrops
+- If `merkleRoot` is empty, anyone can claim until exhausted/time-ended.
+- If `merkleRoot` is non-empty, only addresses in the uploaded whitelist can claim; proof is fetched automatically during `claimAirdrop`.
+
+Wallet/provider setup
+- To sign transactions in dapps, you can either rely on `window.ethereum` by default or set a custom signer via:
+  - `mintclub.withWalletClient(walletClient)` (e.g., with wagmi)
+  - `mintclub.withProvider(provider)` / `mintclub.withAccount(account)`
+- After setup, always follow `mintclub.network(chain)` → `airdrop` or `token(...)` flow.
+
+Do/Don’t
+- Do: always call `mintclub.network(chain)` first.
+- Do: ensure `endTime` is in the future and `wallets` are valid `0x...` strings.
+- Do: provide `filebaseApiKey` to create airdrops; creation uploads whitelist to IPFS.
+- Don’t: pass bigint for `amountPerClaim` to `token().createAirdrop` (pass number; SDK converts to wei for ERC20).
+- Don’t: attempt to manually pass Merkle proof to `claimAirdrop`; the SDK resolves it automatically.
+
+Quick reference — method signatures
+- Creation (token context):
+  `token(symbolOrAddress).createAirdrop(params: {
+    title: string;
+    wallets: `0x${string}`[];
+    amountPerClaim: number;
+    startTime?: Date;
+    endTime: Date;
+    filebaseApiKey: string;
+  } & WriteTransactionCallbacks)`
+  (May first perform an approval tx if allowance is missing — call again after approval to create.)
+
+- Claim:
+  `airdrop.claimAirdrop(params: { airdropId: number } & WriteTransactionCallbacks)`
+
+- Reads:
+  `airdrop.getAirdropById(airdropId: number)` -> { token, isERC20, walletCount, claimCount, amountPerClaim, startTime, endTime, owner, refundedAt, merkleRoot, title, ipfsCID }
+  `airdrop.getAmountClaimed(airdropId: number)` -> bigint
+  `airdrop.getAmountLeft(airdropId: number)` -> bigint
+  `airdrop.getAirdropIdsByOwner({ owner, start?, end? })` -> bigint[]
+  `airdrop.getAirdropIdsByToken({ token, start?, end? })` -> bigint[]
+  `airdrop.getIsClaimed(airdropId: number, account: '0x...')` -> boolean
+  `airdrop.getIsWhitelistOnly(airdropId: number)` -> boolean
+
+- Cancel/refund:
+  `airdrop.cancelAirdrop({ airdropId, ...callbacks })`
+
+All examples and signatures above are sourced from the SDK and are safe to use as-is.

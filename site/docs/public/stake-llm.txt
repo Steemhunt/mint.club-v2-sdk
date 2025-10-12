@@ -1,0 +1,146 @@
+Mint Club SDK — Stake LLM Guideline
+
+Wallet setup required for writes
+- All write operations (createPool, stake, unstake, claim, cancelPool, emergencyUnstake) require an active wallet client.
+- In browser, the SDK will try `window.ethereum` by default; for app integrations (e.g., wagmi/RainbowKit), explicitly configure one of:
+  - `mintclub.withWalletClient({ account, chain, transport })`
+  - `mintclub.network(chain).withAccount('0x...', provider)`
+  - `mintclub.network(chain).withProvider(provider)`
+- Refer to vibe-coders wallet docs and SDK pages: withWalletClient, withAccount, withProvider.
+
+Quick wallet setup example (React + wagmi)
+"use client";
+import { mintclub } from "mint.club-v2-sdk";
+import { base } from "viem/chains";
+import { useAccount, useWalletClient } from "wagmi";
+
+const { address } = useAccount();
+const { data: walletClient } = useWalletClient({ account: address, chainId: 8453 });
+
+mintclub
+  .withWalletClient({ ...walletClient, chain: base } as any)
+  .network("base")
+  // proceed with stake calls, e.g.:
+  .stake.stake({ poolId: 0, amount: 100000000000000000n });
+
+Purpose: This guide instructs agents how to create pools, stake/unstake, claim rewards, and read pool data using the Mint Club v2 SDK with exact, non-hallucinated APIs from `src/helpers/StakeHelper.ts` and `src/types/stake.types.ts`.
+
+Core pattern
+- Use `mintclub.network(chain).stake` for all staking operations.
+
+Capabilities
+- Create pool: `stake.createPool({...})`
+- Stake/Unstake: `stake.stake({ poolId, amount, ...})`, `stake.unstake({ poolId, amount, ...})`
+- Claim rewards: `stake.claim({ poolId, ...})`
+- Admin/maintenance: `stake.cancelPool`, `stake.emergencyUnstake`, `stake.updateCreationFee`, `stake.updateClaimFee`, `stake.updateProtocolBeneficiary`, ownership methods
+- Read data & fees: `getCreationFee`, `getClaimFee`, `getPoolCount`, `getMinRewardDuration`, `getMaxRewardDuration`, `getProtocolBeneficiary`, `getVersion`, `getOwner`, `getPool`, `getPools`, `getPoolsByCreator`, `getUserPoolStake`, `getClaimableReward`, `getClaimableRewardBulk`
+
+Parameters and types (from `stake.types.ts`)
+- Create pool:
+  - `stakingToken: '0x${string}'`
+  - `isStakingTokenERC20: boolean` (true=ERC20, false=ERC1155)
+  - `rewardToken: '0x${string}'`
+  - `rewardAmount: bigint` (use correct decimals for reward token)
+  - `rewardStartsAt: number` (unix seconds)
+  - `rewardDuration: number` (seconds)
+  - Callbacks via `CommonWriteParams`
+- Stake/Unstake:
+  - `poolId: number`
+  - `amount: bigint`
+  - Callbacks via `CommonWriteParams`
+- Claim/Cancel/Emergency:
+  - `poolId: number`
+  - Callbacks via `CommonWriteParams`
+
+Flow A — Create a staking pool
+```ts
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').stake.createPool({
+  stakingToken: '0x...',
+  isStakingTokenERC20: true,
+  rewardToken: '0x...',
+  rewardAmount: BigInt('1000000000000000000'), // 1 token (18 decimals)
+  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // start in 1 hour
+  rewardDuration: 7 * 24 * 60 * 60, // 7 days
+  onSuccess: (receipt) => console.log('Pool created', receipt.transactionHash),
+})
+```
+- Check creation fee: `await stake.getCreationFee()`
+- Duration limits: `getMinRewardDuration()` and `getMaxRewardDuration()`
+
+Flow B — Stake tokens
+```ts
+await mintclub.network('base').stake.stake({
+  poolId: 0,
+  amount: BigInt('100000000000000000'), // 0.1
+  onSuccess: (receipt) => console.log('Staked', receipt.transactionHash),
+})
+```
+- Ensure the staking contract is approved to spend the staking token prior to staking (wallet may prompt for approval).
+
+Flow C — Unstake tokens (auto-claims rewards)
+```ts
+await mintclub.network('base').stake.unstake({
+  poolId: 0,
+  amount: BigInt('50000000000000000'), // 0.05
+  onSuccess: (receipt) => console.log('Unstaked', receipt.transactionHash),
+})
+```
+
+Flow D — Claim rewards explicitly
+```ts
+const claimable = await mintclub.network('base').stake.getClaimableReward({ poolId: 0, staker: '0x...' })
+const [rewardClaimable] = claimable
+if (rewardClaimable > 0n) {
+  await mintclub.network('base').stake.claim({ poolId: 0, onSuccess: (r) => console.log('Claimed', r.transactionHash) })
+}
+```
+
+Flow E — Pool reads
+```ts
+const stake = mintclub.network('base').stake
+
+const count = await stake.getPoolCount()
+const fee = await stake.getClaimFee()
+const minDur = await stake.getMinRewardDuration()
+const maxDur = await stake.getMaxRewardDuration()
+
+const pool = await stake.getPool({ poolId: 0 })
+const pools = await stake.getPools({ start: 0, end: 50 })
+const byCreator = await stake.getPoolsByCreator({ creator: '0x...', start: 0, end: 50 })
+
+const user = await stake.getUserPoolStake({ user: '0x...', poolId: 0 })
+// { stakedAmount, claimedTotal, feeTotal, rewardDebt }
+```
+
+Method signatures (as implemented)
+- Create pool:
+  `stake.createPool(params: { stakingToken: '0x${string}'; isStakingTokenERC20: boolean; rewardToken: '0x${string}'; rewardAmount: bigint; rewardStartsAt: number; rewardDuration: number } & CommonWriteParams)`
+- Stake:
+  `stake.stake(params: { poolId: number; amount: bigint } & CommonWriteParams)`
+- Unstake:
+  `stake.unstake(params: { poolId: number; amount: bigint } & CommonWriteParams)`
+- Claim:
+  `stake.claim(params: { poolId: number } & CommonWriteParams)`
+- Cancel pool:
+  `stake.cancelPool(params: { poolId: number } & CommonWriteParams)`
+- Emergency unstake:
+  `stake.emergencyUnstake(params: { poolId: number } & CommonWriteParams)`
+- Reads:
+  `getCreationFee()`, `getClaimFee()`, `getPoolCount()`, `getMinRewardDuration()`, `getMaxRewardDuration()`, `getProtocolBeneficiary()`, `getVersion()`, `getOwner()`,
+  `getPool({ poolId })`, `getPools({ start?, end? })`, `getPoolsByCreator({ creator, start?, end? })`,
+  `getUserPoolStake({ user, poolId })` → returns `{ stakedAmount, claimedTotal, feeTotal, rewardDebt }`,
+  `getClaimableReward({ poolId, staker })`, `getClaimableRewardBulk({ poolIdFrom, poolIdTo, staker })`.
+
+Callbacks (write operations)
+- `onSignatureRequest?: () => void`
+- `onSigned?: (tx: '0x${string}') => void`
+- `onSuccess?: (receipt: TransactionReceipt) => void`
+- `onError?: (error: unknown) => void`
+
+Operational notes
+- Always call `mintclub.network(chain)` first.
+- `amount` values are bigint; account for token decimals when formatting.
+- Staking requires token allowances; ensure approval before staking.
+- Use `getClaimableReward` before claiming to avoid unnecessary transactions.

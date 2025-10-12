@@ -1,0 +1,146 @@
+Mint Club SDK — Lockup LLM Guideline
+
+Wallet setup required for writes
+- All write operations (createLockUp, unlock, approvals) require an active wallet client.
+- In browser, the SDK will try `window.ethereum` by default; for app integrations (e.g., wagmi/RainbowKit), explicitly configure one of:
+  - `mintclub.withWalletClient({ account, chain, transport })`
+  - `mintclub.network(chain).withAccount('0x...', provider)`
+  - `mintclub.network(chain).withProvider(provider)`
+- Refer to vibe-coders wallet docs and SDK pages: withWalletClient, withAccount, withProvider.
+
+Quick wallet setup example (React + wagmi)
+"use client";
+import { mintclub } from "mint.club-v2-sdk";
+import { base } from "viem/chains";
+import { useAccount, useWalletClient } from "wagmi";
+
+const { address } = useAccount();
+const { data: walletClient } = useWalletClient({ account: address, chainId: 8453 });
+
+mintclub
+  .withWalletClient({ ...walletClient, chain: base } as any)
+  .network("base")
+  // proceed with lockup calls, e.g.:
+  .lockup.unlock({ lockUpId: 1 });
+
+Purpose: This guide instructs agents how to create, query, and unlock token lockups using the Mint Club v2 SDK without hallucination. All flows and parameters are sourced from the SDK (`src/helpers/LockupHelper.ts`, `src/contracts/GenericContract*.ts`, `src/types/lockup.types.ts`, `src/types/transactions.types.ts`, and `src/constants/abis/locker.ts`).
+
+Core pattern
+- Use `mintclub.network(chain).lockup` for all lockup operations.
+- Contract used internally: `LOCKER`.
+
+Capabilities
+- Create lockup: `lockup.createLockUp({...})`.
+- Unlock by id: `lockup.unlock({ lockUpId, ...callbacks })`.
+- Read data:
+  - `getTotalLockUpCount()`
+  - `getLockUpIdsByReceiver({ receiver, start?, end? })`
+  - `getLockUpIdsByToken({ token, start?, end? })`
+  - `getLockUpById(lockUpId)`
+
+Parameters and types
+- Create (CreateLockUpParams):
+  - `token: '0x${string}'`
+  - `isERC20: boolean` (true for ERC20, false for ERC1155)
+  - `amount: bigint` (use `wei(x, decimals)` for ERC20 amounts)
+  - `unlockTime: number` (unix seconds)
+  - `receiver: '0x${string}'`
+  - `title: string`
+- Unlock:
+  - `lockUpId: number`
+- Callbacks (write methods support):
+  - `onSignatureRequest?: () => void`
+  - `onSigned?: (tx: '0x${string}') => void`
+  - `onSuccess?: (receipt: TransactionReceipt) => void`
+  - `onError?: (error: unknown) => void`
+  - Allowance-related (if applicable): `onAllowanceSignatureRequest?`, `onAllowanceSigned?`, `onAllowanceSuccess?`
+
+Important approval note
+- For ERC20 lockups, the `LOCKER` contract must have sufficient allowance for `amount`. The `createLockUp` method itself does not perform approval logic in code; ensure your flow grants allowance to the `LOCKER` contract before calling it.
+
+Flow A — Create a lockup
+```ts
+import { mintclub, wei } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').lockup.createLockUp({
+  token: '0x...',
+  isERC20: true,
+  amount: wei(10000, 18),
+  unlockTime: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // ~30 days
+  receiver: '0x...',
+  title: 'Team Vesting - Month 1',
+  onSuccess: (receipt) => console.log('Locked', receipt.transactionHash),
+})
+```
+
+Flow B — Unlock tokens
+```ts
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub.network('base').lockup.unlock({
+  lockUpId: 1,
+  onSuccess: (receipt) => console.log('Unlocked', receipt.transactionHash),
+})
+```
+- Unlock succeeds only after `unlockTime` has passed and when not already unlocked.
+
+Flow C — Read lockup data
+```ts
+const lockup = mintclub.network('base').lockup
+
+const total = await lockup.getTotalLockUpCount() // bigint
+
+const byReceiver = await lockup.getLockUpIdsByReceiver({
+  receiver: '0x...',
+  start: 0,
+  end: 100,
+}) // bigint[]
+
+const byToken = await lockup.getLockUpIdsByToken({
+  token: '0x...',
+  start: 0,
+  end: 100,
+}) // bigint[]
+
+const detail = await lockup.getLockUpById(1)
+// { token, isERC20, unlockTime, unlocked, amount, receiver, title }
+```
+- Pagination semantics: `start` and `end` represent an index range (inclusive bounds), not a count.
+
+Method signatures (as implemented)
+- Create:
+  `lockup.createLockUp(params: {
+    token: '0x${string}',
+    isERC20: boolean,
+    amount: bigint,
+    unlockTime: number,
+    receiver: '0x${string}',
+    title: string,
+  } & WriteTransactionCallbacks)`
+
+- Unlock:
+  `lockup.unlock(params: { lockUpId: number } & WriteTransactionCallbacks)`
+
+- Reads:
+  `lockup.getTotalLockUpCount(): Promise<bigint>`
+  `lockup.getLockUpIdsByReceiver({ receiver, start?, end? }): Promise<bigint[]>`
+  `lockup.getLockUpIdsByToken({ token, start?, end? }): Promise<bigint[]>`
+  `lockup.getLockUpById(lockUpId: number): Promise<{ token: '0x${string}'; isERC20: boolean; unlockTime: number; unlocked: boolean; amount: bigint; receiver: '0x${string}'; title: string }>`
+
+Contract error surface (from `LOCKER_ABI`)
+- `AddressEmptyCode`
+- `AddressInsufficientBalance`
+- `FailedInnerCall`
+- `LockUp__AlreadyClaimed`
+- `LockUp__InvalidPaginationParameters`
+- `LockUp__InvalidParams`
+- `LockUp__NotYetUnlocked`
+- `LockUp__PermissionDenied`
+- `SafeERC20FailedOperation`
+
+Operational notes
+- Always call `mintclub.network(chain)` first.
+- `amount` must be bigint; use `wei()` for ERC20.
+- Ensure `unlockTime` is a future unix timestamp.
+- Ensure `receiver` is a valid `0x...` address.
+- For ERC20, grant allowance to `LOCKER` before `createLockUp`.

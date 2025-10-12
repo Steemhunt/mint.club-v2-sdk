@@ -1,0 +1,128 @@
+Mint Club SDK — Create (Token & NFT) LLM Guideline
+
+Wallet setup required for writes
+- All write operations (token/nft create, approvals) require an active wallet client.
+- In browser, the SDK will try `window.ethereum` by default; for app integrations (e.g., wagmi/RainbowKit), explicitly configure one of:
+  - `mintclub.withWalletClient({ account, chain, transport })`
+  - `mintclub.network(chain).withAccount('0x...', provider)`
+  - `mintclub.network(chain).withProvider(provider)`
+- Refer to vibe-coders wallet docs and SDK pages: withWalletClient, withAccount, withProvider.
+
+Quick wallet setup example (React + wagmi)
+"use client";
+import { mintclub } from "mint.club-v2-sdk";
+import { base } from "viem/chains";
+import { useAccount, useWalletClient } from "wagmi";
+
+const { address } = useAccount();
+const { data: walletClient } = useWalletClient({ account: address, chainId: 8453 });
+
+mintclub
+  .withWalletClient({ ...walletClient, chain: base } as any)
+  .network("base")
+  // proceed with create calls, e.g.:
+  .token("MYTOKEN").create({ name: "My Token", reserveToken: { address: "0x...", decimals: 18 }, curveData: {/* ... */} });
+
+Purpose: This guide instructs agents on creating ERC20 tokens and ERC1155 NFT collections via the Mint Club v2 SDK using exact, non-hallucinated APIs from `ERC20Helper.ts`, `ERC1155Helper.ts`, `TokenHelper.ts`, `src/utils/bond.ts`, and `src/types/bond.types.ts`.
+
+Core pattern
+- ERC20: `mintclub.network(chain).token(symbol).create({...})`
+- ERC1155: `mintclub.network(chain).nft(symbol).create({...})`
+- Symbol usage: pass a symbol string to compute the deploy address via CREATE2. Use an address string when referring to an existing token/collection.
+
+Parameters (shared shape)
+- `name: string`
+- `reserveToken: { address: '0x${string}'; decimals: number }`
+- Choose exactly ONE of the following:
+  - `curveData: { curveType: 'LINEAR' | 'EXPONENTIAL' | 'LOGARITHMIC' | 'FLAT'; stepCount: number; maxSupply: number; initialMintingPrice: number; finalMintingPrice: number; creatorAllocation?: number }`
+  - `stepData: Array<{ rangeTo: number; price: number }>`
+- `buyRoyalty?: number` (default 0.03)
+- `sellRoyalty?: number` (default 0.03)
+- Callbacks (write methods support): `onSignatureRequest?`, `onSigned?`, `onSuccess?`, `onError?`
+
+ERC20 creation
+```ts
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub
+  .network('base')
+  .token('MYTOKEN')
+  .create({
+    name: 'My Token',
+    reserveToken: { address: '0x...', decimals: 18 },
+    curveData: {
+      curveType: 'LINEAR',
+      stepCount: 20,
+      maxSupply: 1_000_000,
+      initialMintingPrice: 0.001,
+      finalMintingPrice: 1,
+      // creatorAllocation?: number
+    },
+    buyRoyalty: 0.03,
+    sellRoyalty: 0.03,
+    onSuccess: (receipt) => console.log('Token created:', receipt.transactionHash),
+  })
+```
+
+ERC1155 creation (NFT)
+```ts
+import { mintclub } from 'mint.club-v2-sdk'
+
+await mintclub
+  .network('base')
+  .nft('MYNFT')
+  .create({
+    name: 'My NFT Collection',
+    metadataUrl: 'ipfs://...' /* or 'https://...' */,
+    reserveToken: { address: '0x...', decimals: 18 },
+    stepData: [
+      { rangeTo: 50, price: 0 },
+      { rangeTo: 100, price: 0.01 },
+      { rangeTo: 1000, price: 0.1 },
+      { rangeTo: 10_000, price: 1 },
+    ],
+    buyRoyalty: 0.03,
+    sellRoyalty: 0.03,
+    onSuccess: (receipt) => console.log('NFT collection created:', receipt.transactionHash),
+  })
+```
+
+Implementation details (SDK behavior)
+- The create helpers call `TokenHelper.checkAndPrepareCreateArgs`, which:
+  - Validates either `curveData` or `stepData` is provided
+  - Generates step ranges/prices using `generateCreateArgs` (uses `wei()` with correct decimals)
+  - Validates creator allocation and curve endpoints
+  - Returns `args` with `tokenParams` and `bondParams`
+- ERC20 uses `bondContract.createToken(args)`; ERC1155 uses `bondContract.createMultiToken(args)`.
+- Both send the required creation fee in `value` returned from `getCreationFee()`.
+- ERC1155 `create` validates `metadataUrl` (IPFS hash format if `ipfs://`).
+
+Metadata and IPFS (for ERC1155)
+- Use `mintclub.ipfs.uploadMetadata({ filebaseApiKey, name, image, ... })` to obtain an IPFS URL for `metadataUrl`.
+- Helper methods in `IpfsHelper` support uploading blobs and validating IPFS CIDs.
+
+Method signatures (as implemented)
+- ERC20 create:
+  `token(symbolOrAddress).create(params: CreateERC20TokenParams & Omit<CommonWriteParams, 'value'>)`
+  where `CreateERC20TokenParams` shape is defined above via `bond.types.ts` (curveData/stepData union).
+
+- ERC1155 create:
+  `nft(symbolOrAddress).create(params: CreateERC1155TokenParams & Omit<CommonWriteParams, 'value'>)`
+  where `CreateERC1155TokenParams = CreateERC20TokenParams & { metadataUrl: IpfsHashUrl | HttpUrl }`.
+
+Callbacks (write operations)
+- `onSignatureRequest?: () => void`
+- `onSigned?: (tx: '0x${string}') => void`
+- `onSuccess?: (receipt: TransactionReceipt) => void`
+- `onError?: (error: unknown) => void`
+
+Constraints and validation
+- Provide exactly one of `curveData` or `stepData`.
+- `stepData` must be non-decreasing in both `rangeTo` and `price`; first step with price 0 allocates tokens to the creator.
+- For ERC1155 with `maxSupply === 1`, SDK generates a single step `{ rangeTo: 1, price: finalMintingPrice }`.
+- `buyRoyalty` and `sellRoyalty` defaults are 0.03; SDK multiplies by 100 (basis points in on-chain args).
+
+Quick references
+- Token create docs: `/site/docs/pages/docs/sdk/network/token/create.mdx`
+- NFT create docs: `/site/docs/pages/docs/sdk/network/nft/create.mdx`
+- Helper internals: `src/utils/bond.ts` (generateCreateArgs), `src/helpers/ERC20Helper.ts`, `src/helpers/ERC1155Helper.ts`

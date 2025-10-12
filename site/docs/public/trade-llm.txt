@@ -1,0 +1,172 @@
+Mint Club SDK — Trade LLM Guideline
+
+Wallet setup required for writes
+- All write operations (buy, sell, buyWithZap, sellWithZap, approvals) require an active wallet client.
+- In browser, the SDK will try `window.ethereum` by default; for app integrations (e.g., wagmi/RainbowKit), explicitly configure one of:
+  - mintclub.withWalletClient({ account, chain, transport })
+  - mintclub.network(chain).withAccount('0x...', provider)
+  - mintclub.network(chain).withProvider(provider)
+
+Quick wallet setup example (React + wagmi)
+"use client";
+import { mintclub, wei } from "mint.club-v2-sdk";
+import { base } from "viem/chains";
+import { useAccount, useWalletClient } from "wagmi";
+
+const { address } = useAccount();
+const { data: walletClient } = useWalletClient({ account: address, chainId: 8453 });
+
+mintclub
+  .withWalletClient({ ...walletClient, chain: base } as any)
+  .network("base")
+  .token("CHICKEN")
+  .buy({ amount: wei(1, 18), slippage: 100 });
+
+Core trading APIs (from Token helper)
+- token(symbolOrAddress).buy({ amount, slippage?, recipient?, ...callbacks })
+- token(symbolOrAddress).sell({ amount, slippage?, recipient?, ...callbacks })
+- token(symbolOrAddress).buyWithZap({ amount, slippage?, recipient?, ...callbacks })
+- token(symbolOrAddress).sellWithZap({ amount, slippage?, recipient?, ...callbacks })
+
+Parameters
+- amount: bigint (use wei(x, decimals) for ERC20; ERC1155 often uses wei(1, 0) or plain 1n)
+- slippage?: number — 100 = 1%, 200 = 2% (defaults to 0)
+- recipient?: '0x...' — optional; defaults to the connected wallet
+- Callbacks supported on write methods:
+  - onSignatureRequest?: () => void
+  - onSigned?: (tx: '0x...') => void
+  - onSuccess?: (receipt) => void
+  - onError?: (error) => void
+
+Automatic allowance flow
+- For buys/sells, the SDK checks allowance. If not enough, the first call triggers an approval transaction to the relevant contract, then you should call the trade again.
+  - ERC20 buy: approve reserve token to BOND contract
+  - ERC20 sell: approve token to BOND contract (or ZAP when using zap)
+  - ERC1155 sell: setApprovalForAll for BOND (or ZAP when using zap)
+
+Zap trades (ETH in/out)
+- buyWithZap/sellWithZap use the ZAP contract.
+- buyWithZap sends native ETH value inferred from the current quote.
+- Zap is available only when the reserve token is the wrapped native token on the selected chain.
+
+Pre-trade reads (optional)
+- token.getBuyEstimation(amount) → [reserveNeeded, ...]
+- token.getSellEstimation(amount) → [reserveReceived, ...]
+- token.getPriceForNextMint() → next token mint price (in reserve)
+- token.getUsdRate({ amount }) → approximate USD conversion path
+
+Examples
+
+1) React + wagmi + RainbowKit (wallet) → Buy token
+"use client";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { mintclub, wei } from "mint.club-v2-sdk";
+import { base } from "viem/chains";
+import { useAccount, useDisconnect, useWalletClient } from "wagmi";
+
+export default function Home() {
+  const { address } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const { data: walletClient } = useWalletClient({
+    account: address,
+    chainId: 8453,
+  });
+  const { disconnect } = useDisconnect();
+  return (
+    <main className="flex min-h-screen flex-col items-center px-5 py-20">
+      {address ? (
+        <>
+          <div>Connected: {address}</div>
+          <div
+            className="text-red-500 cursor-pointer"
+            onClick={() => disconnect?.()}
+          >
+            Disconnect
+          </div>
+
+          <div className="mt-10 flex flex-col gap-5">
+            <button
+              className="border border-white"
+              onClick={() => {
+                mintclub
+                  .withWalletClient({
+                    ...walletClient,
+                    // there are cases when the chain is not set in the wallet client
+                    chain: base,
+                  } as any)
+                  .network("base")
+                  .token("CHICKEN")
+                  .buy({
+                    amount: wei(1, 18),
+                    slippage: 100, // 1%
+                  });
+              }}
+            >
+              Buy 1 CHICKEN token on BASE
+            </button>
+            <a
+              href="https://mint.club/token/base/CHICKEN"
+              target="_blank"
+              className="text-green-500"
+            >
+              https://mint.club/token/base/CHICKEN
+            </a>
+          </div>
+        </>
+      ) : (
+        <button
+          onClick={() => {
+            openConnectModal?.();
+          }}
+        >
+          Connect wallet
+        </button>
+      )}
+    </main>
+  );
+}
+
+2) Node/Script (buy with explicit slippage and recipient)
+import { mintclub, wei } from 'mint.club-v2-sdk'
+import { base } from 'viem/chains'
+
+const sdk = mintclub.withPrivateKey(process.env.PRIVATE_KEY as `0x${string}`).withWalletClient({
+  account: process.env.WALLET as `0x${string}`,
+  chain: base,
+  transport: custom(globalThis.ethereum)
+})
+
+await sdk
+  .network('base')
+  .token('CHICKEN')
+  .buy({
+    amount: wei(10, 18),
+    slippage: 100, // 1%
+    recipient: process.env.RECIPIENT as `0x${string}`,
+    onSuccess: (r) => console.log('tx', r.transactionHash),
+  })
+
+3) Sell and Zap examples
+// Sell 5 tokens, 1% slippage
+await mintclub
+  .network('base')
+  .token('CHICKEN')
+  .sell({ amount: wei(5, 18), slippage: 100 })
+
+// Buy with ETH directly (zap)
+await mintclub
+  .network('base')
+  .token('CHICKEN')
+  .buyWithZap({ amount: wei(2, 18), slippage: 200 }) // 2%
+
+// Sell to ETH directly (zap)
+await mintclub
+  .network('base')
+  .token('CHICKEN')
+  .sellWithZap({ amount: wei(1, 18), slippage: 200 })
+
+Best practices
+- Always set a sensible slippage (100 = 1%).
+- Use getBuyEstimation/getSellEstimation for previews.
+- ERC20: ensure approvals; the first call may return an approval tx. Call trade again after approval succeeds.
+- For zap, ensure reserve token is wrapped native for the selected chain.
