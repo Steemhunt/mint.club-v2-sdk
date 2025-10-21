@@ -13,7 +13,7 @@ import { WalletNotConnectedError } from '../errors/sdk.errors';
 import { ContractNames, SdkSupportedChainIds, getChain, getMintClubContractAddress } from '../exports';
 import { Client } from '../helpers/ClientHelper';
 import { SupportedAbiType } from '../types/abi.types';
-import { GenericWriteParams, TokenContractReadArgs, TokenContractReadWriteArgs } from '../types/transactions.types';
+import { GenericWriteParams, TokenContractReadArgs } from '../types/transactions.types';
 import { customWaitForTransaction } from '../utils/transaction';
 
 type GenericLogicConstructorParams<
@@ -98,8 +98,8 @@ export class GenericContractLogic<
         await this.clientHelper.connect();
         return;
       } else if (!isPrivateKey && walletClient.chain?.id !== this.chainId) {
-        await walletClient.addChain({ chain: this.chain });
-        await walletClient.switchChain({ id: this.chainId });
+        await walletClient.addChain?.({ chain: this.chain });
+        await walletClient.switchChain?.({ id: this.chainId });
       }
 
       simulationArgs = {
