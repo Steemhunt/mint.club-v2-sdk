@@ -93,8 +93,8 @@ async function createTokenWithMetadata(sdk: any) {
           finalMintingPrice: 5,
           creatorAllocation: wei(10000, 18), // 10k tokens for creator
         },
-        buyRoyalty: 300, // 3%
-        sellRoyalty: 300, // 3%
+        buyRoyalty: 0.03, // 3%
+        sellRoyalty: 0.03, // 3%
         onSuccess: (receipt) => {
           console.log('🎉 Token created:', receipt.transactionHash)
           console.log('🔗 View on Mint Club:', `https://mint.club/token/base/AWESOME`)

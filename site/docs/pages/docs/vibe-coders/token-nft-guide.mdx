@@ -46,8 +46,8 @@ await sdk
       initialMintingPrice: 0.001,
       finalMintingPrice: 1,
     },
-    buyRoyalty: 300, // 3%
-    sellRoyalty: 300, // 3%
+    buyRoyalty: 0.03, // 3%
+    sellRoyalty: 0.03, // 3%
     creatorAllocation: wei(10000, 18), // 10k tokens for creator
     onSuccess: (receipt) => {
       console.log('✅ Token created:', receipt.transactionHash)
@@ -79,8 +79,8 @@ interface TokenCreateParams {
     finalMintingPrice: number // Final price per token
     creatorAllocation?: bigint // Tokens allocated to creator
   }
-  buyRoyalty?: number // Buy royalty in basis points (0-10000)
-  sellRoyalty?: number // Sell royalty in basis points (0-10000)
+  buyRoyalty?: number // Buy royalty as decimal (0.03 = 3%)
+  sellRoyalty?: number // Sell royalty as decimal (0.03 = 3%)
   onSuccess?: (receipt: any) => void
   onError?: (error: any) => void
 }
@@ -277,8 +277,8 @@ await sdk
       initialMintingPrice: 0.01,
       finalMintingPrice: 2,
     },
-    buyRoyalty: 500, // 5%
-    sellRoyalty: 300, // 3%
+    buyRoyalty: 0.05, // 5%
+    sellRoyalty: 0.03, // 3%
     onSuccess: (receipt) => {
       console.log('✅ NFT collection created:', receipt.transactionHash)
     },
@@ -648,8 +648,8 @@ curveData: {
 creatorAllocation: wei(50000, 18) // 5% for creator/liquidity
 
 // 4. Set appropriate royalties
-buyRoyalty: 300,   // 3% buy royalty
-sellRoyalty: 300   // 3% sell royalty
+buyRoyalty: 0.03,   // 3% buy royalty
+sellRoyalty: 0.03   // 3% sell royalty
 ```
 
 ### NFT Creation Best Practices
