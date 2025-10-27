@@ -22,16 +22,33 @@ This function is useful when:
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
 
-await mintclub.network('base').stake.emergencyUnstake({
-  poolId: 0,
-  onSuccess: (receipt) => {
-    console.log('Emergency unstake successful!', receipt)
-  },
-  onError: (error) => {
-    console.error('Failed to emergency unstake:', error)
-  },
-})
+function EmergencyUnstakeExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleEmergencyUnstake = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: base,
+      } as any)
+      .network('base')
+      .stake
+      .emergencyUnstake({
+        poolId: 0,
+        onSuccess: (receipt) => {
+          console.log('Emergency unstake successful!', receipt)
+        },
+        onError: (error) => {
+          console.error('Failed to emergency unstake:', error)
+        },
+      })
+  }
+
+  return <button onClick={handleEmergencyUnstake}>Emergency Unstake</button>
+}
 ```
 
 ## Return Value

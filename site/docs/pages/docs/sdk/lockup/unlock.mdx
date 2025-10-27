@@ -1,8 +1,8 @@
 ---
-description: Unlock a lockup 
+description: Unlock a lockup
 ---
 
-# unlock 
+# unlock
 
 Unlock a lockup. This will unlock the lockup and transfer the tokens to the previously set recipient.
 
@@ -14,19 +14,34 @@ It's only possible to unlock a lockup if the lockup has expired.
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
 
-await mintclub.network('base').lockup.unlock({
-	lockUpId: 1
-}) 
+function UnlockExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleUnlock = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: base,
+      } as any)
+      .network('base')
+      .lockup
+      .unlock({
+        lockUpId: 1,
+      })
+  }
+
+  return <button onClick={handleUnlock}>Unlock</button>
+}
 ```
-
 
 ## Return Value
 
 `Promise<TransactionReceipt>`
 
 Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
-
 
 ## Parameters
 
@@ -38,13 +53,11 @@ LockUp id.
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
+
 await mintclub.network('base').lockup.unlock({
-	lockUpId: 1 // [!code focus]
-	
+  lockUpId: 1, // [!code focus]
 })
 ```
-
 
 ### onSignatureRequest (optional)
 
@@ -55,9 +68,9 @@ Callback function for when the user is requested to sign the transaction.
 
 ```ts
 await mintclub.network('base').lockup.unlock({
-	lockUpId: 1,
-	onSignatureRequest: () => {} // [!code focus]
-  })
+  lockUpId: 1,
+  onSignatureRequest: () => {}, // [!code focus]
+})
 ```
 
 ### onSigned (optional)
@@ -65,14 +78,13 @@ await mintclub.network('base').lockup.unlock({
 - Type: `onSigned?: (txHash: '0x${string}') => void;`
 - Default: `undefined`
 
-
 Callback function for when the user is signs the transaction.
 
 ```ts
 await mintclub.network('base').lockup.unlock({
-	lockUpId: 1,
-	onSigned: (txHash) => {} // [!code focus]
-  })
+  lockUpId: 1,
+  onSigned: (txHash) => {}, // [!code focus]
+})
 ```
 
 ### onSuccess (optional)
@@ -80,14 +92,13 @@ await mintclub.network('base').lockup.unlock({
 - Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
 - Default: `undefined`
 
-
 Callback function for when the transaction is successful.
 
 ```ts
 await mintclub.network('base').lockup.unlock({
-	lockUpId: 1,
-	onSuccess: (receipt) => {} // [!code focus]
-  })
+  lockUpId: 1,
+  onSuccess: (receipt) => {}, // [!code focus]
+})
 ```
 
 ### onError (optional)
@@ -99,7 +110,7 @@ Callback function for when the transaction fails. This also includes when the us
 
 ```ts
 await mintclub.network('base').lockup.unlock({
-	lockUpId: 1,
-	onError: (error) => {} // [!code focus]
-  })
+  lockUpId: 1,
+  onError: (error) => {}, // [!code focus]
+})
 ```

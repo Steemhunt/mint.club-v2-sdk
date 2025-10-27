@@ -1,0 +1,41 @@
+---
+description: Get royalty information for a user with a specific reserve token
+---
+
+# getRoyaltyInfo
+
+Returns royalty information for a user with a specific reserve token.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+
+const [balance, claimed] = await mintclub.network('ethereum').bond.getRoyaltyInfo({
+  wallet: '0x...',
+  reserveToken: '0x...',
+})
+```
+
+## Return Value
+
+`Promise<readonly [bigint, bigint]>`
+
+Returns a tuple of two bigint values:
+
+- First value: total royalty balance for the user
+- Second value: total claimed royalty amount
+
+## Parameters
+
+### wallet
+
+- Type: `'0x${string}'`
+
+The address of the wallet to check royalty information for.
+
+### reserveToken
+
+- Type: `'0x${string}'`
+
+The address of the reserve token to check royalties for.

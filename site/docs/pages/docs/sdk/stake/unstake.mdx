@@ -14,17 +14,34 @@ When you unstake, any pending rewards are automatically claimed and sent to your
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
 
-await mintclub.network('base').stake.unstake({
-  poolId: 0,
-  amount: BigInt('50000000000000000'), // 0.05 token (18 decimals)
-  onSuccess: (receipt) => {
-    console.log('Tokens unstaked successfully!', receipt)
-  },
-  onError: (error) => {
-    console.error('Failed to unstake tokens:', error)
-  },
-})
+function UnstakeExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleUnstake = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: base,
+      } as any)
+      .network('base')
+      .stake
+      .unstake({
+        poolId: 0,
+        amount: BigInt('50000000000000000'), // 0.05 token (18 decimals)
+        onSuccess: (receipt) => {
+          console.log('Tokens unstaked successfully!', receipt)
+        },
+        onError: (error) => {
+          console.error('Failed to unstake tokens:', error)
+        },
+      })
+  }
+
+  return <button onClick={handleUnstake}>Unstake Tokens</button>
+}
 ```
 
 ## Return Value

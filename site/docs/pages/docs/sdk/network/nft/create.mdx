@@ -10,14 +10,13 @@ Below is a basic example of how to call the `create` function.
 
 :::tip[NOTE]
 When using the `create` function, you must pass a `symbol` that you want to create as the parameter of the `nft` function.
+
 ```ts
-await mintclub
-  .network('ethereum')
-  .nft('MNFT') // [!code focus]
+await mintclub.network('ethereum').nft('MNFT') // [!code focus]
 ```
 
 > In the example below, we are creating a nft with the symbol `MNFT` with the nft name of `Mint Club Collection` on the `ethereum` network.
-::::
+> ::::
 
 :::warning[IPFS]
 Please refer to [uploadMetadata](/docs/sdk/ipfs/uploadMetadata) for more information on how to upload metadata to IPFS.
@@ -28,60 +27,90 @@ If you have a own server that manages the metadata and want to use a public URL 
 :::code-group
 
 ```ts [curvedata-example.ts]
-import { curveData } from './data';
+import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { mainnet } from 'viem/chains'
+import { curveData } from './data'
 
-await mintclub
-  .network('ethereum')
-  .nft('MNFT')
-  .create({
-    name: 'Mint Club Collection',
-    reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
-      decimals: 18, 
-    }, 
-	curveData,
-    metadataUrl: 'ipfs://...' | 'https://...',
-  })
+function CreateNFTExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleCreate = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: mainnet,
+      } as any)
+      .network('ethereum')
+      .nft('MNFT')
+      .create({
+        name: 'Mint Club Collection',
+        reserveToken: {
+          address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          decimals: 18,
+        },
+        curveData,
+        metadataUrl: 'ipfs://...',
+      })
+  }
+
+  return <button onClick={handleCreate}>Create NFT</button>
+}
 ```
 
 ```ts [stepdata-example.ts]
-import { stepData } from './data';
+import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { mainnet } from 'viem/chains'
+import { stepData } from './data'
 
-await mintclub
-  .network('ethereum')
-  .nft('MNFT')
-  .create({
-    name: 'Mint Club Collection',
-    reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
-      decimals: 18, 
-    }, 
-	stepData, 
-  })
+function CreateNFTExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleCreate = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: mainnet,
+      } as any)
+      .network('ethereum')
+      .nft('MNFT')
+      .create({
+        name: 'Mint Club Collection',
+        reserveToken: {
+          address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          decimals: 18,
+        },
+        stepData,
+        metadataUrl: 'ipfs://...',
+      })
+  }
+
+  return <button onClick={handleCreate}>Create NFT</button>
+}
 ```
 
 ```ts [data.ts]
 // Only one of curveData or stepData is required
 
 export const stepData = [
-	{ rangeTo: 50, price: 0 }, // Since price is 0, the first 50 tokens will be allocated to the creator
-	{ rangeTo: 100, price: 0.01 }, // 0.01 WETH for the next 50 tokens
-	{ rangeTo: 1000, price: 0.1 }, // 0.1 WETH for the next 900 tokens
-	{ rangeTo: 10_000, price: 1 }, // 1 WETH for the next 9000 tokens
+  { rangeTo: 50, price: 0 }, // Since price is 0, the first 50 tokens will be allocated to the creator
+  { rangeTo: 100, price: 0.01 }, // 0.01 WETH for the next 50 tokens
+  { rangeTo: 1000, price: 0.1 }, // 0.1 WETH for the next 900 tokens
+  { rangeTo: 10_000, price: 1 }, // 1 WETH for the next 9000 tokens
 ]
 
 export const curveData = {
-	curveType: 'LINEAR', 
-	stepCount: 10,
-	maxSupply: 10_000,
-	initialMintingPrice: 0.01, // 0.01 WETH 
-	finalMintingPrice: 0.1, // 0.1 WETH
-	creatorAllocation: 100,
+  curveType: 'LINEAR',
+  stepCount: 10,
+  maxSupply: 10_000,
+  initialMintingPrice: 0.01, // 0.01 WETH
+  finalMintingPrice: 0.1, // 0.1 WETH
+  creatorAllocation: 100,
 }
 ```
 
 :::
-
 
 ## Return Value
 
@@ -125,16 +154,16 @@ await mintclub
   .create({
     name: 'Mint Club Collection',
     // [!code focus]
-    reserveToken: { // [!code focus]
+    reserveToken: {
+      // [!code focus]
       // [!code focus]
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address // [!code focus]
       decimals: 18, // [!code focus]
     }, // [!code focus]
     curveData,
-    metadataUrl: 'ipfs://...' | 'https://...', 
+    metadataUrl: 'ipfs://...' | 'https://...',
   })
 ```
-
 
 ### metadataUrl
 
@@ -146,23 +175,20 @@ Please refer to [uploadMetadata](/docs/sdk/ipfs/uploadMetadata) for more informa
 If you have a own server that manages the metadata and want to use a public URL for the metadata, you can pass a `https` url.
 :::
 
-
 ```ts
 await mintclub
   .network('ethereum')
   .nft('MNFT')
   .create({
     name: 'Mint Club Collection',
-    reserveToken: { 
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address // 
+    reserveToken: {
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address //
       decimals: 18,
-    }, 
+    },
     curveData,
     metadataUrl: 'ipfs://...' | 'https://...', // [!code focus]
   })
 ```
-
-
 
 ### curveData (conditionally required)
 
@@ -200,8 +226,7 @@ The initial price of the nft on the bonding curve.
 
 - Type: `number`
 
-The final price of the nft on the bonding curve. 
-
+The final price of the nft on the bonding curve.
 
 ##### creatorAllocation (optional)
 
@@ -213,7 +238,7 @@ The amount of tokens that will be allocated to the creator of the bonding curve 
 :::code-group
 
 ```ts [example.ts]
-import { curveData } from './curve-data';
+import { curveData } from './curve-data'
 
 await mintclub
   .network('ethereum')
@@ -221,26 +246,25 @@ await mintclub
   .create({
     name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
-      decimals: 18, 
-    }, 
-		// [!code focus]
-	curveData, // [!code focus]
-		// [!code focus]
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address
+      decimals: 18,
+    },
+    // [!code focus]
+    curveData, // [!code focus]
+    // [!code focus]
   })
 ```
 
 ```ts [curve-data.ts]
 export const curveData = {
-	curveType: 'LINEAR', 
-	stepCount: 10,
-	maxSupply: 10_000,
-	initialMintingPrice: 0.01, // 0.01 WETH 
-	finalMintingPrice: 0.1, // 0.1 WETH
-	creatorAllocation: 100,
+  curveType: 'LINEAR',
+  stepCount: 10,
+  maxSupply: 10_000,
+  initialMintingPrice: 0.01, // 0.01 WETH
+  finalMintingPrice: 0.1, // 0.1 WETH
+  creatorAllocation: 100,
 }
 ```
-
 
 :::
 
@@ -255,13 +279,14 @@ Steps that will be used to construct the bonding curve. The `rangeTo` property i
 If price is 0, the first `rangeTo` tokens will be allocated to the creator of the bonding curve.
 
 :::warning[NOTE]
+
 > Note that the value of `rangeTo` and `price` can NOT be decreasing.
-:::
+> :::
 
 :::code-group
 
 ```ts [example.ts]
-import { stepData } from './step-data';
+import { stepData } from './step-data'
 
 await mintclub
   .network('ethereum')
@@ -269,21 +294,21 @@ await mintclub
   .create({
     name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
-      decimals: 18, 
-    }, 
-		// [!code focus]
-	stepData, // [!code focus]
-		// [!code focus]
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address
+      decimals: 18,
+    },
+    // [!code focus]
+    stepData, // [!code focus]
+    // [!code focus]
   })
 ```
 
 ```ts [step-data.ts]
 export const stepData = [
-	{ rangeTo: 50, price: 0 }, // Since price is 0, the first 50 tokens will be allocated to the creator
-	{ rangeTo: 100, price: 0.01 }, // 0.01 WETH for the next 50 tokens
-	{ rangeTo: 1000, price: 0.1 }, // 0.1 WETH for the next 900 tokens
-	{ rangeTo: 10_000, price: 1 }, // 1 WETH for the next 9000 tokens
+  { rangeTo: 50, price: 0 }, // Since price is 0, the first 50 tokens will be allocated to the creator
+  { rangeTo: 100, price: 0.01 }, // 0.01 WETH for the next 50 tokens
+  { rangeTo: 1000, price: 0.1 }, // 0.1 WETH for the next 900 tokens
+  { rangeTo: 10_000, price: 1 }, // 1 WETH for the next 9000 tokens
 ]
 ```
 
@@ -300,7 +325,6 @@ buyRoyalty is the percentage of the buy trade fee that will go to the creator.
 The royalty is split 8:2 between the creator (80%) and the protocol (20%) [Link](https://docs.mint.club/royalties/creator-royalties)
 :::
 
-
 ```ts
 await mintclub
   .network('ethereum')
@@ -308,9 +332,9 @@ await mintclub
   .create({
     name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address
       decimals: 18,
-    }, 
+    },
     curveData,
     buyRoyalty: 0.03, // [!code focus]
   })
@@ -323,11 +347,9 @@ await mintclub
 
 sellRoyalty is the percentage of the sell trade fee that will go to the creator.
 
-
 :::note[NOTE]
 The royalty is split 8:2 between the creator (80%) and the protocol (20%) [Link](https://docs.mint.club/royalties/creator-royalties)
 :::
-
 
 ```ts
 await mintclub
@@ -336,14 +358,13 @@ await mintclub
   .create({
     name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address
       decimals: 18,
-    }, 
+    },
     curveData,
     sellRoyalty: 0.03, // [!code focus]
   })
 ```
-
 
 ### onSignatureRequest (optional)
 
@@ -359,10 +380,10 @@ await mintclub
   .create({
     name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address
       decimals: 18,
-    }, 
-	onSignatureRequest: () => {} // [!code focus]
+    },
+    onSignatureRequest: () => {}, // [!code focus]
   })
 ```
 
@@ -370,7 +391,6 @@ await mintclub
 
 - Type: `onSigned?: (txHash: '0x${string}') => void;`
 - Default: `undefined`
-
 
 Callback function for when the user is signs the transaction.
 
@@ -381,10 +401,10 @@ await mintclub
   .create({
     name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address
       decimals: 18,
-    }, 
-	onSigned: (txHash) => {} // [!code focus]
+    },
+    onSigned: (txHash) => {}, // [!code focus]
   })
 ```
 
@@ -392,7 +412,6 @@ await mintclub
 
 - Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
 - Default: `undefined`
-
 
 Callback function for when the transaction is successful.
 
@@ -403,10 +422,10 @@ await mintclub
   .create({
     name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address
       decimals: 18,
-    }, 
-	onSuccess: (receipt) => {} // [!code focus]
+    },
+    onSuccess: (receipt) => {}, // [!code focus]
   })
 ```
 
@@ -424,15 +443,14 @@ await mintclub
   .create({
     name: 'Mint Club Collection',
     reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address 
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH nft address
       decimals: 18,
-    }, 
-	onError: (error) => {} // [!code focus]
+    },
+    onError: (error) => {}, // [!code focus]
   })
 ```
 
-
-{/* ## Live Example
+{/\* ## Live Example
 
 Check out the usage of `readContract` in the live [Reading Contracts Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_reading-contracts) below.
 

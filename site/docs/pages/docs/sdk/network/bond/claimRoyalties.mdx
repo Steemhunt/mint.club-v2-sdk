@@ -1,0 +1,88 @@
+---
+description: Claim accumulated royalties for a specific reserve token
+---
+
+# claimRoyalties
+
+Claims accumulated royalties for a specific reserve token.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
+
+function ClaimRoyaltiesExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const claim = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: base,
+      } as any)
+      .network('base')
+      .bond
+      .claimRoyalties({
+        reserveToken: '0x...',
+        onSignatureRequest: () => {
+          console.log('Requesting signature...')
+        },
+        onSigned: (tx) => {
+          console.log('Transaction signed:', tx)
+        },
+        onSuccess: (receipt) => {
+          console.log('Royalties claimed successfully!', receipt)
+        },
+        onError: (error) => {
+          console.error('Error claiming royalties:', error)
+        },
+      })
+  }
+
+  return <button onClick={claim}>Claim Royalties</button>
+}
+```
+
+## Return Value
+
+`Promise<TransactionReceipt>`
+
+Returns the transaction receipt after claiming royalties.
+
+## Parameters
+
+### reserveToken
+
+- Type: `'0x${string}'`
+
+The address of the reserve token to claim royalties for.
+
+### onSignatureRequest (optional)
+
+- Type: `() => void`
+
+Callback function called when the user is prompted to sign the transaction.
+
+### onSigned (optional)
+
+- Type: `(tx: '0x${string}') => void`
+
+Callback function called when the transaction is signed. Receives the transaction hash.
+
+### onSuccess (optional)
+
+- Type: `(receipt: TransactionReceipt) => void`
+
+Callback function called when the transaction is successfully confirmed. Receives the transaction receipt.
+
+### onError (optional)
+
+- Type: `(error: unknown) => void`
+
+Callback function called if an error occurs during the transaction.
+
+:::note[Note]
+You must have accumulated royalties in order to claim them. Use `getRoyaltyInfo` to check your current royalty balance before claiming.
+:::

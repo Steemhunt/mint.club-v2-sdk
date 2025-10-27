@@ -18,16 +18,33 @@ When a pool is cancelled, any reward tokens that haven't been distributed yet ar
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
 
-await mintclub.network('base').stake.cancelPool({
-  poolId: 0,
-  onSuccess: (receipt) => {
-    console.log('Pool cancelled successfully!', receipt)
-  },
-  onError: (error) => {
-    console.error('Failed to cancel pool:', error)
-  },
-})
+function CancelPoolExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleCancelPool = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: base,
+      } as any)
+      .network('base')
+      .stake
+      .cancelPool({
+        poolId: 0,
+        onSuccess: (receipt) => {
+          console.log('Pool cancelled successfully!', receipt)
+        },
+        onError: (error) => {
+          console.error('Failed to cancel pool:', error)
+        },
+      })
+  }
+
+  return <button onClick={handleCancelPool}>Cancel Pool</button>
+}
 ```
 
 ## Return Value

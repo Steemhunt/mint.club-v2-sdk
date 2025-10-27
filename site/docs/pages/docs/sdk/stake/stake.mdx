@@ -14,17 +14,34 @@ Before staking, ensure the staking contract is approved to spend your tokens. Mo
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
 
-await mintclub.network('base').stake.stake({
-  poolId: 0,
-  amount: BigInt('100000000000000000'), // 0.1 token (18 decimals)
-  onSuccess: (receipt) => {
-    console.log('Tokens staked successfully!', receipt)
-  },
-  onError: (error) => {
-    console.error('Failed to stake tokens:', error)
-  },
-})
+function StakeExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleStake = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: base,
+      } as any)
+      .network('base')
+      .stake
+      .stake({
+        poolId: 0,
+        amount: BigInt('100000000000000000'), // 0.1 token (18 decimals)
+        onSuccess: (receipt) => {
+          console.log('Tokens staked successfully!', receipt)
+        },
+        onError: (error) => {
+          console.error('Failed to stake tokens:', error)
+        },
+      })
+  }
+
+  return <button onClick={handleStake}>Stake Tokens</button>
+}
 ```
 
 ## Return Value

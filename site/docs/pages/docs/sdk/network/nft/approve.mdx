@@ -2,19 +2,36 @@
 description: Approves NFT allowance for a spender
 ---
 
-# approve 
+# approve
 
 Approves NFT allowance for a spender.
 
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub, wei } from 'mint.club-v2-sdk'
- 
-await mintclub.network('ethereum').nft('SYMBOL').approve({
-	approved: true,
-	spender: '0x...'
-})
+import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { mainnet } from 'viem/chains'
+
+function ApproveNFTExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleApprove = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: mainnet,
+      } as any)
+      .network('ethereum')
+      .nft('SYMBOL')
+      .approve({
+        approved: true,
+        spender: '0x...',
+      })
+  }
+
+  return <button onClick={handleApprove}>Approve NFT</button>
+}
 ```
 
 ## Return Value
@@ -22,7 +39,6 @@ await mintclub.network('ethereum').nft('SYMBOL').approve({
 `Promise<TransactionReceipt>`
 
 Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
-
 
 ## Parameters
 
@@ -32,10 +48,10 @@ Returns a promise that resolves to a `TransactionReceipt` object when the transa
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
+
 await mintclub.network('ethereum').nft('SYMBOL').approve({
-	approved: true, // [!code focus]
-	spender: '0x...'
+  approved: true, // [!code focus]
+  spender: '0x...',
 })
 ```
 
@@ -45,16 +61,14 @@ await mintclub.network('ethereum').nft('SYMBOL').approve({
 
 The address of the spender
 
-
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
+
 await mintclub.network('ethereum').nft('SYMBOL').approve({
-	approved: true, 
-	spender: '0x...' // [!code focus]
+  approved: true,
+  spender: '0x...', // [!code focus]
 })
 ```
-
 
 ### onSignatureRequest (optional)
 
@@ -79,7 +93,6 @@ await mintclub
 - Type: `onSigned?: (txHash: '0x${string}') => void;`
 - Default: `undefined`
 
-
 Callback function for when the user is signs the transaction.
 
 ```ts
@@ -97,7 +110,6 @@ await mintclub
 
 - Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
 - Default: `undefined`
-
 
 Callback function for when the transaction is successful.
 

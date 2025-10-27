@@ -1,8 +1,8 @@
 ---
-description: Cancel an airdrop 
+description: Cancel an airdrop
 ---
 
-# cancelAirdrop 
+# cancelAirdrop
 
 Cancel an airdrop. This will refund the airdrop amount to the airdrop creator.
 
@@ -10,19 +10,34 @@ Cancel an airdrop. This will refund the airdrop amount to the airdrop creator.
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
 
-await mintclub.network('base').airdrop.cancelAirdrop({
-	airdropId: 1
-}) 
+function CancelAirdropExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleCancelAirdrop = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: base,
+      } as any)
+      .network('base')
+      .airdrop
+      .cancelAirdrop({
+        airdropId: 1,
+      })
+  }
+
+  return <button onClick={handleCancelAirdrop}>Cancel Airdrop</button>
+}
 ```
-
 
 ## Return Value
 
 `Promise<TransactionReceipt>`
 
 Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
-
 
 ## Parameters
 
@@ -34,13 +49,11 @@ Airdrop id.
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
+
 await mintclub.network('base').airdrop.cancelAirdrop({
-	airdropId: 1 // [!code focus]
-	
+  airdropId: 1, // [!code focus]
 })
 ```
-
 
 ### onSignatureRequest (optional)
 
@@ -51,9 +64,9 @@ Callback function for when the user is requested to sign the transaction.
 
 ```ts
 await mintclub.network('base').airdrop.cancelAirdrop({
-	airdropId: 1,
-	onSignatureRequest: () => {} // [!code focus]
-  })
+  airdropId: 1,
+  onSignatureRequest: () => {}, // [!code focus]
+})
 ```
 
 ### onSigned (optional)
@@ -61,14 +74,13 @@ await mintclub.network('base').airdrop.cancelAirdrop({
 - Type: `onSigned?: (txHash: '0x${string}') => void;`
 - Default: `undefined`
 
-
 Callback function for when the user is signs the transaction.
 
 ```ts
 await mintclub.network('base').airdrop.cancelAirdrop({
-	airdropId: 1,
-	onSigned: (txHash) => {} // [!code focus]
-  })
+  airdropId: 1,
+  onSigned: (txHash) => {}, // [!code focus]
+})
 ```
 
 ### onSuccess (optional)
@@ -76,14 +88,13 @@ await mintclub.network('base').airdrop.cancelAirdrop({
 - Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
 - Default: `undefined`
 
-
 Callback function for when the transaction is successful.
 
 ```ts
 await mintclub.network('base').airdrop.cancelAirdrop({
-	airdropId: 1,
-	onSuccess: (receipt) => {} // [!code focus]
-  })
+  airdropId: 1,
+  onSuccess: (receipt) => {}, // [!code focus]
+})
 ```
 
 ### onError (optional)
@@ -95,7 +106,7 @@ Callback function for when the transaction fails. This also includes when the us
 
 ```ts
 await mintclub.network('base').airdrop.cancelAirdrop({
-	airdropId: 1,
-	onError: (error) => {} // [!code focus]
-  })
+  airdropId: 1,
+  onError: (error) => {}, // [!code focus]
+})
 ```

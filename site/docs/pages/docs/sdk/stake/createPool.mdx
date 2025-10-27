@@ -14,21 +14,38 @@ Creating a staking pool requires paying a protocol fee. You can check the curren
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
 
-await mintclub.network('base').stake.createPool({
-  stakingToken: '0x1234567890123456789012345678901234567890',
-  isStakingTokenERC20: true,
-  rewardToken: '0x0987654321098765432109876543210987654321',
-  rewardAmount: BigInt('1000000000000000000'), // 1 token (18 decimals)
-  rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // Start in 1 hour
-  rewardDuration: 7 * 24 * 60 * 60, // 7 days in seconds
-  onSuccess: (receipt) => {
-    console.log('Pool created successfully!', receipt)
-  },
-  onError: (error) => {
-    console.error('Failed to create pool:', error)
-  },
-})
+function CreatePoolExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleCreatePool = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: base,
+      } as any)
+      .network('base')
+      .stake
+      .createPool({
+        stakingToken: '0x1234567890123456789012345678901234567890',
+        isStakingTokenERC20: true,
+        rewardToken: '0x0987654321098765432109876543210987654321',
+        rewardAmount: BigInt('1000000000000000000'), // 1 token (18 decimals)
+        rewardStartsAt: Math.floor(Date.now() / 1000) + 3600, // Start in 1 hour
+        rewardDuration: 7 * 24 * 60 * 60, // 7 days in seconds
+        onSuccess: (receipt) => {
+          console.log('Pool created successfully!', receipt)
+        },
+        onError: (error) => {
+          console.error('Failed to create pool:', error)
+        },
+      })
+  }
+
+  return <button onClick={handleCreatePool}>Create Pool</button>
+}
 ```
 
 ## Return Value

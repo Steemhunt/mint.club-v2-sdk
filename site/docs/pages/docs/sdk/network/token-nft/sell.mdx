@@ -2,7 +2,7 @@
 description: Sells tokens from the bonding curve contract.
 ---
 
-# sell 
+# sell
 
 Sells tokens from the bonding curve contract.
 
@@ -10,17 +10,34 @@ Sells tokens from the bonding curve contract.
 Before user makes a `sell` call, the bonding curve contract must be `approved` to use the asset's reserve token.
 
 :::success
-The SDK will automatically check if the bonding curve contract is approved to use the asset's reserve token. If not approved, it will prompt the user to sign an approval transaction. 
+The SDK will automatically check if the bonding curve contract is approved to use the asset's reserve token. If not approved, it will prompt the user to sign an approval transaction.
 :::
 
 ## Usage
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
-await mintclub.network('ethereum').token('SYMBOL').sell({
-	amount: wei(1, 18),
-})
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
+
+function SellExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleSell = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: base,
+      } as any)
+      .network('base')
+      .token('SYMBOL')
+      .sell({
+        amount: wei(1, 18),
+      })
+  }
+
+  return <button onClick={handleSell}>Sell Tokens</button>
+}
 ```
 
 ## Return Value
@@ -29,9 +46,7 @@ await mintclub.network('ethereum').token('SYMBOL').sell({
 
 Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
 
-
 ## Parameters
-
 
 ### amount
 
@@ -41,10 +56,13 @@ The amount of tokens to sell from the bonding curve contract.
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
-await mintclub.network('ethereum').token('SYMBOL').sell({
-	amount: wei(1, 18) // [!code focus]
-})
+
+await mintclub
+  .network('ethereum')
+  .token('SYMBOL')
+  .sell({
+    amount: wei(1, 18), // [!code focus]
+  })
 ```
 
 ### recipient (optional)
@@ -56,11 +74,14 @@ The address to send the bought tokens to. If not provided, the tokens will be se
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
-await mintclub.network('ethereum').token('SYMBOL').sell({
-	amount: wei(1, 18),
-	recipient: '0x1234567890123456789012345678901234567890' // [!code focus]
-})
+
+await mintclub
+  .network('ethereum')
+  .token('SYMBOL')
+  .sell({
+    amount: wei(1, 18),
+    recipient: '0x1234567890123456789012345678901234567890', // [!code focus]
+  })
 ```
 
 ### slippage (optional)
@@ -68,14 +89,16 @@ await mintclub.network('ethereum').token('SYMBOL').sell({
 - Type: `number`
 - Default: `0`
 
-
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
-await mintclub.network('ethereum').token('SYMBOL').sell({
-	amount: wei(1, 18),
-	slippage: 1 // 1% // [!code focus]
-})
+
+await mintclub
+  .network('ethereum')
+  .token('SYMBOL')
+  .sell({
+    amount: wei(1, 18),
+    slippage: 1, // 1% // [!code focus]
+  })
 ```
 
 ### allowanceAmount (optional)
@@ -87,14 +110,15 @@ The amount of tokens to approve the bonding curve contract to use the asset's re
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
-await mintclub.network('ethereum').token('SYMBOL').sell({
-	amount: wei(1, 18),
-	allowanceAmount: wei(1, 18) // [!code focus]
-})
+
+await mintclub
+  .network('ethereum')
+  .token('SYMBOL')
+  .sell({
+    amount: wei(1, 18),
+    allowanceAmount: wei(1, 18), // [!code focus]
+  })
 ```
-
-
 
 ### onAllowanceSignatureRequest (optional)
 
@@ -113,12 +137,10 @@ await mintclub
   })
 ```
 
-
 ### onAllowanceSigned (optional)
 
 - Type: `onAllowanceSigned?: (txHash: '0x${string}') => void;`
 - Default: `undefined`
-
 
 Callback function for when the user is signs the approval transaction.
 
@@ -137,7 +159,6 @@ await mintclub
 - Type: `onAllowanceSuccess?: (receipt: TransactionReceipt) => void;`
 - Default: `undefined`
 
-
 Callback function for when the approval transaction is successful.
 
 ```ts
@@ -149,7 +170,6 @@ await mintclub
      onAllowanceSuccess: (receipt) => {} // [!code focus]
   })
 ```
-
 
 ### onSignatureRequest (optional)
 
@@ -173,7 +193,6 @@ await mintclub
 - Type: `onSigned?: (txHash: '0x${string}') => void;`
 - Default: `undefined`
 
-
 Callback function for when the user is signs the transaction.
 
 ```ts
@@ -190,7 +209,6 @@ await mintclub
 
 - Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
 - Default: `undefined`
-
 
 Callback function for when the transaction is successful.
 

@@ -1,5 +1,6 @@
 import { SdkSupportedChainIds } from '../constants/contracts';
 import { bondContract } from '../contracts';
+import { CommonWriteParams } from '../types/transactions.types';
 
 export class Bond {
   protected chainId: SdkSupportedChainIds;
@@ -35,6 +36,23 @@ export class Bond {
     return bondContract.network(this.chainId).read({
       functionName: 'getList',
       args: [BigInt(start), BigInt(end)],
+    });
+  }
+
+  public getRoyaltyInfo(params: { wallet: `0x${string}`; reserveToken: `0x${string}` }) {
+    const { wallet, reserveToken } = params;
+    return bondContract.network(this.chainId).read({
+      functionName: 'getRoyaltyInfo',
+      args: [wallet, reserveToken],
+    });
+  }
+
+  public claimRoyalties(params: { reserveToken: `0x${string}` } & CommonWriteParams) {
+    const { reserveToken, ...writeParams } = params;
+    return bondContract.network(this.chainId).write({
+      ...writeParams,
+      functionName: 'claimRoyalties',
+      args: [reserveToken],
     });
   }
 }

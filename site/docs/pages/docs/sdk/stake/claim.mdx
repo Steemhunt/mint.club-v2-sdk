@@ -14,24 +14,41 @@ The protocol charges a fee on claimed rewards. You can check the current fee usi
 
 ```ts twoslash [example.ts]
 import { mintclub } from 'mint.club-v2-sdk'
+import { useWalletClient } from 'wagmi'
+import { base } from 'viem/chains'
 
-// Check claimable rewards first
-const claimable = await mintclub.network('base').stake.getClaimableReward({
-  poolId: 0,
-  staker: '0x1234567890123456789012345678901234567890',
-})
+function ClaimRewardsExample() {
+  const { data: walletClient } = useWalletClient()
 
-const [rewardClaimable] = claimable
-if (rewardClaimable > 0n) {
-  await mintclub.network('base').stake.claim({
-    poolId: 0,
-    onSuccess: (receipt) => {
-      console.log('Rewards claimed successfully!', receipt)
-    },
-    onError: (error) => {
-      console.error('Failed to claim rewards:', error)
-    },
-  })
+  const handleClaim = async () => {
+    // Check claimable rewards first
+    const claimable = await mintclub.network('base').stake.getClaimableReward({
+      poolId: 0,
+      staker: '0x1234567890123456789012345678901234567890',
+    })
+
+    const [rewardClaimable] = claimable
+    if (rewardClaimable > 0n) {
+      await mintclub
+        .withWalletClient({
+          ...walletClient,
+          chain: base,
+        } as any)
+        .network('base')
+        .stake
+        .claim({
+          poolId: 0,
+          onSuccess: (receipt) => {
+            console.log('Rewards claimed successfully!', receipt)
+          },
+          onError: (error) => {
+            console.error('Failed to claim rewards:', error)
+          },
+        })
+    }
+  }
+
+  return <button onClick={handleClaim}>Claim Rewards</button>
 }
 ```
 

@@ -2,7 +2,7 @@
 description: Approves token allowance for a spender
 ---
 
-# approve 
+# approve
 
 Approves token allowance for a spender.
 
@@ -10,11 +10,28 @@ Approves token allowance for a spender.
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
-await mintclub.network('ethereum').token('SYMBOL').approve({
-	amount: wei(1, 18),
-	spender: '0x...'
-})
+import { useWalletClient } from 'wagmi'
+import { mainnet } from 'viem/chains'
+
+function ApproveExample() {
+  const { data: walletClient } = useWalletClient()
+
+  const handleApprove = async () => {
+    await mintclub
+      .withWalletClient({
+        ...walletClient,
+        chain: mainnet,
+      } as any)
+      .network('ethereum')
+      .token('SYMBOL')
+      .approve({
+        amount: wei(1, 18),
+        spender: '0x...',
+      })
+  }
+
+  return <button onClick={handleApprove}>Approve</button>
+}
 ```
 
 ## Return Value
@@ -22,7 +39,6 @@ await mintclub.network('ethereum').token('SYMBOL').approve({
 `Promise<TransactionReceipt>`
 
 Returns a promise that resolves to a `TransactionReceipt` object when the transaction is successful.
-
 
 ## Parameters
 
@@ -34,11 +50,14 @@ Amount to approve
 
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
-await mintclub.network('ethereum').token('SYMBOL').approve({
-	amount: wei(1, 18), // [!code focus]
-	spender: '0x...'
-})
+
+await mintclub
+  .network('ethereum')
+  .token('SYMBOL')
+  .approve({
+    amount: wei(1, 18), // [!code focus]
+    spender: '0x...',
+  })
 ```
 
 ### spender
@@ -47,16 +66,17 @@ await mintclub.network('ethereum').token('SYMBOL').approve({
 
 The address of the spender
 
-
 ```ts twoslash [example.ts]
 import { mintclub, wei } from 'mint.club-v2-sdk'
- 
-await mintclub.network('ethereum').token('SYMBOL').approve({
-	amount: wei(1, 18), 
-	spender: '0x...' // [!code focus]
-})
-```
 
+await mintclub
+  .network('ethereum')
+  .token('SYMBOL')
+  .approve({
+    amount: wei(1, 18),
+    spender: '0x...', // [!code focus]
+  })
+```
 
 ### onSignatureRequest (optional)
 
@@ -81,7 +101,6 @@ await mintclub
 - Type: `onSigned?: (txHash: '0x${string}') => void;`
 - Default: `undefined`
 
-
 Callback function for when the user is signs the transaction.
 
 ```ts
@@ -99,7 +118,6 @@ await mintclub
 
 - Type: `onSuccess?: (receipt: TransactionReceipt) => void;`
 - Default: `undefined`
-
 
 Callback function for when the transaction is successful.
 

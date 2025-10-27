@@ -341,6 +341,14 @@ export const sidebar = {
               text: 'getList',
               link: '/docs/sdk/network/bond/getList',
             },
+            {
+              text: 'getRoyaltyInfo',
+              link: '/docs/sdk/network/bond/getRoyaltyInfo',
+            },
+            {
+              text: 'claimRoyalties',
+              link: '/docs/sdk/network/bond/claimRoyalties',
+            },
           ],
         },
         {
