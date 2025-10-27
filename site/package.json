@@ -13,11 +13,12 @@
   "dependencies": {
     "@scalar/api-reference-react": "^0.6.16",
     "@types/react": "latest",
-    "mint.club-v2-sdk": "^1.4.6",
+    "mint.club-v2-sdk": "^1.4.12",
     "react": "latest",
     "react-dom": "latest",
     "typescript": "latest",
-    "vocs": "latest"
+    "vocs": "latest",
+    "wagmi": "^2.18.2"
   },
   "devDependencies": {
     "vercel": "^33.5.3"

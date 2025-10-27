@@ -16,7 +16,8 @@ await mintclub.network('ethereum').nft('MNFT') // [!code focus]
 ```
 
 > In the example below, we are creating a nft with the symbol `MNFT` with the nft name of `Mint Club Collection` on the `ethereum` network.
-> ::::
+
+::::
 
 :::warning[IPFS]
 Please refer to [uploadMetadata](/docs/sdk/ipfs/uploadMetadata) for more information on how to upload metadata to IPFS.
@@ -26,7 +27,7 @@ If you have a own server that manages the metadata and want to use a public URL 
 
 :::code-group
 
-```ts [curvedata-example.ts]
+```tsx [curvedata-example.tsx]
 import { mintclub } from 'mint.club-v2-sdk'
 import { useWalletClient } from 'wagmi'
 import { mainnet } from 'viem/chains'
@@ -58,7 +59,7 @@ function CreateNFTExample() {
 }
 ```
 
-```ts [stepdata-example.ts]
+```tsx [stepdata-example.tsx]
 import { mintclub } from 'mint.club-v2-sdk'
 import { useWalletClient } from 'wagmi'
 import { mainnet } from 'viem/chains'
@@ -450,7 +451,7 @@ await mintclub
   })
 ```
 
-{/\* ## Live Example
+{/* ## Live Example
 
 Check out the usage of `readContract` in the live [Reading Contracts Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_reading-contracts) below.
 

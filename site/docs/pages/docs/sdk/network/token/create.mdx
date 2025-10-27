@@ -22,7 +22,7 @@ await mintclub.network('ethereum').token('MINT') // [!code focus]
 
 :::code-group
 
-```ts [curvedata-example.ts]
+```tsx [curvedata-example.tsx]
 import { mintclub } from 'mint.club-v2-sdk'
 import { useWalletClient } from 'wagmi'
 import { mainnet } from 'viem/chains'
@@ -53,7 +53,7 @@ function CreateTokenExample() {
 }
 ```
 
-```ts [stepdata-example.ts]
+```tsx [stepdata-example.tsx]
 import { mintclub } from 'mint.club-v2-sdk'
 import { useWalletClient } from 'wagmi'
 import { mainnet } from 'viem/chains'
@@ -421,7 +421,7 @@ await mintclub
   })
 ```
 
-{/\* ## Live Example
+{/* ## Live Example
 
 Check out the usage of `readContract` in the live [Reading Contracts Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/contracts_reading-contracts) below.
 
