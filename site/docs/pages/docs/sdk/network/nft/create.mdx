@@ -197,6 +197,12 @@ If [`stepData`](#stepdata-conditionally-required) is not provided, `curveData` i
 
 It will automatically generate a bonding curve step with the given curve type.
 
+:::warning[APPROXIMATE CURVE GENERATION]
+When using `curveData`, the SDK will do its best to generate a bonding curve that approximates your desired parameters. However, due to the nature of curve generation algorithms and on-chain constraints, there may be minor discrepancies between the desired prices and the actual generated prices.
+
+If you need precise control over the exact step ranges and prices, please use [`stepData`](#stepdata-conditionally-required) instead.
+:::
+
 #### `curveData` is an object with the following properties:
 
 ##### curveType
@@ -282,7 +288,6 @@ If price is 0, the first `rangeTo` tokens will be allocated to the creator of th
 :::warning[NOTE]
 
 > Note that the value of `rangeTo` and `price` can NOT be decreasing.
-> :::
 
 :::code-group
 

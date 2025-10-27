@@ -57,14 +57,6 @@ export function generateCreateArgs(params: CreateTokenParams & { tokenType: 'ERC
 
     if (tokenType === 'ERC1155' && maxSupply === 1) {
       stepData = [{ rangeTo: 1, price: curveData.finalMintingPrice }];
-    } else if (stepData[0].price !== curveData.initialMintingPrice) {
-      throw new CreationError(`Generated step data's initial price does not match your desired value.`, {
-        metaMessages: ['Please try a different step count', JSON.stringify(stepData)],
-      });
-    } else if (stepData[stepData.length - 1].price !== curveData.finalMintingPrice) {
-      throw new CreationError(`Generated step data's final price does not match your desired value.`, {
-        metaMessages: ['Please try a different step count', JSON.stringify(stepData)],
-      });
     }
   } else {
     stepData = _stepData;
