@@ -45,10 +45,10 @@ await sdk
       maxSupply: 1_000_000,
       initialMintingPrice: 0.001,
       finalMintingPrice: 1,
+      creatorAllocation: 10000, // 10k tokens for creator
     },
     buyRoyalty: 0.03, // 3%
     sellRoyalty: 0.03, // 3%
-    creatorAllocation: wei(10000, 18), // 10k tokens for creator
     onSuccess: (receipt) => {
       console.log('✅ Token created:', receipt.transactionHash)
     },
@@ -77,7 +77,7 @@ interface TokenCreateParams {
     maxSupply: number // Maximum token supply
     initialMintingPrice: number // Starting price per token
     finalMintingPrice: number // Final price per token
-    creatorAllocation?: bigint // Tokens allocated to creator
+    creatorAllocation?: number // Tokens allocated to creator
   }
   buyRoyalty?: number // Buy royalty as decimal (0.03 = 3%)
   sellRoyalty?: number // Sell royalty as decimal (0.03 = 3%)
@@ -96,7 +96,7 @@ await sdk
   .token('CHICKEN')
   .buy({
     amount: wei(100, 18), // Amount to buy (in wei)
-    slippage: 100, // Slippage tolerance (1%)
+    slippage: 1, // Slippage tolerance (1%)
     recipient: '0x...', // Optional recipient address
     onSuccess: (receipt) => {
       console.log('✅ Purchase successful')
@@ -116,7 +116,7 @@ await sdk
   .token('CHICKEN')
   .sell({
     amount: wei(50, 18), // Amount to sell (in wei)
-    slippage: 100, // Slippage tolerance (1%)
+    slippage: 1, // Slippage tolerance (1%)
     recipient: '0x...', // Optional recipient address
     onSuccess: (receipt) => {
       console.log('✅ Sale successful')
@@ -136,7 +136,7 @@ await sdk
   .token('CHICKEN')
   .buyWithZap({
     amount: wei(100, 18),
-    slippage: 200, // Higher slippage for zap (2%)
+    slippage: 2, // Higher slippage for zap (2%)
     onSuccess: (receipt) => {
       console.log('✅ Zap purchase successful')
     },
@@ -148,7 +148,7 @@ await sdk
   .token('CHICKEN')
   .sellWithZap({
     amount: wei(50, 18),
-    slippage: 200,
+    slippage: 2,
     onSuccess: (receipt) => {
       console.log('✅ Zap sale successful')
     },
@@ -295,7 +295,7 @@ await sdk
   .nft('ART')
   .buy({
     amount: wei(1, 18), // Amount to buy (usually 1 for NFTs)
-    slippage: 100,
+    slippage: 1,
     onSuccess: (receipt) => {
       console.log('✅ NFT purchase successful')
     },
@@ -569,7 +569,7 @@ await sdk
   .token('CHICKEN')
   .buy({
     amount: wei(100, 18),
-    slippage: 500, // 5% instead of 1%
+    slippage: 5, // 5% instead of 1%
     onSuccess: (receipt) => console.log('Success with higher slippage'),
   })
 ```
@@ -641,13 +641,11 @@ curveData: {
   stepCount: 50,           // 50 steps for smooth curve
   maxSupply: 1_000_000,    // Reasonable supply cap
   initialMintingPrice: 0.001, // Low entry price
-  finalMintingPrice: 1     // Reasonable max price
+  finalMintingPrice: 1,    // Reasonable max price
+  creatorAllocation: 50000 // 5% for creator/liquidity (50k tokens)
 }
 
-// 3. Include creator allocation for liquidity
-creatorAllocation: wei(50000, 18) // 5% for creator/liquidity
-
-// 4. Set appropriate royalties
+// 3. Set appropriate royalties
 buyRoyalty: 0.03,   // 3% buy royalty
 sellRoyalty: 0.03   // 3% sell royalty
 ```
@@ -695,7 +693,7 @@ if (balance < amount) {
 }
 
 // 2. Use appropriate slippage
-const slippage = marketVolatility > 0.1 ? 500 : 100 // Higher slippage for volatile markets
+const slippage = marketVolatility > 0.1 ? 5 : 1 // Higher slippage for volatile markets
 
 // 3. Implement proper error handling
 try {

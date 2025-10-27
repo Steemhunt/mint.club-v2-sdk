@@ -145,7 +145,7 @@ await sdk
   .token('CHICKEN')
   .buy({
     amount: wei(100, 18), // 100 tokens
-    slippage: 100, // 1% slippage
+    slippage: 1, // 1% slippage
     onSuccess: (receipt) => console.log('Bought!', receipt),
   })
 
@@ -155,7 +155,7 @@ await sdk
   .token('CHICKEN')
   .sell({
     amount: wei(50, 18), // 50 tokens
-    slippage: 100,
+    slippage: 1,
     onSuccess: (receipt) => console.log('Sold!', receipt),
   })
 
@@ -165,7 +165,7 @@ await sdk
   .token('CHICKEN')
   .buyWithZap({
     amount: wei(10, 18),
-    slippage: 200, // Higher slippage for zap
+    slippage: 2, // Higher slippage for zap
     onSuccess: (receipt) => console.log('Zap purchase!', receipt),
   })
 ```

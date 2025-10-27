@@ -30,7 +30,7 @@ async function tradeTokens() {
       .token('CHICKEN')
       .buy({
         amount: wei(100, 18),
-        slippage: 100,
+        slippage: 1,
         onSuccess: (receipt) => {
           console.log('✅ Purchase successful:', receipt.transactionHash)
         },
@@ -91,7 +91,7 @@ async function createTokenWithMetadata(sdk: any) {
           maxSupply: 1_000_000,
           initialMintingPrice: 0.001,
           finalMintingPrice: 5,
-          creatorAllocation: wei(10000, 18), // 10k tokens for creator
+          creatorAllocation: 10000, // 10k tokens for creator
         },
         buyRoyalty: 0.03, // 3%
         sellRoyalty: 0.03, // 3%
@@ -361,7 +361,7 @@ export function useMintClubToken(tokenSymbol: string) {
       .token(tokenSymbol)
       .buy({
         amount: wei(amount, 18),
-        slippage: 100,
+        slippage: 1,
         onSuccess: () => refreshData(),
       })
   }
@@ -374,7 +374,7 @@ export function useMintClubToken(tokenSymbol: string) {
       .token(tokenSymbol)
       .sell({
         amount: wei(amount, 18),
-        slippage: 100,
+        slippage: 1,
         onSuccess: () => refreshData(),
       })
   }
