@@ -90,24 +90,7 @@ export async function oneinchUsdRate(params: {
   else if (typeof blockNumber === 'bigint') bn = blockNumber;
   else if (blockNumber === 'now') bn = undefined;
 
-  const rate = await retry(
-    () =>
-      oneInchContract.network(chainId as SdkSupportedChainIds).read({
-        functionName: 'getRate',
-        args: [tokenAddress, stable.address, false],
-        ...(bn !== undefined ? { blockNumber: bn } : {}),
-      }),
-    { retries: 5, retryIntervalMs: 1000 },
-  ).catch(() => undefined as unknown as bigint);
-
-  if (rate !== undefined && rate !== null) {
-    const rateToNumber = toNumber(rate, Number(18n + stable.decimals) - tokenDecimals);
-    if (rateToNumber >= 0.000001) {
-      return { rate: rateToNumber, stableCoin: stable } as const;
-    }
-  }
-
-  // Fallback 1: reverse-quote for precision (STABLE -> TOKEN) and invert
+  // default: reverse-quote for precision (STABLE -> TOKEN) and invert
   // This avoids precision loss when quoting directly into 6-decimal stables for tiny USD prices
   const reverseRate = await retry(
     () =>
