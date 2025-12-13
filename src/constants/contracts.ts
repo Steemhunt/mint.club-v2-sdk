@@ -264,11 +264,7 @@ const SDK_CONTRACT_ADDRESSES = {
 } as const;
 
 export function getMintClubContractAddress(contractName: ContractNames, chainId: SdkSupportedChainIds) {
-  let contractAddress = SDK_CONTRACT_ADDRESSES[contractName][chainId];
-
-  if (process.env.NODE_ENV === 'hardhat') {
-    contractAddress = (global as any).mcv2Hardhat?.[contractName]?.[chainId] as any;
-  }
+  const contractAddress = SDK_CONTRACT_ADDRESSES[contractName][chainId];
 
   if (!contractAddress) {
     throw new Error(`Contract address for ${contractName} on chain ${chainId} not found`);

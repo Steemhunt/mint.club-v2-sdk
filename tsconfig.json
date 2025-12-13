@@ -16,5 +16,5 @@
     "experimentalDecorators": true,
     "esModuleInterop": true
   },
-  "exclude": ["./site/*"]
+  "exclude": ["./site/*", "./test/*"]
 }

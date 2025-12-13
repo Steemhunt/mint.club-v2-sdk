@@ -33,7 +33,5 @@ Made with ☕
 ```bash
 npm i
 
-npx hardhat compile
-
 npm test
 ```

@@ -1,22 +1,39 @@
-import { CIDString, FilebaseClient } from '@filebase/client';
 import { FilebaseKeyNeededErrror, InvalidImageProvidedError } from '../errors/sdk.errors';
 import { IpfsHashUrl, MediaUploadParams, MetadataUploadParams, NFTMetadata } from '../types/ipfs.types';
+
+type CIDString = string;
+
+const FILEBASE_API_URL = 'https://api.filebase.io/v1/ipfs';
 
 export class Ipfs {
   public async add(apiKey: string, data: Blob | Uint8Array): Promise<CIDString> {
     if (!apiKey) throw new FilebaseKeyNeededErrror();
 
-    const client = new FilebaseClient({ token: apiKey });
-
     let blob: Blob;
     if (data instanceof Uint8Array) {
-      blob = new Blob([data], { type: 'application/json' });
+      blob = new Blob([data.buffer as ArrayBuffer], { type: 'application/json' });
     } else {
       blob = data;
     }
 
-    const cid = await client.storeBlob(blob);
-    return cid;
+    const formData = new FormData();
+    formData.append('file', blob);
+
+    const response = await fetch(`${FILEBASE_API_URL}/pins`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Filebase upload failed: ${response.status} ${errorText}`);
+    }
+
+    const result = (await response.json()) as { cid: string };
+    return result.cid;
   }
 
   private isIpfsUrl(url: string) {
