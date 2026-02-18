@@ -911,7 +911,7 @@ export class Token<T extends TokenType> {
       });
 
       if (!bondApproved) {
-        return this.approveBond({
+        await this.approveBond({
           ...params,
           tradeType: 'buy',
           amountToSpend: maxReserveAmount,
@@ -947,7 +947,7 @@ export class Token<T extends TokenType> {
       } as BondApprovedParams<T>);
 
       if (!bondApproved) {
-        return this.approveBond({
+        await this.approveBond({
           ...params,
           tradeType: 'sell',
           amountToSpend: amount,
@@ -1001,7 +1001,7 @@ export class Token<T extends TokenType> {
       } as BondApprovedParams<T>);
 
       if (!bondApproved) {
-        return this.approveBond({
+        await this.approveBond({
           ...params,
           tradeType: 'sell',
           amountToSpend: amount,
@@ -1075,7 +1075,7 @@ export class Token<T extends TokenType> {
     );
 
     if (!approved) {
-      return this.approveContract(
+      await this.approveContract(
         {
           ...params,
           allowanceAmount: totalAmount,
