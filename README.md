@@ -11,7 +11,8 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/mint.club-v2-sdk"><img src="https://img.shields.io/npm/v/mint.club-v2-sdk.svg?style=flat-square&label=npm" alt="npm" /></a>
   <a href="https://www.npmjs.com/package/mint.club-v2-sdk"><img src="https://img.shields.io/npm/dm/mint.club-v2-sdk.svg?style=flat-square&label=downloads" alt="downloads" /></a>
-  <a href="https://bundlephobia.com/package/mint.club-v2-sdk"><img src="https://img.shields.io/bundlephobia/minzip/mint.club-v2-sdk.svg?style=flat-square&label=size" alt="size" /></a>
+  <a href="https://packagephobia.com/result?p=mint.club-v2-sdk"><img src="https://packagephobia.com/badge?p=mint.club-v2-sdk" alt="install size" /></a>
+  <a href="https://github.com/Steemhunt/mint.club-v2-sdk"><img src="https://img.shields.io/github/stars/Steemhunt/mint.club-v2-sdk?style=flat-square&logo=github" alt="GitHub" /></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="MIT" /></a>
 </p>
 

@@ -1,5 +1,25 @@
 {
   "name": "mint.club-v2-sdk",
+  "description": "TypeScript SDK for the Mint Club V2 bonding curve protocol — read, trade, create, and manage tokens across 17 networks.",
+  "keywords": [
+    "mint-club",
+    "bonding-curve",
+    "web3",
+    "ethereum",
+    "base",
+    "viem",
+    "sdk",
+    "defi",
+    "token-launch"
+  ],
+  "homepage": "https://github.com/Steemhunt/mint.club-v2-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/Steemhunt/mint.club-v2-sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Steemhunt/mint.club-v2-sdk.git"
+  },
   "files": [
     "./dist/**/*",
     "./src/**/*"
