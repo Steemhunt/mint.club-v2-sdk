@@ -1,11 +1,13 @@
 import { describe, test } from 'bun:test';
 import { mintclub } from '../../../src';
 
-describe('Wallet test', () => {
+const PRIVATE_KEY = process.env.PRIVATE_KEY as `0x${string}` | undefined;
+
+describe.if(!!PRIVATE_KEY)('Wallet test', () => {
   test(`Private key`, async () => {
     await mintclub
       .network('sepolia')
-      .withPrivateKey(process.env.PRIVATE_KEY as `0x${string}`)
+      .withPrivateKey(PRIVATE_KEY!)
       .token('TESTING')
       .create({
         name: 'yoooooooooooooo',

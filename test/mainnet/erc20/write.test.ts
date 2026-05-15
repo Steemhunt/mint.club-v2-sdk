@@ -1,43 +1,38 @@
 import { privateKeyToAccount } from 'viem/accounts';
-import { mintclub, toNumber } from '../../../src';
-import { wei } from '../../utils';
+import { mintclub } from '../../../src';
 import { createWalletClient, http } from 'viem';
-import { base, cyber, cyberTestnet, mainnet } from 'viem/chains';
+import { cyberTestnet } from 'viem/chains';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-globalThis.window = {};
+const PKEY = process.env.PKEY as `0x${string}` | undefined;
 
-const wallet = privateKeyToAccount(process.env.PKEY);
+if (PKEY) {
+  (globalThis as any).window = {};
 
-const walletClient = createWalletClient({
-  transport: http(),
-  chain: cyberTestnet,
-  account: wallet,
-});
+  const wallet = privateKeyToAccount(PKEY);
 
-// const detail = await mintclub.network('cybertestnet').token('rrr').getDetail();
-// console.log({ detail, steps: detail.steps });
-// console.log(toNumber(10000000000000000n, 18));
-
-await mintclub
-  .withWalletClient(walletClient as any)
-  .network('cybertestnet')
-  .token('rrr')
-  .buyWithZap({
-    amount: 1n,
-    onSuccess: (data) => {
-      console.log(data);
-    },
-    debug: (args) => {
-      console.log(args);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
+  const walletClient = createWalletClient({
+    transport: http(),
+    chain: cyberTestnet,
+    account: wallet,
   });
 
-process.exit(0);
-
-// console.log(wei(1, 18));
+  await mintclub
+    .withWalletClient(walletClient as any)
+    .network('cybertestnet')
+    .token('rrr')
+    .buyWithZap({
+      amount: 1n,
+      onSuccess: (data) => {
+        console.log(data);
+      },
+      debug: (args) => {
+        console.log(args);
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
+}

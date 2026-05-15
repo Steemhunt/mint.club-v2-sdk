@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { mintclub } from '../../src';
 
-describe('Upload to ipfs', () => {
+const FILEBASE_API_KEY = process.env.FILEBASE_API_KEY;
+
+describe.if(!!FILEBASE_API_KEY)('Upload to ipfs', () => {
   test(`Upload to IPFS`, async () => {
     const buffer = await (await fetch('https://picsum.photos/200')).arrayBuffer();
     const hash = await mintclub.ipfs.upload({

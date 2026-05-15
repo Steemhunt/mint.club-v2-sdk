@@ -15,12 +15,6 @@ import {
 import { AbiType, SupportedAbiType } from '../types/abi.types';
 import { GenericContractLogic } from './GenericContractLogic';
 
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
-
 export class GenericContract<T extends ContractNames> {
   private contractType: T;
   private abi: SupportedAbiType;

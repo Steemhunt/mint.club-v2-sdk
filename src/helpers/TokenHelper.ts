@@ -1128,6 +1128,17 @@ export class Token<T extends TokenType> {
   }
 
   public validateMetadataParams(params: MetadataCommonParams) {
+    const hasAnyField =
+      params.website !== undefined ||
+      params.backgroundImage !== undefined ||
+      params.logo !== undefined ||
+      params.distributionPlan !== undefined ||
+      params.creatorComment !== undefined;
+
+    if (!hasAnyField) {
+      throw new MetadataValidationError('At least one metadata field is required');
+    }
+
     if (params.website && !params.website.startsWith('http')) {
       throw new MetadataValidationError('Website must be a valid URL starting with http:// or https://');
     }
@@ -1138,6 +1149,14 @@ export class Token<T extends TokenType> {
 
     if (params.logo && !(params.logo instanceof File)) {
       throw new MetadataValidationError('logo must be a File object');
+    }
+
+    if (params.distributionPlan && params.distributionPlan.length > 1000) {
+      throw new MetadataValidationError('distributionPlan must be 1000 characters or fewer');
+    }
+
+    if (params.creatorComment && params.creatorComment.length > 1000) {
+      throw new MetadataValidationError('creatorComment must be 1000 characters or fewer');
     }
   }
 

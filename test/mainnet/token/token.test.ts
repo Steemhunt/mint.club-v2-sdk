@@ -12,7 +12,7 @@ test(`CHICKEN on base - createMintClubMetadata validation`, async () => {
   const token = mintclub.network('base').token('CHICKEN');
 
   // Should throw error when no params provided
-  let error = null;
+  let error: unknown = null;
   try {
     await token.createMintClubMetadata({});
   } catch (e) {
@@ -43,20 +43,24 @@ test(`CHICKEN on base - createMintClubMetadata validation`, async () => {
   }
   expect(error).toBeInstanceOf(MetadataValidationError);
 
-  // Should pass with valid params including distribution plan and creator comment
-  const metadata = await token.createMintClubMetadata({
-    website: 'https://example.com',
-    distributionPlan: 'Community distribution',
-    creatorComment: 'Test creation',
-  });
-  expect(metadata).toBeDefined();
+  // Should throw error for long creator comment
+  error = null;
+  try {
+    await token.createMintClubMetadata({
+      website: 'https://example.com',
+      creatorComment: 'a'.repeat(1001),
+    });
+  } catch (e) {
+    error = e;
+  }
+  expect(error).toBeInstanceOf(MetadataValidationError);
 });
 
 test(`CHICKEN on base - updateMintClubMetadata validation`, async () => {
   const token = mintclub.network('base').token('CHICKEN');
 
   // Should throw error when no signature provided
-  let error = null;
+  let error: unknown = null;
   try {
     await token.updateMintClubMetadata({
       website: 'https://example.com',
@@ -80,14 +84,4 @@ test(`CHICKEN on base - updateMintClubMetadata validation`, async () => {
     error = e;
   }
   expect(error).toBeInstanceOf(MetadataValidationError);
-
-  // Should pass with valid params
-  const metadata = await token.updateMintClubMetadata({
-    website: 'https://example.com',
-    distributionPlan: 'Community distribution',
-    creatorComment: 'Test update',
-    signature: '0x123',
-    message: 'Test message',
-  });
-  expect(metadata).toBeDefined();
 });

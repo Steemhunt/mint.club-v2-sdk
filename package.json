@@ -43,7 +43,7 @@
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-dynamic-import-vars": "^2.1.2",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/bun": "^1.0.8",
     "@types/jsdom": "^21.1.6",
@@ -56,6 +56,7 @@
     "pkgroll": "^2.0.1",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
+    "rollup": "^4.60.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.0.4"
   },
@@ -64,8 +65,8 @@
     "cross-fetch": "^4.0.0",
     "dotenv": "^16.4.5",
     "jsdom": "^24.0.0",
-    "lodash": "^4.17.21",
-    "merkletreejs": "^0.3.11",
+    "lodash": "^4.18.1",
+    "merkletreejs": "^0.6.0",
     "viem": "^2.34.0"
   }
 }
