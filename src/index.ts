@@ -40,6 +40,7 @@ import {
   TOKENS,
   ZAP_ABI,
   over,
+  robinhood,
 } from './exports';
 
 export const abis: Record<ContractNames, Abi> = {
@@ -73,6 +74,7 @@ export const supportedChains = [
   'shibarium',
   'puppynet',
   'unichain',
+  'robinhood',
 ] as const;
 
 export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainIds> = {
@@ -98,6 +100,7 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   unichain: unichain.id,
   hashkey: hashkey.id,
   over: over.id,
+  robinhood: robinhood.id,
   zora: zora.id,
   apechain: apeChain.id,
 };

@@ -19,7 +19,7 @@ import {
   zora,
 } from 'viem/chains';
 import { FALLBACK_USD_MAP } from '../../constants/usd/fallbackUsdMap';
-import { SdkSupportedChainIds, chainIdToViemChain } from '../../exports';
+import { SdkSupportedChainIds, chainIdToViemChain, robinhood } from '../../exports';
 import { baseFetcher } from '../api';
 
 export function getDefillamaChainName(chainId: number) {
@@ -43,6 +43,7 @@ export function getDefillamaChainName(chainId: number) {
     [sepolia.id]: 'sepolia',
     [apeChain.id]: 'apechain',
     [hashkey.id]: 'hashkey',
+    [robinhood.id]: 'robinhood',
   } as const;
 
   return mapping[chainId] ?? chainIdToViemChain(chainId as SdkSupportedChainIds)?.name?.toLowerCase();

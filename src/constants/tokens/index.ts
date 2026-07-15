@@ -23,7 +23,7 @@ import {
   unichain,
   zora,
 } from 'viem/chains';
-import { over, SdkSupportedChainIds } from '../contracts';
+import { over, robinhood, SdkSupportedChainIds } from '../contracts';
 import { APECHAIN_TOKENS } from './apeChain';
 import { ARBITRUM_TOKENS } from './arbitrum';
 import { AVALANCHE_TOKENS } from './avalanche';
@@ -43,6 +43,7 @@ import { MAINNET_TOKENS } from './mainnet';
 import { OPTIMISM_TOKENS } from './optimism';
 import { OVER_TOKENS } from './over';
 import { POLYGON_TOKENS } from './polygon';
+import { ROBINHOOD_TOKENS } from './robinhood';
 import { SHIBARIUM_TESTNET_TOKENS } from './puppynet';
 import { SEPOLIA_TOKENS } from './sepolia';
 import { SHIBARIUM_TOKENS } from './shibarium';
@@ -63,6 +64,7 @@ export const COINGECKO_NETWORK_IDS = {
   [blastSepolia.id]: 'ethereum', // blast sepolia not supported by coingecko API
   [avalancheFuji.id]: 'ethereum', // avalanche-fuji not supported by coingecko API
   [shibarium.id]: 'shib',
+  [robinhood.id]: 'robinhood',
 } as const satisfies Partial<Record<SdkSupportedChainIds, string>>;
 
 export type BaseToken = {
@@ -229,6 +231,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
+  [robinhood.id]: {
+    image: 'https://mint.club/assets/tokens/weth.png',
+    tokenAddress: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
+    nativeSymbol: 'ETH',
+    oneInchSymbol: 'USDT', // NOTE: not supported yet
+    decimals: 18,
+  },
   [over.id]: {
     image: 'https://assets.coingecko.com/coins/images/35082/large/overprotocol-logo.png?1707308333',
     tokenAddress: '0x59c914C8ac6F212bb655737CC80d9Abc79A1e273',
@@ -273,6 +282,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [optimism.id]: OPTIMISM_TOKENS,
   [over.id]: OVER_TOKENS,
   [polygon.id]: POLYGON_TOKENS,
+  [robinhood.id]: ROBINHOOD_TOKENS,
   [sepolia.id]: SEPOLIA_TOKENS,
   [shibarium.id]: SHIBARIUM_TOKENS,
   [shibariumTestnet.id]: SHIBARIUM_TESTNET_TOKENS,
