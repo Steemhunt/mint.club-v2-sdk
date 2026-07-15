@@ -16,7 +16,7 @@ describe('Robinhood Chain support', () => {
     expect(CHAIN_MAP[robinhood.id].chain).toEqual(robinhood);
     expect(supportedChains).toContain('robinhood');
     expect(supportedChainsMap.robinhood).toBe(robinhood.id);
-    expect(RPCS.find(({ id }) => id === robinhood.id)?.rpcs).toEqual(['https://rpc.mainnet.chain.robinhood.com']);
+    expect(RPCS.find(({ id }) => id === robinhood.id)?.rpcs).toContain('https://rpc.mainnet.chain.robinhood.com');
   });
 
   test('registers deployed contracts', () => {

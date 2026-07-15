@@ -79,7 +79,7 @@ export type WrappedToken = {
   image: string;
   tokenAddress: `0x${string}`;
   nativeSymbol: string;
-  oneInchSymbol: 'USDT' | 'USDC' | 'USDbC' | 'USDB' | 'USDG';
+  oneInchSymbol: 'USDT' | 'USDC' | 'USDbC' | 'USDB';
   decimals: number;
 };
 
@@ -235,7 +235,7 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     image: 'https://mint.club/assets/tokens/weth.png',
     tokenAddress: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
     nativeSymbol: 'ETH',
-    oneInchSymbol: 'USDG',
+    oneInchSymbol: 'USDT', // NOTE: not supported yet
     decimals: 18,
   },
   [over.id]: {
