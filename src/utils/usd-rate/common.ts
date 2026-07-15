@@ -23,7 +23,7 @@ import {
   unichain,
   zora,
 } from 'viem/chains';
-import { SdkSupportedChainIds, over } from '../../exports';
+import { SdkSupportedChainIds, over, robinhood } from '../../exports';
 
 // WETH addresses for TOKEN -> ETH pricing path
 export const WETH_ADDRESSES: Record<SdkSupportedChainIds, `0x${string}`> = {
@@ -49,6 +49,7 @@ export const WETH_ADDRESSES: Record<SdkSupportedChainIds, `0x${string}`> = {
   [apeChain.id]: '0x48b62137EdfA95a428D35C09E44256a739F6B557', // WAPE
   [zora.id]: '0x4200000000000000000000000000000000000006',
   [hashkey.id]: '0xB210D2120d57b758EE163cFfb43e73728c471Cf1', // WHSK
+  [robinhood.id]: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
   [unichain.id]: '0x4200000000000000000000000000000000000006',
   [over.id]: '0x59c914C8ac6F212bb655737CC80d9Abc79A1e273', // WOVER
 };
@@ -78,6 +79,7 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [apeChain.id]: { address: '0x', symbol: '', decimals: 0n },
     [zora.id]: { address: '0x', symbol: '', decimals: 0n },
     [hashkey.id]: { address: '0x', symbol: '', decimals: 0n },
+    [robinhood.id]: { address: '0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168', symbol: 'USDG', decimals: 6n },
     [unichain.id]: { address: '0x078D782b760474a361dDA0AF3839290b0EF57AD6', symbol: 'USDC', decimals: 6n },
     [over.id]: { address: '0x', symbol: '', decimals: 0n },
   };

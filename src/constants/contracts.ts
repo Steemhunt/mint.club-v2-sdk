@@ -44,6 +44,36 @@ export const over = defineChain({
   },
 });
 
+export const robinhood = defineChain({
+  id: 4663,
+  name: 'Robinhood Chain',
+  network: 'robinhood',
+  nativeCurrency: {
+    name: 'Ether',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.mainnet.chain.robinhood.com'],
+    },
+    public: {
+      http: ['https://rpc.mainnet.chain.robinhood.com'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Robinhood Chain Explorer',
+      url: 'https://robinhoodchain.blockscout.com',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+    },
+  },
+});
+
 const SDK_CONTRACT_ADDRESSES = {
   ERC20: {
     [apeChain.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
@@ -65,6 +95,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [optimism.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [over.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [polygon.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
+    [robinhood.id]: '0xEb54dACB4C2ccb64F8074eceEa33b5eBb38E5387',
     [sepolia.id]: '0x749bA94344521727f55a3007c777FbeB5F52C2Eb',
     [shibarium.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [shibariumTestnet.id]: '0x37F540de37afE8bDf6C722d87CB019F30e5E406a',
@@ -92,6 +123,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [optimism.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [over.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [polygon.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
+    [robinhood.id]: '0xaF987E88bf30581F7074E628c894A3FCbf4EE12e',
     [sepolia.id]: '0x3cABE5125C5D8922c5f38c5b779F6E96F563cdc0',
     [shibarium.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [shibariumTestnet.id]: '0x4bF67e5C9baD43DD89dbe8fCAD3c213C868fe881',
@@ -119,6 +151,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [optimism.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [over.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [polygon.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
+    [robinhood.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [sepolia.id]: '0x8dce343A86Aa950d539eeE0e166AFfd0Ef515C0c',
     [shibarium.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [shibariumTestnet.id]: '0x5dfA75b0185efBaEF286E80B847ce84ff8a62C2d',
@@ -146,6 +179,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [optimism.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [over.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [polygon.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
+    [robinhood.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [sepolia.id]: '0x1Bf3183acc57571BecAea0E238d6C3A4d00633da',
     [shibarium.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [shibariumTestnet.id]: '0x40c7DC399e01029a51cAb316f8Bca7D20DE31bad',
@@ -173,6 +207,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [optimism.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [over.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [polygon.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
+    [robinhood.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [sepolia.id]: '0x7c204B1B03A88D24088941068f6DFC809f2fd022',
     [shibarium.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [shibariumTestnet.id]: '0x2c6B3fe4D6de27363cFEC95f703889EaF6b770fB',
@@ -200,6 +235,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [optimism.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
     [over.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [polygon.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
+    [robinhood.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
     [sepolia.id]: '0x0CD940395566d509168977Cf10E5296302efA57A',
     [shibarium.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [shibariumTestnet.id]: '0xCbb23973235feA43E62C41a0c67717a92a2467f2',
@@ -233,6 +269,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [zora.id]: '0x',
     [hashkey.id]: '0x',
     [over.id]: '0x',
+    [robinhood.id]: '0x',
   },
 
   STAKE: {
@@ -255,6 +292,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [optimism.id]: '0xF187645D1C5AE70C3ddCDeE6D746E5A7619a2A65',
     [over.id]: '0x621c335b4BD8f2165E120DC70d3AfcAfc6628681',
     [polygon.id]: '0x95BDA90196c4e737933360F4639c46Ace657AAb7',
+    [robinhood.id]: '0xF44939c1613143ad587c79602182De7DcF593e33',
     [sepolia.id]: '0xd1cFAf476c8311792c329359B012bA515399f3a4',
     [shibarium.id]: '0xa4021a8907197Df92341F1218B32E26b250F6798',
     [shibariumTestnet.id]: '0x',

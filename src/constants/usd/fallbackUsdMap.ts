@@ -1,5 +1,5 @@
 import { apeChain, base, degen, hashkey, ham, mainnet, unichain, cyber } from 'viem/chains';
-import { over } from '../contracts';
+import { over, robinhood } from '../contracts';
 
 type Address = `0x${string}`;
 export type FallbackUsdMap = Record<number, Record<Address, { network: number; address: Address }>>;
@@ -36,6 +36,13 @@ export const FALLBACK_USD_MAP: FallbackUsdMap = {
   [unichain.id]: {
     // Unichain WETH -> Mainnet WETH
     '0x4200000000000000000000000000000000000006': {
+      network: mainnet.id,
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    },
+  },
+  [robinhood.id]: {
+    // Robinhood WETH -> Mainnet WETH
+    '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73': {
       network: mainnet.id,
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     },

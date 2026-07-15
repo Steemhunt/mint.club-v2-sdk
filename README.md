@@ -5,7 +5,7 @@
 <h1 align="center">Mint Club V2 SDK</h1>
 
 <p align="center">
-  TypeScript SDK for the <a href="https://mint.club">Mint Club</a> bonding curve protocol — read, trade, create, and manage tokens across 17 networks.
+  TypeScript SDK for the <a href="https://mint.club">Mint Club</a> bonding curve protocol — read, trade, create, and manage tokens across 18 networks.
 </p>
 
 <p align="center">
@@ -102,7 +102,7 @@ await mintclub
 
 ## Supported Networks
 
-Ethereum · Base · BNB Chain · Polygon · Arbitrum · Optimism · Avalanche · Kaia · Cyber · Degen · Ham · Shibarium · Unichain · Zora · HashKey · Ape Chain · Over — plus their testnets.
+Ethereum · Base · BNB Chain · Polygon · Arbitrum · Optimism · Avalanche · Kaia · Cyber · Degen · Ham · Shibarium · Robinhood · Unichain · Zora · HashKey · Ape Chain · Over — plus their testnets.
 
 ---
 

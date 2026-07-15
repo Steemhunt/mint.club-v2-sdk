@@ -25,7 +25,7 @@ import {
   hashkey,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
-import { getMintClubContractAddress, over, SdkSupportedChainIds } from './contracts';
+import { getMintClubContractAddress, over, robinhood, SdkSupportedChainIds } from './contracts';
 import * as chains from 'viem/chains';
 
 export type ChainType = {
@@ -54,6 +54,7 @@ export type ChainType = {
     | 'Zora'
     | 'Apechain'
     | 'Hashkey'
+    | 'Robinhood'
     | 'Over';
   readonly icon: string;
   readonly color: string;
@@ -276,6 +277,15 @@ export const CHAINS: Array<ChainType> = [
     color: '#000000',
     enabled: isAddress(getMintClubContractAddress('BOND', hashkey.id)),
     chain: hashkey,
+  },
+  {
+    id: robinhood.id,
+    name: 'Robinhood',
+    icon: 'https://mint.club/assets/networks/robinhood@2x.png',
+    color: '#CCFF00',
+    openseaSlug: 'robinhood',
+    enabled: isAddress(getMintClubContractAddress('BOND', robinhood.id)),
+    chain: robinhood,
   },
   {
     id: over.id,

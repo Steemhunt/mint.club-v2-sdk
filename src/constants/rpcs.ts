@@ -22,6 +22,7 @@ import {
   unichain,
   zora,
 } from 'viem/chains';
+import { robinhood } from './contracts';
 
 const overId = 54176;
 
@@ -236,6 +237,10 @@ export const RPCS: Array<RPCList> = [
   {
     id: hashkey.id,
     rpcs: ['https://mainnet.hsk.xyz', 'https://hashkey.drpc.org'],
+  },
+  {
+    id: robinhood.id,
+    rpcs: ['https://rpc.mainnet.chain.robinhood.com'],
   },
   {
     id: overId,
