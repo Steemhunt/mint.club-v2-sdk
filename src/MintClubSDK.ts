@@ -11,8 +11,9 @@ import { Lockup } from './helpers/LockupHelper';
 import { Stake } from './helpers/StakeHelper';
 import { Utils } from './helpers/UtilsHelper';
 
-type NetworkReturnType = Omit<Client, '_getPublicClient'> & {
+type NetworkReturnType = Omit<Client, '_getPublicClient' | 'withPrivateKey'> & {
   getPublicClient: () => PublicClient;
+  withPrivateKey: (privateKey: `0x${string}`) => NetworkReturnType;
   token: (symbolOrAddress: string) => ERC20;
   nft: (symbolOrAddress: string) => ERC1155;
   airdrop: Airdrop;
@@ -40,9 +41,16 @@ export class MintClubSDK {
   }
 
   private withClientHelper(clientHelper: Client, chainId: SdkSupportedChainIds) {
-    return Object.assign(clientHelper, {
+    let networkClient: NetworkReturnType;
+
+    networkClient = Object.assign(clientHelper, {
       getPublicClient(): PublicClient {
         return clientHelper._getPublicClient(chainId);
+      },
+
+      withPrivateKey(privateKey: `0x${string}`) {
+        Client.prototype.withPrivateKey.call(clientHelper, privateKey, chainId);
+        return networkClient;
       },
 
       token: (symbolOrAddress: string) => {
@@ -64,6 +72,8 @@ export class MintClubSDK {
       bond: new Bond(chainId),
       stake: new Stake(chainId),
     });
+
+    return networkClient;
   }
 
   public withPublicClient(publicClient: PublicClient): MintClubSDK {

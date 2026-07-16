@@ -7,7 +7,6 @@ description: Returns the token price in USD. Supports Mint Club tokens (bond pat
 Returns the current token price in USD.
 
 - Mint Club tokens: computed via its bonding curve price (in reserve) multiplied by the reserve token USD rate. If reserves are nested Mint Club tokens, the method expands the full path until a DEX-quoted token is reached.
-- Non–Mint Club tokens: priced via 1inch on the current chain. For tokens with very small values (< $0.000001), automatically uses TOKEN → ETH → USD path for better precision instead of direct TOKEN → USDC/USDT path.
 - Non–Mint Club tokens: priced via 1inch on the current chain. For tokens with very small values (< $0.000001), the SDK automatically applies precision-preserving fallbacks:
   - reverse quote: STABLE → TOKEN (invert to USD per token)
   - or TOKEN → ETH → USD path
@@ -25,7 +24,10 @@ import { mintclub } from '@mint.club/v2-sdk'
 const mintToken = await mintclub.network('base').token('GMFR').getUsdRate()
 
 // Non–Mint Club token
-const erc20 = await mintclub.network('base').token('0x...erc20').getUsdRate(100)
+const erc20 = await mintclub
+  .network('base')
+  .token('0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913')
+  .getUsdRate({ amount: 100 })
 ```
 
 ## Return Value
@@ -94,4 +96,4 @@ The amount of the token to be converted to USD. If not provided, defaults to 1.
 
 ## Errors
 
-- Throws when 1inch is not supported on the current network.
+- Returns `usdRate: null` when no supported quote path is available.

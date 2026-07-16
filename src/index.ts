@@ -56,27 +56,6 @@ export const abis: Record<ContractNames, Abi> = {
 
 export const whitelistedTokens = TOKENS;
 export const errorMessages = CONTRACT_ERROR_MESSAGES;
-export const supportedChains = [
-  'ethereum',
-  'sepolia',
-  'bnbchain',
-  'polygon',
-  'arbitrum',
-  'optimism',
-  'avalanche',
-  'base',
-  'basesepolia',
-  'kaia',
-  'degen',
-  'ham',
-  'cyber',
-  'cybertestnet',
-  'shibarium',
-  'puppynet',
-  'unichain',
-  'robinhood',
-] as const;
-
 export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainIds> = {
   ethereum: mainnet.id,
   sepolia: sepolia.id,
@@ -104,6 +83,8 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   zora: zora.id,
   apechain: apeChain.id,
 };
+
+export const supportedChains = Object.freeze(Object.keys(supportedChainsMap)) as readonly LowerCaseChainNames[];
 
 export * from './exports';
 export * from './contracts';

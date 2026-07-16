@@ -1,373 +1,106 @@
-# 🚀 Environment Setup Guide
+---
+title: Environment setup
+description: Configure the SDK for read-only, browser-wallet, and trusted server use.
+---
 
-> **For AI Assistants:** Choose the right setup pattern based on your target environment.
+# Environment setup
 
-## 📋 Quick Setup Checklist
+## Install
 
-- [ ] Choose your environment (Node.js/React/Browser)
-- [ ] Install dependencies
-- [ ] Configure wallet client
-- [ ] Test basic functionality
-- [ ] Handle errors properly
+Install the SDK alone for reads:
 
-## 🟢 Node.js Backend Setup
+```bash
+npm install @mint.club/v2-sdk
+```
 
-### 1. Installation
+Install viem directly when application code creates clients or accounts:
 
 ```bash
 npm install @mint.club/v2-sdk viem
 ```
 
-### 2. Environment Variables
+## Read-only use
 
-```bash
-# .env
-PRIVATE_KEY=0x...
-FILEBASE_API_KEY=...
+No wallet is required. The SDK creates a ranked fallback transport for each supported network.
+
+```ts
+import { mintclub } from '@mint.club/v2-sdk'
+
+const details = await mintclub.network('base').token('SIGNET').getDetail()
 ```
 
-### 3. Basic Setup
+Use [`withPublicClient()`](/docs/sdk/network/withPublicClient) when an application needs its own RPC provider.
+
+## Browser wallet
+
+Use a wallet client from wagmi or construct one with viem. It must include both an account and a chain.
 
 ```ts
 import { mintclub, wei } from '@mint.club/v2-sdk'
-import { privateKeyToAccount } from 'viem/accounts'
-import { createWalletClient, http } from 'viem'
+import { createWalletClient, custom } from 'viem'
 import { base } from 'viem/chains'
 
-// Method 1: Private Key (Recommended for backend)
-const account = privateKeyToAccount(process.env.PRIVATE_KEY!)
+const [account] = await window.ethereum.request({
+  method: 'eth_requestAccounts',
+})
+
 const walletClient = createWalletClient({
   account,
   chain: base,
-  transport: http(),
+  transport: custom(window.ethereum),
 })
 
-const sdk = mintclub.withWalletClient(walletClient)
+mintclub.withWalletClient(walletClient)
 
-// Method 2: With Private Key Helper
-const sdk = mintclub.withPrivateKey(process.env.PRIVATE_KEY!)
+const token = mintclub.network('base').token('SIGNET')
+const amount = wei(100, await token.getDecimals())
+
+await token.buy({ amount, slippage: 1 })
 ```
 
-### 4. Test Setup
+For React, configure the SDK after `useWalletClient()` returns a client. Do not configure it during server rendering.
 
-```ts
-async function testSetup() {
-  try {
-    // Test read operation
-    const totalSupply = await sdk.network('base').token('CHICKEN').getTotalSupply()
-    console.log('✅ Setup working! CHICKEN supply:', totalSupply)
+## Trusted server
 
-    // Test write operation
-    await sdk
-      .network('base')
-      .token('CHICKEN')
-      .buy({
-        amount: wei(1, 18),
-        slippage: 100,
-        onSuccess: () => console.log('✅ Buy successful!'),
-      })
-  } catch (error) {
-    console.error('❌ Setup failed:', error)
-  }
-}
-```
-
-## ⚛️ React/Next.js Frontend Setup
-
-### 1. Installation
-
-```bash
-npm install @mint.club/v2-sdk viem wagmi @wagmi/core @rainbow-me/rainbowkit
-```
-
-### 2. Wagmi Configuration
-
-```ts
-// lib/wagmi.ts
-import { createConfig, http } from 'wagmi'
-import { base, mainnet } from 'wagmi/chains'
-import { coinbaseWallet, metaMask, walletConnect } from 'wagmi/connectors'
-
-export const config = createConfig({
-  chains: [base, mainnet],
-  connectors: [metaMask(), coinbaseWallet(), walletConnect({ projectId: 'your-project-id' })],
-  transports: {
-    [base.id]: http(),
-    [mainnet.id]: http(),
-  },
-})
-```
-
-### 3. App Setup
-
-```tsx
-// app/layout.tsx or _app.tsx
-import { WagmiProvider } from 'wagmi'
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-
-const queryClient = new QueryClient()
-
-export default function RootLayout({ children }) {
-  return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>{children}</RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  )
-}
-```
-
-### 4. Component Usage
-
-```tsx
-// components/TokenTrader.tsx
-'use client'
-
-import { useWalletClient, useAccount } from 'wagmi'
-import { mintclub, wei } from '@mint.club/v2-sdk'
-import { base } from 'viem/chains'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
-
-export default function TokenTrader() {
-  const { address } = useAccount()
-  const { data: walletClient } = useWalletClient({ chainId: 8453 })
-
-  const sdk = walletClient ? mintclub.withWalletClient({ ...walletClient, chain: base }) : null
-
-  const handleBuy = async () => {
-    if (!sdk) return
-
-    try {
-      await sdk
-        .network('base')
-        .token('CHICKEN')
-        .buy({
-          amount: wei(10, 18),
-          slippage: 100,
-          onSuccess: (receipt) => {
-            console.log('Purchase successful!')
-          },
-        })
-    } catch (error) {
-      console.error('Purchase failed:', error)
-    }
-  }
-
-  return (
-    <div>
-      <ConnectButton />
-      {address && <button onClick={handleBuy}>Buy 10 CHICKEN Tokens</button>}
-    </div>
-  )
-}
-```
-
-## 🌐 Vanilla Browser Setup
-
-### 1. Installation
-
-```html
-<!-- index.html -->
-<script type="module">
-  import * as viem from 'https://cdn.jsdelivr.net/npm/viem@2/+esm'
-  import { mintclub, wei } from 'https://cdn.jsdelivr.net/npm/@mint.club/v2-sdk@2/+esm'
-
-  window.viem = viem
-  window.MintClubV2SDK = { mintclub, wei }
-</script>
-```
-
-### 2. Basic Setup
-
-```html
-<script>
-  async function initMintClub() {
-    const { mintclub, wei } = window.MintClubV2SDK
-
-    // Wait for wallet to be available
-    if (!window.ethereum) {
-      console.error('No wallet found')
-      return
-    }
-
-    // Request account access
-    await window.ethereum.request({ method: 'eth_requestAccounts' })
-
-    // Create wallet client
-    const walletClient = viem.createWalletClient({
-      transport: viem.custom(window.ethereum),
-      chain: { id: 8453, name: 'Base' }, // Define Base chain
-    })
-
-    const sdk = mintclub.withWalletClient(walletClient)
-
-    // Test it
-    try {
-      const totalSupply = await sdk.network('base').token('CHICKEN').getTotalSupply()
-      console.log('Connected! CHICKEN supply:', totalSupply)
-
-      // Buy button
-      document.getElementById('buyButton').onclick = async () => {
-        await sdk
-          .network('base')
-          .token('CHICKEN')
-          .buy({
-            amount: wei(1, 18),
-            slippage: 100,
-            onSuccess: () => alert('Purchase successful!'),
-          })
-      }
-    } catch (error) {
-      console.error('Setup failed:', error)
-    }
-  }
-
-  // Initialize when page loads
-  window.addEventListener('load', initMintClub)
-</script>
-```
-
-## 🔧 Advanced Setup Options
-
-### Custom RPC Configuration
+Prefer constructing a viem wallet client so the account, chain, and transport are explicit:
 
 ```ts
 import { mintclub } from '@mint.club/v2-sdk'
-import { createPublicClient, http } from 'viem'
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { base } from 'viem/chains'
 
-// Custom RPC for better performance
-const customPublicClient = createPublicClient({
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const walletClient = createWalletClient({
+  account,
   chain: base,
-  transport: http('https://base-mainnet.public.blastapi.io'),
+  transport: http(process.env.BASE_RPC_URL),
 })
 
-const sdk = mintclub.withPublicClient(customPublicClient)
-// Now all read operations use the fast RPC
+mintclub.withWalletClient(walletClient)
 ```
 
-### Multiple Network Setup
+The network-scoped `withPrivateKey()` helper is also available for trusted scripts:
 
 ```ts
-import { mintclub } from '@mint.club/v2-sdk'
-
-// Create instances for different networks
-const baseSdk = mintclub.withWalletClient(baseWalletClient).network('base')
-const arbSdk = mintclub.withWalletClient(arbWalletClient).network('arbitrum')
-
-// Use different networks
-await baseSdk.token('CHICKEN').buy({...})
-await arbSdk.token('ARBTOKEN').sell({...})
+const baseClient = mintclub
+  .network('base')
+  .withPrivateKey(process.env.PRIVATE_KEY as `0x${string}`)
 ```
 
-### Environment-Specific Configuration
+Never place private keys in frontend bundles, prompts, logs, command arguments, or source control.
+
+## Validate configuration
 
 ```ts
-// config/mintclub.ts
-const getMintClubConfig = () => {
-  if (typeof window === 'undefined') {
-    // Server-side
-    return mintclub.withPrivateKey(process.env.PRIVATE_KEY!)
-  } else {
-    // Client-side
-    return mintclub.withWalletClient(window.walletClient)
-  }
-}
+import { supportedChainsMap } from '@mint.club/v2-sdk'
 
-export const sdk = getMintClubConfig()
+const network = mintclub.network('base')
+const walletClient = network.getWalletClient()
+
+console.log('Supported chain ID:', supportedChainsMap.base)
+console.log('Wallet account:', walletClient?.account?.address)
+console.log('Wallet chain ID:', walletClient?.chain?.id)
 ```
 
-## 🐛 Troubleshooting Setup Issues
-
-### Common Node.js Issues
-
-```ts
-// Issue: Private key format
-// Fix: Ensure 0x prefix
-const privateKey = process.env.PRIVATE_KEY!.startsWith('0x')
-  ? process.env.PRIVATE_KEY!
-  : `0x${process.env.PRIVATE_KEY!}`
-
-// Issue: Network not supported
-// Fix: Check supported chains
-import { supportedChains } from '@mint.club/v2-sdk'
-console.log('Supported:', supportedChains)
-```
-
-### Common React Issues
-
-```tsx
-// Issue: Wallet client undefined
-// Fix: Check wallet connection first
-const { data: walletClient, isLoading } = useWalletClient()
-
-if (isLoading || !walletClient) {
-  return <div>Connecting wallet...</div>
-}
-
-// Issue: Chain mismatch
-// Fix: Ensure correct chainId
-const { data: walletClient } = useWalletClient({ chainId: 8453 }) // Base
-```
-
-### Common Browser Issues
-
-```js
-// Issue: window.ethereum undefined
-// Fix: Check for wallet extension
-if (!window.ethereum) {
-  alert('Please install MetaMask or another Web3 wallet')
-  return
-}
-
-// Issue: User rejected connection
-// Fix: Handle the error gracefully
-try {
-  await window.ethereum.request({ method: 'eth_requestAccounts' })
-} catch (error) {
-  if (error.code === 4001) {
-    alert('Please connect your wallet to continue')
-  }
-}
-```
-
-## ✅ Setup Verification
-
-### Test Script
-
-```ts
-// test-setup.ts
-import { mintclub } from '@mint.club/v2-sdk'
-
-async function testSetup(sdk: any) {
-  const tests = [
-    {
-      name: 'Read Token Supply',
-      test: () => sdk.network('base').token('CHICKEN').getTotalSupply(),
-    },
-    {
-      name: 'Read Token Price',
-      test: () => sdk.network('base').token('CHICKEN').getPriceForNextMint(),
-    },
-    {
-      name: 'Read NFT Balance',
-      test: () => sdk.network('base').nft('ART').getTotalSupply(),
-    },
-  ]
-
-  for (const { name, test } of tests) {
-    try {
-      await test()
-      console.log(`✅ ${name}: PASSED`)
-    } catch (error) {
-      console.log(`❌ ${name}: FAILED - ${error.message}`)
-    }
-  }
-}
-```
-
----
-
-**Choose your environment and follow the corresponding setup pattern!** Each setup is optimized for its specific use case. 🎯
+The wallet chain must match the network used for a write. See [Debugging](/docs/vibe-coders/debugging) for quote, balance, allowance, and callback checks.

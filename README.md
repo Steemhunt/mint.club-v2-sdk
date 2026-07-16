@@ -5,7 +5,7 @@
 <h1 align="center">Mint Club V2 SDK</h1>
 
 <p align="center">
-  TypeScript SDK for the <a href="https://mint.club">Mint Club</a> bonding curve protocol — read, trade, create, and manage tokens across 18 networks.
+  The TypeScript SDK for creating, trading, and managing assets on the <a href="https://mint.club">Mint Club</a> bonding curve protocol.
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
   <a href="https://www.npmjs.com/package/@mint.club/v2-sdk"><img src="https://img.shields.io/npm/dm/%40mint.club%2Fv2-sdk.svg?style=flat-square&label=downloads" alt="downloads" /></a>
   <a href="https://packagephobia.com/result?p=%40mint.club%2Fv2-sdk"><img src="https://packagephobia.com/badge?p=%40mint.club%2Fv2-sdk" alt="install size" /></a>
   <a href="https://github.com/Steemhunt/mint.club-v2-sdk"><img src="https://img.shields.io/github/stars/Steemhunt/mint.club-v2-sdk?style=flat-square&logo=github" alt="GitHub" /></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="MIT" /></a>
+  <a href="https://opensource.org/license/bsd-3-clause"><img src="https://img.shields.io/badge/License-BSD--3--Clause-blue.svg?style=flat-square" alt="BSD-3-Clause" /></a>
 </p>
 
 ---
@@ -30,7 +30,7 @@ This SDK is the canonical TypeScript client for the protocol. Use it from Node.j
 
 ## Install
 
-The SDK moved from `mint.club-v2-sdk` to the official Mint Club scope in v2. The old package is deprecated; use `@mint.club/v2-sdk` for all new installations.
+Version 2 moved the SDK from `mint.club-v2-sdk` to the official Mint Club scope. Use `@mint.club/v2-sdk` for all new installations.
 
 ```bash
 npm install @mint.club/v2-sdk
@@ -45,47 +45,32 @@ bun add @mint.club/v2-sdk
 ```ts
 import { mintclub } from '@mint.club/v2-sdk';
 
-// Read: token details
-const detail = await mintclub.network('base').token('SIGNET').getDetail();
-console.log(detail.priceForNextMint, detail.info.currentSupply);
+// Read token state without connecting a wallet.
+const signet = mintclub.network('base').token('SIGNET');
+const [details, nextMintPrice] = await Promise.all([
+  signet.getDetail(),
+  signet.getPriceForNextMint(),
+]);
 
-// Read: USD price (with 1inch / DEX fallback)
-const usd = await mintclub.network('base').token('HUNT').getUsdRate();
-
-// Write: buy on the bonding curve (browser / wagmi)
-await mintclub
-  .network('base')
-  .token('SIGNET')
-  .buy({
-    amount: 100n,                 // tokens to mint
-    slippage: 1,                  // %
-    onSuccess: (tx) => console.log(tx),
-    onError: (e) => console.error(e),
-  });
-
-// Write: create a new token
-await mintclub.network('base').token('MYTOKEN').create({
-  name: 'My Token',
-  reserveToken: { address: '0x...', decimals: 18 },
-  curveData: {
-    curveType: 'EXPONENTIAL',
-    stepCount: 100,
-    maxSupply: 1_000_000,
-    initialMintingPrice: 0.0001,
-    finalMintingPrice: 0.1,
-  },
-});
+// Resolve the current USD price and its quote path.
+const { usdRate, path } = await mintclub.network('base').token('HUNT').getUsdRate();
 ```
 
-For Node.js / server contexts, use `withPrivateKey()`:
+For trusted Node.js environments, configure a private key after selecting the network. Never expose a private key in browser code.
 
 ```ts
-await mintclub
-  .withPrivateKey(process.env.PRIVATE_KEY as `0x${string}`)
+import { mintclub, wei } from '@mint.club/v2-sdk';
+
+const serverToken = mintclub
   .network('base')
-  .token('SIGNET')
-  .buy({ amount: 100n, slippage: 1 });
+  .withPrivateKey(process.env.PRIVATE_KEY as `0x${string}`)
+  .token('SIGNET');
+
+const serverAmount = wei(100, await serverToken.getDecimals());
+await serverToken.buy({ amount: serverAmount, slippage: 1 });
 ```
+
+Browser applications should pass a viem wallet client from their wallet integration to `mintclub.withWalletClient()`. See the [getting started guide](https://sdk.mint.club/docs/getting-started) for a complete example.
 
 ---
 
@@ -93,26 +78,34 @@ await mintclub
 
 | | |
 |---|---|
-| 🪙 **Bond contract** | Buy, sell, create, and read token state |
-| 🎁 **Airdrops** | Merkle-tree airdrops with IPFS-backed allowlists |
-| 🔐 **Stake & lock** | Stake pools and lockups |
-| ⚡ **Zap** | Swap + bond in a single transaction |
-| 🦄 **Uniswap routing** | V3/V4 swap helpers via UniversalRouter |
-| 💵 **USD pricing** | 1inch spot, DefiLlama, 0x fallbacks |
-| 📦 **IPFS** | Upload metadata, logos, and airdrop lists via Filebase |
-| 🏷️ **Metadata** | Mint Club token metadata create / update / read |
+| **Bonding curves** | Create, buy, sell, estimate, and inspect ERC-20 and ERC-1155 assets |
+| **Wallet integration** | Use viem wallet clients, injected wallets, or a server-side private key |
+| **Airdrops** | Create and claim Merkle airdrops with IPFS-backed allowlists |
+| **Lockups and staking** | Create token lockups and interact with staking pools |
+| **Wrapped-native Zap** | Buy with or sell to the native asset when the reserve is its wrapped token |
+| **USD pricing** | Resolve token prices through bonding curves and supported price providers |
+| **IPFS and metadata** | Upload and resolve asset metadata and airdrop lists |
 
 ## Supported Networks
 
-Ethereum · Base · BNB Chain · Polygon · Arbitrum · Optimism · Avalanche · Kaia · Cyber · Degen · Ham · Shibarium · Robinhood · Unichain · Zora · HashKey · Ape Chain · Over — plus their testnets.
+The SDK accepts a chain ID or the lowercase network key shown below.
+
+| Environment | Network keys |
+|---|---|
+| Mainnet | `ethereum`, `base`, `blast`, `optimism`, `arbitrum`, `polygon`, `bnbchain`, `avalanche`, `kaia`, `cyber`, `degen`, `ham`, `shibarium`, `unichain`, `zora`, `apechain`, `hashkey`, `robinhood`, `over` |
+| Testnet | `sepolia`, `basesepolia`, `blastsepolia`, `avalanchefuji`, `cybertestnet`, `puppynet` |
+
+Contract availability differs by feature and network. Use `getMintClubContractAddress()` or the [contract repository](https://github.com/Steemhunt/mint.club-v2-contract) when you need a specific deployment.
 
 ---
 
-## Running tests
+## Development
 
 ```bash
 npm install
+npm run typecheck
 npm test
+npm run build
 ```
 
 Integration tests that require credentials (`PRIVATE_KEY`, `FILEBASE_API_KEY`) are auto-skipped when the env var is not set.
@@ -123,15 +116,14 @@ Integration tests that require credentials (`PRIVATE_KEY`, `FILEBASE_API_KEY`) a
 
 | | |
 |---|---|
-| 🌐 **App** | [mint.club](https://mint.club) |
-| 📖 **SDK Docs** | [sdk.mint.club](https://sdk.mint.club) |
-| 📖 **Protocol Docs** | [docs.mint.club](https://docs.mint.club) |
-| 🔗 **Contracts** | [Steemhunt/mint.club-v2-contract](https://github.com/Steemhunt/mint.club-v2-contract) |
-| 🤖 **AI Tools (CLI + MCP)** | [mint.club-v2-ai](https://github.com/Steemhunt/mint.club-v2-ai) |
-| 💬 **Community** | [OnChat](https://onchat.sebayaki.com/mintclub) |
-| 🐦 **Twitter** | [@MintClubPro](https://twitter.com/MintClubPro) |
-| 🏗️ **Hunt Town** | [hunt.town](https://hunt.town) |
+| **App** | [mint.club](https://mint.club) |
+| **SDK docs** | [sdk.mint.club](https://sdk.mint.club) |
+| **Protocol docs** | [docs.mint.club](https://docs.mint.club) |
+| **Contracts** | [Steemhunt/mint.club-v2-contract](https://github.com/Steemhunt/mint.club-v2-contract) |
+| **CLI and MCP** | [Steemhunt/mint.club-v2-ai](https://github.com/Steemhunt/mint.club-v2-ai) |
+| **Community** | [OnChat](https://onchat.sebayaki.com/mintclub) |
+| **X / Twitter** | [@MintClubPro](https://twitter.com/MintClubPro) |
 
 ## License
 
-MIT — built with 🏗️ by [Hunt Town](https://hunt.town)
+BSD-3-Clause — built with 🏗️ by [Hunt Town](https://hunt.town)

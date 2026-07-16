@@ -1,44 +1,22 @@
-<div className="w-full max-w-3xl mx-auto my-8">
-  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-    <iframe
-      className="absolute top-0 left-0 w-full h-full"
-      src="https://www.youtube.com/embed/HT2OH3nAOrI"
-      title="YouTube video player"
-      frameBorder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-    ></iframe>
-  </div>
-</div>
+---
+title: Getting started
+description: Install the SDK, read protocol state, and configure a wallet for writes.
+---
 
-# Getting Started
+# Getting started
 
-## Overview
+The SDK supports browsers and Node.js, ships ESM and CommonJS builds, and uses [viem](https://viem.sh) for blockchain clients.
 
-Mint.club is a multichain supported [DApp](https://mint.club) that lets you easily create Bonding Curved ERC-20 and ERC-1155 with custom tokenomics.
-
-You can use this SDK in both the browser and Node.js, and it's strongly-typed with TypeScript. Both ESM and CommonJS are supported.
-
-Maximize the bonding curve protocol with your own flavor. 🍏
-
-## Quick Start
-
-Below is a quick example of how to use the SDK to communicate with the Mint.club Protocol.
-
-::::steps
-
-### Install
-
-First, we will install `@mint.club/v2-sdk` as a dependency in our project.
+## Install
 
 :::code-group
 
 ```bash [npm]
-npm i @mint.club/v2-sdk
+npm install @mint.club/v2-sdk
 ```
 
 ```bash [pnpm]
-pnpm i @mint.club/v2-sdk
+pnpm add @mint.club/v2-sdk
 ```
 
 ```bash [yarn]
@@ -46,53 +24,74 @@ yarn add @mint.club/v2-sdk
 ```
 
 ```bash [bun]
-bun i @mint.club/v2-sdk
+bun add @mint.club/v2-sdk
 ```
 
 :::
 
-### Reading Data
+## Read protocol data
 
-Below is a simple example of retrieving the token's total supply.
+Read methods use the SDK's fallback RPCs, so they do not require a wallet.
 
-```ts twoslash [app.ts]
+```ts
 import { mintclub } from '@mint.club/v2-sdk'
 
-// [!code focus]
-const totalSupply = await mintclub // [!code focus]
-  //     ^?
+const token = mintclub.network('base').token('CHICKEN')
 
-  .network('base') // [!code focus]
-  .token('CHICKEN') // [!code focus]
-  .getTotalSupply() // [!code focus]
-
-// $CHICKEN token actually exists!
-// https://mint.club/token/base/CHICKEN 🐔
+const [totalSupply, nextMintPrice] = await Promise.all([
+  token.getTotalSupply(),
+  token.getPriceForNextMint(),
+])
 ```
 
-[Go to full documentation](/docs/sdk/introduction)
+`network()` accepts either a supported lowercase network key such as `base` or its numeric chain ID, `8453`.
 
-### Writing Data
+## Configure writes
 
-Below is a simple example of purchasing a token.
+Use `withWalletClient()` with a viem-compatible wallet client in applications. A wallet client must include both an account and a chain.
 
-```ts twoslash [app.ts]
-import { mintclub } from '@mint.club/v2-sdk'
+```ts
+import { mintclub, wei } from '@mint.club/v2-sdk'
+import { createWalletClient, custom } from 'viem'
+import { base } from 'viem/chains'
 
-// [!code focus]
-const result = await mintclub.network('base').token('CHICKEN').buy({
-  // [!code focus]
-  amount: 100n, // [!code focus]
-  slippage: 0, // [!code focus]
-  recipient: '0x...', // [!code focus]
-}) // [!code focus]
-// [!code focus]
+const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
+const walletClient = createWalletClient({
+  account,
+  chain: base,
+  transport: custom(window.ethereum),
+})
+
+mintclub.withWalletClient(walletClient)
+
+const chicken = mintclub.network('base').token('CHICKEN')
+const amount = wei(100, await chicken.getDecimals())
+
+await chicken.buy({
+  amount,
+  slippage: 1, // 1%
+})
 ```
 
-[Go to full documentation](/docs/sdk/introduction)
+For a trusted server process, select the network before calling `withPrivateKey()`:
 
-### Next Steps 🎊
+```ts
+import { mintclub, wei } from '@mint.club/v2-sdk'
 
-You can find more examples and detailed documentation throughout the rest of this site.
+const serverToken = mintclub
+  .network('base')
+  .withPrivateKey(process.env.PRIVATE_KEY as `0x${string}`)
+  .token('CHICKEN')
 
-::::
+const serverAmount = wei(100, await serverToken.getDecimals())
+await serverToken.buy({ amount: serverAmount, slippage: 1 })
+```
+
+Never place a private key in frontend code, logs, command arguments, or source control.
+
+## Next steps
+
+- Learn the [`mintclub → network → asset → method` pattern](/docs/sdk/introduction).
+- Review [network and client configuration](/docs/sdk/network).
+- Explore the ERC-20 [`token()`](/docs/sdk/network/token) and ERC-1155 [`nft()`](/docs/sdk/network/nft) helpers.
+- Check [contract availability and addresses](/docs/contracts).

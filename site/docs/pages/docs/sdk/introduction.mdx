@@ -1,89 +1,82 @@
-# `mintclub` SDK [A brief introduction on common patterns.]
+---
+title: SDK overview
+description: Understand the SDK's chain, asset, and helper structure.
+---
 
-## Introduction
+# SDK overview
 
-::::steps
+Most SDK calls follow the same structure:
 
-### mintclub
-
-You will most likely find everything needed within the `mintclub` module exported from `@mint.club/v2-sdk`.
-
-```ts [app.ts]
-// [!include ~/snippets/example.ts:import]
-```
-
-### network
-
-The SDK follows a common pattern of having a `network` method to set the network to interact with.
-
-```ts twoslash [app.ts]
-import { mintclub } from '@mint.club/v2-sdk';
-
-// [!code focus]
-// @noErrors
-mintclub.network('' // [!code focus]
-//                ^|
-// [!code focus]
-```
-
-:::tip[chainId]
-You could also pass the chain id of the network instead of string value.
-:::
-
-```ts twoslash [app.ts]
-import { mintclub } from '@mint.club/v2-sdk';
-
-// [!code focus]
-// @noErrors
-mintclub.network(1 // [!code focus]
-//                ^|
-// [!code focus]
-```
-
-### `token` | `nft`
-
-Then follows the `token` and `nft` methods to interact with.
-
-`token` represents fungible ERC-20 tokens, while `nft` represents non-fungible ERC-1155 tokens.
-
-It takes in a `string` parameter which could be the token symbol or address.
-
-```ts twoslash [app.ts]
+```ts
 import { mintclub } from '@mint.club/v2-sdk'
 
-const symbolOrAddress: string = 'CHICKEN'
-// [!code focus]
-// @noErrors
-mintclub.network('base').token(symbolOrAddress) // [!code focus]
-//                       ^^^^^
-//                                     ^?
-// [!code focus]
+mintclub
+  .network('base')
+  .token('SIGNET')
+  .getTotalSupply()
 ```
 
-### `functionName`
+## 1. Select a network
 
-Lastly, you can call the functions on the token or nft.
+Pass a supported lowercase network key or numeric chain ID.
 
-```ts twoslash [app.ts]
-import { mintclub } from '@mint.club/v2-sdk'
-
-const symbolOrAddress: string = 'CHICKEN'
-// [!code focus]
-// @noErrors
-mintclub.network('base').token(symbolOrAddress).g // [!code focus]
-//                                               ^|
-// [!code focus]
-
-
-
-
-
-
-
-
-
-
-
+```ts
+const baseByName = mintclub.network('base')
+const baseByChainId = mintclub.network(8453)
 ```
 
-::::
+The SDK creates public clients with ranked fallback RPC transports. You can replace a public client with [`withPublicClient()`](/docs/sdk/network/withPublicClient) and configure writes with [`withWalletClient()`](/docs/sdk/network/withWalletClient).
+
+## 2. Select an asset
+
+Use `token()` for ERC-20 assets and `nft()` for ERC-1155 assets. Both accept a Mint Club symbol or a contract address.
+
+```ts
+const token = mintclub.network('base').token('SIGNET')
+const collection = mintclub.network('base').nft('MY-COLLECTION')
+const byAddress = mintclub.network('base').token('0x1234567890123456789012345678901234567890')
+```
+
+The asset helpers share bonding curve methods such as `buy()`, `sell()`, `getBuyEstimation()`, `getSellEstimation()`, `getSteps()`, and `getUsdRate()`.
+
+## 3. Call a read or write method
+
+Reads return onchain data without requiring a wallet:
+
+```ts
+const [details, steps] = await Promise.all([
+  token.getDetail(),
+  token.getSteps(),
+])
+```
+
+Writes require a configured wallet and accept transaction lifecycle callbacks:
+
+```ts
+await token.buy({
+  amount: 100n,
+  slippage: 1, // percentage points: 1 means 1%
+  onSigned: (hash) => console.log(hash),
+  onSuccess: (receipt) => console.log(receipt.transactionHash),
+  onError: (error) => console.error(error),
+})
+```
+
+`amount` is expressed in the asset's smallest unit. ERC-1155 Mint Club assets use zero decimals, while ERC-20 decimals vary by token.
+
+## Protocol helpers
+
+Network-scoped helpers are available alongside `token()` and `nft()`:
+
+```ts
+const network = mintclub.network('base')
+
+network.bond
+network.airdrop
+network.lockup
+network.stake
+network.getPublicClient()
+network.getWalletClient()
+```
+
+Availability for add-on contracts such as staking and pricing providers can differ by network. See [Contracts](/docs/contracts) before building a chain-specific flow.

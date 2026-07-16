@@ -1,6 +1,6 @@
 {
   "name": "@mint.club/v2-sdk",
-  "description": "TypeScript SDK for the Mint Club V2 bonding curve protocol — read, trade, create, and manage tokens across 18 networks.",
+  "description": "TypeScript SDK for creating, trading, and managing assets on the Mint Club V2 bonding curve protocol.",
   "keywords": [
     "mint-club",
     "bonding-curve",

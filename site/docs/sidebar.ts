@@ -29,47 +29,19 @@ export const sidebar = {
     },
 
     {
-      text: 'Mint.club v2 SDK 📦',
+      text: 'SDK',
       items: [
         {
-          text: '️🚩 Start here',
+          text: 'Overview',
           link: '/docs/sdk/introduction',
         },
         {
-          text: '🍳 Recipes',
+          text: 'Recipes',
           collapsed: true,
           items: [
             {
-              text: 'Mint Frame Implementation',
-              link: 'https://github.com/ggomaeng/farsight-hackathon/blob/main/api/index.tsx',
-            },
-            {
-              text: 'Next.js Implementation',
-              link: 'https://github.com/ggomaeng/mint.club-v2-web-example/blob/main/app/page.tsx',
-            },
-            {
-              text: 'Farcaster Frames',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Required Ingredients',
-                  link: '/docs/recipes/frog',
-                },
-                {
-                  text: 'Airdrop Claim Frame',
-                  link: '/docs/recipes/airdrop-claim',
-                },
-              ],
-            },
-            {
-              text: 'Snippets',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Calculating reverse input',
-                  link: '/docs/recipes/snippets/reverse-calculation',
-                },
-              ],
+              text: 'Calculating reverse input',
+              link: '/docs/recipes/snippets/reverse-calculation',
             },
           ],
         },
@@ -105,7 +77,7 @@ export const sidebar = {
         // },
 
         {
-          text: '📦 ipfs',
+          text: 'IPFS',
           collapsed: true,
           items: [
             {
@@ -136,7 +108,7 @@ export const sidebar = {
         },
 
         {
-          text: '🌐 network',
+          text: 'Network and clients',
           link: '/docs/sdk/network',
           collapsed: true,
           items: [
@@ -163,11 +135,11 @@ export const sidebar = {
           ],
         },
         {
-          text: '💎 token & nft',
+          text: 'Assets',
           collapsed: true,
           items: [
             {
-              text: '🪙 token',
+              text: 'ERC-20 token',
               link: '/docs/sdk/network/token',
               collapsed: true,
               items: [
@@ -186,7 +158,7 @@ export const sidebar = {
               ],
             },
             {
-              text: '🖼️ nft',
+              text: 'ERC-1155 asset',
               link: '/docs/sdk/network/nft',
               collapsed: true,
               items: [
@@ -225,7 +197,7 @@ export const sidebar = {
               ],
             },
             {
-              text: '🔗 common',
+              text: 'Shared operations',
               collapsed: true,
               items: [
                 {
@@ -322,7 +294,7 @@ export const sidebar = {
         },
 
         {
-          text: '📈 bond',
+          text: 'Bond',
           collapsed: true,
           items: [
             {
@@ -352,7 +324,7 @@ export const sidebar = {
           ],
         },
         {
-          text: '🪂 airdrop',
+          text: 'Airdrop',
           collapsed: true,
           items: [
             {
@@ -406,7 +378,7 @@ export const sidebar = {
           ],
         },
         {
-          text: '🔒 lockup',
+          text: 'Lockup',
           collapsed: true,
           items: [
             {
@@ -436,7 +408,7 @@ export const sidebar = {
           ],
         },
         {
-          text: '🥩 stake',
+          text: 'Stake',
           collapsed: true,
           items: [
             {
@@ -518,7 +490,7 @@ export const sidebar = {
           ],
         },
         {
-          text: '🎁 bonus',
+          text: 'Advanced usage',
           collapsed: true,
           items: [
             {
@@ -541,7 +513,7 @@ export const sidebar = {
         },
 
         {
-          text: '🛠️ utils',
+          text: 'Utilities',
           collapsed: true,
           items: [
             { text: 'Getting Started', link: '/docs/sdk/utils' },
@@ -556,51 +528,51 @@ export const sidebar = {
         },
 
         {
-          text: '🤖 vibecoding',
+          text: 'Implementation guides',
           collapsed: true,
           items: [
             {
-              text: '🏠 Welcome Vibe Coders',
+              text: 'Overview',
               link: '/docs/vibe-coders',
             },
             {
-              text: '📖 Complete LLM Guide',
+              text: 'LLM guide',
               link: '/docs/vibe-coders/llm-guide',
             },
             {
-              text: '⚡ Core Pattern Cheat Sheet',
+              text: 'Quick reference',
               link: '/docs/vibe-coders/cheat-sheet',
             },
             {
-              text: '🎨 Common Patterns & Snippets',
+              text: 'Patterns and snippets',
               link: '/docs/vibe-coders/patterns',
             },
             {
-              text: '🚀 Environment Setup Guide',
+              text: 'Environment setup',
               link: '/docs/vibe-coders/setup',
             },
             {
-              text: '🔍 Debugging Guide',
+              text: 'Debugging',
               link: '/docs/vibe-coders/debugging',
             },
             {
-              text: '🪙 Token & NFT Operations',
+              text: 'Token and NFT operations',
               link: '/docs/vibe-coders/token-nft-guide',
             },
             {
-              text: '🎁 Airdrop Operations',
+              text: 'Airdrop operations',
               link: '/docs/vibe-coders/airdrop-guide',
             },
             {
-              text: '🔒 Lockup Operations',
+              text: 'Lockup operations',
               link: '/docs/vibe-coders/lockup-guide',
             },
             {
-              text: '💎 Bond Operations',
+              text: 'Bond operations',
               link: '/docs/vibe-coders/bond-guide',
             },
             {
-              text: '🥩 Staking Operations',
+              text: 'Staking operations',
               link: '/docs/vibe-coders/stake-guide',
             },
           ],
@@ -608,11 +580,11 @@ export const sidebar = {
       ],
     },
     {
-      text: 'API 🔗',
+      text: 'HTTP API',
       collapsed: false,
       items: [
         {
-          text: '📪 Endpoints',
+          text: 'Endpoints',
           link: '/docs/api',
         },
       ],

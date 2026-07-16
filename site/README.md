@@ -1,18 +1,23 @@
-This is a [Vocs](https://vocs.dev) project bootstrapped with the Vocs CLI.
+# Mint Club V2 SDK documentation
 
+The documentation site for [`@mint.club/v2-sdk`](https://www.npmjs.com/package/@mint.club/v2-sdk), built with [Vocs](https://vocs.dev).
+
+## Local development
+
+From this directory:
+
+```bash
+npm ci
+npm run dev
 ```
-/************************
-           _       _
- _ __ ___ (_)_ __ | |_
-| '_ ` _ \| | '_ \| __|
-| | | | | | | | | | |_
-|_| |_| |_|_|_| |_|\__|
-(_)__| |_   _| |__
- / __| | | | | '_ \
-| (__| | |_| | |_) |
- \___|_|\__,_|_.__/
 
-Made with ☕
+The site uses the SDK from the parent directory through a local `file:..` dependency.
 
-**************************/
+## Production build
+
+```bash
+npm run build
+npm run preview
 ```
+
+The `prebuild` script installs and builds the parent SDK before Vocs validates the documentation examples.

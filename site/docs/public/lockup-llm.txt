@@ -1,0 +1,66 @@
+# Mint Club V2 SDK — lockup reference
+
+Package: `@mint.club/v2-sdk`
+
+Use `mintclub.network(chain).lockup`. Writes require a configured wallet and a Locker deployment on the selected network.
+
+## Resolve and approve the Locker
+
+```ts
+import { getMintClubContractAddress, mintclub, supportedChainsMap, wei } from '@mint.club/v2-sdk'
+
+const chain = 'base' as const
+const network = mintclub.network(chain)
+const locker = getMintClubContractAddress('LOCKER', supportedChainsMap.base)
+const token = network.token('MYTOKEN')
+const amount = wei(10_000, await token.getDecimals())
+
+await token.approve({ spender: locker, amount })
+```
+
+For ERC-1155 assets, use operator approval:
+
+```ts
+await network.nft('MYNFT').approve({ spender: locker, approved: true })
+```
+
+Reject the sentinel address `0x`; it means the optional contract is unavailable.
+
+## Create a lockup
+
+```ts
+await network.lockup.createLockUp({
+  token: token.getTokenAddress(),
+  isERC20: true,
+  amount,
+  unlockTime: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
+  receiver: '0x1111111111111111111111111111111111111111',
+  title: 'Team allocation',
+  onSuccess: (receipt) => console.log(receipt.transactionHash),
+  onError: (error) => console.error(error),
+})
+```
+
+`unlockTime` is a Unix timestamp in seconds. The helper does not add token approval automatically.
+
+## Read and unlock
+
+```ts
+const lockup = network.lockup
+
+await lockup.getTotalLockUpCount()
+await lockup.getLockUpById(1)
+await lockup.getLockUpIdsByReceiver({ receiver: '0x...' })
+await lockup.getLockUpIdsByToken({ token: token.getTokenAddress() })
+
+await lockup.unlock({ lockUpId: 1 })
+```
+
+Unlock succeeds only after the configured time and transfers the locked asset to the recorded receiver.
+
+## Safety
+
+- Confirm the token type, amount units, receiver, and unlock timestamp.
+- Query ERC-20 decimals; ERC-1155 amounts are whole units.
+- Verify the exact Locker spender before approving.
+- Do not assume approval is part of `createLockUp()`.

@@ -1,88 +1,39 @@
-# 🤖 VibeCoders — AI-Assisted Mint Club SDK Development
+---
+title: Implementation guides
+description: Safe patterns for building Mint Club V2 SDK integrations with coding agents.
+---
 
-Welcome to the VibeCoders section! This is your go-to resource for using the Mint Club SDK with AI coding assistants like GitHub Copilot, Claude, ChatGPT, and others.
+# Implementation guides
 
-## 🚀 What You'll Find Here
+Use these guides when generating or reviewing code that calls `@mint.club/v2-sdk`. They favor exact SDK method names, explicit units, and short examples over application-specific templates.
 
-### 📋 **Complete LLM Guide**
+## Start here
 
-- [Complete SDK Reference for LLMs](/docs/vibe-coders/llm-guide) - Everything an AI needs to know about the SDK
-- Copy-paste ready examples
-- Error handling patterns
-- Best practices for AI-assisted development
+- [LLM guide](/docs/vibe-coders/llm-guide) — reasoning order, network keys, wallet boundaries, and failure handling.
+- [Quick reference](/docs/vibe-coders/cheat-sheet) — common reads, writes, creation, and callbacks.
+- [Environment setup](/docs/vibe-coders/setup) — read-only, browser-wallet, and trusted-server configuration.
+- [Debugging](/docs/vibe-coders/debugging) — chain, amount, balance, allowance, and transaction checks.
 
-### ⚡ **Quick References**
+## Protocol guides
 
-- [Core Pattern Cheat Sheet](/docs/vibe-coders/cheat-sheet) - The essential `mintclub → network → token/nft → function` pattern
-- [Common Patterns](/docs/vibe-coders/patterns) - Ready-to-use code snippets
-- [Environment Setup](/docs/vibe-coders/setup) - Quick setup for different environments
+- [Token and NFT operations](/docs/vibe-coders/token-nft-guide)
+- [Bond operations](/docs/vibe-coders/bond-guide)
+- [Airdrop operations](/docs/vibe-coders/airdrop-guide)
+- [Lockup operations](/docs/vibe-coders/lockup-guide)
+- [Staking operations](/docs/vibe-coders/stake-guide)
 
-### 🛠️ **Developer Tools**
-
-- [Error Debugging](/docs/vibe-coders/debugging) - Common issues and solutions
-
-## 🎨 The Core Pattern (Always Remember This!)
+## Core pattern
 
 ```ts
 import { mintclub } from '@mint.club/v2-sdk'
 
-mintclub           // 1. Start with mintclub
-  .network('base') // 2. Select network
-  .token('SYMBOL') // 3. Choose token or nft
-  .buy({...})      // 4. Call function
+const asset = mintclub
+  .network('base')
+  .token('SIGNET')
+
+const details = await asset.getDetail()
 ```
 
-**Every interaction follows this pattern:**
+Use `token()` for ERC-20 assets and `nft()` for ERC-1155 assets. Reads do not require a wallet. Configure a wallet client before writes, and always query decimals and current estimates instead of guessing units.
 
-1. **mintclub** - The main SDK entry point
-2. **network()** - Select blockchain network
-3. **token()** or **nft()** - Choose asset to interact with
-4. **function()** - Call the desired operation
-
-## 🚦 Quick Start for AI Assistants
-
-### For Claude/ChatGPT/Gemini:
-
-1. **Read the [Complete LLM Guide](/docs/vibe-coders/llm-guide) first**
-2. **Memorize the core pattern above**
-3. **Use the cheat sheet for quick references**
-4. **Check common patterns before implementing**
-
-### For GitHub Copilot:
-
-1. **Study the examples in this section**
-2. **Use the patterns as training data**
-3. **Reference the core pattern in comments**
-4. **Leverage the complete guide for complex tasks**
-
-## 💡 Pro Tips for AI-Assisted Development
-
-### 🧠 **Mental Model**
-
-- Think of Mint Club as a "token factory" on multiple blockchains
-- Every token has a bonding curve that determines pricing
-- Operations are either "reads" (get data) or "writes" (change state)
-
-### 🔧 **Common Pitfalls**
-
-- **Wrong order**: Always follow the core pattern
-- **Missing wallet**: Set up wallet client before writes
-- **Network mismatch**: Use the correct network for your tokens
-- **Decimals**: Always handle token decimals properly
-
-### 🎯 **Best Practices**
-
-- Use TypeScript for better AI suggestions
-- Add descriptive comments for complex logic
-- Test with small amounts first
-- Use the debug callback for troubleshooting
-
-## 📚 Resources
-
-- [Main SDK Documentation](/docs/sdk/introduction) - Traditional documentation
-- [GitHub Repository](https://github.com/Steemhunt/mint.club-v2-contract) - Source code
-- [Live Examples](https://mint.club) - See the SDK in action
-
----
-
-**Ready to vibe code?** Start with the [Complete LLM Guide](/docs/vibe-coders/llm-guide) or jump to the [Cheat Sheet](/docs/vibe-coders/cheat-sheet)! 🚀
+For a compact machine-readable reference, use the repository's [`llms-full.txt`](https://github.com/Steemhunt/mint.club-v2-sdk/blob/main/llms-full.txt).

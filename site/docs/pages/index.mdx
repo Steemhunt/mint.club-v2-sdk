@@ -1,6 +1,6 @@
 ---
-title: Mint Club V2 SDK Documentation
-description: Create and Trade Bonding Curve Tokens / NFTs with Automated Liquidity
+title: Mint Club V2 SDK
+description: TypeScript tools for the Mint Club bonding curve protocol
 layout: landing
 showLogo: true
 ---
@@ -9,40 +9,28 @@ import { HomePage } from 'vocs/components'
 
 <HomePage.Root>
   <HomePage.Logo className="aspect-square" />
-  <HomePage.Tagline className="text-primary font-bold">Mint Club V2 SDK</HomePage.Tagline>
-  <HomePage.Description>Create and Trade Bonding Curve Tokens / NFTs with Automated Liquidity</HomePage.Description>
+  <HomePage.Tagline className="font-bold text-primary">Mint Club V2 SDK</HomePage.Tagline>
+  <HomePage.Description>
+    Create, trade, and manage ERC-20 and ERC-1155 bonding curve assets from TypeScript.
+  </HomePage.Description>
 
   <HomePage.Buttons>
     <HomePage.Button href="/docs/getting-started" variant="accent">
       Get started
     </HomePage.Button>
-    <HomePage.Button href="https://mint.club">mint.club</HomePage.Button>
+    <HomePage.Button href="https://www.npmjs.com/package/@mint.club/v2-sdk">npm</HomePage.Button>
     <HomePage.Button href="https://github.com/Steemhunt/mint.club-v2-sdk">GitHub</HomePage.Button>
-    <HomePage.Button href="https://www.npmjs.com/package/@mint.club/v2-sdk">NPM</HomePage.Button>
   </HomePage.Buttons>
 </HomePage.Root>
-
-<div className="w-full max-w-3xl mx-auto my-8">
-  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-    <iframe
-      className="absolute top-0 left-0 w-full h-full"
-      src="https://www.youtube.com/embed/HT2OH3nAOrI"
-      title="YouTube video player"
-      frameBorder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-    ></iframe>
-  </div>
-</div>
 
 :::code-group
 
 ```bash [npm]
-npm i @mint.club/v2-sdk
+npm install @mint.club/v2-sdk
 ```
 
 ```bash [pnpm]
-pnpm i @mint.club/v2-sdk
+pnpm add @mint.club/v2-sdk
 ```
 
 ```bash [yarn]
@@ -50,125 +38,31 @@ yarn add @mint.club/v2-sdk
 ```
 
 ```bash [bun]
-bun i @mint.club/v2-sdk
+bun add @mint.club/v2-sdk
 ```
 
 :::
 
-::::steps
-
-##### `🚀 Deploying Bonding Curved ERC-20 / ERC-1155`
-
-##### `💰 Buying the Tokens`
-
-##### `🔵 On Base Network (+ more)`
-
-##### `👇 In ≤ 50 lines of code`
-
-::::
-
-:::code-group
-
-```ts twoslash [erc-20.ts]
+```ts
 import { mintclub } from '@mint.club/v2-sdk'
 
-const RickMee6Token = mintclub.network('base').token('RNM') // [!code highlight]
-//                                      ^|
+const token = mintclub.network('base').token('SIGNET')
 
-// 🚀 Deploying $RNM tokens
-await RickMee6Token.create({
-  name: 'Rick and Mee6',
-  // Base Network WETH
-  reserveToken: {
-    address: '0x4200000000000000000000000000000000000006',
-    decimals: 18,
-  },
-  // Bonding curve data
-  curveData: {
-    curveType: 'EXPONENTIAL',
-    stepCount: 10, // how granular the curve is
-    maxSupply: 10_000, // token max supply
-    initialMintingPrice: 0.01, // starting price, 0.01 WETH
-    finalMintingPrice: 0.1, // ending price, 0.1 WETH
-    creatorAllocation: 100, // initial supply to the deployer
-  },
-})
+const [totalSupply, nextMintPrice] = await Promise.all([
+  token.getTotalSupply(),
+  token.getPriceForNextMint(),
+])
 ```
 
-```ts twoslash [erc-1155.ts]
-import { mintclub } from '@mint.club/v2-sdk'
+## One client for the protocol
 
-const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT') // [!code highlight]
-//                                     ^|
+| Capability | SDK entry point |
+|---|---|
+| ERC-20 bonding curve assets | `mintclub.network(chain).token(symbolOrAddress)` |
+| ERC-1155 bonding curve assets | `mintclub.network(chain).nft(symbolOrAddress)` |
+| Airdrops | `mintclub.network(chain).airdrop` |
+| Lockups | `mintclub.network(chain).lockup` |
+| Staking pools | `mintclub.network(chain).stake` |
+| Public and wallet clients | `getPublicClient()`, `withPublicClient()`, `withWalletClient()` |
 
-// 🚀 Deploying $MNM-NFT tokens
-await MortyMee6Nft.create({
-  name: 'Morty and Mee6',
-  // Base Network WETH
-  reserveToken: {
-    address: '0x4200000000000000000000000000000000000006',
-    decimals: 18,
-  },
-  // Bonding curve data
-  curveData: {
-    curveType: 'EXPONENTIAL',
-    stepCount: 10, // how granular the curve is
-    maxSupply: 10_000, // NFT max supply
-    initialMintingPrice: 0.01, // starting price, 0.01 WETH
-    finalMintingPrice: 0.1, // ending price, 0.1 WETH
-    creatorAllocation: 100, // initial supply to the deployer
-  },
-  metadataUrl: 'ipfs://...', // [!code highlight]
-})
-```
-
-```ts twoslash [buy-sell.ts]
-import { mintclub } from '@mint.club/v2-sdk'
-
-// 💲 Buying/Selling $MNM-NFT tokens
-const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT')
-
-// buy
-const buyParams = { amount: 100n }
-await MortyMee6Nft.buy(buyParams)
-
-// sell
-const sellParams = { amount: 100n }
-await MortyMee6Nft.sell(sellParams)
-```
-
-```ts twoslash [read.ts]
-import { mintclub } from '@mint.club/v2-sdk'
-
-// 🔍 querying $MNM-NFT on-chain data
-const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT')
-
-const totalSupply = await MortyMee6Nft.getTotalSupply()
-//       ^?
-```
-
-:::
-
-:::success[Why?]
-🧃 Easily Deploy ERC-20 Tokens / ERC-1155 NFTs
-
-🤤 Automated Liquidity on Bonding Curve
-
-🔥 Fully customizable
-
-💪 Strongly Typed
-
-⚡ Powered with Viem
-
-☕ Built with love & coffee
-
-> Any Questions? Ping [`@undefined`](https://warpcast.com/undefined)
-> ::
-
-:::warning
-⚠️
-
-This SDK is still under construction and is subject to change any time.
-
-Please use at your own risk
-:::
+Read calls work with the SDK's fallback RPC configuration. Write calls require a configured wallet.

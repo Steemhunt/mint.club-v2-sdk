@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  CHAINS,
   CHAIN_MAP,
   RPCS,
   getMintClubContractAddress,
@@ -11,6 +12,13 @@ import {
 } from '../src';
 
 describe('Robinhood Chain support', () => {
+  test('exports every configured SDK chain', () => {
+    expect(new Set(supportedChains)).toEqual(
+      new Set(CHAINS.map(({ name }) => name.toLowerCase())),
+    );
+    expect(new Set(supportedChains)).toEqual(new Set(Object.keys(supportedChainsMap)));
+  });
+
   test('registers chain metadata and RPC', () => {
     expect(robinhood.id).toBe(4663);
     expect(CHAIN_MAP[robinhood.id].chain).toEqual(robinhood);

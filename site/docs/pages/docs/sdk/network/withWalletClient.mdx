@@ -1,53 +1,43 @@
 ---
-description: Mint.club SDK - withWalletClient
+title: withWalletClient
+description: Configure SDK writes with an existing viem wallet client.
 ---
 
 # withWalletClient
 
-Override the configuration of default [`WalletClient`](/docs/sdk/network/getWalletClient) with a custom configuration.
+`withWalletClient()` configures SDK writes with an existing viem `WalletClient`. The client must include an account and chain.
 
-## Usage
+```ts
+import { mintclub, wei } from '@mint.club/v2-sdk'
+import { createWalletClient, custom } from 'viem'
+import { base } from 'viem/chains'
 
-:::note[Tip]
-The example below uses the `withWalletClient` method to create a custom [`network`](/docs/sdk/network).
-:::
+const [account] = await window.ethereum.request({
+  method: 'eth_requestAccounts',
+})
 
-```ts [example.ts]
-import { mintclub } from '@mint.club/v2-sdk';
+const walletClient = createWalletClient({
+  account,
+  chain: base,
+  transport: custom(window.ethereum),
+})
 
-await mintclub
-  .withWalletClient({ // [!code focus]
-    account: '0x...',  // [!code focus]
-    chain: mee6, // [!code focus]
-    transport: custom(window.mee6!) // [!code focus]
-    ... // [!code focus]
-  }) // [!code focus]
-  .token('MINT')
-  .create({
-    name: 'Mint Club',
-    reserveToken: {
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // mainnet WETH token address
-      decimals: 18,
-    },
-	curveData: {
-		curveType: 'LINEAR',
-		stepCount: 10,
-		maxSupply: 10_000,
-		initialMintingPrice: 0.01, // 0.01 WETH
-		finalMintingPrice: 0.1, // 0.1 WETH
-		creatorAllocation: 100,
-	}
-  })
+mintclub.withWalletClient(walletClient)
+
+const token = mintclub.network('base').token('SIGNET')
+const amount = wei(100, await token.getDecimals())
+
+await token.buy({ amount, slippage: 1 })
 ```
 
-## Return Value
+Wallet clients returned by wagmi's `useWalletClient()` can be passed directly when they contain the selected account and chain.
 
-[`network`](/docs/sdk/network)
+## Return value
 
-Returns the `network` instance, so you chain functions such as [`token`](/docs/sdk/network/nft) and [`nft`](/docs/sdk/network/nft).
+`MintClubSDK`, so root methods such as `network()` can be chained after configuration.
 
-## Parameters
+## Parameter
 
-### WalletClient
+- `walletClient`: a viem [`WalletClient`](https://viem.sh/docs/clients/wallet) with `account` and `chain` configured.
 
-- Type: [`WalletClient`](https://viem.sh/docs/clients/wallet)
+The SDK rejects clients that do not include a chain ID. A write also fails when no account is available.

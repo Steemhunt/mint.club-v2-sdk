@@ -1,10 +1,12 @@
-import { Button, Callout } from 'vocs/components'
+import { Button } from 'vocs/components'
 
 # FAQ
 
 ::::note
 :::details[Which chains does Mint Club support?]
-Mint Club currently supports `Ethereum`, `Base`, `Optimism`, `Arbitrum`, `Polygon`, `Avalanche`, `BNB Chain`, `Shibarium`, `Unichain`, `Puppynet (Testnet)`, `Sepolia (Testnet)`, and `BlastSepolia (Testnet)`. Support for additional chains may be introduced in the future.
+The SDK supports 19 mainnets: `Ethereum`, `Base`, `Blast`, `Optimism`, `Arbitrum`, `Polygon`, `BNB Chain`, `Avalanche`, `Kaia`, `Cyber`, `Degen`, `Ham`, `Shibarium`, `Unichain`, `Zora`, `ApeChain`, `HashKey`, `Robinhood`, and `Over`.
+
+It also supports `Sepolia`, `Base Sepolia`, `Blast Sepolia`, `Avalanche Fuji`, `Cyber Testnet`, and `Puppynet`. Optional helpers such as staking, Zap, and individual price providers are not available on every network.
 :::
 ::::
 
@@ -16,34 +18,34 @@ Using a Bonding Curve removes the necessity for a manual liquidity pool for toke
 
 ::::note
 :::details[Are there any disadvantages to launching ERC-20 or ERC-1155 tokens on Mint.Club?]
-No, there are no inherent disadvantages. Tokens launched on Mint.club are compliant with standard `ERC-20` and `ERC-1155` protocols. As a result, tokens created on Mint.club can be listed on centralized exchanges and have liquidity pools on DEXs like Uniswap.
+Mint Club assets implement standard `ERC-20` or `ERC-1155` interfaces, so other compatible applications can integrate them. Exchange listings and third-party liquidity remain separate decisions made by those platforms and liquidity providers.
 :::
 ::::
 
 ::::note
 :::details[Can I edit the curve after launching the token?]
-`No`, you cannot. The Bonding Curve is encoded into the smart contract as on-chain data. Once the token is launched, the curve becomes immutable and cannot be changed by anyone.
+No. The bonding curve steps are stored onchain when the asset is created and cannot be changed afterward.
 :::
 ::::
 
 ::::note
 :::details[What are the differences between Mint Club V1 and V2?]
 
-- `Mint Club Version 1`: Enables the creation of BEP20 tokens on the BNB Chain using $MINT as the base asset. When people buy your token, $MINT tokens are locked in the bonding curve pool as collateral.
+- `Mint Club V1`: Supports BEP-20 tokens on BNB Chain with MINT as the reserve asset.
 
-- `Mint Club Version 2`: Allows for the creation of ERC20 (including BEP20 variants on the BNB Chain) and ERC1155 (NFT) assets on various platforms like Ethereum, Optimism, Arbitrum, Base, BNB Chain, etc., using ANY ERC20 tokens as a base asset, such as $ETH, $APE, $MINT, $OP, and more. Version 2 also introduces customizable bonding curve designs with adjustable step-based parameters.
+- `Mint Club V2`: Supports ERC-20 and ERC-1155 assets across multiple EVM networks, uses an ERC-20 reserve asset selected at creation, and supports customizable step-based curves.
   :::
   ::::
 
 ::::note
 :::details[Can I monetize as a creator of the bonding curve token/NFT?]
-`Yes`, you can monetize by setting creator royalties. As a tokenized business owner, you have the option to set royalties ranging from 0% to 50% whenever your token or NFT is minted or burned. These royalties automatically accumulate in the owner's address.
+Yes. A creator can configure mint and burn royalties from 0% to 50% when creating an asset. Accrued creator royalties can be claimed through the Bond contract.
 :::
 ::::
 
 ::::note
 :::details[Can I do airdrop / private sales with the token I created?]
-`Yes`, you can. During the bonding curve design, allocate a specific "free minting" amount, which will automatically transfer to you upon asset creation. This can be utilized for private sales or airdrops to your community. Additionally, our lock-up tool allows you to implement contract-level token lock-ups for team allocations.
+Yes. A curve can include a zero-price creator allocation, and the protocol also provides Merkle airdrop and token lockup contracts.
 :::
 ::::
 
