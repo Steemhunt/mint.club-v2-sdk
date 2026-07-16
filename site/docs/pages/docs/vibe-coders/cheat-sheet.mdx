@@ -5,7 +5,7 @@
 ## 🎯 The Core Pattern (Memorize This!)
 
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 mintclub           // 1. Start with mintclub
   .network('base') // 2. Select network
@@ -17,7 +17,7 @@ mintclub           // 1. Start with mintclub
 
 ```ts
 // 1. Setup
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 
 // 2. Configure wallet (choose one)
 const sdk = mintclub.withPrivateKey(process.env.PRIVATE_KEY!)
@@ -127,7 +127,7 @@ await sdk.network('NETWORK').stake.claim({ poolId: 0 })
 ### Amount Conversion
 
 ```ts
-import { wei } from 'mint.club-v2-sdk'
+import { wei } from '@mint.club/v2-sdk'
 
 wei(1.5, 18) // 1.5 * 10^18 as bigint
 wei(100, 6) // 100 * 10^6 for USDC

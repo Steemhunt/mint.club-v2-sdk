@@ -6,7 +6,7 @@ This document helps LLMs use the Mint Club SDK safely and effectively. Treat it 
 
 The Mint Club SDK follows a simple, consistent pattern:
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 mintclub           // 1. Start with mintclub
   .network('base') // 2. Select network
@@ -28,21 +28,21 @@ Resources
 
 Requirements
 - Node: v18+ recommended
-- Package: `mint.club-v2-sdk`
+- Package: `@mint.club/v2-sdk`
 - Viem: ^2.34.0 (automatically included)
 
 Install
 ```bash
-npm install mint.club-v2-sdk viem
+npm install @mint.club/v2-sdk viem
 # or
-pnpm install mint.club-v2-sdk viem
+pnpm install @mint.club/v2-sdk viem
 # or
-bun install mint.club-v2-sdk viem
+bun install @mint.club/v2-sdk viem
 ```
 
 Import and Initialize (Follow the Core Pattern)
 ```ts
-import { mintclub, MintClubSDK, supportedChains, supportedChainsMap } from 'mint.club-v2-sdk'
+import { mintclub, MintClubSDK, supportedChains, supportedChainsMap } from '@mint.club/v2-sdk'
 
 // ⚡ CORE PATTERN STARTS HERE:
 mintclub           // ← Always start with mintclub
@@ -105,7 +105,7 @@ Wallet Client Integration (Environment-Specific)
 // ===========================================
 // Node.js Environment (Server-side)
 // ===========================================
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { privateKeyToAccount } from 'viem/accounts'
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
@@ -595,7 +595,7 @@ stepData: Array<{ rangeTo: number; price: number }>
 
 Numbers and helpers
 ```ts
-import { wei } from 'mint.club-v2-sdk' // or from sdk.utils
+import { wei } from '@mint.club/v2-sdk' // or from sdk.utils
 wei(1.23, 18) => bigint
 ```
 
@@ -610,7 +610,7 @@ import {
   zapContract,
   oneInchContract,
   stakeContract // Staking contract
-} from 'mint.club-v2-sdk'
+} from '@mint.club/v2-sdk'
 
 // Each contract provides network-specific methods
 const bond = bondContract.network('base')
@@ -695,7 +695,7 @@ import {
   FilebaseKeyNeededError,
   AirdropContainsInvalidWalletError,
   MetadataValidationError
-} from 'mint.club-v2-sdk'
+} from '@mint.club/v2-sdk'
 
 // Error handling patterns
 try {
@@ -730,7 +730,7 @@ Guidance and Best Practices
 // Essential patterns for successful integration
 
 // 1. Always configure wallet client first (environment-specific)
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 // IMPORTANT: withWalletClient works with ANY viem-compatible wallet client
 // Not limited to specific wallets - use any wallet that provides a viem wallet client
@@ -749,7 +749,7 @@ await baseSdk.token('MYSYMBOL').create({ /* params */ }) // ✅ Correct
 // await baseSdk.token('0x123...').create({ /* params */ }) // ❌ Wrong
 
 // 4. Use wei() helper for precise amounts
-import { wei } from 'mint.club-v2-sdk'
+import { wei } from '@mint.club/v2-sdk'
 const amount = wei(1.5, 18) // 1.5 * 10^18 as bigint
 
 // 5. Zap methods only work with wrapped native tokens
@@ -830,7 +830,7 @@ Comprehensive Examples
 // ================================
 // Node.js Backend Setup
 // ================================
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 import { privateKeyToAccount } from 'viem/accounts'
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
@@ -853,7 +853,7 @@ const baseSdk = sdk.network('base')
 // React/Next.js Frontend Setup (Any Wallet)
 // ================================
 "use client"
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 import { base } from 'viem/chains'
 import { useWalletClient, useAccount } from 'wagmi'
 // Works with any wagmi connector: MetaMask, Coinbase, WalletConnect, etc.
@@ -1042,7 +1042,7 @@ Version and Getting Help
 - GitHub: `https://github.com/Steemhunt/mint.club-v2-contract`
 
 Quick Start Checklist
-- ✅ Install `mint.club-v2-sdk`
+- ✅ Install `@mint.club/v2-sdk`
 - ✅ **Remember the core pattern**: `mintclub → network → token/nft → function`
 - ✅ Choose network from `supportedChains`
 - ✅ Setup wallet client (see environment-specific patterns below)

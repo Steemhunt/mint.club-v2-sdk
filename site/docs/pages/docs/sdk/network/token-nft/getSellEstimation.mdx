@@ -9,7 +9,7 @@ Returns the estimated output amount of the token for the given input amount of t
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
  
 const [estimation, royalty] = await mintclub.network('ethereum').token('SYMBOL').getSellEstimation(1n)
 ```

@@ -9,7 +9,7 @@ Get claimable rewards for a user across multiple staking pools in a single call.
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const bulkRewards = await mintclub.network('base').stake.getClaimableRewardBulk({
   poolIdFrom: 0,
@@ -78,7 +78,7 @@ const bulkRewards = await mintclub.network('base').stake.getClaimableRewardBulk(
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { formatUnits } from 'viem'
 
 const stakerAddress = '0x1234567890123456789012345678901234567890'

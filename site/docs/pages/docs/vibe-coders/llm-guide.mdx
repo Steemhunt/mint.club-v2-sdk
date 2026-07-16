@@ -12,7 +12,7 @@ description: Everything an AI coding assistant needs to know about the Mint Club
 The Mint Club SDK follows a simple, consistent pattern:
 
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 mintclub           // 1. Start with mintclub
   .network('base') // 2. Select network
@@ -30,14 +30,14 @@ mintclub           // 1. Start with mintclub
 ## 📦 Installation & Setup
 
 ```bash
-npm install mint.club-v2-sdk viem
+npm install @mint.club/v2-sdk viem
 ```
 
 ### For AI Assistants: Essential Imports
 
 ```ts
-import { mintclub, MintClubSDK, supportedChains, supportedChainsMap } from 'mint.club-v2-sdk'
-import { wei } from 'mint.club-v2-sdk' // For precise token amounts
+import { mintclub, MintClubSDK, supportedChains, supportedChainsMap } from '@mint.club/v2-sdk'
+import { wei } from '@mint.club/v2-sdk' // For precise token amounts
 ```
 
 ## 🔑 Wallet Integration (Critical for AI)
@@ -363,7 +363,7 @@ import {
   WalletNotConnectedError,
   TokenAlreadyExistsError,
   InvalidImageProvidedError
-} from 'mint.club-v2-sdk'
+} from '@mint.club/v2-sdk'
 
 try {
   await sdk.network('base').token('CHICKEN').buy({...})

@@ -16,7 +16,7 @@ WalletNotConnectedError: Wallet not connected
 
 ```ts
 // ✅ CORRECT: Configure wallet first
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { privateKeyToAccount } from 'viem/accounts'
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
@@ -64,7 +64,7 @@ await sdk.network('solana').token('SYMBOL').buy({...})     // ❌
 await sdk.network('polygon-mumbai').token('SYMBOL').buy({...}) // ❌
 
 // Check supported chains
-import { supportedChains } from 'mint.club-v2-sdk'
+import { supportedChains } from '@mint.club/v2-sdk'
 console.log('Supported chains:', supportedChains)
 // Output: ['ethereum', 'base', 'arbitrum', 'optimism', ...]
 ```

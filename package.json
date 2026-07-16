@@ -1,5 +1,5 @@
 {
-  "name": "mint.club-v2-sdk",
+  "name": "@mint.club/v2-sdk",
   "description": "TypeScript SDK for the Mint Club V2 bonding curve protocol — read, trade, create, and manage tokens across 18 networks.",
   "keywords": [
     "mint-club",
@@ -26,7 +26,10 @@
   ],
   "type": "module",
   "license": "BSD-3-Clause",
-  "version": "1.5.7",
+  "version": "2.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -53,11 +56,11 @@
     "build": "npm run purge && npx pkgroll",
     "build:dev": "npm run purge && npx pkgroll --sourcemap --minify=false",
     "typecheck": "npx tsc -p tsconfig.json --noEmit",
-    "prepublishOnly": "git push && npm run build",
+    "prepublishOnly": "npm run typecheck && npm run build",
     "purge": "npx rimraf ./dist",
     "test": "npx bun test",
     "test:watch": "npx bun test --watch",
-    "deploy": "npm version patch && git push && npm publish"
+    "deploy": "npm publish"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.0",

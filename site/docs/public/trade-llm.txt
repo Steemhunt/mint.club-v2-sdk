@@ -9,7 +9,7 @@ Wallet setup required for writes
 
 Quick wallet setup example (React + wagmi)
 "use client";
-import { mintclub, wei } from "mint.club-v2-sdk";
+import { mintclub, wei } from "@mint.club/v2-sdk";
 import { base } from "viem/chains";
 import { useAccount, useWalletClient } from "wagmi";
 
@@ -60,7 +60,7 @@ Examples
 1) React + wagmi + RainbowKit (wallet) → Buy token
 "use client";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { mintclub, wei } from "mint.club-v2-sdk";
+import { mintclub, wei } from "@mint.club/v2-sdk";
 import { base } from "viem/chains";
 import { useAccount, useDisconnect, useWalletClient } from "wagmi";
 
@@ -127,7 +127,7 @@ export default function Home() {
 }
 
 2) Node/Script (buy with explicit slippage and recipient)
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 import { base } from 'viem/chains'
 
 const sdk = mintclub.withPrivateKey(process.env.PRIVATE_KEY as `0x${string}`).withWalletClient({

@@ -9,7 +9,7 @@ Get the minimum duration (in seconds) allowed for reward distribution when creat
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const minDuration = await mintclub.network('base').stake.getMinRewardDuration()
 console.log('Minimum reward duration:', minDuration)
@@ -24,7 +24,7 @@ Returns a promise that resolves to the minimum reward duration in seconds.
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const minDuration = await mintclub.network('base').stake.getMinRewardDuration()
 

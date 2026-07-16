@@ -1,23 +1,23 @@
 {
-  "name": "mint.club-v2-sdk",
+  "name": "@mint.club/v2-sdk-docs",
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
+    "prebuild": "npm --prefix .. ci --ignore-scripts --no-audit --no-fund && npm --prefix .. run build",
     "build": "vocs build",
     "preview": "vocs preview",
-    "link-sdk": "npx npm link mint.club-v2-sdk",
-    "unlink-sdk": "npx npm unlink mint.club-v2-sdk && npx bun install mint.club-v2-sdk@latest",
     "deploy": "vercel build --prod && vercel deploy --prebuilt --prod"
   },
   "dependencies": {
+    "@mint.club/v2-sdk": "file:..",
     "@scalar/api-reference-react": "^0.6.16",
-    "@types/react": "latest",
-    "mint.club-v2-sdk": "^1.4.12",
-    "react": "latest",
-    "react-dom": "latest",
-    "typescript": "latest",
-    "vocs": "latest",
+    "@types/react": "18.3.12",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "typescript": "5.7.2",
+    "vocs": "1.0.0-alpha.62",
     "wagmi": "^2.18.2"
   },
   "devDependencies": {

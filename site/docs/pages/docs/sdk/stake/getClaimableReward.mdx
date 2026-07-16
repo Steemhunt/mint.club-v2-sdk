@@ -9,7 +9,7 @@ Get the amount of rewards a user can currently claim from a specific staking poo
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const claimable = await mintclub.network('base').stake.getClaimableReward({
   poolId: 0,
@@ -64,7 +64,7 @@ const claimable = await mintclub.network('base').stake.getClaimableReward({
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { formatUnits } from 'viem'
 
 const poolId = 0

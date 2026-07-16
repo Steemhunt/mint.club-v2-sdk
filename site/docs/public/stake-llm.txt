@@ -10,7 +10,7 @@ Wallet setup required for writes
 
 Quick wallet setup example (React + wagmi)
 "use client";
-import { mintclub } from "mint.club-v2-sdk";
+import { mintclub } from "@mint.club/v2-sdk";
 import { base } from "viem/chains";
 import { useAccount, useWalletClient } from "wagmi";
 
@@ -54,7 +54,7 @@ Parameters and types (from `stake.types.ts`)
 
 Flow A — Create a staking pool
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 await mintclub.network('base').stake.createPool({
   stakingToken: '0x...',

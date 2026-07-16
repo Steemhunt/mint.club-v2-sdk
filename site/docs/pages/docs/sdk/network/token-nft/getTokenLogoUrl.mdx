@@ -11,7 +11,7 @@ Returns the Mint Club API URL of the token logo:
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const url = await mintclub.network('base').token('0x...').getTokenLogoUrl()
 // -> "https://mint.club/api/tokens/logo?chainId=8453&address=0x..."

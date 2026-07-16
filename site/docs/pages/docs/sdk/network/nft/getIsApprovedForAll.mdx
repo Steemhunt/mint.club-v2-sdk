@@ -11,7 +11,7 @@ Unlike fungible tokens, non-fungible tokens' allowance is not set on a per-token
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
  
 const isApproved = await mintclub.network('ethereum').nft('SYMBOL').getIsApprovedForAll({
 	owner: '0x...',
@@ -35,7 +35,7 @@ Returns a promise that resolves to a boolean value indicating whether the spende
 The address of the owner of the tokens. Usually the user's address.
 
 ```ts twoslash
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
  
 const isApproved = await mintclub.network('ethereum').nft('SYMBOL').getIsApprovedForAll({
 	owner: '0x...', // [!code focus]
@@ -50,7 +50,7 @@ const isApproved = await mintclub.network('ethereum').nft('SYMBOL').getIsApprove
 The address of the spender of the tokens. Usually the contract that is allowed to spend the tokens on behalf of the owner.
 
 ```ts twoslash
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
  
 const isApproved = await mintclub.network('ethereum').nft('SYMBOL').getIsApprovedForAll({
 	owner: '0x...', 

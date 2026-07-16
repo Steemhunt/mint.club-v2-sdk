@@ -10,7 +10,7 @@ Wallet setup required for writes
 
 Quick wallet setup example (React + wagmi)
 "use client";
-import { mintclub } from "mint.club-v2-sdk";
+import { mintclub } from "@mint.club/v2-sdk";
 import { base } from "viem/chains";
 import { useAccount, useWalletClient } from "wagmi";
 
@@ -60,7 +60,7 @@ Important approval note
 
 Flow A — Create a lockup
 ```ts
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 
 await mintclub.network('base').lockup.createLockUp({
   token: '0x...',
@@ -75,7 +75,7 @@ await mintclub.network('base').lockup.createLockUp({
 
 Flow B — Unlock tokens
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 await mintclub.network('base').lockup.unlock({
   lockUpId: 1,

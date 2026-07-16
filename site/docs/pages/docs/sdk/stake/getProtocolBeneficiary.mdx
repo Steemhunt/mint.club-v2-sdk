@@ -9,7 +9,7 @@ Get the address that receives protocol fees from staking pool operations.
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const beneficiary = await mintclub.network('base').stake.getProtocolBeneficiary()
 console.log('Protocol beneficiary:', beneficiary)
@@ -24,7 +24,7 @@ Returns a promise that resolves to the protocol beneficiary address.
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const beneficiary = await mintclub.network('base').stake.getProtocolBeneficiary()
 console.log(`Protocol fees go to: ${beneficiary}`)

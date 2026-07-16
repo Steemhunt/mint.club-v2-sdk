@@ -9,7 +9,7 @@ Get the version string of the staking contract.
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const version = await mintclub.network('base').stake.getVersion()
 console.log('Stake contract version:', version)
@@ -24,7 +24,7 @@ Returns a promise that resolves to the contract version string.
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const version = await mintclub.network('base').stake.getVersion()
 console.log(`Using stake contract version: ${version}`)

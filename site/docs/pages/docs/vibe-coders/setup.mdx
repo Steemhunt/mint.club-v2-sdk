@@ -15,7 +15,7 @@
 ### 1. Installation
 
 ```bash
-npm install mint.club-v2-sdk viem
+npm install @mint.club/v2-sdk viem
 ```
 
 ### 2. Environment Variables
@@ -29,7 +29,7 @@ FILEBASE_API_KEY=...
 ### 3. Basic Setup
 
 ```ts
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 import { privateKeyToAccount } from 'viem/accounts'
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
@@ -77,7 +77,7 @@ async function testSetup() {
 ### 1. Installation
 
 ```bash
-npm install mint.club-v2-sdk viem wagmi @wagmi/core @rainbow-me/rainbowkit
+npm install @mint.club/v2-sdk viem wagmi @wagmi/core @rainbow-me/rainbowkit
 ```
 
 ### 2. Wagmi Configuration
@@ -126,7 +126,7 @@ export default function RootLayout({ children }) {
 'use client'
 
 import { useWalletClient, useAccount } from 'wagmi'
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 import { base } from 'viem/chains'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 
@@ -170,8 +170,13 @@ export default function TokenTrader() {
 
 ```html
 <!-- index.html -->
-<script src="https://cdn.jsdelivr.net/npm/viem@2.7.16/dist/viem.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mint.club-v2-sdk/dist/index.js"></script>
+<script type="module">
+  import * as viem from 'https://cdn.jsdelivr.net/npm/viem@2/+esm'
+  import { mintclub, wei } from 'https://cdn.jsdelivr.net/npm/@mint.club/v2-sdk@2/+esm'
+
+  window.viem = viem
+  window.MintClubV2SDK = { mintclub, wei }
+</script>
 ```
 
 ### 2. Basic Setup
@@ -229,7 +234,7 @@ export default function TokenTrader() {
 ### Custom RPC Configuration
 
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
 
@@ -246,7 +251,7 @@ const sdk = mintclub.withPublicClient(customPublicClient)
 ### Multiple Network Setup
 
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 // Create instances for different networks
 const baseSdk = mintclub.withWalletClient(baseWalletClient).network('base')
@@ -287,7 +292,7 @@ const privateKey = process.env.PRIVATE_KEY!.startsWith('0x')
 
 // Issue: Network not supported
 // Fix: Check supported chains
-import { supportedChains } from 'mint.club-v2-sdk'
+import { supportedChains } from '@mint.club/v2-sdk'
 console.log('Supported:', supportedChains)
 ```
 
@@ -334,7 +339,7 @@ try {
 
 ```ts
 // test-setup.ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 async function testSetup(sdk: any) {
   const tests = [

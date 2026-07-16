@@ -14,7 +14,7 @@ You can make write calls to `non-mint.club contracts`, as well as `signing messa
 
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 
 const walletClient = await mintclub.network('base').getWalletClient() // [!code focus]
@@ -39,7 +39,7 @@ The example below uses the `walletClient` to `sign a message`.
 :::
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const walletClient = await mintclub.network('base').getWalletClient() 
 

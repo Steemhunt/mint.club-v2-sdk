@@ -9,7 +9,7 @@ Get a paginated list of staking pools created on the protocol.
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const pools = await mintclub.network('base').stake.getPools({
   start: 0,
@@ -57,7 +57,7 @@ const pools = await mintclub.network('base').stake.getPools({
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { formatUnits } from 'viem'
 
 // Get first 20 pools

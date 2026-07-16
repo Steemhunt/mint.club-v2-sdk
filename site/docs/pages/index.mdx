@@ -18,7 +18,7 @@ import { HomePage } from 'vocs/components'
     </HomePage.Button>
     <HomePage.Button href="https://mint.club">mint.club</HomePage.Button>
     <HomePage.Button href="https://github.com/Steemhunt/mint.club-v2-sdk">GitHub</HomePage.Button>
-    <HomePage.Button href="https://www.npmjs.com/package/mint.club-v2-sdk">NPM</HomePage.Button>
+    <HomePage.Button href="https://www.npmjs.com/package/@mint.club/v2-sdk">NPM</HomePage.Button>
   </HomePage.Buttons>
 </HomePage.Root>
 
@@ -38,19 +38,19 @@ import { HomePage } from 'vocs/components'
 :::code-group
 
 ```bash [npm]
-npm i mint.club-v2-sdk
+npm i @mint.club/v2-sdk
 ```
 
 ```bash [pnpm]
-pnpm i mint.club-v2-sdk
+pnpm i @mint.club/v2-sdk
 ```
 
 ```bash [yarn]
-yarn add mint.club-v2-sdk
+yarn add @mint.club/v2-sdk
 ```
 
 ```bash [bun]
-bun i mint.club-v2-sdk
+bun i @mint.club/v2-sdk
 ```
 
 :::
@@ -70,7 +70,7 @@ bun i mint.club-v2-sdk
 :::code-group
 
 ```ts twoslash [erc-20.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const RickMee6Token = mintclub.network('base').token('RNM') // [!code highlight]
 //                                      ^|
@@ -96,7 +96,7 @@ await RickMee6Token.create({
 ```
 
 ```ts twoslash [erc-1155.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT') // [!code highlight]
 //                                     ^|
@@ -123,7 +123,7 @@ await MortyMee6Nft.create({
 ```
 
 ```ts twoslash [buy-sell.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 // 💲 Buying/Selling $MNM-NFT tokens
 const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT')
@@ -138,7 +138,7 @@ await MortyMee6Nft.sell(sellParams)
 ```
 
 ```ts twoslash [read.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 // 🔍 querying $MNM-NFT on-chain data
 const MortyMee6Nft = mintclub.network('base').nft('MnM-NFT')

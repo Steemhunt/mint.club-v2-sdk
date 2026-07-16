@@ -13,7 +13,7 @@ It's only possible to unlock a lockup if the lockup has expired.
 ## Usage
 
 ```tsx [example.tsx]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { useWalletClient } from 'wagmi'
 import { base } from 'viem/chains'
 
@@ -52,7 +52,7 @@ Returns a promise that resolves to a `TransactionReceipt` object when the transa
 LockUp id.
 
 ```ts twoslash [example.ts]
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 
 await mintclub.network('base').lockup.unlock({
   lockUpId: 1, // [!code focus]

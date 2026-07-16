@@ -9,7 +9,7 @@ Returns allowance of a spender that can spend the token on behalf of the owner.
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
  
 const allowance = await mintclub.network('ethereum').token('SYMBOL').getAllowance({
 	owner: '0x...',
@@ -33,7 +33,7 @@ Returns a promise that resolves to the allowance of the spender on the token for
 The address of the owner of the tokens. Usually the user's address.
 
 ```ts twoslash
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
  
 const allowance = await mintclub.network('ethereum').token('SYMBOL').getAllowance({
 	owner: '0x...', // [!code focus]
@@ -48,7 +48,7 @@ const allowance = await mintclub.network('ethereum').token('SYMBOL').getAllowanc
 The address of the spender of the tokens. Usually the contract that is allowed to spend the tokens on behalf of the owner.
 
 ```ts twoslash
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
  
 const allowance = await mintclub.network('ethereum').token('SYMBOL').getAllowance({
 	owner: '0x...', 

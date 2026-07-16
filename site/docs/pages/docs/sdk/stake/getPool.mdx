@@ -9,7 +9,7 @@ Get comprehensive information about a specific staking pool, including pool deta
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const poolInfo = await mintclub.network('base').stake.getPool({
   poolId: 0,
@@ -71,7 +71,7 @@ const poolInfo = await mintclub.network('base').stake.getPool({
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { formatUnits } from 'viem'
 
 const poolInfo = await mintclub.network('base').stake.getPool({

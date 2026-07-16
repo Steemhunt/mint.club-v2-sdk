@@ -9,7 +9,7 @@ Get a paginated list of staking pools created by a specific address.
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const pools = await mintclub.network('base').stake.getPoolsByCreator({
   creator: '0x1234567890123456789012345678901234567890',
@@ -74,7 +74,7 @@ const pools = await mintclub.network('base').stake.getPoolsByCreator({
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { formatUnits } from 'viem'
 
 const creatorAddress = '0x1234567890123456789012345678901234567890'

@@ -11,7 +11,7 @@ Public clients are used to make `read` calls.
 You can access the public client for a specific `network` by calling `getPublicClient` on the `network` object.
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const publicClient = await mintclub.network('base').getPublicClient() // [!code focus]
 ```
@@ -24,7 +24,7 @@ The example below retrieves the `block` data from the `base` network.
 
 ```ts twoslash [example.ts]
 
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const publicClient = await mintclub.network('base').getPublicClient() 
 

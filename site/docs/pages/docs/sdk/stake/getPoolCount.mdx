@@ -9,7 +9,7 @@ Get the total number of staking pools that have been created on the protocol.
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const poolCount = await mintclub.network('base').stake.getPoolCount()
 console.log('Total pools created:', poolCount)
@@ -24,7 +24,7 @@ Returns a promise that resolves to the total number of staking pools created.
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const poolCount = await mintclub.network('base').stake.getPoolCount()
 

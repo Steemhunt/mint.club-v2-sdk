@@ -12,7 +12,7 @@ Below is a basic example of how to call the `create` function.
 When using the `create` function, you must pass a `symbol` that you want to create as the parameter of the `token` function.
 
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 await mintclub.network('ethereum').token('MINT') // [!code focus]
 ```
@@ -22,7 +22,7 @@ await mintclub.network('ethereum').token('MINT') // [!code focus]
 :::code-group
 
 ```tsx [curvedata-example.tsx]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { useWalletClient } from 'wagmi'
 import { mainnet } from 'viem/chains'
 import { curveData } from './data'
@@ -53,7 +53,7 @@ function CreateTokenExample() {
 ```
 
 ```tsx [stepdata-example.tsx]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { useWalletClient } from 'wagmi'
 import { mainnet } from 'viem/chains'
 import { stepData } from './data'

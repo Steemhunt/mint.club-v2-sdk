@@ -7,7 +7,7 @@
 ### 1. Basic Token Trading Bot
 
 ```ts
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 import { privateKeyToAccount } from 'viem/accounts'
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
@@ -58,7 +58,7 @@ async function tradeTokens() {
 ### 2. Token Creation with Metadata
 
 ```ts
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 
 async function createTokenWithMetadata(sdk: any) {
   try {
@@ -121,7 +121,7 @@ async function createTokenWithMetadata(sdk: any) {
 ### 3. Staking Pool Manager
 
 ```ts
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 
 class StakingManager {
   constructor(private sdk: any) {}
@@ -198,7 +198,7 @@ class StakingManager {
 ### 4. Airdrop Creator
 
 ```ts
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 
 async function createAirdrop(sdk: any, tokenSymbol: string, recipients: string[]) {
   try {
@@ -234,7 +234,7 @@ async function createAirdrop(sdk: any, tokenSymbol: string, recipients: string[]
 ### 5. Price Monitoring Bot
 
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 class PriceMonitor {
   constructor(private sdk: any) {}
@@ -312,7 +312,7 @@ class PriceMonitor {
 ```ts
 import { useState, useEffect } from 'react'
 import { useWalletClient } from 'wagmi'
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 import { base } from 'viem/chains'
 
 export function useMintClubToken(tokenSymbol: string) {

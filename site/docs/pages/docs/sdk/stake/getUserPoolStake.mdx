@@ -9,7 +9,7 @@ Get detailed information about a user's stake in a specific pool, including stak
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const userStake = await mintclub.network('base').stake.getUserPoolStake({
   user: '0x1234567890123456789012345678901234567890',
@@ -64,7 +64,7 @@ const userStake = await mintclub.network('base').stake.getUserPoolStake({
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { formatUnits } from 'viem'
 
 const userAddress = '0x1234567890123456789012345678901234567890'

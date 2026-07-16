@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/mint.club-v2-sdk"><img src="https://img.shields.io/npm/v/mint.club-v2-sdk.svg?style=flat-square&label=npm" alt="npm" /></a>
-  <a href="https://www.npmjs.com/package/mint.club-v2-sdk"><img src="https://img.shields.io/npm/dm/mint.club-v2-sdk.svg?style=flat-square&label=downloads" alt="downloads" /></a>
-  <a href="https://packagephobia.com/result?p=mint.club-v2-sdk"><img src="https://packagephobia.com/badge?p=mint.club-v2-sdk" alt="install size" /></a>
+  <a href="https://www.npmjs.com/package/@mint.club/v2-sdk"><img src="https://img.shields.io/npm/v/%40mint.club%2Fv2-sdk.svg?style=flat-square&label=npm" alt="npm" /></a>
+  <a href="https://www.npmjs.com/package/@mint.club/v2-sdk"><img src="https://img.shields.io/npm/dm/%40mint.club%2Fv2-sdk.svg?style=flat-square&label=downloads" alt="downloads" /></a>
+  <a href="https://packagephobia.com/result?p=%40mint.club%2Fv2-sdk"><img src="https://packagephobia.com/badge?p=%40mint.club%2Fv2-sdk" alt="install size" /></a>
   <a href="https://github.com/Steemhunt/mint.club-v2-sdk"><img src="https://img.shields.io/github/stars/Steemhunt/mint.club-v2-sdk?style=flat-square&logo=github" alt="GitHub" /></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="MIT" /></a>
 </p>
@@ -30,18 +30,20 @@ This SDK is the canonical TypeScript client for the protocol. Use it from Node.j
 
 ## Install
 
+The SDK moved from `mint.club-v2-sdk` to the official Mint Club scope in v2. The old package is deprecated; use `@mint.club/v2-sdk` for all new installations.
+
 ```bash
-npm install mint.club-v2-sdk
+npm install @mint.club/v2-sdk
 # or
-yarn add mint.club-v2-sdk
+yarn add @mint.club/v2-sdk
 # or
-bun add mint.club-v2-sdk
+bun add @mint.club/v2-sdk
 ```
 
 ## Quick Start
 
 ```ts
-import { mintclub } from 'mint.club-v2-sdk';
+import { mintclub } from '@mint.club/v2-sdk';
 
 // Read: token details
 const detail = await mintclub.network('base').token('SIGNET').getDetail();

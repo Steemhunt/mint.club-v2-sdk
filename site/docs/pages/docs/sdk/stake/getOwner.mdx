@@ -9,7 +9,7 @@ Get the address of the current owner of the staking contract.
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const owner = await mintclub.network('base').stake.getOwner()
 console.log('Stake contract owner:', owner)
@@ -24,7 +24,7 @@ Returns a promise that resolves to the owner's address.
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const owner = await mintclub.network('base').stake.getOwner()
 

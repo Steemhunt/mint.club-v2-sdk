@@ -13,7 +13,7 @@ This function can only be called by the contract owner. Use [`getOwner`](/docs/s
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 await mintclub.network('base').stake.updateClaimFee({
   claimFee: BigInt('10000000000000000'), // 0.01 ETH in wei
@@ -116,7 +116,7 @@ await mintclub.network('base').stake.updateClaimFee({
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const stake = mintclub.network('base').stake
 

@@ -17,7 +17,7 @@ This function can only be called by the current contract owner. Use [`getOwner`]
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 await mintclub.network('base').stake.renounceOwnership({
   onSuccess: (receipt) => {
@@ -100,7 +100,7 @@ await mintclub.network('base').stake.renounceOwnership({
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const stake = mintclub.network('base').stake
 

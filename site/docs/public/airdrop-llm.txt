@@ -10,7 +10,7 @@ Wallet setup required for writes
 
 Quick wallet setup example (React + wagmi)
 "use client";
-import { mintclub } from "mint.club-v2-sdk";
+import { mintclub } from "@mint.club/v2-sdk";
 import { base } from "viem/chains";
 import { useAccount, useWalletClient } from "wagmi";
 
@@ -79,7 +79,7 @@ What the SDK does internally:
 
 Example (creation):
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const wallets = [
   '0x...',
@@ -119,7 +119,7 @@ Behavior:
 
 Example (claim):
 ```ts
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 await mintclub.network('base').airdrop.claimAirdrop({
   airdropId: 1,

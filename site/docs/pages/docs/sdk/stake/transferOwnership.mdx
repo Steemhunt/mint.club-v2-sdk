@@ -13,7 +13,7 @@ This function can only be called by the current contract owner. Use [`getOwner`]
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 await mintclub.network('base').stake.transferOwnership({
   newOwner: '0x1234567890123456789012345678901234567890',
@@ -116,7 +116,7 @@ await mintclub.network('base').stake.transferOwnership({
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const stake = mintclub.network('base').stake
 

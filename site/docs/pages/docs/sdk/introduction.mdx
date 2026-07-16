@@ -6,7 +6,7 @@
 
 ### mintclub
 
-You will most likely find everything needed within the `mintclub` module exported from `mint.club-v2-sdk`.
+You will most likely find everything needed within the `mintclub` module exported from `@mint.club/v2-sdk`.
 
 ```ts [app.ts]
 // [!include ~/snippets/example.ts:import]
@@ -17,7 +17,7 @@ You will most likely find everything needed within the `mintclub` module exporte
 The SDK follows a common pattern of having a `network` method to set the network to interact with.
 
 ```ts twoslash [app.ts]
-import { mintclub } from 'mint.club-v2-sdk';
+import { mintclub } from '@mint.club/v2-sdk';
 
 // [!code focus]
 // @noErrors
@@ -31,7 +31,7 @@ You could also pass the chain id of the network instead of string value.
 :::
 
 ```ts twoslash [app.ts]
-import { mintclub } from 'mint.club-v2-sdk';
+import { mintclub } from '@mint.club/v2-sdk';
 
 // [!code focus]
 // @noErrors
@@ -49,7 +49,7 @@ Then follows the `token` and `nft` methods to interact with.
 It takes in a `string` parameter which could be the token symbol or address.
 
 ```ts twoslash [app.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const symbolOrAddress: string = 'CHICKEN'
 // [!code focus]
@@ -65,7 +65,7 @@ mintclub.network('base').token(symbolOrAddress) // [!code focus]
 Lastly, you can call the functions on the token or nft.
 
 ```ts twoslash [app.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const symbolOrAddress: string = 'CHICKEN'
 // [!code focus]

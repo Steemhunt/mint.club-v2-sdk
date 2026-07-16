@@ -9,7 +9,7 @@ Get the protocol fee required to create a new staking pool.
 ## Usage
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 const creationFee = await mintclub.network('base').stake.getCreationFee()
 console.log('Pool creation fee:', creationFee)
@@ -24,7 +24,7 @@ Returns a promise that resolves to the creation fee amount in wei (base unit of 
 ## Example
 
 ```ts twoslash [example.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { formatEther } from 'viem'
 
 const creationFee = await mintclub.network('base').stake.getCreationFee()

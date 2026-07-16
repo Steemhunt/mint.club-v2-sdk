@@ -29,24 +29,24 @@ Below is a quick example of how to use the SDK to communicate with the Mint.club
 
 ### Install
 
-First, we will install `mint.club-v2-sdk` as a dependency in our project.
+First, we will install `@mint.club/v2-sdk` as a dependency in our project.
 
 :::code-group
 
 ```bash [npm]
-npm i mint.club-v2-sdk
+npm i @mint.club/v2-sdk
 ```
 
 ```bash [pnpm]
-pnpm i mint.club-v2-sdk
+pnpm i @mint.club/v2-sdk
 ```
 
 ```bash [yarn]
-yarn add mint.club-v2-sdk
+yarn add @mint.club/v2-sdk
 ```
 
 ```bash [bun]
-bun i mint.club-v2-sdk
+bun i @mint.club/v2-sdk
 ```
 
 :::
@@ -56,7 +56,7 @@ bun i mint.club-v2-sdk
 Below is a simple example of retrieving the token's total supply.
 
 ```ts twoslash [app.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 // [!code focus]
 const totalSupply = await mintclub // [!code focus]
@@ -77,7 +77,7 @@ const totalSupply = await mintclub // [!code focus]
 Below is a simple example of purchasing a token.
 
 ```ts twoslash [app.ts]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 
 // [!code focus]
 const result = await mintclub.network('base').token('CHICKEN').buy({

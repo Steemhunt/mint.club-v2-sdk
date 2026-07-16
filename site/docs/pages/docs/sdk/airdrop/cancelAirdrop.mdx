@@ -9,7 +9,7 @@ Cancel an airdrop. This will refund the airdrop amount to the airdrop creator.
 ## Usage
 
 ```tsx [example.tsx]
-import { mintclub } from 'mint.club-v2-sdk'
+import { mintclub } from '@mint.club/v2-sdk'
 import { useWalletClient } from 'wagmi'
 import { base } from 'viem/chains'
 
@@ -48,7 +48,7 @@ Returns a promise that resolves to a `TransactionReceipt` object when the transa
 Airdrop id.
 
 ```ts twoslash [example.ts]
-import { mintclub, wei } from 'mint.club-v2-sdk'
+import { mintclub, wei } from '@mint.club/v2-sdk'
 
 await mintclub.network('base').airdrop.cancelAirdrop({
   airdropId: 1, // [!code focus]
