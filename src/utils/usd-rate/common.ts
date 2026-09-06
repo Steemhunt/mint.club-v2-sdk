@@ -10,7 +10,6 @@ import {
   bsc,
   cyber,
   cyberTestnet,
-  degen,
   ham,
   hashkey,
   kaia,
@@ -39,7 +38,6 @@ export const WETH_ADDRESSES: Record<SdkSupportedChainIds, `0x${string}`> = {
   [blast.id]: '0x4300000000000000000000000000000000000004',
   [blastSepolia.id]: '0x4300000000000000000000000000000000000004',
   [avalancheFuji.id]: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c', // WAVAX
-  [degen.id]: '0xEb54dACB4C2ccb64F8074eceEa33b5eBb38E5387', // WDEGEN
   [cyber.id]: '0x4200000000000000000000000000000000000006',
   [cyberTestnet.id]: '0x4200000000000000000000000000000000000006',
   [kaia.id]: '0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432', // WKLAY
@@ -69,7 +67,6 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [blast.id]: { address: '0x', symbol: '', decimals: 0n },
     [blastSepolia.id]: { address: '0x', symbol: '', decimals: 0n },
     [avalancheFuji.id]: { address: '0x', symbol: '', decimals: 0n },
-    [degen.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyber.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyberTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
     [kaia.id]: { address: '0xd077a400968890eacc75cdc901f0356c943e4fdb', symbol: 'USDT', decimals: 6n },

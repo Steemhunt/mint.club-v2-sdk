@@ -1,6 +1,6 @@
 import { PublicClient, WalletClient } from 'viem';
 import { InvalidClientError } from './errors/sdk.errors';
-import { LowerCaseChainNames, SdkSupportedChainIds, chainStringToId } from './exports';
+import { LowerCaseChainNames, SdkSupportedChainIds, chainIdToString, chainStringToId } from './exports';
 import { Bond } from './helpers/BondHelper';
 import { Client } from './helpers/ClientHelper';
 import { ERC1155 } from './helpers/ERC1155Helper';
@@ -34,6 +34,7 @@ export class MintClubSDK {
     if (typeof id === 'string') {
       chainId = chainStringToId(id);
     } else {
+      chainIdToString(id);
       chainId = id;
     }
 

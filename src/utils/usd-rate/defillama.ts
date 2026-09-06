@@ -6,7 +6,6 @@ import {
   blast,
   bsc,
   cyber,
-  degen,
   ham,
   hashkey,
   kaia,
@@ -27,7 +26,6 @@ export function getDefillamaChainName(chainId: number) {
   const mapping: Partial<Record<number, string>> = {
     [mainnet.id]: 'ethereum',
     [base.id]: 'base',
-    [degen.id]: 'degen',
     [ham.id]: 'ham',
     [unichain.id]: 'unichain',
     [arbitrum.id]: 'arbitrum',

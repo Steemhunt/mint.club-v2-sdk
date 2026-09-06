@@ -10,7 +10,6 @@ import {
   bsc,
   cyber,
   cyberTestnet,
-  degen,
   ham,
   hashkey,
   kaia,
@@ -35,7 +34,6 @@ import { BLAST_SEPOLIA_TOKENS } from './blast-sepolia';
 import { BSC_TOKENS } from './bsc';
 import { CYBER_TOKENS } from './cyber';
 import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
-import { DEGEN_TOKENS } from './degen';
 import { HAM_TOKENS } from './ham';
 import { HASHKEY_TOKENS } from './hashkey';
 import { KAIA_TOKENS } from './kaia';
@@ -168,13 +166,6 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
-  [degen.id]: {
-    image: 'https://mint.club/assets/tokens/degen.png',
-    tokenAddress: '0xEb54dACB4C2ccb64F8074eceEa33b5eBb38E5387',
-    nativeSymbol: 'DEGEN',
-    oneInchSymbol: 'USDC',
-    decimals: 18,
-  },
   [cyber.id]: {
     image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0x4200000000000000000000000000000000000006',
@@ -274,7 +265,6 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [bsc.id]: BSC_TOKENS,
   [cyber.id]: CYBER_TOKENS,
   [cyberTestnet.id]: CYBER_TESTNET_TOKENS,
-  [degen.id]: DEGEN_TOKENS,
   [ham.id]: HAM_TOKENS,
   [hashkey.id]: HASHKEY_TOKENS,
   [kaia.id]: KAIA_TOKENS,

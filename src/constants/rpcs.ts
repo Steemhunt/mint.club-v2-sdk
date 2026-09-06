@@ -9,7 +9,6 @@ import {
   bsc,
   cyber,
   cyberTestnet,
-  degen,
   ham,
   hashkey,
   kaia,
@@ -186,12 +185,6 @@ export const RPCS: Array<RPCList> = [
       'https://sepolia.drpc.org',
       'https://rpc-sepolia.rockx.com',
       'https://ethereum-sepolia.rpc.subquery.network/public',
-    ],
-  },
-  {
-    id: degen.id,
-    rpcs: [
-      'https://rpc.degen.tips', // ✅ - All checks passed
     ],
   },
   {

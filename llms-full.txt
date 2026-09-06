@@ -58,7 +58,6 @@ Mainnets:
 - `arbitrum` (42161)
 - `avalanche` (43114)
 - `blast` (81457)
-- `degen` (666666666)
 - `zora` (7777777)
 
 Testnets:

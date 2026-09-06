@@ -16,7 +16,6 @@ import {
   cyber,
   ham,
   cyberTestnet,
-  degen,
   shibarium,
   shibariumTestnet,
   unichain,
@@ -35,7 +34,6 @@ export type ChainType = {
     | 'Base'
     | 'Blast'
     | 'Cyber'
-    | 'Degen'
     | 'Optimism'
     | 'Arbitrum'
     | 'Avalanche'
@@ -100,15 +98,6 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'optimism',
     enabled: isAddress(getMintClubContractAddress('BOND', optimism.id)),
     chain: optimism,
-  },
-  {
-    id: degen.id,
-    name: 'Degen',
-    icon: 'https://mint.club/assets/networks/degen@2x.png',
-    color: '#A36EFD',
-    openseaSlug: 'degen',
-    enabled: isAddress(getMintClubContractAddress('BOND', degen.id)),
-    chain: degen,
   },
   {
     id: arbitrum.id,

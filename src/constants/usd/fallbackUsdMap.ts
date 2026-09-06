@@ -1,4 +1,4 @@
-import { apeChain, base, degen, hashkey, ham, mainnet, unichain, cyber } from 'viem/chains';
+import { apeChain, base, hashkey, ham, mainnet, unichain, cyber } from 'viem/chains';
 import { over, robinhood } from '../contracts';
 
 type Address = `0x${string}`;
@@ -17,13 +17,6 @@ export const FALLBACK_USD_MAP: FallbackUsdMap = {
     '0x48b62137EdfA95a428D35C09E44256a739F6B557': {
       network: mainnet.id,
       address: '0x4d224452801ACEd8B2F0aebE155379bb5D594381',
-    },
-  },
-  [degen.id]: {
-    // DEGEN -> mainnet DEGEN price
-    '0xEb54dACB4C2ccb64F8074eceEa33b5eBb38E5387': {
-      network: base.id,
-      address: '0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed',
     },
   },
   [ham.id]: {
