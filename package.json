@@ -26,7 +26,7 @@
   ],
   "type": "module",
   "license": "BSD-3-Clause",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "publishConfig": {
     "access": "public"
   },
