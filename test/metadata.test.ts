@@ -1,6 +1,5 @@
-import assert from 'node:assert/strict';
-import { test } from 'node:test';
-import { createWalletClient, custom } from 'viem';
+import { afterEach, expect, mock, spyOn, test } from 'bun:test';
+import { createWalletClient, custom, verifyMessage } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
 import { MintClubSDK } from '../src/MintClubSDK';
@@ -8,7 +7,8 @@ import { MetadataValidationError } from '../src/errors/sdk.errors';
 
 const TEST_PRIVATE_KEY = `0x${'01'.repeat(32)}` as const;
 const TOKEN_ADDRESS = '0x1111111111111111111111111111111111111111';
-const authorization = { message: 'Test metadata update', signature: '0x1234' };
+
+afterEach(() => mock.restore());
 
 function connectedToken() {
   const network = new MintClubSDK()
@@ -27,47 +27,71 @@ function connectedToken() {
   return { token: network.token(TOKEN_ADDRESS), wallet: network.getWalletClient()! };
 }
 
-test('metadata update preserves supplied authorization and adds the connected wallet address', async (t) => {
+async function signMetadata({ token, wallet }: ReturnType<typeof connectedToken>) {
+  const message = await token.getMetadataSignatureMessage();
+  return { message, signature: await wallet.signMessage({ account: wallet.account!, message }) };
+}
+
+test('metadata message identifies the action, target, wallet and exact ten-minute validity window', async () => {
   const { token, wallet } = connectedToken();
-  const sign = t.mock.method(wallet, 'signMessage', async () => {
+  const issuedAt = 1_900_000_000_000;
+  spyOn(Date, 'now').mockReturnValue(issuedAt);
+  expect(await token.getMetadataSignatureMessage()).toBe(
+    [
+      'Mint Club token authorization',
+      'Domain: mint.club',
+      'Action: metadata',
+      'Chain ID: 8453',
+      `Token: ${TOKEN_ADDRESS.toLowerCase()}`,
+      `Wallet: ${wallet.account!.address.toLowerCase()}`,
+      `Issued at: ${issuedAt}`,
+      `Expires at: ${issuedAt + 600000}`,
+    ].join('\n'),
+  );
+});
+
+test('metadata update preserves supplied authorization and adds the connected wallet address', async () => {
+  const context = connectedToken();
+  const { token, wallet } = context;
+  const authorization = await signMetadata(context);
+  const sign = spyOn(wallet, 'signMessage').mockImplementation(async () => {
     throw new Error('Unexpected signature request');
   });
   const logo = new File(['logo bytes'], 'logo.png', { type: 'image/png' });
-  const fetch = t.mock.method(globalThis, 'fetch', async (input: RequestInfo | URL, init?: RequestInit) => {
-    assert.equal(String(input), 'https://mint.club/api/metadata');
-    assert.equal(init?.method, 'PUT');
-    assert.ok(init.body instanceof FormData);
-    assert.deepEqual(Object.fromEntries(init.body), {
+  const fetch = spyOn(globalThis, 'fetch').mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+    expect(String(input)).toBe('https://mint.club/api/metadata');
+    expect(init?.method).toBe('PUT');
+    expect(init?.body).toBeInstanceOf(FormData);
+    const { logo: uploadedLogo, ...fields } = Object.fromEntries(init!.body as FormData);
+    expect(await (uploadedLogo as File).text()).toBe('logo bytes');
+    expect(fields).toEqual({
       chainId: '8453',
       tokenAddress: TOKEN_ADDRESS,
       walletAddress: wallet.account!.address,
       ...authorization,
-      logo,
       website: '',
       backgroundImage: '',
       miniappUrls: '[]',
     });
+    expect(await verifyMessage({ address: wallet.account!.address, ...authorization })).toBe(true);
     return Response.json({ website: null });
   });
-  const result = await token.updateMintClubMetadata({
-    ...authorization,
-    logo,
-    website: '',
-    backgroundImage: null,
-    miniappUrls: [],
-  });
-  assert.deepEqual(result, { website: null });
-  assert.equal(fetch.mock.callCount(), 1);
-  assert.equal(sign.mock.callCount(), 0);
+  expect(
+    await token.updateMintClubMetadata({ ...authorization, logo, website: '', backgroundImage: null, miniappUrls: [] }),
+  ).toEqual({ website: null });
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(sign).not.toHaveBeenCalled();
 });
 
-test('initial metadata uses authenticated PUT and clears unspecified placeholder fields', async (t) => {
-  const { token, wallet } = connectedToken();
-  const fetch = t.mock.method(globalThis, 'fetch', async (input: RequestInfo | URL, init?: RequestInit) => {
-    assert.equal(String(input), 'https://mint.club/api/metadata');
-    assert.equal(init?.method, 'PUT');
-    assert.ok(init.body instanceof FormData);
-    assert.deepEqual(Object.fromEntries(init.body), {
+test('initial metadata uses authenticated PUT and clears unspecified placeholder fields', async () => {
+  const context = connectedToken();
+  const { token, wallet } = context;
+  const authorization = await signMetadata(context);
+  const fetch = spyOn(globalThis, 'fetch').mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+    expect(String(input)).toBe('https://mint.club/api/metadata');
+    expect(init?.method).toBe('PUT');
+    expect(init?.body).toBeInstanceOf(FormData);
+    expect(Object.fromEntries(init!.body as FormData)).toEqual({
       chainId: '8453',
       tokenAddress: TOKEN_ADDRESS,
       walletAddress: wallet.account!.address,
@@ -88,34 +112,36 @@ test('initial metadata uses authenticated PUT and clears unspecified placeholder
     logo: undefined,
     miniappUrls: undefined,
   });
-  assert.equal(fetch.mock.callCount(), 1);
+  expect(fetch).toHaveBeenCalledTimes(1);
 });
 
-test('initial metadata and updates reject missing authorization before sending requests', async (t) => {
-  const { token } = connectedToken();
-  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+test('initial metadata and updates reject missing authorization before sending requests', async () => {
+  const context = connectedToken();
+  const { token } = context;
+  const authorization = await signMetadata(context);
+  const fetch = spyOn(globalThis, 'fetch').mockImplementation(async () => {
     throw new Error('Unexpected request');
   });
   for (const save of [token.createMintClubMetadata.bind(token), token.updateMintClubMetadata.bind(token)]) {
-    await assert.rejects(
-      save({ ...authorization, signature: '', website: 'https://example.com' }),
+    await expect(save({ ...authorization, signature: '', website: 'https://example.com' })).rejects.toBeInstanceOf(
       MetadataValidationError,
     );
-    await assert.rejects(
-      save({ ...authorization, message: '', website: 'https://example.com' }),
+    await expect(save({ ...authorization, message: '', website: 'https://example.com' })).rejects.toBeInstanceOf(
       MetadataValidationError,
     );
   }
-  assert.equal(fetch.mock.callCount(), 0);
+  expect(fetch).not.toHaveBeenCalled();
 });
 
-test('failed metadata saves preserve image inputs for a retry after deployment', async (t) => {
-  const { token } = connectedToken();
-  const fetch = t.mock.method(globalThis, 'fetch', async () => Response.json({}, { status: 503 }));
+test('failed metadata saves preserve image inputs for a retry after deployment', async () => {
+  const context = connectedToken();
+  const { token } = context;
+  const authorization = await signMetadata(context);
+  const fetch = spyOn(globalThis, 'fetch').mockImplementation(async () => Response.json({}, { status: 503 }));
   const logo = new File(['logo'], 'logo.png', { type: 'image/png' });
   const input = { ...authorization, logo, website: 'https://example.com' };
-  await assert.rejects(token.createMintClubMetadata(input), /status: 503/);
-  assert.equal(fetch.mock.callCount(), 1);
-  assert.equal(await input.logo.text(), 'logo');
-  assert.deepEqual(input, { ...authorization, logo, website: 'https://example.com' });
+  await expect(token.createMintClubMetadata(input)).rejects.toThrow('status: 503');
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(await input.logo.text()).toBe('logo');
+  expect(input).toEqual({ ...authorization, logo, website: 'https://example.com' });
 });

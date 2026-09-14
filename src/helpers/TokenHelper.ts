@@ -1129,6 +1129,22 @@ export class Token<T extends TokenType> {
     return response.json();
   }
 
+  /** Build a ten-minute metadata authorization for this token and the connected wallet. */
+  public async getMetadataSignatureMessage() {
+    const walletAddress = await this.getConnectedWalletAddress();
+    const issuedAt = Date.now();
+    return [
+      'Mint Club token authorization',
+      'Domain: mint.club',
+      'Action: metadata',
+      `Chain ID: ${this.chainId}`,
+      `Token: ${this.tokenAddress.toLowerCase()}`,
+      `Wallet: ${walletAddress.toLowerCase()}`,
+      `Issued at: ${issuedAt}`,
+      `Expires at: ${issuedAt + 600000}`,
+    ].join('\n');
+  }
+
   public validateMetadataParams(params: MetadataCommonParams) {
     const hasAnyField =
       params.website !== undefined ||
