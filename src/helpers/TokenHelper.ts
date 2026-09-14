@@ -37,14 +37,13 @@ interface MetadataCommonParams {
   website?: string;
   distributionPlan?: string;
   creatorComment?: string;
+  externalDexUrl?: '';
+  miniappUrls?: string[];
 }
 
 interface CreateMintClubMetadataParams extends MetadataCommonParams {}
 
-interface UpdateMintClubMetadataParams extends MetadataCommonParams {
-  signature: string;
-  message: string;
-}
+interface UpdateMintClubMetadataParams extends MetadataCommonParams {}
 
 export class Token<T extends TokenType> {
   private tokenAddress: `0x${string}`;
@@ -1133,13 +1132,15 @@ export class Token<T extends TokenType> {
       params.backgroundImage !== undefined ||
       params.logo !== undefined ||
       params.distributionPlan !== undefined ||
-      params.creatorComment !== undefined;
+      params.creatorComment !== undefined ||
+      params.externalDexUrl !== undefined ||
+      params.miniappUrls !== undefined;
 
     if (!hasAnyField) {
       throw new MetadataValidationError('At least one metadata field is required');
     }
 
-    if (params.website && !params.website.startsWith('http')) {
+    if (params.website && !/^https?:\/\//.test(params.website)) {
       throw new MetadataValidationError('Website must be a valid URL starting with http:// or https://');
     }
 
@@ -1162,81 +1163,73 @@ export class Token<T extends TokenType> {
 
   public validateUpdateMetadataParams(params: UpdateMintClubMetadataParams) {
     this.validateMetadataParams(params);
-
-    if (!params.signature || !params.message) {
-      throw new MetadataValidationError('Signature and message are required for updating metadata');
-    }
   }
 
+  /** Save initial metadata after the token creation receipt succeeds. */
   public async createMintClubMetadata(params: CreateMintClubMetadataParams) {
     this.validateMetadataParams(params);
-
-    const formData = new FormData();
-    formData.append('chainId', this.chainId.toString());
-    formData.append('tokenAddress', this.tokenAddress);
-
-    if (params.backgroundImage) {
-      formData.append('backgroundImage', params.backgroundImage);
-    }
-    if (params.logo) {
-      formData.append('logo', params.logo);
-    }
-    if (params.website) {
-      formData.append('website', params.website);
-    }
-    if (params.distributionPlan) {
-      formData.append('distributionPlan', params.distributionPlan);
-    }
-    if (params.creatorComment) {
-      formData.append('creatorComment', params.creatorComment);
-    }
-
-    const response = await fetch('https://mint.club/api/metadata', {
-      method: 'POST',
-      body: formData,
+    return this.updateMintClubMetadata({
+      logo: params.logo ?? null,
+      backgroundImage: params.backgroundImage ?? null,
+      website: params.website ?? '',
+      distributionPlan: params.distributionPlan ?? '',
+      creatorComment: params.creatorComment ?? '',
+      externalDexUrl: params.externalDexUrl ?? '',
+      miniappUrls: params.miniappUrls ?? [],
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
   }
 
+  /** Prepare and sign a token-specific update with the connected creator wallet. */
   public async updateMintClubMetadata(params: UpdateMintClubMetadataParams) {
     this.validateUpdateMetadataParams(params);
+    const walletClient = this.clientHelper.getWalletClient();
+    if (!walletClient) throw new WalletNotConnectedError();
+    if (walletClient.account?.type !== 'local' && (await walletClient.getChainId()) !== this.chainId) {
+      await walletClient.switchChain({ id: this.chainId });
+    }
+    const walletAddress = await this.getConnectedWalletAddress();
+    if (walletClient.account && walletClient.account.address.toLowerCase() !== walletAddress.toLowerCase()) {
+      throw new MetadataValidationError('Reconnect the wallet before updating metadata');
+    }
 
     const formData = new FormData();
-    formData.append('chainId', this.chainId.toString());
-    formData.append('tokenAddress', this.tokenAddress);
-    formData.append('signature', params.signature);
-    formData.append('message', params.message);
+    formData.set('chainId', this.chainId.toString());
+    formData.set('tokenAddress', this.tokenAddress);
+    formData.set('walletAddress', walletAddress);
+    for (const key of [
+      'backgroundImage',
+      'logo',
+      'website',
+      'distributionPlan',
+      'creatorComment',
+      'externalDexUrl',
+    ] as const) {
+      const value = params[key];
+      if (value !== undefined) formData.set(key, value ?? '');
+    }
+    if (params.miniappUrls !== undefined) formData.set('miniappUrls', JSON.stringify(params.miniappUrls));
 
-    if (params.backgroundImage) {
-      formData.append('backgroundImage', params.backgroundImage);
+    const request = async (path: string, method: 'POST' | 'PUT') => {
+      // Native fetch serializes the native FormData/File objects in browsers and Node.js.
+      const response = await globalThis.fetch(`https://mint.club/api/${path}`, { method, body: formData });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return response.json();
+    };
+    const challenge = (await request('metadata/prepare', 'POST')) as {
+      message: string;
+      nonce: string;
+      expiresAt: number;
+    };
+    if ((await this.getConnectedWalletAddress()).toLowerCase() !== walletAddress.toLowerCase()) {
+      throw new MetadataValidationError('The connected wallet changed; retry the metadata update');
     }
-    if (params.logo) {
-      formData.append('logo', params.logo);
-    }
-    if (params.website) {
-      formData.append('website', params.website);
-    }
-    if (params.distributionPlan) {
-      formData.append('distributionPlan', params.distributionPlan);
-    }
-    if (params.creatorComment) {
-      formData.append('creatorComment', params.creatorComment);
-    }
-
-    const response = await fetch('https://mint.club/api/metadata', {
-      method: 'PUT',
-      body: formData,
+    const signature = await walletClient.signMessage({
+      account: walletClient.account ?? walletAddress,
+      message: challenge.message,
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
+    formData.set('signature', signature);
+    formData.set('nonce', challenge.nonce);
+    formData.set('expiresAt', String(challenge.expiresAt));
+    return request('metadata', 'PUT');
   }
 }

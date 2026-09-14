@@ -59,13 +59,10 @@ test(`CHICKEN on base - createMintClubMetadata validation`, async () => {
 test(`CHICKEN on base - updateMintClubMetadata validation`, async () => {
   const token = mintclub.network('base').token('CHICKEN');
 
-  // Should throw error when no signature provided
+  // Should throw error when no metadata fields are provided
   let error: unknown = null;
   try {
-    await token.updateMintClubMetadata({
-      website: 'https://example.com',
-      distributionPlan: 'Community distribution',
-    } as any);
+    await token.updateMintClubMetadata({});
   } catch (e) {
     error = e;
   }
@@ -77,8 +74,6 @@ test(`CHICKEN on base - updateMintClubMetadata validation`, async () => {
     await token.updateMintClubMetadata({
       website: 'https://example.com',
       distributionPlan: 'a'.repeat(1001),
-      signature: '0x123',
-      message: 'Test message',
     });
   } catch (e) {
     error = e;
