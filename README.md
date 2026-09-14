@@ -72,6 +72,31 @@ await serverToken.buy({ amount: serverAmount, slippage: 1 });
 
 Browser applications should pass a viem wallet client from their wallet integration to `mintclub.withWalletClient()`. See the [getting started guide](https://sdk.mint.club/docs/getting-started) for a complete example.
 
+## Token metadata
+
+Save Mint Club metadata after the token creation receipt succeeds. Keep selected image `File` objects in your application until then; uploading NFT metadata to IPFS before deployment remains a separate operation.
+
+Given your connected creator `walletClient`, selected `logoFile`, and token `createParams`:
+
+```ts
+const token = mintclub.withWalletClient(walletClient).network('base').token('MY_TOKEN');
+const receipt = await token.create(createParams);
+if (receipt?.status !== 'success') throw new Error('Token creation did not succeed');
+
+const message = await token.getMetadataSignatureMessage();
+const signature = await walletClient.signMessage({ account: walletClient.account!, message });
+await token.createMintClubMetadata({
+  logo: logoFile,
+  website: 'https://example.com',
+  message,
+  signature,
+});
+```
+
+Both metadata methods send a signed `PUT` with your supplied `message` and `signature`, plus the connected wallet address. Build the message with `getMetadataSignatureMessage()` and sign it with that same wallet. It identifies mint.club, the metadata action, the token, the chain, the wallet, and a ten-minute validity window. A signature may be reused for the same token and wallet during that window; metadata field values are not bound to the signature. Initial metadata clears unspecified fields, including any historical placeholder links. Later `updateMintClubMetadata` calls preserve omitted fields; empty strings and null images clear fields. Set `externalDexUrl: ''` to remove an existing DEX link.
+
+**Version 3 migration:** `createMintClubMetadata` no longer sends an anonymous POST or works before deployment, and now requires the same `message` and `signature` parameters as `updateMintClubMetadata`. Existing `updateMintClubMetadata` callers still pass `message` and `signature`, but must use `getMetadataSignatureMessage()` instead of an arbitrary message. Generate and sign a fresh message when the previous one expires. If saving fails after deployment, retain the metadata inputs and retry the metadata call without creating the token again. Metadata requests use native `fetch`, `FormData`, and `File` (available in modern browsers and Node.js 20+).
+
 ---
 
 ## Features

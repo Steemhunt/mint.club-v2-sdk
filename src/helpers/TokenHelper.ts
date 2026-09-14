@@ -37,14 +37,16 @@ interface MetadataCommonParams {
   website?: string;
   distributionPlan?: string;
   creatorComment?: string;
+  externalDexUrl?: '';
+  miniappUrls?: string[];
 }
-
-interface CreateMintClubMetadataParams extends MetadataCommonParams {}
 
 interface UpdateMintClubMetadataParams extends MetadataCommonParams {
   signature: string;
   message: string;
 }
+
+interface CreateMintClubMetadataParams extends UpdateMintClubMetadataParams {}
 
 export class Token<T extends TokenType> {
   private tokenAddress: `0x${string}`;
@@ -1127,19 +1129,37 @@ export class Token<T extends TokenType> {
     return response.json();
   }
 
+  /** Build a ten-minute metadata authorization for this token and the connected wallet. */
+  public async getMetadataSignatureMessage() {
+    const walletAddress = await this.getConnectedWalletAddress();
+    const issuedAt = Date.now();
+    return [
+      'Mint Club token authorization',
+      'Domain: mint.club',
+      'Action: metadata',
+      `Chain ID: ${this.chainId}`,
+      `Token: ${this.tokenAddress.toLowerCase()}`,
+      `Wallet: ${walletAddress.toLowerCase()}`,
+      `Issued at: ${issuedAt}`,
+      `Expires at: ${issuedAt + 600000}`,
+    ].join('\n');
+  }
+
   public validateMetadataParams(params: MetadataCommonParams) {
     const hasAnyField =
       params.website !== undefined ||
       params.backgroundImage !== undefined ||
       params.logo !== undefined ||
       params.distributionPlan !== undefined ||
-      params.creatorComment !== undefined;
+      params.creatorComment !== undefined ||
+      params.externalDexUrl !== undefined ||
+      params.miniappUrls !== undefined;
 
     if (!hasAnyField) {
       throw new MetadataValidationError('At least one metadata field is required');
     }
 
-    if (params.website && !params.website.startsWith('http')) {
+    if (params.website && !/^https?:\/\//.test(params.website)) {
       throw new MetadataValidationError('Website must be a valid URL starting with http:// or https://');
     }
 
@@ -1162,81 +1182,54 @@ export class Token<T extends TokenType> {
 
   public validateUpdateMetadataParams(params: UpdateMintClubMetadataParams) {
     this.validateMetadataParams(params);
-
     if (!params.signature || !params.message) {
       throw new MetadataValidationError('Signature and message are required for updating metadata');
     }
   }
 
+  /** Save initial metadata after the token creation receipt succeeds. */
   public async createMintClubMetadata(params: CreateMintClubMetadataParams) {
     this.validateMetadataParams(params);
-
-    const formData = new FormData();
-    formData.append('chainId', this.chainId.toString());
-    formData.append('tokenAddress', this.tokenAddress);
-
-    if (params.backgroundImage) {
-      formData.append('backgroundImage', params.backgroundImage);
-    }
-    if (params.logo) {
-      formData.append('logo', params.logo);
-    }
-    if (params.website) {
-      formData.append('website', params.website);
-    }
-    if (params.distributionPlan) {
-      formData.append('distributionPlan', params.distributionPlan);
-    }
-    if (params.creatorComment) {
-      formData.append('creatorComment', params.creatorComment);
-    }
-
-    const response = await fetch('https://mint.club/api/metadata', {
-      method: 'POST',
-      body: formData,
+    return this.updateMintClubMetadata({
+      signature: params.signature,
+      message: params.message,
+      logo: params.logo ?? null,
+      backgroundImage: params.backgroundImage ?? null,
+      website: params.website ?? '',
+      distributionPlan: params.distributionPlan ?? '',
+      creatorComment: params.creatorComment ?? '',
+      externalDexUrl: params.externalDexUrl ?? '',
+      miniappUrls: params.miniappUrls ?? [],
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
   }
 
+  /** Save metadata with a caller-provided signature from the connected creator wallet. */
   public async updateMintClubMetadata(params: UpdateMintClubMetadataParams) {
     this.validateUpdateMetadataParams(params);
+    const walletAddress = await this.getConnectedWalletAddress();
 
     const formData = new FormData();
-    formData.append('chainId', this.chainId.toString());
-    formData.append('tokenAddress', this.tokenAddress);
-    formData.append('signature', params.signature);
-    formData.append('message', params.message);
+    formData.set('chainId', this.chainId.toString());
+    formData.set('tokenAddress', this.tokenAddress);
+    formData.set('walletAddress', walletAddress);
+    formData.set('signature', params.signature);
+    formData.set('message', params.message);
+    for (const key of [
+      'backgroundImage',
+      'logo',
+      'website',
+      'distributionPlan',
+      'creatorComment',
+      'externalDexUrl',
+    ] as const) {
+      const value = params[key];
+      if (value !== undefined) formData.set(key, value ?? '');
+    }
+    if (params.miniappUrls !== undefined) formData.set('miniappUrls', JSON.stringify(params.miniappUrls));
 
-    if (params.backgroundImage) {
-      formData.append('backgroundImage', params.backgroundImage);
-    }
-    if (params.logo) {
-      formData.append('logo', params.logo);
-    }
-    if (params.website) {
-      formData.append('website', params.website);
-    }
-    if (params.distributionPlan) {
-      formData.append('distributionPlan', params.distributionPlan);
-    }
-    if (params.creatorComment) {
-      formData.append('creatorComment', params.creatorComment);
-    }
-
-    const response = await fetch('https://mint.club/api/metadata', {
-      method: 'PUT',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
+    // Native fetch serializes the native FormData/File objects in browsers and Node.js.
+    const response = await globalThis.fetch('https://mint.club/api/metadata', { method: 'PUT', body: formData });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   }
 }
