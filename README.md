@@ -83,18 +83,19 @@ const token = mintclub.withWalletClient(walletClient).network('base').token('MY_
 const receipt = await token.create(createParams);
 if (receipt?.status !== 'success') throw new Error('Token creation did not succeed');
 
+const message = `Signature required for mint.club metadata - timestamp: ${Date.now()}`;
+const signature = await walletClient.signMessage({ account: walletClient.account!, message });
 await token.createMintClubMetadata({
   logo: logoFile,
   website: 'https://example.com',
+  message,
+  signature,
 });
-
-// Later updates change only the supplied fields. Empty strings and null images clear fields.
-await token.updateMintClubMetadata({ website: '', backgroundImage: null });
 ```
 
-Both metadata methods request an authorization from `/api/metadata/prepare`, sign the returned message with the connected wallet, and send a signed `PUT`. The authorization binds the wallet, chain, token, exact metadata payload, expiry, and a one-use nonce. Initial metadata clears unspecified fields, including any historical placeholder links; later updates leave omitted fields unchanged. Set `externalDexUrl: ''` to remove an existing DEX link.
+Both metadata methods send a signed `PUT` with your supplied `message` and `signature`, plus the connected wallet address. Initial metadata clears unspecified fields, including any historical placeholder links. Later `updateMintClubMetadata` calls preserve omitted fields; empty strings and null images clear fields. Set `externalDexUrl: ''` to remove an existing DEX link.
 
-**Migration:** `createMintClubMetadata` no longer sends an anonymous POST or works before deployment. `updateMintClubMetadata` no longer accepts caller-provided `message` and `signature`; configure the creator wallet instead. If signing or saving fails after deployment, retain the metadata inputs and retry the metadata call without creating the token again. Metadata requests use native `fetch`, `FormData`, and `File` (available in modern browsers and Node.js 20+).
+**Migration:** `createMintClubMetadata` no longer sends an anonymous POST or works before deployment, and now requires the same `message` and `signature` parameters as `updateMintClubMetadata`. The existing update signature contract is unchanged. If saving fails after deployment, retain the metadata inputs and retry the metadata call without creating the token again. Metadata requests use native `fetch`, `FormData`, and `File` (available in modern browsers and Node.js 20+).
 
 ---
 

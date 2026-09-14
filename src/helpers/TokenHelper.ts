@@ -41,9 +41,12 @@ interface MetadataCommonParams {
   miniappUrls?: string[];
 }
 
-interface CreateMintClubMetadataParams extends MetadataCommonParams {}
+interface UpdateMintClubMetadataParams extends MetadataCommonParams {
+  signature: string;
+  message: string;
+}
 
-interface UpdateMintClubMetadataParams extends MetadataCommonParams {}
+interface CreateMintClubMetadataParams extends UpdateMintClubMetadataParams {}
 
 export class Token<T extends TokenType> {
   private tokenAddress: `0x${string}`;
@@ -1163,12 +1166,17 @@ export class Token<T extends TokenType> {
 
   public validateUpdateMetadataParams(params: UpdateMintClubMetadataParams) {
     this.validateMetadataParams(params);
+    if (!params.signature || !params.message) {
+      throw new MetadataValidationError('Signature and message are required for updating metadata');
+    }
   }
 
   /** Save initial metadata after the token creation receipt succeeds. */
   public async createMintClubMetadata(params: CreateMintClubMetadataParams) {
     this.validateMetadataParams(params);
     return this.updateMintClubMetadata({
+      signature: params.signature,
+      message: params.message,
       logo: params.logo ?? null,
       backgroundImage: params.backgroundImage ?? null,
       website: params.website ?? '',
@@ -1179,23 +1187,17 @@ export class Token<T extends TokenType> {
     });
   }
 
-  /** Prepare and sign a token-specific update with the connected creator wallet. */
+  /** Save metadata with a caller-provided signature from the connected creator wallet. */
   public async updateMintClubMetadata(params: UpdateMintClubMetadataParams) {
     this.validateUpdateMetadataParams(params);
-    const walletClient = this.clientHelper.getWalletClient();
-    if (!walletClient) throw new WalletNotConnectedError();
-    if (walletClient.account?.type !== 'local' && (await walletClient.getChainId()) !== this.chainId) {
-      await walletClient.switchChain({ id: this.chainId });
-    }
     const walletAddress = await this.getConnectedWalletAddress();
-    if (walletClient.account && walletClient.account.address.toLowerCase() !== walletAddress.toLowerCase()) {
-      throw new MetadataValidationError('Reconnect the wallet before updating metadata');
-    }
 
     const formData = new FormData();
     formData.set('chainId', this.chainId.toString());
     formData.set('tokenAddress', this.tokenAddress);
     formData.set('walletAddress', walletAddress);
+    formData.set('signature', params.signature);
+    formData.set('message', params.message);
     for (const key of [
       'backgroundImage',
       'logo',
@@ -1209,27 +1211,9 @@ export class Token<T extends TokenType> {
     }
     if (params.miniappUrls !== undefined) formData.set('miniappUrls', JSON.stringify(params.miniappUrls));
 
-    const request = async (path: string, method: 'POST' | 'PUT') => {
-      // Native fetch serializes the native FormData/File objects in browsers and Node.js.
-      const response = await globalThis.fetch(`https://mint.club/api/${path}`, { method, body: formData });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      return response.json();
-    };
-    const challenge = (await request('metadata/prepare', 'POST')) as {
-      message: string;
-      nonce: string;
-      expiresAt: number;
-    };
-    if ((await this.getConnectedWalletAddress()).toLowerCase() !== walletAddress.toLowerCase()) {
-      throw new MetadataValidationError('The connected wallet changed; retry the metadata update');
-    }
-    const signature = await walletClient.signMessage({
-      account: walletClient.account ?? walletAddress,
-      message: challenge.message,
-    });
-    formData.set('signature', signature);
-    formData.set('nonce', challenge.nonce);
-    formData.set('expiresAt', String(challenge.expiresAt));
-    return request('metadata', 'PUT');
+    // Native fetch serializes the native FormData/File objects in browsers and Node.js.
+    const response = await globalThis.fetch('https://mint.club/api/metadata', { method: 'PUT', body: formData });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
   }
 }

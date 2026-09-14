@@ -2,6 +2,8 @@ import { expect, test } from 'bun:test';
 import { mintclub } from '../../../src';
 import { MetadataValidationError } from '../../../src/errors/sdk.errors';
 
+const authorization = { message: 'Test message', signature: '0x1234' };
+
 test(`CHICKEN on base - getMintclubMetadata`, async () => {
   const tokenMetadata = await mintclub.network('base').token('CHICKEN').getMintClubMetadata();
   console.log(tokenMetadata);
@@ -14,7 +16,7 @@ test(`CHICKEN on base - createMintClubMetadata validation`, async () => {
   // Should throw error when no params provided
   let error: unknown = null;
   try {
-    await token.createMintClubMetadata({});
+    await token.createMintClubMetadata(authorization);
   } catch (e) {
     error = e;
   }
@@ -24,6 +26,7 @@ test(`CHICKEN on base - createMintClubMetadata validation`, async () => {
   error = null;
   try {
     await token.createMintClubMetadata({
+      ...authorization,
       website: 'invalid-url',
     });
   } catch (e) {
@@ -35,6 +38,7 @@ test(`CHICKEN on base - createMintClubMetadata validation`, async () => {
   error = null;
   try {
     await token.createMintClubMetadata({
+      ...authorization,
       website: 'https://example.com',
       distributionPlan: 'a'.repeat(1001),
     });
@@ -47,6 +51,7 @@ test(`CHICKEN on base - createMintClubMetadata validation`, async () => {
   error = null;
   try {
     await token.createMintClubMetadata({
+      ...authorization,
       website: 'https://example.com',
       creatorComment: 'a'.repeat(1001),
     });
@@ -62,7 +67,7 @@ test(`CHICKEN on base - updateMintClubMetadata validation`, async () => {
   // Should throw error when no metadata fields are provided
   let error: unknown = null;
   try {
-    await token.updateMintClubMetadata({});
+    await token.updateMintClubMetadata(authorization);
   } catch (e) {
     error = e;
   }
@@ -72,6 +77,7 @@ test(`CHICKEN on base - updateMintClubMetadata validation`, async () => {
   error = null;
   try {
     await token.updateMintClubMetadata({
+      ...authorization,
       website: 'https://example.com',
       distributionPlan: 'a'.repeat(1001),
     });
