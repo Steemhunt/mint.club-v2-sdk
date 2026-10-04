@@ -13,19 +13,15 @@ export function uncommify(str: string) {
 
 export function handleScientificNotation(num: number | string) {
   const str = num?.toString();
-  if (str?.includes('e')) {
-    const [coefficient, exponent] = str.split('e');
-    const decimalCount = countDecimals(Number(coefficient));
-    const exponentValue = parseInt(exponent, 10);
-    if (exponentValue >= 0) {
-      const result = Number(num).toLocaleString();
-      return result;
-    } else {
-      const result = Number(num).toFixed(Math.abs(exponentValue) + decimalCount);
-      return result;
-    }
-  }
-  return str;
+  const match = str?.match(/^(-?)(\d+)(?:\.(\d*))?[eE]([+-]?\d+)$/);
+  if (!match) return str;
+
+  const [, sign, integer, fraction = '', exponent] = match;
+  const digits = integer + fraction;
+  const decimalPosition = integer.length + Number(exponent);
+  if (decimalPosition <= 0) return `${sign}0.${'0'.repeat(-decimalPosition)}${digits}`;
+  if (decimalPosition >= digits.length) return sign + digits + '0'.repeat(decimalPosition - digits.length);
+  return `${sign}${digits.slice(0, decimalPosition)}.${digits.slice(decimalPosition)}`;
 }
 
 export function countLeadingZeros(num: number | string) {
