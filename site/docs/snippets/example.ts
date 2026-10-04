@@ -1,6 +1,5 @@
-// [!region import]
-import { mintclub } from '@mint.club/v2-sdk'
-// [!endregion import]
+import type { RPCList } from '@mint.club/v2-sdk'
+import { mainnet, base, optimism, arbitrum, polygon, bsc, avalanche, sepolia } from 'viem/chains'
 
 // [!region rpc]
 export const RPC_CHAINS: Array<RPCList> = [

@@ -42,8 +42,9 @@ function ApiDocs() {
               hideDarkModeToggle: true,
               hideClientButton: true,
               forceDarkModeState: 'dark',
-              spec: { url: 'https://mint.club/openapi/openapi.yaml' },
-            } as any
+              url: 'https://mint.club/openapi/openapi.yaml',
+              agent: { disabled: true },
+            }
           }
         />
       </div>
