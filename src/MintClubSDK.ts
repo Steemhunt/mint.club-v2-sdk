@@ -11,9 +11,22 @@ import { Lockup } from './helpers/LockupHelper';
 import { Stake } from './helpers/StakeHelper';
 import { Utils } from './helpers/UtilsHelper';
 
-type NetworkReturnType = Omit<Client, '_getPublicClient' | '_getWalletClientForChain' | 'withPrivateKey'> & {
+type NetworkReturnType = Omit<
+  Client,
+  | '_getPublicClient'
+  | '_getWalletClientForChain'
+  | 'withPrivateKey'
+  | 'withPublicClient'
+  | 'withWalletClient'
+  | 'withAccount'
+  | 'withProvider'
+> & {
   getPublicClient: () => PublicClient;
   withPrivateKey: (privateKey: `0x${string}`) => NetworkReturnType;
+  withPublicClient: (...args: Parameters<Client['withPublicClient']>) => NetworkReturnType;
+  withWalletClient: (...args: Parameters<Client['withWalletClient']>) => NetworkReturnType;
+  withAccount: (...args: Parameters<Client['withAccount']>) => NetworkReturnType;
+  withProvider: (...args: Parameters<Client['withProvider']>) => Promise<NetworkReturnType>;
   token: (symbolOrAddress: string) => ERC20;
   nft: (symbolOrAddress: string) => ERC1155;
   airdrop: Airdrop;
@@ -54,10 +67,22 @@ export class MintClubSDK {
       account: clientHelper.account.bind(clientHelper),
       getNativeBalance: clientHelper.getNativeBalance.bind(clientHelper),
       getWalletClient: clientHelper.getWalletClient.bind(clientHelper),
-      withPublicClient: clientHelper.withPublicClient.bind(clientHelper),
-      withWalletClient: clientHelper.withWalletClient.bind(clientHelper),
-      withAccount: clientHelper.withAccount.bind(clientHelper),
-      withProvider: clientHelper.withProvider.bind(clientHelper),
+      withPublicClient(...args) {
+        clientHelper.withPublicClient(...args);
+        return networkClient;
+      },
+      withWalletClient(...args) {
+        clientHelper.withWalletClient(...args);
+        return networkClient;
+      },
+      withAccount(...args) {
+        clientHelper.withAccount(...args);
+        return networkClient;
+      },
+      async withProvider(...args) {
+        await clientHelper.withProvider(...args);
+        return networkClient;
+      },
       getPublicClient(): PublicClient {
         return clientHelper._getPublicClient(chainId);
       },

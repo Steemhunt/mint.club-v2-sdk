@@ -53,6 +53,21 @@ test('private-key connect preserves the configured client without requesting acc
   expect(network.getWalletClient()?.chain?.id).toBe(base.id);
 });
 
+test('wallet and RPC configuration preserve fluent network handles', async () => {
+  const sdk = new MintClubSDK();
+  const network = sdk.network('base');
+  const tokenAddress = network.token('FLUENT').getTokenAddress();
+  sdk.network('ethereum');
+  const provider = { request: async () => [] };
+  const publicClient = { chain: base, readContract: async () => 123n } as unknown as PublicClient;
+  expect(network.withPublicClient(publicClient)).toBe(network);
+  expect(network.withAccount('0x1111111111111111111111111111111111111111', provider)).toBe(network);
+  expect(network.withWalletClient(network.getWalletClient()!)).toBe(network);
+  expect(await network.withProvider(provider)).toBe(network);
+  expect(network.withPublicClient(publicClient).token('FLUENT').getTokenAddress()).toBe(tokenAddress);
+  expect(await network.token('FLUENT').getDetail()).toBe(123n);
+});
+
 test('Node wallet discovery and disconnect work without a browser window', async () => {
   const sdk = new MintClubSDK();
   expect(typeof window).toBe('undefined');
