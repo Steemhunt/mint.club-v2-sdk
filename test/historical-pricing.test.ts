@@ -62,3 +62,30 @@ test('historical ETH fallback quotes neither read nor overwrite the live cache',
 test('unsupported USD quote networks return unavailable without dereferencing missing stablecoins', async () => {
   expect(await oneinchUsdRate({ chainId: 999999, tokenAddress: TOKEN, tokenDecimals: 18 })).toBeUndefined();
 });
+
+test('independent SDK pricing paths and ETH caches use their own RPC context', async () => {
+  const { MintClubSDK } = await import('../src');
+  const { base } = await import('viem/chains');
+  const first = new MintClubSDK();
+  const second = new MintClubSDK();
+  const weth = WETH_ADDRESSES[8453];
+  const reads = [mock(), mock()];
+  for (const [index, sdk] of [first, second].entries()) {
+    sdk.withPublicClient({
+      chain: base,
+      readContract: async (params: any) => {
+        reads[index](params);
+        const [from, to] = params.args;
+        if (from === STABLE.address) return 0n;
+        if (to === weth) return 10n ** 18n;
+        return BigInt(index + 1) * 100n * 10n ** 6n;
+      },
+    } as any);
+  }
+  const params = { chainId: 8453, tokenAddress: TOKEN, tokenDecimals: 18 };
+  expect((await first.utils.oneinchUsdRate(params))?.rate).toBe(100);
+  expect((await second.utils.oneinchUsdRate(params))?.rate).toBe(200);
+  expect((await first.utils.oneinchUsdRate(params))?.rate).toBe(100);
+  expect(reads[0].mock.calls.filter(([params]) => params.args[0] === weth)).toHaveLength(1);
+  expect(reads[1].mock.calls.filter(([params]) => params.args[0] === weth)).toHaveLength(1);
+});

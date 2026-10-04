@@ -1,3 +1,4 @@
+import { defaultClient } from './helpers/ClientHelper';
 import {
   arbitrum,
   avalanche,
@@ -92,4 +93,5 @@ export * from './utils/graph';
 export * from './utils/trade';
 export * from './utils/strings';
 
-export const mintclub = new MintClubSDK();
+export { MintClubSDK };
+export const mintclub = new MintClubSDK(defaultClient);

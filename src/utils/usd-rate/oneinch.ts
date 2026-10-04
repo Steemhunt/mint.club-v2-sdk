@@ -1,3 +1,4 @@
+import { Client, defaultClient } from '../../helpers/ClientHelper';
 import { getAddress, isAddress } from 'viem';
 import { oneInchContract } from '../../contracts';
 import { SdkSupportedChainIds, chainIdToViemChain, getMintClubContractAddress, toNumber } from '../../exports';
@@ -5,16 +6,19 @@ import { retry } from '../retry';
 import { STABLE_COINS, WETH_ADDRESSES } from './common';
 
 // Cache ETH->USD rate per chain for 5 minutes to reduce on-chain calls
-const ethRateCache = new Map<string, { rate: number; timestamp: number }>();
+const ethRateCaches = new WeakMap<Client, Map<string, { rate: number; timestamp: number }>>();
 const ETH_CACHE_DURATION_MS = 5 * 60 * 1000;
 
-export async function oneinchEthRate(params: {
-  chainId: number;
-  tokenAddress: `0x${string}`;
-  tokenDecimals: number;
-  blockNumber?: bigint | number | 'now';
-  tryCount?: number;
-}): Promise<{ rate: number; nativeToken: { address: `0x${string}`; symbol: string; decimals: number } } | undefined> {
+export async function oneinchEthRate(
+  params: {
+    chainId: number;
+    tokenAddress: `0x${string}`;
+    tokenDecimals: number;
+    blockNumber?: bigint | number | 'now';
+    tryCount?: number;
+  },
+  client: Client = defaultClient,
+): Promise<{ rate: number; nativeToken: { address: `0x${string}`; symbol: string; decimals: number } } | undefined> {
   const { chainId, tokenAddress, tokenDecimals, blockNumber, tryCount } = params;
   const wethAddress = WETH_ADDRESSES[chainId as SdkSupportedChainIds];
 
@@ -44,7 +48,7 @@ export async function oneinchEthRate(params: {
 
   const rate = await retry(
     () =>
-      oneInchContract.network(chainId as SdkSupportedChainIds).read({
+      oneInchContract.network(chainId as SdkSupportedChainIds, client).read({
         functionName: 'getRate',
         args: [tokenAddress, wethAddress, false],
         ...(bn !== undefined ? { blockNumber: bn } : {}),
@@ -59,13 +63,16 @@ export async function oneinchEthRate(params: {
   return { rate: rateToNumber, nativeToken: { address: wethAddress, symbol: nativeSymbol, decimals: 18 } } as const;
 }
 
-export async function oneinchUsdRate(params: {
-  chainId: number;
-  tokenAddress: `0x${string}`;
-  tokenDecimals: number;
-  blockNumber?: bigint | number | 'now';
-  tryCount?: number;
-}): Promise<{ rate: number; stableCoin: { address: `0x${string}`; symbol: string; decimals: bigint } } | undefined> {
+export async function oneinchUsdRate(
+  params: {
+    chainId: number;
+    tokenAddress: `0x${string}`;
+    tokenDecimals: number;
+    blockNumber?: bigint | number | 'now';
+    tryCount?: number;
+  },
+  client: Client = defaultClient,
+): Promise<{ rate: number; stableCoin: { address: `0x${string}`; symbol: string; decimals: bigint } } | undefined> {
   const { chainId, tokenAddress, tokenDecimals, blockNumber, tryCount } = params;
   const stable = STABLE_COINS[chainId as SdkSupportedChainIds];
 
@@ -94,7 +101,7 @@ export async function oneinchUsdRate(params: {
   // This avoids precision loss when quoting directly into 6-decimal stables for tiny USD prices
   const reverseRate = await retry(
     () =>
-      oneInchContract.network(chainId as SdkSupportedChainIds).read({
+      oneInchContract.network(chainId as SdkSupportedChainIds, client).read({
         functionName: 'getRate',
         args: [stable.address, tokenAddress, false],
         ...(bn !== undefined ? { blockNumber: bn } : {}),
@@ -114,16 +121,24 @@ export async function oneinchUsdRate(params: {
   }
 
   // Fallback 2: TOKEN -> ETH -> USD path
-  const ethRate = await oneinchEthRate({
-    chainId,
-    tokenAddress,
-    tokenDecimals,
-    blockNumber,
-    tryCount: (tryCount ?? 0) + 1,
-  });
+  const ethRate = await oneinchEthRate(
+    {
+      chainId,
+      tokenAddress,
+      tokenDecimals,
+      blockNumber,
+      tryCount: (tryCount ?? 0) + 1,
+    },
+    client,
+  );
   if (!ethRate) return undefined;
 
   const wethAddress = WETH_ADDRESSES[chainId as SdkSupportedChainIds];
+  let ethRateCache = ethRateCaches.get(client);
+  if (!ethRateCache) {
+    ethRateCache = new Map();
+    ethRateCaches.set(client, ethRateCache);
+  }
   const cacheKey = `eth-usd-${chainId}`;
   const cached = bn === undefined ? ethRateCache.get(cacheKey) : undefined;
   let ethUsdRate: number | undefined = undefined;
@@ -133,7 +148,7 @@ export async function oneinchUsdRate(params: {
   } else {
     const ethToUsdRate = await retry(
       () =>
-        oneInchContract.network(chainId as SdkSupportedChainIds).read({
+        oneInchContract.network(chainId as SdkSupportedChainIds, client).read({
           functionName: 'getRate',
           args: [wethAddress, stable.address, false],
           ...(bn !== undefined ? { blockNumber: bn } : {}),

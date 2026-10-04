@@ -24,18 +24,8 @@ const MCV2_WALLET_STATE_LOCALSTORAGE = 'mcv2_wallet_state';
 type WalletState = 'connected' | 'disconnected' | 'none';
 
 export class Client {
-  private static instance?: Client;
   private walletClient?: WalletClient;
-  // these are always defined, singleton
   private publicClients: Record<number, PublicClient<FallbackTransport> | PublicClient> = {};
-
-  constructor() {
-    if (Client.instance) {
-      return Client.instance;
-    }
-
-    Client.instance = this;
-  }
 
   private getDefaultProvider() {
     if (typeof window === 'undefined' || typeof window.ethereum === 'undefined') throw new NoEthereumProviderError();
@@ -133,7 +123,8 @@ export class Client {
       }) as PublicClient<FallbackTransport>;
 
       (this.publicClients[chain.id] as PublicClient<FallbackTransport>).transport.onResponse((response) => {
-        if (!response.response && response.status === 'success') {
+        const pendingQuery = ['eth_getTransactionByHash', 'eth_getTransactionReceipt'].includes(response.method);
+        if (!response.response && response.status === 'success' && !(response.response === null && pendingQuery)) {
           throw new Error('Empty RPC Response');
         }
       });
@@ -144,6 +135,15 @@ export class Client {
 
   public getWalletClient(): WalletClient | undefined {
     return this.walletClient;
+  }
+
+  public _getWalletClientForChain(chainId: SdkSupportedChainIds): WalletClient | undefined {
+    if (this.walletClient?.account?.type !== 'local') return this.walletClient;
+    return createWalletClient({
+      account: this.walletClient.account,
+      chain: getChain(chainId),
+      transport: custom(this._getPublicClient(chainId)),
+    });
   }
 
   public withPublicClient(publicClient: PublicClient) {
@@ -185,3 +185,5 @@ export class Client {
     return this;
   }
 }
+
+export const defaultClient = new Client();

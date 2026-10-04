@@ -9,9 +9,11 @@ import {
   getDefillamaChainName,
 } from '../utils/usd-rate/defillama';
 import { oneinchEthRate as oneInchEthRateFn, oneinchUsdRate as oneInchUsdRateFn } from '../utils/usd-rate/oneinch';
-import { Client } from './ClientHelper';
+import { Client, defaultClient } from './ClientHelper';
 
 export class Utils {
+  constructor(private clientHelper: Client = defaultClient) {}
+
   public generateMerkleRoot(wallets: `0x${string}`[]) {
     const leaves = wallets.map((address) => keccak256(address));
     const tree = new MerkleTree(leaves, keccak256, {
@@ -28,7 +30,7 @@ export class Utils {
     blockNumber?: bigint | number | 'now';
     tryCount?: number;
   }): Promise<{ rate: number; nativeToken: { address: `0x${string}`; symbol: string; decimals: number } } | undefined> {
-    return oneInchEthRateFn(params);
+    return oneInchEthRateFn(params, this.clientHelper);
   }
 
   public async oneinchUsdRate(params: {
@@ -38,7 +40,7 @@ export class Utils {
     blockNumber?: bigint | number | 'now';
     tryCount?: number;
   }): Promise<{ rate: number; stableCoin: { address: `0x${string}`; symbol: string; decimals: bigint } } | undefined> {
-    return oneInchUsdRateFn(params);
+    return oneInchUsdRateFn(params, this.clientHelper);
   }
 
   private defillamaGet<T>(url: string): Promise<T> {
@@ -92,8 +94,7 @@ export class Utils {
   }): Promise<number | undefined> {
     const { chainId, blockNumber } = params;
     try {
-      const client = new Client();
-      const pc = client._getPublicClient(chainId);
+      const pc = this.clientHelper._getPublicClient(chainId);
       const bn = typeof blockNumber === 'number' ? BigInt(blockNumber) : blockNumber;
       const block = await pc.getBlock({ blockNumber: bn });
       return Number(block.timestamp);

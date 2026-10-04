@@ -11,7 +11,7 @@ import {
 } from 'viem';
 import { WalletNotConnectedError } from '../errors/sdk.errors';
 import { ContractNames, SdkSupportedChainIds, getChain, getMintClubContractAddress } from '../exports';
-import { Client } from '../helpers/ClientHelper';
+import { Client, defaultClient } from '../helpers/ClientHelper';
 import { SupportedAbiType } from '../types/abi.types';
 import { GenericWriteParams, TokenContractReadArgs } from '../types/transactions.types';
 import { customWaitForTransaction } from '../utils/transaction';
@@ -23,6 +23,7 @@ type GenericLogicConstructorParams<
   chainId: SdkSupportedChainIds;
   type: C;
   abi: A;
+  client?: Client;
 };
 
 export class GenericContractLogic<
@@ -42,7 +43,7 @@ export class GenericContractLogic<
     this.abi = abi;
     this.chainId = chainId;
     this.chain = getChain(chainId);
-    this.clientHelper = new Client();
+    this.clientHelper = params.client ?? defaultClient;
   }
 
   public read<
@@ -89,12 +90,12 @@ export class GenericContractLogic<
     }
 
     try {
-      let walletClient = this.clientHelper.getWalletClient();
+      let walletClient = this.clientHelper._getWalletClientForChain(this.chainId);
       const isPrivateKey = this.clientHelper.isPrivateKey();
 
       if (!walletClient?.account) {
         await this.clientHelper.connect();
-        walletClient = this.clientHelper.getWalletClient();
+        walletClient = this.clientHelper._getWalletClientForChain(this.chainId);
       }
       if (!walletClient?.account) throw new WalletNotConnectedError();
       if (!isPrivateKey && walletClient.chain?.id !== this.chainId) {
@@ -122,8 +123,7 @@ export class GenericContractLogic<
 
       onSigned?.(tx);
 
-      // use custom wait for transaction for better stability
-      const receipt = await customWaitForTransaction(this.chainId, tx);
+      const receipt = await customWaitForTransaction(this.clientHelper._getPublicClient(this.chainId), tx);
 
       onSuccess?.(receipt as TransactionReceipt);
 

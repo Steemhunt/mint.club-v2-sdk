@@ -1,3 +1,4 @@
+import { Client, defaultClient } from './ClientHelper';
 import { bondContract, erc1155Contract } from '../contracts';
 import { CreateERC1155TokenParams } from '../types/bond.types';
 import { TokenHelperConstructorParams } from '../types/token.types';
@@ -5,15 +6,18 @@ import { CommonWriteParams } from '../types/transactions.types';
 import { Token } from './TokenHelper';
 
 export class ERC1155 extends Token<'ERC1155'> {
-  constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>) {
-    super({
-      ...params,
-      tokenType: 'ERC1155',
-    });
+  constructor(params: Omit<TokenHelperConstructorParams, 'tokenType'>, client: Client = defaultClient) {
+    super(
+      {
+        ...params,
+        tokenType: 'ERC1155',
+      },
+      client,
+    );
   }
 
   public getBalanceOf(walletAddress: `0x${string}`) {
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'balanceOf',
       args: [walletAddress, 0n],
@@ -22,7 +26,7 @@ export class ERC1155 extends Token<'ERC1155'> {
 
   public getBalanceOfBatch(walletAddresses: `0x${string}`[]) {
     const ids: bigint[] = Array(walletAddresses.length).fill(0n);
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'balanceOfBatch',
       args: [walletAddresses, ids],
@@ -30,21 +34,21 @@ export class ERC1155 extends Token<'ERC1155'> {
   }
 
   public getBondAddress() {
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'bond',
     });
   }
 
   public getContractURI() {
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'contractURI',
     });
   }
 
   public getDecimals() {
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'decimals',
     });
@@ -52,7 +56,7 @@ export class ERC1155 extends Token<'ERC1155'> {
 
   public getIsApprovedForAll(params: { owner: `0x${string}`; spender: `0x${string}` }) {
     const { owner, spender } = params;
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'isApprovedForAll',
       args: [owner, spender],
@@ -60,14 +64,14 @@ export class ERC1155 extends Token<'ERC1155'> {
   }
 
   public getName() {
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'name',
     });
   }
 
   public getSupportsInterface(interfaceId: `0x${string}`) {
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'supportsInterface',
       args: [interfaceId],
@@ -75,21 +79,21 @@ export class ERC1155 extends Token<'ERC1155'> {
   }
 
   public getSymbol() {
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'symbol',
     });
   }
 
   public getTotalSupply() {
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'totalSupply',
     });
   }
 
   public getMetadataUri() {
-    return erc1155Contract.network(this.chainId).read({
+    return erc1155Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.getTokenAddress(),
       functionName: 'uri',
       args: [0n],
@@ -114,7 +118,7 @@ export class ERC1155 extends Token<'ERC1155'> {
         this.ipfsHelper.validateIpfsHash(metadataUrl);
       }
 
-      return bondContract.network(this.chainId).write({
+      return bondContract.network(this.chainId, this.clientHelper).write({
         ...params,
         functionName: 'createMultiToken',
         args: [Object.assign(args.tokenParams, { uri: metadataUrl }), args.bondParams],
@@ -128,7 +132,7 @@ export class ERC1155 extends Token<'ERC1155'> {
 
   public async approve(params: { spender: `0x${string}`; approved: boolean } & CommonWriteParams) {
     const { spender, approved } = params;
-    return erc1155Contract.network(this.chainId).write({
+    return erc1155Contract.network(this.chainId, this.clientHelper).write({
       ...params,
       tokenAddress: this.getTokenAddress(),
       functionName: 'setApprovalForAll',

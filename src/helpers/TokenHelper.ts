@@ -27,7 +27,7 @@ import { getTwentyFourHoursAgoTimestamp, wei } from '../utils';
 import { computeCreate2Address } from '../utils/addresses';
 import { generateCreateArgs } from '../utils/bond';
 import { Airdrop } from './AirdropHelper';
-import { Client } from './ClientHelper';
+import { Client, defaultClient } from './ClientHelper';
 import { Ipfs } from './IpfsHelper';
 import { Utils } from './UtilsHelper';
 
@@ -59,7 +59,7 @@ export class Token<T extends TokenType> {
   protected chainId: SdkSupportedChainIds;
   protected utils: Utils;
 
-  constructor(params: TokenHelperConstructorParams) {
+  constructor(params: TokenHelperConstructorParams, client: Client = defaultClient) {
     const { symbolOrAddress, chainId, tokenType } = params;
 
     if (isAddress(symbolOrAddress)) {
@@ -72,10 +72,10 @@ export class Token<T extends TokenType> {
     this.chain = getChain(chainId);
     this.chainId = chainId;
     this.tokenType = tokenType as T;
-    this.clientHelper = new Client();
+    this.clientHelper = client;
     this.ipfsHelper = new Ipfs();
-    this.airdropHelper = new Airdrop(this.chainId);
-    this.utils = new Utils();
+    this.airdropHelper = new Airdrop(this.chainId, client);
+    this.utils = new Utils(client);
   }
 
   protected async getConnectedWalletAddress() {
@@ -108,7 +108,7 @@ export class Token<T extends TokenType> {
     if (blockNumber !== undefined && remap.chainId !== this.chainId) return undefined;
     if (remap.chainId !== this.chainId || remap.tokenAddress.toLowerCase() !== tokenAddress.toLowerCase()) {
       tokenDecimals = await erc20Contract
-        .network(remap.chainId as SdkSupportedChainIds)
+        .network(remap.chainId as SdkSupportedChainIds, this.clientHelper)
         .read({ tokenAddress: remap.tokenAddress, functionName: 'decimals' });
     }
     return { ...remap, tokenDecimals, ...(blockNumber !== undefined ? { blockNumber } : {}) };
@@ -123,7 +123,7 @@ export class Token<T extends TokenType> {
     const tokenToApprove = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
-      return erc1155Contract.network(this.chainId).read({
+      return erc1155Contract.network(this.chainId, this.clientHelper).read({
         tokenAddress: this.tokenAddress,
         functionName: 'isApprovedForAll',
         args: [walletAddress, getMintClubContractAddress(isZap ? 'ZAP' : 'BOND', this.chainId)],
@@ -135,7 +135,7 @@ export class Token<T extends TokenType> {
       amountToSpend = params.amountToSpend;
     }
 
-    const allowance = await erc20Contract.network(this.chainId).read({
+    const allowance = await erc20Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: tokenToApprove,
       functionName: 'allowance',
       args: [walletAddress, getMintClubContractAddress(isZap ? 'ZAP' : 'BOND', this.chainId)],
@@ -147,7 +147,7 @@ export class Token<T extends TokenType> {
   private async contractIsApproved(params: ApproveParams<T>, contract: ContractNames) {
     const connectedAddress = await this.getConnectedWalletAddress();
     if (this.tokenType === 'ERC1155') {
-      return erc1155Contract.network(this.chainId).read({
+      return erc1155Contract.network(this.chainId, this.clientHelper).read({
         ...params,
         tokenAddress: this.tokenAddress,
         functionName: 'isApprovedForAll',
@@ -160,7 +160,7 @@ export class Token<T extends TokenType> {
         amountToSpend = params.allowanceAmount;
       }
 
-      const allowance = await erc20Contract.network(this.chainId).read({
+      const allowance = await erc20Contract.network(this.chainId, this.clientHelper).read({
         ...params,
         tokenAddress: this.tokenAddress,
         functionName: 'allowance',
@@ -173,7 +173,7 @@ export class Token<T extends TokenType> {
 
   private approveContract(params: ApproveParams<T> & WriteTransactionCallbacks, contract: ContractNames) {
     if (this.tokenType === 'ERC1155') {
-      return erc1155Contract.network(this.chainId).write({
+      return erc1155Contract.network(this.chainId, this.clientHelper).write({
         ...params,
         tokenAddress: this.tokenAddress,
         functionName: 'setApprovalForAll',
@@ -186,7 +186,7 @@ export class Token<T extends TokenType> {
         amountToSpend = params.allowanceAmount;
       }
 
-      return erc20Contract.network(this.chainId).write({
+      return erc20Contract.network(this.chainId, this.clientHelper).write({
         ...params,
         tokenAddress: this.tokenAddress,
         functionName: 'approve',
@@ -200,7 +200,7 @@ export class Token<T extends TokenType> {
     const tokenToCheck = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
-      return erc1155Contract.network(this.chainId).write({
+      return erc1155Contract.network(this.chainId, this.clientHelper).write({
         ...params,
         onSignatureRequest: onAllowanceSignatureRequest,
         onSigned: onAllowanceSigned,
@@ -216,7 +216,7 @@ export class Token<T extends TokenType> {
         amountToSpend = params.allowanceAmount;
       }
 
-      return erc20Contract.network(this.chainId).write({
+      return erc20Contract.network(this.chainId, this.clientHelper).write({
         ...params,
         onSignatureRequest: onAllowanceSignatureRequest,
         onSigned: onAllowanceSigned,
@@ -229,7 +229,7 @@ export class Token<T extends TokenType> {
   }
 
   protected getCreationFee() {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'creationFee',
     });
   }
@@ -241,7 +241,7 @@ export class Token<T extends TokenType> {
   }
 
   public exists(params: { blockNumber?: bigint } = {}) {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'exists',
       args: [this.tokenAddress],
       ...params,
@@ -251,9 +251,13 @@ export class Token<T extends TokenType> {
   public async getReserveToken(params: { blockNumber?: bigint } = {}) {
     const { reserveToken } = await this.getTokenBond(params);
     const [name, symbol, decimals] = await Promise.all([
-      erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'name' }),
-      erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'symbol' }),
-      erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'decimals' }),
+      erc20Contract.network(this.chainId, this.clientHelper).read({ tokenAddress: reserveToken, functionName: 'name' }),
+      erc20Contract
+        .network(this.chainId, this.clientHelper)
+        .read({ tokenAddress: reserveToken, functionName: 'symbol' }),
+      erc20Contract
+        .network(this.chainId, this.clientHelper)
+        .read({ tokenAddress: reserveToken, functionName: 'decimals' }),
     ]);
 
     return {
@@ -277,7 +281,7 @@ export class Token<T extends TokenType> {
     const { blockNumber } = params;
     const reserve = await this.getReserveToken({ blockNumber });
     // If the reserve is also a Mint Club token, always expand via its bond path first
-    const reserveIsMintClub = await bondContract.network(this.chainId).read({
+    const reserveIsMintClub = await bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'exists',
       args: [reserve.address],
       blockNumber,
@@ -424,7 +428,7 @@ export class Token<T extends TokenType> {
     visited.add(tokenAddress.toLowerCase());
 
     // Check if the provided tokenAddress is a Mint Club token
-    const exists = await bondContract.network(this.chainId).read({
+    const exists = await bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'exists',
       args: [tokenAddress],
       blockNumber,
@@ -433,17 +437,21 @@ export class Token<T extends TokenType> {
 
     // Get its reserve token and price per 1 token in reserve units
     const [pricePerTokenWei, bondInfo] = await Promise.all([
-      bondContract.network(this.chainId).read({ functionName: 'priceForNextMint', args: [tokenAddress], blockNumber }),
-      bondContract.network(this.chainId).read({ functionName: 'tokenBond', args: [tokenAddress], blockNumber }),
+      bondContract
+        .network(this.chainId, this.clientHelper)
+        .read({ functionName: 'priceForNextMint', args: [tokenAddress], blockNumber }),
+      bondContract
+        .network(this.chainId, this.clientHelper)
+        .read({ functionName: 'tokenBond', args: [tokenAddress], blockNumber }),
     ]);
 
     const reserveTokenAddress = bondInfo[4] as `0x${string}`; // reserveToken
     const [reserveTokenDecimals, reserveTokenSymbol] = await Promise.all([
-      erc20Contract.network(this.chainId).read({
+      erc20Contract.network(this.chainId, this.clientHelper).read({
         tokenAddress: reserveTokenAddress,
         functionName: 'decimals',
       }),
-      erc20Contract.network(this.chainId).read({
+      erc20Contract.network(this.chainId, this.clientHelper).read({
         tokenAddress: reserveTokenAddress,
         functionName: 'symbol',
       }),
@@ -616,7 +624,7 @@ export class Token<T extends TokenType> {
   private async getUsdRateForNonMintClub(params: { amount: number; blockNumber?: bigint }) {
     const { amount, blockNumber } = params;
 
-    const tokenDecimals = await erc20Contract.network(this.chainId).read({
+    const tokenDecimals = await erc20Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.tokenAddress,
       functionName: 'decimals',
     });
@@ -704,7 +712,7 @@ export class Token<T extends TokenType> {
 
         // Last fallback: 0x Swap live quote for token itself (ERC20 only)
         if (this.tokenType === 'ERC20') {
-          const tokenDecimals = await erc20Contract.network(this.chainId).read({
+          const tokenDecimals = await erc20Contract.network(this.chainId, this.clientHelper).read({
             tokenAddress: this.tokenAddress,
             functionName: 'decimals',
           });
@@ -802,7 +810,7 @@ export class Token<T extends TokenType> {
   }
 
   public getDetail() {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'getDetail',
       args: [this.tokenAddress],
     });
@@ -810,7 +818,7 @@ export class Token<T extends TokenType> {
 
   public async getTokenBond(params: { blockNumber?: bigint } = {}) {
     const [creator, mintRoyalty, burnRoyalty, createdAt, reserveToken, reserveBalance] = await bondContract
-      .network(this.chainId)
+      .network(this.chainId, this.clientHelper)
       .read({
         functionName: 'tokenBond',
         args: [this.tokenAddress],
@@ -828,21 +836,21 @@ export class Token<T extends TokenType> {
   }
 
   public getSteps() {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'getSteps',
       args: [this.tokenAddress],
     });
   }
 
   public getMaxSupply() {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'maxSupply',
       args: [this.tokenAddress],
     });
   }
 
   public getPriceForNextMint(params: { blockNumber?: bigint } = {}) {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'priceForNextMint',
       args: [this.tokenAddress],
       ...params,
@@ -850,14 +858,14 @@ export class Token<T extends TokenType> {
   }
 
   public getSellEstimation(amount: bigint) {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'getRefundForTokens',
       args: [this.tokenAddress, amount],
     });
   }
 
   public getBuyEstimation(amount: bigint) {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'getReserveForToken',
       args: [this.tokenAddress, amount],
     });
@@ -908,7 +916,7 @@ export class Token<T extends TokenType> {
         if (approvalReceipt?.status !== 'success') return;
       }
 
-      return bondContract.network(this.chainId).write({
+      return bondContract.network(this.chainId, this.clientHelper).write({
         ...params,
         functionName: 'mint',
         args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
@@ -945,7 +953,7 @@ export class Token<T extends TokenType> {
         if (approvalReceipt?.status !== 'success') return;
       }
 
-      return bondContract.network(this.chainId).write({
+      return bondContract.network(this.chainId, this.clientHelper).write({
         ...params,
         functionName: 'burn',
         args: [this.tokenAddress, amount, minReserveAmount, recipient || connectedAddress],
@@ -962,7 +970,7 @@ export class Token<T extends TokenType> {
       const [estimatedOutcome] = await this.getBuyEstimation(amount);
       const maxReserveAmount = estimatedOutcome + this.getSlippageAmount(estimatedOutcome, slippage);
 
-      return zapContract.network(this.chainId).write({
+      return zapContract.network(this.chainId, this.clientHelper).write({
         ...params,
         functionName: 'mintWithEth',
         args: [this.tokenAddress, amount, recipient || connectedAddress],
@@ -1001,7 +1009,7 @@ export class Token<T extends TokenType> {
         if (approvalReceipt?.status !== 'success') return;
       }
 
-      return zapContract.network(this.chainId).write({
+      return zapContract.network(this.chainId, this.clientHelper).write({
         ...params,
         functionName: 'burnToEth',
         args: [this.tokenAddress, amount, minReserveAmount, recipient || connectedAddress],
@@ -1016,7 +1024,7 @@ export class Token<T extends TokenType> {
 
     try {
       if (this.tokenType === 'ERC20') {
-        return erc20Contract.network(this.chainId).write({
+        return erc20Contract.network(this.chainId, this.clientHelper).write({
           ...params,
           tokenAddress: this.getTokenAddress(),
           functionName: 'transfer',
@@ -1024,7 +1032,7 @@ export class Token<T extends TokenType> {
         });
       } else {
         const connectedAddress = await this.getConnectedWalletAddress();
-        return erc1155Contract.network(this.chainId).write({
+        return erc1155Contract.network(this.chainId, this.clientHelper).write({
           ...params,
           tokenAddress: this.getTokenAddress(),
           functionName: 'safeTransferFrom',
@@ -1048,7 +1056,7 @@ export class Token<T extends TokenType> {
     let decimals = 0;
 
     if (this.tokenType === 'ERC20') {
-      decimals = await erc20Contract.network(this.chainId).read({
+      decimals = await erc20Contract.network(this.chainId, this.clientHelper).read({
         tokenAddress: this.getTokenAddress(),
         functionName: 'decimals',
       });

@@ -108,3 +108,82 @@ test('connect uses an explicitly supplied provider instead of requesting account
   expect(sdk.wallet.getWalletClient()?.account?.address).toBe(newAddress);
   expect(sdk.wallet.getWalletClient()?.chain?.id).toBe(base.id);
 });
+
+test('independent roots keep their signer and RPC ownership through every helper', async () => {
+  const first = new MintClubSDK();
+  const second = new MintClubSDK();
+  const makeClient = (result: bigint) =>
+    ({
+      chain: base,
+      readContract: async () => result,
+      getBlock: async () => ({ timestamp: result }),
+    }) as unknown as PublicClient;
+  first.withPublicClient(makeClient(111n));
+  const firstNetwork = first.network('base').withPrivateKey(TEST_PRIVATE_KEY);
+  const address = await firstNetwork.account();
+  const token = firstNetwork.token('ISOLATED');
+  const secondNetwork = second.network('base').withPrivateKey(`0x${'02'.repeat(32)}`);
+  second.withPublicClient(makeClient(222n));
+  for (const [network, value] of [
+    [firstNetwork, 111n],
+    [secondNetwork, 222n],
+  ] as const) {
+    expect(await network.token('ISOLATED').getBalanceOf(address!)).toBe(value);
+    expect(await network.nft('ISOLATED').getBalanceOf(address!)).toBe(value);
+    expect(await network.bond.getCreationFee()).toBe(value);
+    expect(await network.airdrop.getTotalAirdropCount()).toBe(value);
+    expect(await network.lockup.getTotalLockUpCount()).toBe(value);
+    expect(await network.stake.getPoolCount()).toBe(value);
+  }
+  expect(await first.utils.getTimestampFromBlock({ chainId: base.id, blockNumber: 1n })).toBe(111);
+  expect(await second.utils.getTimestampFromBlock({ chainId: base.id, blockNumber: 1n })).toBe(222);
+  second.wallet.disconnect();
+  expect(await firstNetwork.account()).toBe(address);
+  expect(await token.getBalanceOf(address!)).toBe(111n);
+});
+
+test('the public default SDK and contract wrappers share only the explicit default client', async () => {
+  const { mintclub, bondContract, MintClubSDK: ExportedSDK } = await import('../src');
+  expect(ExportedSDK).toBe(MintClubSDK);
+  mintclub.withPublicClient({ chain: base, readContract: async () => 42n } as unknown as PublicClient);
+  const independent = new MintClubSDK().withPublicClient({
+    chain: base,
+    readContract: async () => 7n,
+  } as unknown as PublicClient);
+  expect(await bondContract.network('base').read({ functionName: 'creationFee' })).toBe(42n);
+  expect(await mintclub.network('base').bond.getCreationFee()).toBe(42n);
+  expect(await independent.network('base').bond.getCreationFee()).toBe(7n);
+});
+
+test('private-key writes use the selected owner and chain RPC even after interleaved network calls', async () => {
+  const { createPublicClient, custom } = await import('viem');
+  const requests: Array<[string, string]> = [];
+  const first = new MintClubSDK();
+  const second = new MintClubSDK();
+  for (const [sdk, owner] of [
+    [first, 'first'],
+    [second, 'second'],
+  ] as const) {
+    for (const chain of [base, mainnet]) {
+      sdk.withPublicClient(
+        createPublicClient({
+          chain,
+          transport: custom({
+            request: async ({ method }) => {
+              requests.push([`${owner}:${chain.id}`, method]);
+              return '0x1';
+            },
+          }),
+        }),
+      );
+    }
+  }
+  first.network('base').withPrivateKey(TEST_PRIVATE_KEY);
+  second.network('ethereum').withPrivateKey(`0x${'02'.repeat(32)}`);
+  const wallet = first.wallet._getWalletClientForChain(mainnet.id)!;
+  await wallet.request({ method: 'eth_chainId' });
+  expect(wallet.chain?.id).toBe(mainnet.id);
+  expect(wallet.account?.address).toBe(first.wallet.getWalletClient()?.account?.address);
+  expect(wallet.account?.address).not.toBe(second.wallet.getWalletClient()?.account?.address);
+  expect(requests).toEqual([['first:1', 'eth_chainId']]);
+});

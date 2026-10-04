@@ -11,7 +11,7 @@ import { Lockup } from './helpers/LockupHelper';
 import { Stake } from './helpers/StakeHelper';
 import { Utils } from './helpers/UtilsHelper';
 
-type NetworkReturnType = Omit<Client, '_getPublicClient' | 'withPrivateKey'> & {
+type NetworkReturnType = Omit<Client, '_getPublicClient' | '_getWalletClientForChain' | 'withPrivateKey'> & {
   getPublicClient: () => PublicClient;
   withPrivateKey: (privateKey: `0x${string}`) => NetworkReturnType;
   token: (symbolOrAddress: string) => ERC20;
@@ -24,9 +24,11 @@ type NetworkReturnType = Omit<Client, '_getPublicClient' | 'withPrivateKey'> & {
 
 export class MintClubSDK {
   // chain agnostic
-  public wallet = new Client();
+  constructor(public wallet: Client = new Client()) {
+    this.utils = new Utils(wallet);
+  }
   public ipfs = new Ipfs();
-  public utils = new Utils();
+  public utils: Utils;
 
   public network(id: SdkSupportedChainIds | LowerCaseChainNames): NetworkReturnType {
     let chainId: SdkSupportedChainIds;
@@ -66,23 +68,29 @@ export class MintClubSDK {
       },
 
       token: (symbolOrAddress: string) => {
-        return new ERC20({
-          symbolOrAddress,
-          chainId,
-        });
+        return new ERC20(
+          {
+            symbolOrAddress,
+            chainId,
+          },
+          clientHelper,
+        );
       },
 
       nft: (symbolOrAddress: string) => {
-        return new ERC1155({
-          symbolOrAddress,
-          chainId,
-        });
+        return new ERC1155(
+          {
+            symbolOrAddress,
+            chainId,
+          },
+          clientHelper,
+        );
       },
 
-      airdrop: new Airdrop(chainId),
-      lockup: new Lockup(chainId),
-      bond: new Bond(chainId),
-      stake: new Stake(chainId),
+      airdrop: new Airdrop(chainId, clientHelper),
+      lockup: new Lockup(chainId, clientHelper),
+      bond: new Bond(chainId, clientHelper),
+      stake: new Stake(chainId, clientHelper),
     };
 
     return networkClient;
