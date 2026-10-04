@@ -4,14 +4,14 @@ The documentation site for [`@mint.club/v2-sdk`](https://www.npmjs.com/package/@
 
 ## Local development
 
-From this directory:
+Use Node.js 22.12 or later for the documentation toolchain. From this directory:
 
 ```bash
 npm ci
 npm run dev
 ```
 
-The site uses the SDK from the parent directory through a local `file:..` dependency.
+The site uses the SDK from the parent directory through a local `file:..` dependency. The checked-in npm configuration keeps that dependency linked so clean builds can resolve the SDK after `prebuild` generates its output.
 
 ## Production build
 
