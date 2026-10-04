@@ -1,3 +1,4 @@
+import { Client, defaultClient } from '../helpers/ClientHelper';
 import {
   BOND_ABI,
   SdkSupportedChainIds,
@@ -42,7 +43,7 @@ export class GenericContract<T extends ContractNames> {
     }
   }
 
-  public network(id: SdkSupportedChainIds | LowerCaseChainNames) {
+  public network(id: SdkSupportedChainIds | LowerCaseChainNames, client: Client = defaultClient) {
     let chainId: SdkSupportedChainIds;
 
     if (typeof id === 'string') {
@@ -53,6 +54,7 @@ export class GenericContract<T extends ContractNames> {
 
     return new GenericContractLogic({
       chainId,
+      client,
       type: this.contractType,
       abi: this.abi,
     }) as unknown as GenericContractLogic<AbiType<T>, T>;

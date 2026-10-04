@@ -72,6 +72,21 @@ await serverToken.buy({ amount: serverAmount, slippage: 1 });
 
 Browser applications should pass a viem wallet client from their wallet integration to `mintclub.withWalletClient()`. See the [getting started guide](https://sdk.mint.club/docs/getting-started) for a complete example.
 
+## Independent SDK instances
+
+Use `new MintClubSDK()` when a server or application manages multiple wallets. Each root owns one wallet and its RPC clients; its network, token, airdrop, lockup, staking, and pricing helpers use that same context. Configure separate roots for separate users instead of changing the exported `mintclub` singleton between concurrent requests.
+
+```ts
+import { MintClubSDK } from '@mint.club/v2-sdk';
+
+const sdk = new MintClubSDK().withPublicClient(publicClient);
+const token = sdk.network('base').withPrivateKey(privateKey).token('SIGNET');
+```
+
+The existing `mintclub` and global contract exports still share the default context. Network handles retain their selected chain, and private-key writes use that chain's configured RPC.
+
+A submitted transaction can still be pending after receipt monitoring times out. `onError` receives `transactionHash` and `status: 'unconfirmed'` for an unconfirmed outcome, or `status: 'reverted'` for a mined failure. Check that hash before deciding whether to retry; the SDK never automatically resends. Successful receipts still go to `onSuccess`, and unsuccessful writes still return `undefined`.
+
 ## Token metadata
 
 Save Mint Club metadata after the token creation receipt succeeds. Keep selected image `File` objects in your application until then; uploading NFT metadata to IPFS before deployment remains a separate operation.

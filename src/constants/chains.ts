@@ -153,7 +153,7 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'base-sepolia',
     enabled: isAddress(getMintClubContractAddress('BOND', baseSepolia.id)),
     isTestnet: true,
-    chain: sepolia,
+    chain: baseSepolia,
   },
   {
     id: blastSepolia.id,

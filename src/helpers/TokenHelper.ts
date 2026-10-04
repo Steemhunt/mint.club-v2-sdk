@@ -27,7 +27,7 @@ import { getTwentyFourHoursAgoTimestamp, wei } from '../utils';
 import { computeCreate2Address } from '../utils/addresses';
 import { generateCreateArgs } from '../utils/bond';
 import { Airdrop } from './AirdropHelper';
-import { Client } from './ClientHelper';
+import { Client, defaultClient } from './ClientHelper';
 import { Ipfs } from './IpfsHelper';
 import { Utils } from './UtilsHelper';
 
@@ -59,7 +59,7 @@ export class Token<T extends TokenType> {
   protected chainId: SdkSupportedChainIds;
   protected utils: Utils;
 
-  constructor(params: TokenHelperConstructorParams) {
+  constructor(params: TokenHelperConstructorParams, client: Client = defaultClient) {
     const { symbolOrAddress, chainId, tokenType } = params;
 
     if (isAddress(symbolOrAddress)) {
@@ -72,10 +72,10 @@ export class Token<T extends TokenType> {
     this.chain = getChain(chainId);
     this.chainId = chainId;
     this.tokenType = tokenType as T;
-    this.clientHelper = new Client();
+    this.clientHelper = client;
     this.ipfsHelper = new Ipfs();
-    this.airdropHelper = new Airdrop(this.chainId);
-    this.utils = new Utils();
+    this.airdropHelper = new Airdrop(this.chainId, client);
+    this.utils = new Utils(client);
   }
 
   protected async getConnectedWalletAddress() {
@@ -102,12 +102,28 @@ export class Token<T extends TokenType> {
     return { chainId, tokenAddress } as const;
   }
 
+  private async getUsdQuoteTarget(tokenAddress: `0x${string}`, tokenDecimals: number, blockNumber?: bigint) {
+    const remap = this.remapUsdPricingTarget(this.chainId, tokenAddress);
+    // Block numbers belong to one chain. Fall back to timestamp-based pricing for remapped historical quotes.
+    if (blockNumber !== undefined && remap.chainId !== this.chainId) return undefined;
+    if (remap.chainId !== this.chainId || remap.tokenAddress.toLowerCase() !== tokenAddress.toLowerCase()) {
+      tokenDecimals = await erc20Contract
+        .network(remap.chainId as SdkSupportedChainIds, this.clientHelper)
+        .read({ tokenAddress: remap.tokenAddress, functionName: 'decimals' });
+    }
+    return { ...remap, tokenDecimals, ...(blockNumber !== undefined ? { blockNumber } : {}) };
+  }
+
+  private getSlippageAmount(amount: bigint, slippage: number) {
+    return (amount * wei(slippage)) / (100n * 10n ** 18n);
+  }
+
   public async bondContractApproved(params: BondApprovedParams<T>) {
     const { tradeType, walletAddress, isZap } = params;
     const tokenToApprove = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
-      return erc1155Contract.network(this.chainId).read({
+      return erc1155Contract.network(this.chainId, this.clientHelper).read({
         tokenAddress: this.tokenAddress,
         functionName: 'isApprovedForAll',
         args: [walletAddress, getMintClubContractAddress(isZap ? 'ZAP' : 'BOND', this.chainId)],
@@ -119,7 +135,7 @@ export class Token<T extends TokenType> {
       amountToSpend = params.amountToSpend;
     }
 
-    const allowance = await erc20Contract.network(this.chainId).read({
+    const allowance = await erc20Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: tokenToApprove,
       functionName: 'allowance',
       args: [walletAddress, getMintClubContractAddress(isZap ? 'ZAP' : 'BOND', this.chainId)],
@@ -131,7 +147,7 @@ export class Token<T extends TokenType> {
   private async contractIsApproved(params: ApproveParams<T>, contract: ContractNames) {
     const connectedAddress = await this.getConnectedWalletAddress();
     if (this.tokenType === 'ERC1155') {
-      return erc1155Contract.network(this.chainId).read({
+      return erc1155Contract.network(this.chainId, this.clientHelper).read({
         ...params,
         tokenAddress: this.tokenAddress,
         functionName: 'isApprovedForAll',
@@ -144,7 +160,7 @@ export class Token<T extends TokenType> {
         amountToSpend = params.allowanceAmount;
       }
 
-      const allowance = await erc20Contract.network(this.chainId).read({
+      const allowance = await erc20Contract.network(this.chainId, this.clientHelper).read({
         ...params,
         tokenAddress: this.tokenAddress,
         functionName: 'allowance',
@@ -157,7 +173,7 @@ export class Token<T extends TokenType> {
 
   private approveContract(params: ApproveParams<T> & WriteTransactionCallbacks, contract: ContractNames) {
     if (this.tokenType === 'ERC1155') {
-      return erc1155Contract.network(this.chainId).write({
+      return erc1155Contract.network(this.chainId, this.clientHelper).write({
         ...params,
         tokenAddress: this.tokenAddress,
         functionName: 'setApprovalForAll',
@@ -170,7 +186,7 @@ export class Token<T extends TokenType> {
         amountToSpend = params.allowanceAmount;
       }
 
-      return erc20Contract.network(this.chainId).write({
+      return erc20Contract.network(this.chainId, this.clientHelper).write({
         ...params,
         tokenAddress: this.tokenAddress,
         functionName: 'approve',
@@ -184,7 +200,7 @@ export class Token<T extends TokenType> {
     const tokenToCheck = await this.tokenToApprove(tradeType);
 
     if (this.tokenType === 'ERC1155' && tradeType === 'sell') {
-      return erc1155Contract.network(this.chainId).write({
+      return erc1155Contract.network(this.chainId, this.clientHelper).write({
         ...params,
         onSignatureRequest: onAllowanceSignatureRequest,
         onSigned: onAllowanceSigned,
@@ -200,7 +216,7 @@ export class Token<T extends TokenType> {
         amountToSpend = params.allowanceAmount;
       }
 
-      return erc20Contract.network(this.chainId).write({
+      return erc20Contract.network(this.chainId, this.clientHelper).write({
         ...params,
         onSignatureRequest: onAllowanceSignatureRequest,
         onSigned: onAllowanceSigned,
@@ -213,7 +229,7 @@ export class Token<T extends TokenType> {
   }
 
   protected getCreationFee() {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'creationFee',
     });
   }
@@ -224,19 +240,24 @@ export class Token<T extends TokenType> {
     return reserveIsWrapped;
   }
 
-  public exists() {
-    return bondContract.network(this.chainId).read({
+  public exists(params: { blockNumber?: bigint } = {}) {
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'exists',
       args: [this.tokenAddress],
+      ...params,
     });
   }
 
-  public async getReserveToken() {
-    const { reserveToken } = await this.getTokenBond();
+  public async getReserveToken(params: { blockNumber?: bigint } = {}) {
+    const { reserveToken } = await this.getTokenBond(params);
     const [name, symbol, decimals] = await Promise.all([
-      erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'name' }),
-      erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'symbol' }),
-      erc20Contract.network(this.chainId).read({ tokenAddress: reserveToken, functionName: 'decimals' }),
+      erc20Contract.network(this.chainId, this.clientHelper).read({ tokenAddress: reserveToken, functionName: 'name' }),
+      erc20Contract
+        .network(this.chainId, this.clientHelper)
+        .read({ tokenAddress: reserveToken, functionName: 'symbol' }),
+      erc20Contract
+        .network(this.chainId, this.clientHelper)
+        .read({ tokenAddress: reserveToken, functionName: 'decimals' }),
     ]);
 
     return {
@@ -258,11 +279,12 @@ export class Token<T extends TokenType> {
 
   public async getReserveUsdRate(params: { blockNumber?: bigint } = {}) {
     const { blockNumber } = params;
-    const reserve = await this.getReserveToken();
+    const reserve = await this.getReserveToken({ blockNumber });
     // If the reserve is also a Mint Club token, always expand via its bond path first
-    const reserveIsMintClub = await bondContract.network(this.chainId).read({
+    const reserveIsMintClub = await bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'exists',
       args: [reserve.address],
+      blockNumber,
     });
 
     if (reserveIsMintClub) {
@@ -319,20 +341,8 @@ export class Token<T extends TokenType> {
     }
 
     // Otherwise, use direct 1inch pricing for the non-Mint Club reserve token
-    const remap = this.remapUsdPricingTarget(this.chainId, reserve.address);
-    let decimalsForQuote = reserve.decimals;
-    if (remap.chainId !== this.chainId || remap.tokenAddress.toLowerCase() !== reserve.address.toLowerCase()) {
-      decimalsForQuote = await erc20Contract
-        .network(remap.chainId as SdkSupportedChainIds)
-        .read({ tokenAddress: remap.tokenAddress, functionName: 'decimals' });
-    }
-
-    const rateData = await this.utils.oneinchUsdRate({
-      chainId: remap.chainId,
-      tokenAddress: remap.tokenAddress,
-      tokenDecimals: decimalsForQuote,
-      ...(remap.chainId === this.chainId && blockNumber !== undefined ? { blockNumber } : {}),
-    });
+    const quoteTarget = await this.getUsdQuoteTarget(reserve.address, reserve.decimals, blockNumber);
+    const rateData = quoteTarget ? await this.utils.oneinchUsdRate(quoteTarget) : undefined;
 
     if (!rateData) {
       // Fallback to DefiLlama for reserve token
@@ -418,25 +428,30 @@ export class Token<T extends TokenType> {
     visited.add(tokenAddress.toLowerCase());
 
     // Check if the provided tokenAddress is a Mint Club token
-    const exists = await bondContract.network(this.chainId).read({
+    const exists = await bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'exists',
       args: [tokenAddress],
+      blockNumber,
     });
     if (!exists) return { usdRate: null, path: [] };
 
     // Get its reserve token and price per 1 token in reserve units
     const [pricePerTokenWei, bondInfo] = await Promise.all([
-      bondContract.network(this.chainId).read({ functionName: 'priceForNextMint', args: [tokenAddress] }),
-      bondContract.network(this.chainId).read({ functionName: 'tokenBond', args: [tokenAddress] }),
+      bondContract
+        .network(this.chainId, this.clientHelper)
+        .read({ functionName: 'priceForNextMint', args: [tokenAddress], blockNumber }),
+      bondContract
+        .network(this.chainId, this.clientHelper)
+        .read({ functionName: 'tokenBond', args: [tokenAddress], blockNumber }),
     ]);
 
     const reserveTokenAddress = bondInfo[4] as `0x${string}`; // reserveToken
     const [reserveTokenDecimals, reserveTokenSymbol] = await Promise.all([
-      erc20Contract.network(this.chainId).read({
+      erc20Contract.network(this.chainId, this.clientHelper).read({
         tokenAddress: reserveTokenAddress,
         functionName: 'decimals',
       }),
-      erc20Contract.network(this.chainId).read({
+      erc20Contract.network(this.chainId, this.clientHelper).read({
         tokenAddress: reserveTokenAddress,
         functionName: 'symbol',
       }),
@@ -445,19 +460,8 @@ export class Token<T extends TokenType> {
     const reservePerToken = toNumber(pricePerTokenWei, reserveTokenDecimals);
 
     // Try to price the reserve token via 1inch
-    const remap = this.remapUsdPricingTarget(this.chainId, reserveTokenAddress);
-    let decimalsForQuote = reserveTokenDecimals;
-    if (remap.chainId !== this.chainId || remap.tokenAddress.toLowerCase() !== reserveTokenAddress.toLowerCase()) {
-      decimalsForQuote = await erc20Contract
-        .network(remap.chainId as SdkSupportedChainIds)
-        .read({ tokenAddress: remap.tokenAddress, functionName: 'decimals' });
-    }
-    const reserveRateData = await this.utils.oneinchUsdRate({
-      chainId: remap.chainId,
-      tokenAddress: remap.tokenAddress,
-      tokenDecimals: decimalsForQuote,
-      ...(remap.chainId === this.chainId && blockNumber !== undefined ? { blockNumber } : {}),
-    });
+    const quoteTarget = await this.getUsdQuoteTarget(reserveTokenAddress, reserveTokenDecimals, blockNumber);
+    const reserveRateData = quoteTarget ? await this.utils.oneinchUsdRate(quoteTarget) : undefined;
     if (reserveRateData) {
       const { rate, stableCoin } = reserveRateData!;
       return {
@@ -566,11 +570,11 @@ export class Token<T extends TokenType> {
       return this.getUsdRateOnKaia({ amount, blockNumber });
     }
 
-    const isMintClub = await this.exists();
+    const isMintClub = await this.exists({ blockNumber });
     if (isMintClub) {
       // 2) Mint Club tokens via bond path
       const mintClubRate = await this.getUsdRateViaBond({ amount, blockNumber });
-      if (!!mintClubRate.usdRate) {
+      if (mintClubRate.usdRate !== null) {
         return mintClubRate;
       } // Even if Mint Club doesn't have any reserves, the token could have liquidity on other DEXes
       // So keep fallback to non-Mint Club tokens
@@ -582,9 +586,9 @@ export class Token<T extends TokenType> {
 
   private async getUsdRateOnKaia(params: { amount: number; blockNumber?: bigint }) {
     const { amount, blockNumber } = params;
-    const price = await this.utils.getSwapscannerPrice(this.tokenAddress);
+    const price = blockNumber === undefined ? await this.utils.getSwapscannerPrice(this.tokenAddress) : undefined;
     if (price !== undefined) {
-      return { usdRate: price, reserveToken: null, path: [] } as const;
+      return { usdRate: price * amount, reserveToken: null, path: [] } as const;
     }
 
     if (blockNumber === undefined) {
@@ -620,25 +624,13 @@ export class Token<T extends TokenType> {
   private async getUsdRateForNonMintClub(params: { amount: number; blockNumber?: bigint }) {
     const { amount, blockNumber } = params;
 
-    const tokenDecimals = await erc20Contract.network(this.chainId).read({
+    const tokenDecimals = await erc20Contract.network(this.chainId, this.clientHelper).read({
       tokenAddress: this.tokenAddress,
       functionName: 'decimals',
     });
 
-    const remap = this.remapUsdPricingTarget(this.chainId, this.tokenAddress);
-    let decimalsForQuote = tokenDecimals;
-    if (remap.chainId !== this.chainId || remap.tokenAddress.toLowerCase() !== this.tokenAddress.toLowerCase()) {
-      decimalsForQuote = await erc20Contract
-        .network(remap.chainId as SdkSupportedChainIds)
-        .read({ tokenAddress: remap.tokenAddress, functionName: 'decimals' });
-    }
-
-    const rateData = await this.utils.oneinchUsdRate({
-      chainId: remap.chainId,
-      tokenAddress: remap.tokenAddress,
-      tokenDecimals: decimalsForQuote,
-      ...(remap.chainId === this.chainId && blockNumber !== undefined ? { blockNumber } : {}),
-    });
+    const quoteTarget = await this.getUsdQuoteTarget(this.tokenAddress, tokenDecimals, blockNumber);
+    const rateData = quoteTarget ? await this.utils.oneinchUsdRate(quoteTarget) : undefined;
 
     if (!rateData) {
       // Fallback to DefiLlama
@@ -654,10 +646,7 @@ export class Token<T extends TokenType> {
 
         // Last fallback: 0x Swap live quote (no historical support)
         const ox = await this.utils.zeroXUsdRate({
-          chainId: remap.chainId,
-          tokenAddress: remap.tokenAddress,
-          tokenDecimals: decimalsForQuote,
-          blockNumber,
+          ...quoteTarget!,
         });
 
         if (ox) {
@@ -723,7 +712,7 @@ export class Token<T extends TokenType> {
 
         // Last fallback: 0x Swap live quote for token itself (ERC20 only)
         if (this.tokenType === 'ERC20') {
-          const tokenDecimals = await erc20Contract.network(this.chainId).read({
+          const tokenDecimals = await erc20Contract.network(this.chainId, this.clientHelper).read({
             tokenAddress: this.tokenAddress,
             functionName: 'decimals',
           });
@@ -767,7 +756,7 @@ export class Token<T extends TokenType> {
     }
 
     // Reserve needed per 1 token and convert to human-readable
-    const pricePerTokenWei = await this.getPriceForNextMint();
+    const pricePerTokenWei = await this.getPriceForNextMint({ blockNumber });
     const reservePerToken = toNumber(pricePerTokenWei, reserveToken.decimals);
 
     // Token USD price = reserve per token * reserve USD rate
@@ -804,9 +793,13 @@ export class Token<T extends TokenType> {
     // Previous via unified helper with blockNumber when available
     const blockNumber24h = await this.utils.getBlockNumber({ chainId: this.chainId, timestamp });
 
-    let previousUsdRate: number | null = null;
-    const previousRes = await this.getUsdRate({ amount, blockNumber: blockNumber24h });
-    previousUsdRate = previousRes.usdRate;
+    const previousUsdRate =
+      blockNumber24h === undefined
+        ? ((await this.utils.defillamaUsdRate({ chainId: this.chainId, tokenAddress: this.tokenAddress, timestamp })) ??
+          null)
+        : await this.getUsdRate({ amount, blockNumber: blockNumber24h })
+            .then((result) => result.usdRate)
+            .catch(() => null);
 
     const changePercent =
       currentUsdRate !== null && previousUsdRate !== null && previousUsdRate > 0
@@ -817,18 +810,19 @@ export class Token<T extends TokenType> {
   }
 
   public getDetail() {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'getDetail',
       args: [this.tokenAddress],
     });
   }
 
-  public async getTokenBond() {
+  public async getTokenBond(params: { blockNumber?: bigint } = {}) {
     const [creator, mintRoyalty, burnRoyalty, createdAt, reserveToken, reserveBalance] = await bondContract
-      .network(this.chainId)
+      .network(this.chainId, this.clientHelper)
       .read({
         functionName: 'tokenBond',
         args: [this.tokenAddress],
+        ...params,
       });
 
     return {
@@ -842,35 +836,36 @@ export class Token<T extends TokenType> {
   }
 
   public getSteps() {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'getSteps',
       args: [this.tokenAddress],
     });
   }
 
   public getMaxSupply() {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'maxSupply',
       args: [this.tokenAddress],
     });
   }
 
-  public getPriceForNextMint() {
-    return bondContract.network(this.chainId).read({
+  public getPriceForNextMint(params: { blockNumber?: bigint } = {}) {
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'priceForNextMint',
       args: [this.tokenAddress],
+      ...params,
     });
   }
 
   public getSellEstimation(amount: bigint) {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'getRefundForTokens',
       args: [this.tokenAddress, amount],
     });
   }
 
   public getBuyEstimation(amount: bigint) {
-    return bondContract.network(this.chainId).read({
+    return bondContract.network(this.chainId, this.clientHelper).read({
       functionName: 'getReserveForToken',
       args: [this.tokenAddress, amount],
     });
@@ -904,7 +899,7 @@ export class Token<T extends TokenType> {
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
       const [estimatedOutcome] = await this.getBuyEstimation(amount);
-      const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
+      const maxReserveAmount = estimatedOutcome + this.getSlippageAmount(estimatedOutcome, slippage);
 
       const bondApproved = await this.bondContractApproved({
         walletAddress: connectedAddress,
@@ -913,14 +908,15 @@ export class Token<T extends TokenType> {
       });
 
       if (!bondApproved) {
-        await this.approveBond({
+        const approvalReceipt = await this.approveBond({
           ...params,
           tradeType: 'buy',
           amountToSpend: maxReserveAmount,
         } as ApproveBondParams<T, 'buy'>);
+        if (approvalReceipt?.status !== 'success') return;
       }
 
-      return bondContract.network(this.chainId).write({
+      return bondContract.network(this.chainId, this.clientHelper).write({
         ...params,
         functionName: 'mint',
         args: [this.tokenAddress, amount, maxReserveAmount, recipient || connectedAddress],
@@ -940,23 +936,24 @@ export class Token<T extends TokenType> {
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
       const [estimatedOutcome] = await this.getSellEstimation(amount);
-      const minReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
+      const minReserveAmount = estimatedOutcome - this.getSlippageAmount(estimatedOutcome, slippage);
 
       const bondApproved = await this.bondContractApproved({
         walletAddress: connectedAddress,
-        amountToSpend: params?.allowanceAmount ?? amount,
+        amountToSpend: amount,
         tradeType: 'sell',
       } as BondApprovedParams<T>);
 
       if (!bondApproved) {
-        await this.approveBond({
+        const approvalReceipt = await this.approveBond({
           ...params,
           tradeType: 'sell',
           amountToSpend: amount,
         } as ApproveBondParams<T, 'sell'>);
+        if (approvalReceipt?.status !== 'success') return;
       }
 
-      return bondContract.network(this.chainId).write({
+      return bondContract.network(this.chainId, this.clientHelper).write({
         ...params,
         functionName: 'burn',
         args: [this.tokenAddress, amount, minReserveAmount, recipient || connectedAddress],
@@ -971,9 +968,9 @@ export class Token<T extends TokenType> {
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
       const [estimatedOutcome] = await this.getBuyEstimation(amount);
-      const maxReserveAmount = estimatedOutcome + (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
+      const maxReserveAmount = estimatedOutcome + this.getSlippageAmount(estimatedOutcome, slippage);
 
-      return zapContract.network(this.chainId).write({
+      return zapContract.network(this.chainId, this.clientHelper).write({
         ...params,
         functionName: 'mintWithEth',
         args: [this.tokenAddress, amount, recipient || connectedAddress],
@@ -993,25 +990,26 @@ export class Token<T extends TokenType> {
     try {
       const connectedAddress = await this.getConnectedWalletAddress();
       const [estimatedOutcome] = await this.getSellEstimation(amount);
-      const minReserveAmount = estimatedOutcome - (estimatedOutcome * BigInt(slippage * 100)) / 10_000n;
+      const minReserveAmount = estimatedOutcome - this.getSlippageAmount(estimatedOutcome, slippage);
 
       const bondApproved = await this.bondContractApproved({
         walletAddress: connectedAddress,
-        amountToSpend: params?.allowanceAmount ?? amount,
+        amountToSpend: amount,
         tradeType: 'sell',
         isZap: true,
       } as BondApprovedParams<T>);
 
       if (!bondApproved) {
-        await this.approveBond({
+        const approvalReceipt = await this.approveBond({
           ...params,
           tradeType: 'sell',
           amountToSpend: amount,
           isZap: true,
         } as ApproveBondParams<T, 'sell'>);
+        if (approvalReceipt?.status !== 'success') return;
       }
 
-      return zapContract.network(this.chainId).write({
+      return zapContract.network(this.chainId, this.clientHelper).write({
         ...params,
         functionName: 'burnToEth',
         args: [this.tokenAddress, amount, minReserveAmount, recipient || connectedAddress],
@@ -1026,7 +1024,7 @@ export class Token<T extends TokenType> {
 
     try {
       if (this.tokenType === 'ERC20') {
-        return erc20Contract.network(this.chainId).write({
+        return erc20Contract.network(this.chainId, this.clientHelper).write({
           ...params,
           tokenAddress: this.getTokenAddress(),
           functionName: 'transfer',
@@ -1034,7 +1032,7 @@ export class Token<T extends TokenType> {
         });
       } else {
         const connectedAddress = await this.getConnectedWalletAddress();
-        return erc1155Contract.network(this.chainId).write({
+        return erc1155Contract.network(this.chainId, this.clientHelper).write({
           ...params,
           tokenAddress: this.getTokenAddress(),
           functionName: 'safeTransferFrom',
@@ -1058,7 +1056,7 @@ export class Token<T extends TokenType> {
     let decimals = 0;
 
     if (this.tokenType === 'ERC20') {
-      decimals = await erc20Contract.network(this.chainId).read({
+      decimals = await erc20Contract.network(this.chainId, this.clientHelper).read({
         tokenAddress: this.getTokenAddress(),
         functionName: 'decimals',
       });
@@ -1077,7 +1075,7 @@ export class Token<T extends TokenType> {
     );
 
     if (!approved) {
-      await this.approveContract(
+      const approvalReceipt = await this.approveContract(
         {
           ...params,
           allowanceAmount: totalAmount,
@@ -1085,6 +1083,7 @@ export class Token<T extends TokenType> {
         },
         'MERKLE',
       );
+      if (approvalReceipt?.status !== 'success') return;
     }
 
     const leaves = wallets.map((address) => keccak256(address));
@@ -1103,6 +1102,7 @@ export class Token<T extends TokenType> {
     const ipfsCID = await this.ipfsHelper.add(filebaseApiKey, uint8Array);
 
     return this.airdropHelper.createAirdrop({
+      ...params,
       token: this.tokenAddress,
       isERC20,
       amountPerClaim,

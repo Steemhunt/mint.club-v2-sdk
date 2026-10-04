@@ -1,3 +1,4 @@
+import { Client, defaultClient } from './ClientHelper';
 import { lockupContract } from '../contracts';
 import { SdkSupportedChainIds } from '../exports';
 import { CreateLockUpParams } from '../types/lockup.types';
@@ -6,19 +7,22 @@ import { WriteTransactionCallbacks } from '../types/transactions.types';
 export class Lockup {
   protected chainId: SdkSupportedChainIds;
 
-  constructor(chainId: SdkSupportedChainIds) {
+  constructor(
+    chainId: SdkSupportedChainIds,
+    protected clientHelper: Client = defaultClient,
+  ) {
     this.chainId = chainId;
   }
 
   public getTotalLockUpCount() {
-    return lockupContract.network(this.chainId).read({
+    return lockupContract.network(this.chainId, this.clientHelper).read({
       functionName: 'lockUpCount',
     });
   }
 
   public getLockUpIdsByReceiver(params: { receiver: `0x${string}`; start?: number; end?: number }) {
     const { receiver, start = 0, end = 1000 } = params;
-    return lockupContract.network(this.chainId).read({
+    return lockupContract.network(this.chainId, this.clientHelper).read({
       functionName: 'getLockUpIdsByReceiver',
       args: [receiver, BigInt(start), BigInt(end)],
     });
@@ -26,7 +30,7 @@ export class Lockup {
 
   public getLockUpIdsByToken(params: { token: `0x${string}`; start?: number; end?: number }) {
     const { token, start = 0, end = 1000 } = params;
-    return lockupContract.network(this.chainId).read({
+    return lockupContract.network(this.chainId, this.clientHelper).read({
       functionName: 'getLockUpIdsByToken',
       args: [token, BigInt(start), BigInt(end)],
     });
@@ -34,7 +38,7 @@ export class Lockup {
 
   public async getLockUpById(lockUpId: number) {
     const [token, isERC20, unlockTime, unlocked, amount, receiver, title] = await lockupContract
-      .network(this.chainId)
+      .network(this.chainId, this.clientHelper)
       .read({
         functionName: 'lockUps',
         args: [BigInt(lockUpId)],
@@ -54,7 +58,7 @@ export class Lockup {
   public createLockUp(params: CreateLockUpParams & WriteTransactionCallbacks) {
     const { token, isERC20, amount, unlockTime, receiver, title } = params;
 
-    return lockupContract.network(this.chainId).write({
+    return lockupContract.network(this.chainId, this.clientHelper).write({
       ...params,
       functionName: 'createLockUp',
       args: [token, isERC20, amount, unlockTime, receiver, title],
@@ -67,7 +71,7 @@ export class Lockup {
     } & WriteTransactionCallbacks,
   ) {
     const { lockUpId } = params;
-    return lockupContract.network(this.chainId).write({
+    return lockupContract.network(this.chainId, this.clientHelper).write({
       ...params,
       functionName: 'unlock',
       args: [BigInt(lockUpId)],

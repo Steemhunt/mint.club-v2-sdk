@@ -11,7 +11,7 @@ import {
 } from 'viem';
 import { WalletNotConnectedError } from '../errors/sdk.errors';
 import { ContractNames, SdkSupportedChainIds, getChain, getMintClubContractAddress } from '../exports';
-import { Client } from '../helpers/ClientHelper';
+import { Client, defaultClient } from '../helpers/ClientHelper';
 import { SupportedAbiType } from '../types/abi.types';
 import { GenericWriteParams, TokenContractReadArgs } from '../types/transactions.types';
 import { customWaitForTransaction } from '../utils/transaction';
@@ -23,6 +23,7 @@ type GenericLogicConstructorParams<
   chainId: SdkSupportedChainIds;
   type: C;
   abi: A;
+  client?: Client;
 };
 
 export class GenericContractLogic<
@@ -42,7 +43,7 @@ export class GenericContractLogic<
     this.abi = abi;
     this.chainId = chainId;
     this.chain = getChain(chainId);
-    this.clientHelper = new Client();
+    this.clientHelper = params.client ?? defaultClient;
   }
 
   public read<
@@ -78,6 +79,7 @@ export class GenericContractLogic<
     const { functionName, value, debug, onError, onSignatureRequest: onSignatureRequest, onSigned, onSuccess } = params;
 
     let args, simulationArgs;
+    let transactionHash: `0x${string}` | undefined;
     args = 'args' in params ? params.args : undefined;
 
     let address: `0x${string}`;
@@ -89,15 +91,15 @@ export class GenericContractLogic<
     }
 
     try {
-      const walletClient = this.clientHelper.getWalletClient();
+      let walletClient = this.clientHelper._getWalletClientForChain(this.chainId);
       const isPrivateKey = this.clientHelper.isPrivateKey();
 
-      if (isPrivateKey && !walletClient?.account) {
-        throw new WalletNotConnectedError();
-      } else if (!walletClient || !walletClient.account) {
+      if (!walletClient?.account) {
         await this.clientHelper.connect();
-        return;
-      } else if (!isPrivateKey && walletClient.chain?.id !== this.chainId) {
+        walletClient = this.clientHelper._getWalletClientForChain(this.chainId);
+      }
+      if (!walletClient?.account) throw new WalletNotConnectedError();
+      if (!isPrivateKey && walletClient.chain?.id !== this.chainId) {
         await walletClient.addChain?.({ chain: this.chain });
         await walletClient.switchChain?.({ id: this.chainId });
       }
@@ -114,41 +116,22 @@ export class GenericContractLogic<
 
       debug?.(simulationArgs);
 
-      let tx: `0x${string}` | undefined;
+      const { request } = (await this.clientHelper
+        ._getPublicClient(this.chainId)
+        .simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
+      onSignatureRequest?.();
+      transactionHash = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
 
-      // If wallet client is available, use it
-      if (isPrivateKey) {
-        const publicClient = this.clientHelper._getPublicClient(this.chainId);
-        const { request } = (await publicClient.simulateContract(simulationArgs)) as SimulateContractReturnType<
-          A,
-          T,
-          R
-        >;
-        onSignatureRequest?.();
-        tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
-      } else {
-        const { request } = (await this.clientHelper
-          ._getPublicClient(this.chainId)
-          .simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
-        onSignatureRequest?.();
-        tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
-      }
+      onSigned?.(transactionHash);
 
-      onSigned?.(tx);
-
-      // const receipt = await this.clientHelper._getPublicClient(this.chainId).waitForTransactionReceipt({
-      //   hash: tx,
-      // });
-
-      // use custom wait for transaction for better stability
-      const receipt = await customWaitForTransaction(this.chainId, tx);
+      const receipt = await customWaitForTransaction(this.clientHelper._getPublicClient(this.chainId), transactionHash);
 
       onSuccess?.(receipt as TransactionReceipt);
 
       return receipt;
     } catch (e) {
       if (e) {
-        Object.assign(e, { functionName, args, simulationArgs, value });
+        Object.assign(e, { functionName, args, simulationArgs, value, ...(transactionHash && { transactionHash }) });
       }
       onError?.(e);
       return;
