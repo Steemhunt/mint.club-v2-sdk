@@ -11,7 +11,7 @@ export class Ipfs {
 
     let blob: Blob;
     if (data instanceof Uint8Array) {
-      blob = new Blob([data.buffer as ArrayBuffer], { type: 'application/json' });
+      blob = new Blob([new Uint8Array(data)], { type: 'application/json' });
     } else {
       blob = data;
     }
@@ -59,6 +59,7 @@ export class Ipfs {
   }
 
   public hashToGatewayUrl(hash: string, gateway = 'https://ipfs.io/ipfs/') {
+    if (this.isHttpUrl(hash)) return hash;
     if (hash.includes('ipfs://')) {
       hash = hash.replace('ipfs://', '');
     }
