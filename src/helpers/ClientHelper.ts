@@ -142,7 +142,7 @@ export class Client {
     return this.publicClients[chain.id];
   }
 
-  public getWalletClient() {
+  public getWalletClient(): WalletClient | undefined {
     return this.walletClient;
   }
 
