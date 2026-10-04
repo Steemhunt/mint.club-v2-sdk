@@ -39,16 +39,16 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
-      "default": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "default": "./dist/index.mjs"
     },
     "./node": {
+      "types": "./dist/node.d.ts",
       "import": "./dist/node.mjs",
       "require": "./dist/node.cjs",
-      "default": "./dist/node.cjs",
-      "types": "./dist/node.d.ts"
+      "default": "./dist/node.cjs"
     }
   },
   "scripts": {
