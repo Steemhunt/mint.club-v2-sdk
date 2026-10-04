@@ -1,3 +1,7 @@
+import { MerkleTree } from 'merkletreejs';
+import { keccak256 } from 'viem';
+import { WalletNotConnectedError } from '../errors/sdk.errors';
+import { Client } from './ClientHelper';
 import { airdropContract } from '../contracts';
 import { SdkSupportedChainIds } from '../exports';
 import { CreateAirdropParams } from '../types/airdrop.types';
@@ -98,15 +102,24 @@ export class Airdrop {
     });
   }
 
-  public async getMerkleProof(airdropId: number) {
-    const { ipfsCID } = await this.getAirdropById(airdropId);
+  public async getMerkleProof(airdropId: number, account?: `0x${string}`) {
+    const { ipfsCID, merkleRoot } = await this.getAirdropById(airdropId);
+    if (merkleRoot === EMPTY_ROOT) return [];
+    const walletAddress = account ?? (await new Client().account());
+    if (!walletAddress) throw new WalletNotConnectedError();
+
+    let wallets: `0x${string}`[];
     try {
-      const data = await api.get(`ipfs/whitelist?cid=${ipfsCID}`);
-      return data as `0x${string}`[];
+      wallets = await api.get(`ipfs/whitelist?cid=${ipfsCID}`);
     } catch {
-      const data = await baseFetcher.get(`https://ipfs.io/ipfs/${ipfsCID}`);
-      return data as `0x${string}`[];
+      wallets = await baseFetcher.get(`https://ipfs.io/ipfs/${ipfsCID}`);
     }
+    const tree = new MerkleTree(
+      wallets.map((address) => keccak256(address)),
+      keccak256,
+      { sortPairs: true },
+    );
+    return tree.getHexProof(keccak256(walletAddress)) as `0x${string}`[];
   }
 
   public async getIsWhitelisted(airdropId: number, account: `0x${string}`) {
@@ -116,7 +129,7 @@ export class Airdrop {
 
     return airdropContract.network(this.chainId).read({
       functionName: 'isWhitelisted',
-      args: [BigInt(airdropId), account, await this.getMerkleProof(airdropId)],
+      args: [BigInt(airdropId), account, await this.getMerkleProof(airdropId, account)],
     });
   }
 
