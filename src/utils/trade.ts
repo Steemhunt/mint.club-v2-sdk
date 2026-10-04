@@ -65,13 +65,9 @@ function binarySearch(params: {
   let low = 0n;
   let high = isMinting ? maxSupply - currentSupply : currentSupply;
   let mid = 0n;
-  let lastClosest = 0n;
+  let lastClosest = isMinting ? 0n : currentSupply;
 
-  // safety check to avoid infinite loop
-  const MAX_ITERATIONS = 1000;
-  let iterations = 0;
-
-  while (low <= high && iterations++ < MAX_ITERATIONS) {
+  while (low <= high) {
     mid = (high + low) / 2n;
     const { adjustedAmount } = calculateAdjustments(
       mid,
@@ -83,11 +79,19 @@ function binarySearch(params: {
       isMinting,
     );
 
-    if (adjustedAmount === reserveAmount) return mid;
-    else if (adjustedAmount < reserveAmount) {
-      low = mid + 1n;
-      lastClosest = mid;
-    } else high = mid - 1n;
+    if (isMinting) {
+      // Find the greatest token amount that fits the reserve budget, including rounded-price plateaus.
+      if (adjustedAmount <= reserveAmount) {
+        lastClosest = mid;
+        low = mid + 1n;
+      } else high = mid - 1n;
+    } else {
+      // Find the smallest token amount whose refund reaches the requested reserve amount.
+      if (adjustedAmount >= reserveAmount) {
+        lastClosest = mid;
+        high = mid - 1n;
+      } else low = mid + 1n;
+    }
   }
 
   return lastClosest;
