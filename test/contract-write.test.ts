@@ -23,9 +23,9 @@ test('the first contract write continues after connecting the wallet', async () 
   const receipt = { status: 'success', transactionHash: TX } as TransactionReceipt;
   spyOn(transaction, 'customWaitForTransaction').mockResolvedValue(receipt);
   const onSuccess = mock();
-  expect(await bondContract.network('base').write({ functionName: 'claimRoyalties', args: [ADDRESS], onSuccess })).toBe(
-    receipt,
-  );
+  expect(
+    await bondContract.network('base', client).write({ functionName: 'claimRoyalties', args: [ADDRESS], onSuccess }),
+  ).toBe(receipt);
   expect(simulateContract).toHaveBeenCalledTimes(1);
   expect(writeContract).toHaveBeenCalledTimes(1);
   expect(onSuccess).toHaveBeenCalledWith(receipt);
