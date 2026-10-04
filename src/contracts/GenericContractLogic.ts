@@ -89,15 +89,15 @@ export class GenericContractLogic<
     }
 
     try {
-      const walletClient = this.clientHelper.getWalletClient();
+      let walletClient = this.clientHelper.getWalletClient();
       const isPrivateKey = this.clientHelper.isPrivateKey();
 
-      if (isPrivateKey && !walletClient?.account) {
-        throw new WalletNotConnectedError();
-      } else if (!walletClient || !walletClient.account) {
+      if (!walletClient?.account) {
         await this.clientHelper.connect();
-        return;
-      } else if (!isPrivateKey && walletClient.chain?.id !== this.chainId) {
+        walletClient = this.clientHelper.getWalletClient();
+      }
+      if (!walletClient?.account) throw new WalletNotConnectedError();
+      if (!isPrivateKey && walletClient.chain?.id !== this.chainId) {
         await walletClient.addChain?.({ chain: this.chain });
         await walletClient.switchChain?.({ id: this.chainId });
       }
@@ -114,31 +114,13 @@ export class GenericContractLogic<
 
       debug?.(simulationArgs);
 
-      let tx: `0x${string}` | undefined;
-
-      // If wallet client is available, use it
-      if (isPrivateKey) {
-        const publicClient = this.clientHelper._getPublicClient(this.chainId);
-        const { request } = (await publicClient.simulateContract(simulationArgs)) as SimulateContractReturnType<
-          A,
-          T,
-          R
-        >;
-        onSignatureRequest?.();
-        tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
-      } else {
-        const { request } = (await this.clientHelper
-          ._getPublicClient(this.chainId)
-          .simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
-        onSignatureRequest?.();
-        tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
-      }
+      const { request } = (await this.clientHelper
+        ._getPublicClient(this.chainId)
+        .simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
+      onSignatureRequest?.();
+      const tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
 
       onSigned?.(tx);
-
-      // const receipt = await this.clientHelper._getPublicClient(this.chainId).waitForTransactionReceipt({
-      //   hash: tx,
-      // });
 
       // use custom wait for transaction for better stability
       const receipt = await customWaitForTransaction(this.chainId, tx);

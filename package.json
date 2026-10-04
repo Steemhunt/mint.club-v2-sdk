@@ -48,7 +48,7 @@
       "import": "./dist/node.mjs",
       "require": "./dist/node.cjs",
       "default": "./dist/node.cjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/node.d.ts"
     }
   },
   "scripts": {

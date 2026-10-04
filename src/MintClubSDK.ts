@@ -44,7 +44,18 @@ export class MintClubSDK {
   private withClientHelper(clientHelper: Client, chainId: SdkSupportedChainIds) {
     let networkClient: NetworkReturnType;
 
-    networkClient = Object.assign(clientHelper, {
+    networkClient = {
+      isPrivateKey: clientHelper.isPrivateKey.bind(clientHelper),
+      connect: clientHelper.connect.bind(clientHelper),
+      change: clientHelper.change.bind(clientHelper),
+      disconnect: clientHelper.disconnect.bind(clientHelper),
+      account: clientHelper.account.bind(clientHelper),
+      getNativeBalance: clientHelper.getNativeBalance.bind(clientHelper),
+      getWalletClient: clientHelper.getWalletClient.bind(clientHelper),
+      withPublicClient: clientHelper.withPublicClient.bind(clientHelper),
+      withWalletClient: clientHelper.withWalletClient.bind(clientHelper),
+      withAccount: clientHelper.withAccount.bind(clientHelper),
+      withProvider: clientHelper.withProvider.bind(clientHelper),
       getPublicClient(): PublicClient {
         return clientHelper._getPublicClient(chainId);
       },
@@ -72,7 +83,7 @@ export class MintClubSDK {
       lockup: new Lockup(chainId),
       bond: new Bond(chainId),
       stake: new Stake(chainId),
-    });
+    };
 
     return networkClient;
   }
@@ -87,7 +98,6 @@ export class MintClubSDK {
   public withWalletClient(walletClient: WalletClient): MintClubSDK {
     const chainId = walletClient.chain?.id;
     if (chainId === undefined) throw new InvalidClientError();
-    if (walletClient.chain?.id === undefined) throw new InvalidClientError();
     this.wallet.withWalletClient(walletClient);
     return this;
   }

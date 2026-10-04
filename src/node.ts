@@ -8,7 +8,7 @@ if (typeof window === 'undefined') {
     url: 'https://mint.club',
   });
   (global.window as any) = window;
-  global.navigator = window.navigator;
+  if (typeof global.navigator === 'undefined') global.navigator = window.navigator;
   global.document = window.document;
 }
 

@@ -3,7 +3,6 @@ import {
   createPublicClient,
   createWalletClient,
   custom,
-  EIP1193Provider,
   fallback,
   FallbackTransport,
   PrivateKeyAccount,
@@ -13,7 +12,13 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 import * as chains from 'viem/chains';
 import { ChainNotSupportedError, NoEthereumProviderError, WalletNotConnectedError } from '../errors/sdk.errors';
-import { chainIdToViemChain, chainRPCFallbacks, DEFAULT_RANK_OPTIONS, getChain, SdkSupportedChainIds } from '../exports';
+import {
+  chainIdToViemChain,
+  chainRPCFallbacks,
+  DEFAULT_RANK_OPTIONS,
+  getChain,
+  SdkSupportedChainIds,
+} from '../exports';
 
 const MCV2_WALLET_STATE_LOCALSTORAGE = 'mcv2_wallet_state';
 type WalletState = 'connected' | 'disconnected' | 'none';
@@ -33,9 +38,7 @@ export class Client {
   }
 
   private getDefaultProvider() {
-    // const noopProvider = { request: () => null } as unknown as EIP1193Provider;
-    // const provider = typeof window !== 'undefined' ? window.ethereum! : noopProvider;
-    if (typeof window.ethereum === 'undefined') throw new NoEthereumProviderError();
+    if (typeof window === 'undefined' || typeof window.ethereum === 'undefined') throw new NoEthereumProviderError();
 
     return window?.ethereum;
   }
@@ -45,36 +48,17 @@ export class Client {
   }
 
   public async connect(provider?: any) {
-    let addressToReturn: `0x${string}` | null = null;
-
-    if (this.walletClient?.account || this.isPrivateKey()) {
-      if (this.walletClient?.account?.address) {
-        addressToReturn = this.walletClient?.account?.address!;
-      }
+    if (provider === undefined && this.isPrivateKey() && this.walletClient?.account) {
+      return this.walletClient.account.address;
     }
 
-    if (this.walletClient) {
-      const [address] = await this.walletClient?.requestAddresses();
-      this.walletClient = createWalletClient({
-        account: address,
-        transport: custom(provider ?? this.walletClient.transport),
-      });
-      addressToReturn = address;
-    } else {
-      this.walletClient = createWalletClient({
-        transport: custom(provider ?? this.getDefaultProvider()),
-      });
-      const [address] = await this.walletClient?.requestAddresses();
-      this.walletClient = createWalletClient({
-        account: address,
-        transport: custom(provider ?? this.getDefaultProvider()),
-      });
-      addressToReturn = address;
-    }
-
-    if (addressToReturn) this.walletState = 'connected';
-
-    return addressToReturn;
+    const chain = this.walletClient?.chain;
+    const transport = custom(provider ?? this.walletClient?.transport ?? this.getDefaultProvider());
+    const client = createWalletClient({ chain, transport });
+    const [address] = await client.requestAddresses();
+    this.walletClient = createWalletClient({ account: address, chain, transport });
+    if (address) this.walletState = 'connected';
+    return address ?? null;
   }
 
   private get walletState() {
@@ -86,7 +70,9 @@ export class Client {
   }
 
   private set walletState(newState: WalletState) {
-    window?.localStorage?.setItem?.(MCV2_WALLET_STATE_LOCALSTORAGE, newState);
+    if (typeof window !== 'undefined') {
+      window.localStorage?.setItem?.(MCV2_WALLET_STATE_LOCALSTORAGE, newState);
+    }
   }
 
   public async change() {
@@ -106,9 +92,9 @@ export class Client {
   }
 
   public async account() {
-    if (this.walletState === 'disconnected') return null;
+    if (!this.walletClient && this.walletState === 'disconnected') return null;
 
-    if (!this.walletClient && window?.ethereum !== undefined) {
+    if (!this.walletClient && typeof window !== 'undefined' && window.ethereum !== undefined) {
       this.walletClient = createWalletClient({
         transport: custom(window.ethereum),
       });
@@ -125,7 +111,7 @@ export class Client {
 
     await this.connect();
     const address = await this.account();
-    const connectedChain = this.walletClient?.chain?.id;
+    const connectedChain = this.walletClient?.chain?.id ?? (await this.walletClient?.getChainId());
 
     if (!address || connectedChain === undefined) throw new WalletNotConnectedError();
 
