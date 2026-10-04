@@ -3,7 +3,7 @@ import { IpfsHashUrl, MediaUploadParams, MetadataUploadParams, NFTMetadata } fro
 
 type CIDString = string;
 
-const FILEBASE_API_URL = 'https://api.filebase.io/v1/ipfs';
+const FILEBASE_API_URL = 'https://rpc.filebase.io/api/v0';
 
 export class Ipfs {
   public async add(apiKey: string, data: Blob | Uint8Array): Promise<CIDString> {
@@ -19,7 +19,7 @@ export class Ipfs {
     const formData = new FormData();
     formData.append('file', blob);
 
-    const response = await fetch(`${FILEBASE_API_URL}/pins`, {
+    const response = await fetch(`${FILEBASE_API_URL}/add`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -32,8 +32,9 @@ export class Ipfs {
       throw new Error(`Filebase upload failed: ${response.status} ${errorText}`);
     }
 
-    const result = (await response.json()) as { cid: string };
-    return result.cid;
+    const result = (await response.json()) as { Hash?: string };
+    if (!result.Hash) throw new Error('Filebase upload response did not include an IPFS hash');
+    return result.Hash;
   }
 
   private isIpfsUrl(url: string) {
