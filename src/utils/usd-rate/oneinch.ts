@@ -69,7 +69,7 @@ export async function oneinchUsdRate(params: {
   const { chainId, tokenAddress, tokenDecimals, blockNumber, tryCount } = params;
   const stable = STABLE_COINS[chainId as SdkSupportedChainIds];
 
-  if (!isAddress(stable.address) || stable.address === '0x') return undefined;
+  if (!stable || !isAddress(stable.address) || stable.address === '0x') return undefined;
   if (typeof tryCount === 'number' && tryCount > 5) return undefined;
 
   const isSameToken = isAddress(tokenAddress) && getAddress(tokenAddress) === getAddress(stable.address);
@@ -125,7 +125,7 @@ export async function oneinchUsdRate(params: {
 
   const wethAddress = WETH_ADDRESSES[chainId as SdkSupportedChainIds];
   const cacheKey = `eth-usd-${chainId}`;
-  let cached = ethRateCache.get(cacheKey);
+  const cached = bn === undefined ? ethRateCache.get(cacheKey) : undefined;
   let ethUsdRate: number | undefined = undefined;
 
   if (cached && Date.now() - cached.timestamp < ETH_CACHE_DURATION_MS) {
@@ -143,7 +143,7 @@ export async function oneinchUsdRate(params: {
 
     if (ethToUsdRate === undefined || ethToUsdRate === null) return undefined;
     ethUsdRate = toNumber(ethToUsdRate, Number(18n + stable.decimals) - 18);
-    ethRateCache.set(cacheKey, { rate: ethUsdRate, timestamp: Date.now() });
+    if (bn === undefined) ethRateCache.set(cacheKey, { rate: ethUsdRate, timestamp: Date.now() });
   }
 
   const finalUsdRate = ethRate.rate * ethUsdRate;
