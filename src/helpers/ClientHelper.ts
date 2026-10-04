@@ -163,7 +163,7 @@ export class Client {
     this.walletClient = createWalletClient({
       account,
       chain,
-      transport: fallback(chainRPCFallbacks(chain), DEFAULT_RANK_OPTIONS),
+      transport: custom({ request: (args) => this._getPublicClient(chainId).request(args) }),
     });
     return this;
   }

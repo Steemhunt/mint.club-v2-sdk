@@ -180,10 +180,14 @@ test('private-key writes use the selected owner and chain RPC even after interle
   }
   first.network('base').withPrivateKey(TEST_PRIVATE_KEY);
   second.network('ethereum').withPrivateKey(`0x${'02'.repeat(32)}`);
+  await first.wallet.getWalletClient()!.request({ method: 'eth_chainId' });
   const wallet = first.wallet._getWalletClientForChain(mainnet.id)!;
   await wallet.request({ method: 'eth_chainId' });
   expect(wallet.chain?.id).toBe(mainnet.id);
   expect(wallet.account?.address).toBe(first.wallet.getWalletClient()?.account?.address);
   expect(wallet.account?.address).not.toBe(second.wallet.getWalletClient()?.account?.address);
-  expect(requests).toEqual([['first:1', 'eth_chainId']]);
+  expect(requests).toEqual([
+    ['first:8453', 'eth_chainId'],
+    ['first:1', 'eth_chainId'],
+  ]);
 });

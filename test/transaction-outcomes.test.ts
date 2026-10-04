@@ -105,3 +105,33 @@ test('a rejected signature retains pre-submission error behavior without a submi
   expect(waiter).not.toHaveBeenCalled();
   expect(onSigned).not.toHaveBeenCalled();
 });
+
+for (const callback of ['onSigned', 'onSuccess'] as const) {
+  test(`${callback} failures preserve the submitted hash without claiming the transaction reverted`, async () => {
+    const callbackError = new Error('Application callback failed');
+    const write = mock(async () => hash);
+    const sdk = new MintClubSDK()
+      .withPublicClient({
+        chain: base,
+        simulateContract: async () => ({ request: {} }),
+        waitForTransactionReceipt: async () => receipt,
+      } as unknown as PublicClient)
+      .withWalletClient({ chain: base, account: { address: account }, writeContract: write } as any);
+    const onError = mock();
+    const result = await sdk
+      .network('base')
+      .token('TEST')
+      .approve({
+        spender: account,
+        amount: 1n,
+        onError,
+        [callback]: () => {
+          throw callbackError;
+        },
+      });
+    expect(result).toBeUndefined();
+    expect(onError.mock.calls[0][0]).toMatchObject({ transactionHash: hash });
+    expect(onError.mock.calls[0][0].status).not.toBe('reverted');
+    expect(write).toHaveBeenCalledTimes(1);
+  });
+}

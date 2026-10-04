@@ -79,6 +79,7 @@ export class GenericContractLogic<
     const { functionName, value, debug, onError, onSignatureRequest: onSignatureRequest, onSigned, onSuccess } = params;
 
     let args, simulationArgs;
+    let transactionHash: `0x${string}` | undefined;
     args = 'args' in params ? params.args : undefined;
 
     let address: `0x${string}`;
@@ -119,18 +120,18 @@ export class GenericContractLogic<
         ._getPublicClient(this.chainId)
         .simulateContract(simulationArgs)) as SimulateContractReturnType<A, T, R>;
       onSignatureRequest?.();
-      const tx = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
+      transactionHash = await walletClient.writeContract(request as WriteContractParameters<A, T, R>);
 
-      onSigned?.(tx);
+      onSigned?.(transactionHash);
 
-      const receipt = await customWaitForTransaction(this.clientHelper._getPublicClient(this.chainId), tx);
+      const receipt = await customWaitForTransaction(this.clientHelper._getPublicClient(this.chainId), transactionHash);
 
       onSuccess?.(receipt as TransactionReceipt);
 
       return receipt;
     } catch (e) {
       if (e) {
-        Object.assign(e, { functionName, args, simulationArgs, value });
+        Object.assign(e, { functionName, args, simulationArgs, value, ...(transactionHash && { transactionHash }) });
       }
       onError?.(e);
       return;
