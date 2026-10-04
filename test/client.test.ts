@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { PublicClient } from 'viem';
 import { base, mainnet } from 'viem/chains';
 import { MintClubSDK } from '../src/MintClubSDK';
+import { CHAIN_MAP, chainIdToViemChain } from '../src/constants/chains';
 import { ChainNotSupportedError } from '../src/errors/sdk.errors';
 
 const TEST_PRIVATE_KEY = `0x${'01'.repeat(32)}` as const;
@@ -63,6 +64,8 @@ test('Node wallet discovery and disconnect work without a browser window', async
 test('the Base Sepolia chain definition matches its selected network', () => {
   const sdk = new MintClubSDK();
   expect(sdk.network('basesepolia').getPublicClient().chain?.id).toBe(84532);
+  expect(chainIdToViemChain(84532)?.id).toBe(84532);
+  expect(CHAIN_MAP[84532].chain.id).toBe(84532);
 });
 
 test('explicitly configured wallets remain usable after a previous disconnect', async () => {
