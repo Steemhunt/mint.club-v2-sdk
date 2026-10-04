@@ -1,3 +1,4 @@
+import { CreationError } from '../errors/sdk.errors';
 import lodash from 'lodash';
 import { GenerateStepArgs } from '../types/bond.types';
 const { uniqBy } = lodash;
@@ -26,10 +27,7 @@ export function formatGraphPoint(value: number, maxDecimalPoints?: number) {
   return formattedValue;
 }
 
-export function generateSteps(form: GenerateStepArgs): {
-  stepData: Array<{ rangeTo: number; price: number }>;
-  mergeCount: number;
-} {
+function generatePoints(form: GenerateStepArgs) {
   const {
     tokenType,
     reserveToken,
@@ -124,14 +122,27 @@ export function generateSteps(form: GenerateStepArgs): {
     }
   }
 
-  // If the starting price is 0, call it again to set the first step to the first point
-  if (startingPrice === 0) {
-    return generateSteps({
+  return stepPoints;
+}
+
+export function generateSteps(form: GenerateStepArgs): {
+  stepData: Array<{ rangeTo: number; price: number }>;
+  mergeCount: number;
+} {
+  const { curveType, initialMintingPrice } = form.curveData;
+  if (initialMintingPrice === 0 && (curveType === CurveEnum.FLAT || curveType === CurveEnum.EXPONENTIAL)) {
+    throw new CreationError(`${curveType} curves require a positive initial minting price`);
+  }
+
+  let stepPoints = generatePoints(form);
+  if (initialMintingPrice === 0) {
+    const normalizedPrice = stepPoints[0]?.y;
+    if (!Number.isFinite(normalizedPrice) || normalizedPrice <= 0) {
+      throw new CreationError('These curve parameters cannot produce a positive initial minting price');
+    }
+    stepPoints = generatePoints({
       ...form,
-      curveData: {
-        ...form.curveData,
-        initialMintingPrice: stepPoints[0].y,
-      },
+      curveData: { ...form.curveData, initialMintingPrice: normalizedPrice },
     });
   }
 
