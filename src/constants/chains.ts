@@ -24,7 +24,7 @@ import {
   hashkey,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
-import { getMintClubContractAddress, over, robinhood, SdkSupportedChainIds } from './contracts';
+import { getMintClubContractAddress, elysium, over, robinhood, SdkSupportedChainIds } from './contracts';
 import * as chains from 'viem/chains';
 
 export type ChainType = {
@@ -53,7 +53,8 @@ export type ChainType = {
     | 'Apechain'
     | 'Hashkey'
     | 'Robinhood'
-    | 'Over';
+    | 'Over'
+    | 'Elysium';
   readonly icon: string;
   readonly color: string;
   readonly openseaSlug?: string;
@@ -283,6 +284,14 @@ export const CHAINS: Array<ChainType> = [
     color: '#000000',
     enabled: isAddress(getMintClubContractAddress('BOND', over.id)),
     chain: over,
+  },
+  {
+    id: elysium.id,
+    name: 'Elysium',
+    icon: 'https://mint.club/assets/networks/elysium@2x.png',
+    color: '#34B7DD',
+    enabled: isAddress(getMintClubContractAddress('BOND', elysium.id)),
+    chain: elysium,
   },
 ];
 

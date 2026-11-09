@@ -73,6 +73,37 @@ export const robinhood = defineChain({
   },
 });
 
+// Kinetiq's Arbitrum Orbit L2 settling to HyperEVM (~10 blocks per second).
+export const elysium = defineChain({
+  id: 99901,
+  name: 'Elysium',
+  network: 'elysium',
+  nativeCurrency: {
+    name: 'HYPE',
+    symbol: 'HYPE',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.elysium.kinetiq.xyz'],
+    },
+    public: {
+      http: ['https://rpc.elysium.kinetiq.xyz'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Elysium Explorer',
+      url: 'https://elysium.kinetiq.xyz',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+    },
+  },
+});
+
 const SDK_CONTRACT_ADDRESSES = {
   ERC20: {
     [apeChain.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
@@ -86,6 +117,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [cyber.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [cyberTestnet.id]: '0x37F540de37afE8bDf6C722d87CB019F30e5E406a',
+    [elysium.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [ham.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [hashkey.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
     [kaia.id]: '0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df',
@@ -113,6 +145,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [cyber.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [cyberTestnet.id]: '0x4bF67e5C9baD43DD89dbe8fCAD3c213C868fe881',
+    [elysium.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [ham.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [hashkey.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
     [kaia.id]: '0x6c61918eECcC306D35247338FDcf025af0f6120A',
@@ -140,6 +173,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [cyber.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [cyberTestnet.id]: '0x5dfA75b0185efBaEF286E80B847ce84ff8a62C2d',
+    [elysium.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [ham.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [hashkey.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
     [kaia.id]: '0xc5a076cad94176c2996B32d8466Be1cE757FAa27',
@@ -167,6 +201,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [cyber.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [cyberTestnet.id]: '0x40c7DC399e01029a51cAb316f8Bca7D20DE31bad',
+    [elysium.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [ham.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [hashkey.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
     [kaia.id]: '0x91523b39813F3F4E406ECe406D0bEAaA9dE251fa',
@@ -194,6 +229,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [cyber.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [cyberTestnet.id]: '0x2c6B3fe4D6de27363cFEC95f703889EaF6b770fB',
+    [elysium.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [ham.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [hashkey.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
     [kaia.id]: '0xA3dCf3Ca587D9929d540868c924f208726DC9aB6',
@@ -221,6 +257,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0x1349A9DdEe26Fe16D0D44E35B3CB9B0CA18213a4',
     [cyber.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [cyberTestnet.id]: '0xCbb23973235feA43E62C41a0c67717a92a2467f2',
+    [elysium.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [ham.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [hashkey.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
     [kaia.id]: '0x3bc6B601196752497a68B2625DB4f2205C3b150b',
@@ -262,6 +299,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [hashkey.id]: '0x',
     [over.id]: '0x',
     [robinhood.id]: '0x',
+    [elysium.id]: '0x',
   },
 
   STAKE: {
@@ -276,6 +314,7 @@ const SDK_CONTRACT_ADDRESSES = {
     [bsc.id]: '0x7B09b728ee8c6a714dC3F10367b5DF9b217FE633',
     [cyber.id]: '0x3Fd5B4DcDa968C8e22898523f5343177F94ccfd1',
     [cyberTestnet.id]: '0x',
+    [elysium.id]: '0xF44939c1613143ad587c79602182De7DcF593e33',
     [ham.id]: '0x',
     [hashkey.id]: '0xa4021a8907197Df92341F1218B32E26b250F6798',
     [kaia.id]: '0x29b0E6D2C2884aEa3FB4CB5dD1C7002A8E10c724',

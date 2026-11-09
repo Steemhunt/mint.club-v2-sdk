@@ -39,6 +39,7 @@ import {
   STAKE_ABI,
   TOKENS,
   ZAP_ABI,
+  elysium,
   over,
   robinhood,
 } from './exports';
@@ -79,6 +80,7 @@ export const supportedChainsMap: Record<LowerCaseChainNames, SdkSupportedChainId
   hashkey: hashkey.id,
   over: over.id,
   robinhood: robinhood.id,
+  elysium: elysium.id,
   zora: zora.id,
   apechain: apeChain.id,
 };

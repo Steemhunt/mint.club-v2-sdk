@@ -8,6 +8,7 @@ import {
   cyber,
   ham,
   hashkey,
+  hyperEvm,
   kaia,
   mainnet,
   optimism,
@@ -42,6 +43,7 @@ export function getDefillamaChainName(chainId: number) {
     [apeChain.id]: 'apechain',
     [hashkey.id]: 'hashkey',
     [robinhood.id]: 'robinhood',
+    [hyperEvm.id]: 'hyperliquid', // HyperEVM, where the Elysium reserve tokens are priced via FALLBACK_USD_MAP
   } as const;
 
   return mapping[chainId] ?? chainIdToViemChain(chainId as SdkSupportedChainIds)?.name?.toLowerCase();

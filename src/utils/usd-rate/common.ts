@@ -22,7 +22,7 @@ import {
   unichain,
   zora,
 } from 'viem/chains';
-import { SdkSupportedChainIds, over, robinhood } from '../../exports';
+import { SdkSupportedChainIds, elysium, over, robinhood } from '../../exports';
 
 // WETH addresses for TOKEN -> ETH pricing path
 export const WETH_ADDRESSES: Record<SdkSupportedChainIds, `0x${string}`> = {
@@ -50,6 +50,7 @@ export const WETH_ADDRESSES: Record<SdkSupportedChainIds, `0x${string}`> = {
   [robinhood.id]: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
   [unichain.id]: '0x4200000000000000000000000000000000000006',
   [over.id]: '0x59c914C8ac6F212bb655737CC80d9Abc79A1e273', // WOVER
+  [elysium.id]: '0xbA876237B0F021A6c6D852d6c26E107997cC5E81', // WHYPE
 };
 
 // 1inch stablecoin map for USD quoting
@@ -79,4 +80,5 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [robinhood.id]: { address: '0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168', symbol: 'USDG', decimals: 6n },
     [unichain.id]: { address: '0x078D782b760474a361dDA0AF3839290b0EF57AD6', symbol: 'USDC', decimals: 6n },
     [over.id]: { address: '0x', symbol: '', decimals: 0n },
+    [elysium.id]: { address: '0xb47c4C8F73F009CC0C0d3f92B388d13E293F0B65', symbol: 'USDC', decimals: 6n },
   };

@@ -21,7 +21,7 @@ import {
   unichain,
   zora,
 } from 'viem/chains';
-import { robinhood } from './contracts';
+import { elysium, robinhood } from './contracts';
 
 const overId = 54176;
 
@@ -234,6 +234,13 @@ export const RPCS: Array<RPCList> = [
   {
     id: robinhood.id,
     rpcs: ['https://rpc.mainnet.chain.robinhood.com'],
+  },
+  {
+    id: elysium.id,
+    rpcs: [
+      'https://rpc.elysium.kinetiq.xyz', // ✅ - All checks passed
+      'https://rpc-elysium-mainnet.t.conduit.xyz', // ✅ - All checks passed
+    ],
   },
   {
     id: overId,

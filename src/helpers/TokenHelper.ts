@@ -26,6 +26,7 @@ import { ApproveParams, CommonWriteParams, TradeType, WriteTransactionCallbacks 
 import { getTwentyFourHoursAgoTimestamp, wei } from '../utils';
 import { computeCreate2Address } from '../utils/addresses';
 import { generateCreateArgs } from '../utils/bond';
+import { STABLE_COINS } from '../utils/usd-rate/common';
 import { Airdrop } from './AirdropHelper';
 import { Client, defaultClient } from './ClientHelper';
 import { Ipfs } from './IpfsHelper';
@@ -107,6 +108,8 @@ export class Token<T extends TokenType> {
     // Block numbers belong to one chain. Fall back to timestamp-based pricing for remapped historical quotes.
     if (blockNumber !== undefined && remap.chainId !== this.chainId) return undefined;
     if (remap.chainId !== this.chainId || remap.tokenAddress.toLowerCase() !== tokenAddress.toLowerCase()) {
+      // A remap to a chain without a DEX oracle (e.g. Elysium -> HyperEVM) is priced by DefiLlama only.
+      if (!isAddress(STABLE_COINS[remap.chainId as SdkSupportedChainIds]?.address ?? '0x')) return undefined;
       tokenDecimals = await erc20Contract
         .network(remap.chainId as SdkSupportedChainIds, this.clientHelper)
         .read({ tokenAddress: remap.tokenAddress, functionName: 'decimals' });

@@ -22,7 +22,7 @@ import {
   unichain,
   zora,
 } from 'viem/chains';
-import { over, robinhood, SdkSupportedChainIds } from '../contracts';
+import { elysium, over, robinhood, SdkSupportedChainIds } from '../contracts';
 import { APECHAIN_TOKENS } from './apeChain';
 import { ARBITRUM_TOKENS } from './arbitrum';
 import { AVALANCHE_TOKENS } from './avalanche';
@@ -34,6 +34,7 @@ import { BLAST_SEPOLIA_TOKENS } from './blast-sepolia';
 import { BSC_TOKENS } from './bsc';
 import { CYBER_TOKENS } from './cyber';
 import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
+import { ELYSIUM_TOKENS } from './elysium';
 import { HAM_TOKENS } from './ham';
 import { HASHKEY_TOKENS } from './hashkey';
 import { KAIA_TOKENS } from './kaia';
@@ -63,6 +64,7 @@ export const COINGECKO_NETWORK_IDS = {
   [avalancheFuji.id]: 'ethereum', // avalanche-fuji not supported by coingecko API
   [shibarium.id]: 'shib',
   [robinhood.id]: 'robinhood',
+  [elysium.id]: 'elysium-kinetiq',
 } as const satisfies Partial<Record<SdkSupportedChainIds, string>>;
 
 export type BaseToken = {
@@ -250,6 +252,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
+  [elysium.id]: {
+    image: 'https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300',
+    tokenAddress: '0xbA876237B0F021A6c6D852d6c26E107997cC5E81',
+    nativeSymbol: 'HYPE',
+    oneInchSymbol: 'USDC', // NOTE: not supported yet
+    decimals: 18,
+  },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
@@ -265,6 +274,7 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [bsc.id]: BSC_TOKENS,
   [cyber.id]: CYBER_TOKENS,
   [cyberTestnet.id]: CYBER_TESTNET_TOKENS,
+  [elysium.id]: ELYSIUM_TOKENS,
   [ham.id]: HAM_TOKENS,
   [hashkey.id]: HASHKEY_TOKENS,
   [kaia.id]: KAIA_TOKENS,
