@@ -150,6 +150,16 @@ npm run build
 
 Integration tests that require credentials (`PRIVATE_KEY`, `FILEBASE_API_KEY`) are auto-skipped when the env var is not set.
 
+### Releasing
+
+```bash
+npm version <major|minor|patch>
+git push --follow-tags
+npm publish
+```
+
+Pushing the `vX.Y.Z` tag runs the [Release workflow](.github/workflows/release.yml), which creates the GitHub release for that tag with generated notes.
+
 ---
 
 ## Links
