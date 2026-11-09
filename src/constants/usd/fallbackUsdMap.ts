@@ -1,5 +1,5 @@
-import { apeChain, base, hashkey, ham, hyperEvm, mainnet, unichain, cyber } from 'viem/chains';
-import { elysium, over, robinhood } from '../contracts';
+import { apeChain, hashkey, hyperEvm, mainnet, unichain, cyber } from 'viem/chains';
+import { elysium, robinhood } from '../contracts';
 
 type Address = `0x${string}`;
 export type FallbackUsdMap = Record<number, Record<Address, { network: number; address: Address }>>;
@@ -17,13 +17,6 @@ export const FALLBACK_USD_MAP: FallbackUsdMap = {
     '0x48b62137EdfA95a428D35C09E44256a739F6B557': {
       network: mainnet.id,
       address: '0x4d224452801ACEd8B2F0aebE155379bb5D594381',
-    },
-  },
-  [ham.id]: {
-    // HAM native token -> base remap
-    '0xe8dd44D0791B73aFE9066C3A77721F42D0844bEB': {
-      network: base.id,
-      address: '0x5B5dee44552546ECEA05EDeA01DCD7Be7aa6144A',
     },
   },
   [unichain.id]: {

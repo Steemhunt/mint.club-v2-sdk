@@ -16,7 +16,6 @@ export const MAX_STEPS = {
   polygon: 1000n, // 30M gas limit
   bsc: 1000n, // 30M gas limit
   avalanche: 1000n, // 15M gas limit
-  blastSepolia: 1000n, // 30M gas limit
   avalancheFujiTestnet: 1000n, // ? gas limit
   movementDevnet: 1000n, // ? gas limit
 };

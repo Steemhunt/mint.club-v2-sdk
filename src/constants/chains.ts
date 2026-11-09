@@ -4,8 +4,6 @@ import {
   arbitrum,
   avalanche,
   base,
-  blast,
-  blastSepolia,
   bsc,
   kaia,
   mainnet,
@@ -14,7 +12,6 @@ import {
   sepolia,
   baseSepolia,
   cyber,
-  ham,
   cyberTestnet,
   shibarium,
   shibariumTestnet,
@@ -24,7 +21,7 @@ import {
   hashkey,
 } from 'viem/chains';
 import { ChainNotSupportedError } from '../errors/sdk.errors';
-import { getMintClubContractAddress, elysium, over, robinhood, SdkSupportedChainIds } from './contracts';
+import { getMintClubContractAddress, elysium, robinhood, SdkSupportedChainIds } from './contracts';
 import * as chains from 'viem/chains';
 
 export type ChainType = {
@@ -32,7 +29,6 @@ export type ChainType = {
   readonly name:
     | 'Ethereum'
     | 'Base'
-    | 'Blast'
     | 'Cyber'
     | 'Optimism'
     | 'Arbitrum'
@@ -41,19 +37,16 @@ export type ChainType = {
     | 'BNBChain'
     | 'Sepolia'
     | 'Kaia'
-    | 'Ham'
     | 'Shibarium'
     | 'Puppynet'
     | 'BaseSepolia'
     | 'AvalancheFuji'
-    | 'BlastSepolia'
     | 'CyberTestnet'
     | 'Unichain'
     | 'Zora'
     | 'Apechain'
     | 'Hashkey'
     | 'Robinhood'
-    | 'Over'
     | 'Elysium';
   readonly icon: string;
   readonly color: string;
@@ -81,15 +74,6 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'base',
     enabled: isAddress(getMintClubContractAddress('BOND', base.id)),
     chain: base,
-  },
-  {
-    id: blast.id,
-    name: 'Blast',
-    icon: 'https://mint.club/assets/networks/blast@2x.png',
-    color: '#FCFC03',
-    openseaSlug: 'blast',
-    enabled: isAddress(getMintClubContractAddress('BOND', blast.id)),
-    chain: blast,
   },
   {
     id: optimism.id,
@@ -157,16 +141,6 @@ export const CHAINS: Array<ChainType> = [
     chain: baseSepolia,
   },
   {
-    id: blastSepolia.id,
-    name: 'BlastSepolia',
-    icon: 'https://mint.club/assets/networks/blast@2x.png',
-    color: '#FCFC03',
-    openseaSlug: 'blast-sepolia',
-    enabled: isAddress(getMintClubContractAddress('BOND', blastSepolia.id)),
-    isTestnet: true,
-    chain: blastSepolia,
-  },
-  {
     id: shibarium.id,
     name: 'Shibarium',
     icon: 'https://mint.club/assets/networks/shibarium@2x.png',
@@ -192,16 +166,6 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'cyber',
     enabled: isAddress(getMintClubContractAddress('BOND', cyber.id)),
     chain: cyber,
-  },
-
-  {
-    id: ham.id,
-    name: 'Ham',
-    icon: 'https://mint.club/assets/networks/ham@2x.png',
-    color: '#EB4747',
-    openseaSlug: 'ham',
-    enabled: isAddress(getMintClubContractAddress('BOND', ham.id)),
-    chain: ham,
   },
 
   {
@@ -276,14 +240,6 @@ export const CHAINS: Array<ChainType> = [
     openseaSlug: 'robinhood',
     enabled: isAddress(getMintClubContractAddress('BOND', robinhood.id)),
     chain: robinhood,
-  },
-  {
-    id: over.id,
-    name: 'Over',
-    icon: 'https://mint.club/assets/networks/over@2x.png',
-    color: '#000000',
-    enabled: isAddress(getMintClubContractAddress('BOND', over.id)),
-    chain: over,
   },
   {
     id: elysium.id,
