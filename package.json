@@ -60,7 +60,7 @@
     "purge": "npx rimraf ./dist",
     "test": "npx bun test",
     "test:watch": "npx bun test --watch",
-    "deploy": "npm publish"
+    "release": "node scripts/publish-release.mjs"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^6.0.0",
