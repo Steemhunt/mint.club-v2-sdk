@@ -152,13 +152,9 @@ Integration tests that require credentials (`PRIVATE_KEY`, `FILEBASE_API_KEY`) a
 
 ### Releasing
 
-```bash
-npm version <major|minor|patch>
-git push --follow-tags
-npm publish
-```
-
-Pushing the `vX.Y.Z` tag runs the [Release workflow](.github/workflows/release.yml), which creates the GitHub release for that tag with generated notes.
+1. Bump the version in a pull request (`npm version <major|minor|patch> --no-git-tag-version` updates `package.json` and `package-lock.json`) and merge it.
+2. From an up-to-date `main`, run `npm run release` (`npm run release -- --dry-run` previews it). The script checks the working tree, runs `typecheck` and `build`, publishes `@mint.club/v2-sdk` to npm and then pushes the `vX.Y.Z` tag.
+3. The tag push runs the [Release workflow](.github/workflows/release.yml), which verifies the npm publish and creates the GitHub release with generated notes.
 
 ---
 

@@ -1,25 +1,40 @@
-name: Release
+name: GitHub Release
 
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release:
+    name: Verify npm package and create release
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Create the GitHub release for the pushed tag
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Verify published package
+        run: node scripts/publish-release.mjs --verify-tag "$GITHUB_REF_NAME" "$(git rev-parse HEAD)"
+      - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          TAG: ${{ github.ref_name }}
         run: |
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Release $TAG already exists, nothing to do."
-            exit 0
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "GitHub Release $GITHUB_REF_NAME already exists"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+            gh release create "$GITHUB_REF_NAME" \
+              --verify-tag \
+              --title "Mint Club V2 SDK $GITHUB_REF_NAME" \
+              --notes "$(printf '## Package\n\n- @mint.club/v2-sdk@%s' "$VERSION")" \
+              --generate-notes
           fi
-          gh release create "$TAG" --verify-tag --title "$TAG" --generate-notes
