@@ -5,11 +5,9 @@ import {
   avalanche,
   base,
   baseSepolia,
-  blast,
   bsc,
   cyber,
   cyberTestnet,
-  ham,
   hashkey,
   kaia,
   mainnet,
@@ -21,9 +19,7 @@ import {
   unichain,
   zora,
 } from 'viem/chains';
-import { robinhood } from './contracts';
-
-const overId = 54176;
+import { elysium, robinhood } from './contracts';
 
 export type RPCList = {
   readonly id: number;
@@ -167,13 +163,6 @@ export const RPCS: Array<RPCList> = [
     ],
   },
   {
-    id: blast.id,
-    rpcs: [
-      'https://rpc.blast.io',
-      // 'https://blast.din.dev/rpc' // NOTE: 503 error
-    ],
-  },
-  {
     id: sepolia.id,
     rpcs: [
       'https://ethereum-sepolia-rpc.publicnode.com',
@@ -217,13 +206,6 @@ export const RPCS: Array<RPCList> = [
     rpcs: ['https://mainnet.unichain.org'],
   },
   {
-    id: ham.id,
-    rpcs: [
-      'https://rpc.ham.fun', // ✅ - All checks passed
-      'https://ham.calderachain.xyz/http', // ✅ - All checks passed
-    ],
-  },
-  {
     id: apeChain.id,
     rpcs: ['https://rpc.apechain.com'],
   },
@@ -236,8 +218,11 @@ export const RPCS: Array<RPCList> = [
     rpcs: ['https://rpc.mainnet.chain.robinhood.com'],
   },
   {
-    id: overId,
-    rpcs: ['https://rpc.over.network'],
+    id: elysium.id,
+    rpcs: [
+      'https://rpc.elysium.kinetiq.xyz', // ✅ - All checks passed
+      'https://rpc-elysium-mainnet.t.conduit.xyz', // ✅ - All checks passed
+    ],
   },
   {
     id: zora.id,

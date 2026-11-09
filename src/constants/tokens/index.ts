@@ -5,12 +5,9 @@ import {
   avalancheFuji,
   base,
   baseSepolia,
-  blast,
-  blastSepolia,
   bsc,
   cyber,
   cyberTestnet,
-  ham,
   hashkey,
   kaia,
   mainnet,
@@ -22,24 +19,21 @@ import {
   unichain,
   zora,
 } from 'viem/chains';
-import { over, robinhood, SdkSupportedChainIds } from '../contracts';
+import { elysium, robinhood, SdkSupportedChainIds } from '../contracts';
 import { APECHAIN_TOKENS } from './apeChain';
 import { ARBITRUM_TOKENS } from './arbitrum';
 import { AVALANCHE_TOKENS } from './avalanche';
 import { AVALANCHE_FUJI_TOKENS } from './avalanche-fuji';
 import { BASE_TOKENS } from './base';
 import { BASE_SEPOLIA_TOKENS } from './base-sepolia';
-import { BLAST_TOKENS } from './blast';
-import { BLAST_SEPOLIA_TOKENS } from './blast-sepolia';
 import { BSC_TOKENS } from './bsc';
 import { CYBER_TOKENS } from './cyber';
 import { CYBER_TESTNET_TOKENS } from './cyber-testnet';
-import { HAM_TOKENS } from './ham';
+import { ELYSIUM_TOKENS } from './elysium';
 import { HASHKEY_TOKENS } from './hashkey';
 import { KAIA_TOKENS } from './kaia';
 import { MAINNET_TOKENS } from './mainnet';
 import { OPTIMISM_TOKENS } from './optimism';
-import { OVER_TOKENS } from './over';
 import { POLYGON_TOKENS } from './polygon';
 import { ROBINHOOD_TOKENS } from './robinhood';
 import { SHIBARIUM_TESTNET_TOKENS } from './puppynet';
@@ -58,11 +52,10 @@ export const COINGECKO_NETWORK_IDS = {
   [polygon.id]: 'polygon-pos',
   [bsc.id]: 'binance-smart-chain',
   [sepolia.id]: 'ethereum', // sepolia not supported by coingecko API
-  [blast.id]: 'ethereum', // blast not supported by coingecko API
-  [blastSepolia.id]: 'ethereum', // blast sepolia not supported by coingecko API
   [avalancheFuji.id]: 'ethereum', // avalanche-fuji not supported by coingecko API
   [shibarium.id]: 'shib',
   [robinhood.id]: 'robinhood',
+  [elysium.id]: 'elysium-kinetiq',
 } as const satisfies Partial<Record<SdkSupportedChainIds, string>>;
 
 export type BaseToken = {
@@ -77,7 +70,7 @@ export type WrappedToken = {
   image: string;
   tokenAddress: `0x${string}`;
   nativeSymbol: string;
-  oneInchSymbol: 'USDT' | 'USDC' | 'USDbC' | 'USDB';
+  oneInchSymbol: 'USDT' | 'USDC' | 'USDbC';
   decimals: number;
 };
 
@@ -145,20 +138,6 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDT',
     decimals: 18,
   },
-  [blast.id]: {
-    image: 'https://mint.club/assets/tokens/blast.png',
-    tokenAddress: '0x4300000000000000000000000000000000000004',
-    nativeSymbol: 'ETH',
-    oneInchSymbol: 'USDB',
-    decimals: 18,
-  },
-  [blastSepolia.id]: {
-    image: 'https://mint.club/assets/tokens/blast.png',
-    tokenAddress: '0x4200000000000000000000000000000000000023',
-    nativeSymbol: 'ETH',
-    oneInchSymbol: 'USDB',
-    decimals: 18,
-  },
   [avalancheFuji.id]: {
     image: 'https://mint.club/assets/tokens/avalanche.png',
     tokenAddress: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c',
@@ -186,13 +165,6 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     nativeSymbol: 'KLAY',
     oneInchSymbol: 'USDC',
     decimals: 6,
-  },
-  [ham.id]: {
-    image: 'https://mint.club/assets/tokens/eth.png',
-    tokenAddress: '0x4200000000000000000000000000000000000006',
-    nativeSymbol: 'ETH',
-    oneInchSymbol: 'USDC',
-    decimals: 18,
   },
   [shibarium.id]: {
     image: 'https://mint.club/assets/tokens/bone.png',
@@ -229,13 +201,6 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDT', // NOTE: not supported yet
     decimals: 18,
   },
-  [over.id]: {
-    image: 'https://assets.coingecko.com/coins/images/35082/large/overprotocol-logo.png?1707308333',
-    tokenAddress: '0x59c914C8ac6F212bb655737CC80d9Abc79A1e273',
-    nativeSymbol: 'OVER',
-    oneInchSymbol: 'USDT', // NOTE: not supported yet
-    decimals: 18,
-  },
   [zora.id]: {
     image: 'https://mint.club/assets/tokens/eth.png',
     tokenAddress: '0x4200000000000000000000000000000000000006',
@@ -250,6 +215,13 @@ export const WRAPPED_NATIVE_TOKENS: Record<SdkSupportedChainIds, WrappedToken> =
     oneInchSymbol: 'USDC',
     decimals: 18,
   },
+  [elysium.id]: {
+    image: 'https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300',
+    tokenAddress: '0xbA876237B0F021A6c6D852d6c26E107997cC5E81',
+    nativeSymbol: 'HYPE',
+    oneInchSymbol: 'USDC', // NOTE: not supported yet
+    decimals: 18,
+  },
 };
 
 // the tokens were scraped from coingecko using a custom scraper, mint.club-scripts/whitelist
@@ -260,17 +232,14 @@ export const TOKENS: Record<SdkSupportedChainIds, Record<`0x${string}`, BaseToke
   [avalancheFuji.id]: AVALANCHE_FUJI_TOKENS,
   [base.id]: BASE_TOKENS,
   [baseSepolia.id]: BASE_SEPOLIA_TOKENS,
-  [blast.id]: BLAST_TOKENS,
-  [blastSepolia.id]: BLAST_SEPOLIA_TOKENS,
   [bsc.id]: BSC_TOKENS,
   [cyber.id]: CYBER_TOKENS,
   [cyberTestnet.id]: CYBER_TESTNET_TOKENS,
-  [ham.id]: HAM_TOKENS,
+  [elysium.id]: ELYSIUM_TOKENS,
   [hashkey.id]: HASHKEY_TOKENS,
   [kaia.id]: KAIA_TOKENS,
   [mainnet.id]: MAINNET_TOKENS,
   [optimism.id]: OPTIMISM_TOKENS,
-  [over.id]: OVER_TOKENS,
   [polygon.id]: POLYGON_TOKENS,
   [robinhood.id]: ROBINHOOD_TOKENS,
   [sepolia.id]: SEPOLIA_TOKENS,

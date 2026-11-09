@@ -3,11 +3,10 @@ import {
   arbitrum,
   avalanche,
   base,
-  blast,
   bsc,
   cyber,
-  ham,
   hashkey,
+  hyperEvm,
   kaia,
   mainnet,
   optimism,
@@ -26,11 +25,9 @@ export function getDefillamaChainName(chainId: number) {
   const mapping: Partial<Record<number, string>> = {
     [mainnet.id]: 'ethereum',
     [base.id]: 'base',
-    [ham.id]: 'ham',
     [unichain.id]: 'unichain',
     [arbitrum.id]: 'arbitrum',
     [avalanche.id]: 'avax',
-    [blast.id]: 'blast',
     [bsc.id]: 'bsc',
     [cyber.id]: 'cyber',
     [optimism.id]: 'optimism',
@@ -42,6 +39,7 @@ export function getDefillamaChainName(chainId: number) {
     [apeChain.id]: 'apechain',
     [hashkey.id]: 'hashkey',
     [robinhood.id]: 'robinhood',
+    [hyperEvm.id]: 'hyperliquid', // HyperEVM, where the Elysium reserve tokens are priced via FALLBACK_USD_MAP
   } as const;
 
   return mapping[chainId] ?? chainIdToViemChain(chainId as SdkSupportedChainIds)?.name?.toLowerCase();

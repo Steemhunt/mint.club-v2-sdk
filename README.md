@@ -132,8 +132,8 @@ The SDK accepts a chain ID or the lowercase network key shown below.
 
 | Environment | Network keys |
 |---|---|
-| Mainnet | `ethereum`, `base`, `blast`, `optimism`, `arbitrum`, `polygon`, `bnbchain`, `avalanche`, `kaia`, `cyber`, `ham`, `shibarium`, `unichain`, `zora`, `apechain`, `hashkey`, `robinhood`, `over` |
-| Testnet | `sepolia`, `basesepolia`, `blastsepolia`, `avalanchefuji`, `cybertestnet`, `puppynet` |
+| Mainnet | `ethereum`, `base`, `optimism`, `arbitrum`, `polygon`, `bnbchain`, `avalanche`, `kaia`, `cyber`, `shibarium`, `unichain`, `zora`, `apechain`, `hashkey`, `robinhood`, `elysium` |
+| Testnet | `sepolia`, `basesepolia`, `avalanchefuji`, `cybertestnet`, `puppynet` |
 
 Contract availability differs by feature and network. Use `getMintClubContractAddress()` or the [contract repository](https://github.com/Steemhunt/mint.club-v2-contract) when you need a specific deployment.
 

@@ -5,12 +5,9 @@ import {
   avalancheFuji,
   base,
   baseSepolia,
-  blast,
-  blastSepolia,
   bsc,
   cyber,
   cyberTestnet,
-  ham,
   hashkey,
   kaia,
   mainnet,
@@ -22,7 +19,7 @@ import {
   unichain,
   zora,
 } from 'viem/chains';
-import { SdkSupportedChainIds, over, robinhood } from '../../exports';
+import { SdkSupportedChainIds, elysium, robinhood } from '../../exports';
 
 // WETH addresses for TOKEN -> ETH pricing path
 export const WETH_ADDRESSES: Record<SdkSupportedChainIds, `0x${string}`> = {
@@ -35,13 +32,10 @@ export const WETH_ADDRESSES: Record<SdkSupportedChainIds, `0x${string}`> = {
   [base.id]: '0x4200000000000000000000000000000000000006',
   [sepolia.id]: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14',
   [baseSepolia.id]: '0x4200000000000000000000000000000000000006',
-  [blast.id]: '0x4300000000000000000000000000000000000004',
-  [blastSepolia.id]: '0x4300000000000000000000000000000000000004',
   [avalancheFuji.id]: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c', // WAVAX
   [cyber.id]: '0x4200000000000000000000000000000000000006',
   [cyberTestnet.id]: '0x4200000000000000000000000000000000000006',
   [kaia.id]: '0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432', // WKLAY
-  [ham.id]: '0xe8dd44D0791B73aFE9066C3A77721F42D0844bEB', // WETH
   [shibarium.id]: '0xC76F4c819D820369Fb2d7C1531aB3Bb18e6fE8d8', // WBONE
   [shibariumTestnet.id]: '0x', // WBONE
   [apeChain.id]: '0x48b62137EdfA95a428D35C09E44256a739F6B557', // WAPE
@@ -49,7 +43,7 @@ export const WETH_ADDRESSES: Record<SdkSupportedChainIds, `0x${string}`> = {
   [hashkey.id]: '0xB210D2120d57b758EE163cFfb43e73728c471Cf1', // WHSK
   [robinhood.id]: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
   [unichain.id]: '0x4200000000000000000000000000000000000006',
-  [over.id]: '0x59c914C8ac6F212bb655737CC80d9Abc79A1e273', // WOVER
+  [elysium.id]: '0xbA876237B0F021A6c6D852d6c26E107997cC5E81', // WHYPE
 };
 
 // 1inch stablecoin map for USD quoting
@@ -64,13 +58,10 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [base.id]: { address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', symbol: 'USDC', decimals: 6n },
     [baseSepolia.id]: { address: '0x', symbol: '', decimals: 0n },
     [sepolia.id]: { address: '0x', symbol: '', decimals: 0n },
-    [blast.id]: { address: '0x', symbol: '', decimals: 0n },
-    [blastSepolia.id]: { address: '0x', symbol: '', decimals: 0n },
     [avalancheFuji.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyber.id]: { address: '0x', symbol: '', decimals: 0n },
     [cyberTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
     [kaia.id]: { address: '0xd077a400968890eacc75cdc901f0356c943e4fdb', symbol: 'USDT', decimals: 6n },
-    [ham.id]: { address: '0x', symbol: '', decimals: 0n },
     [shibarium.id]: { address: '0x', symbol: '', decimals: 0n },
     [shibariumTestnet.id]: { address: '0x', symbol: '', decimals: 0n },
     [apeChain.id]: { address: '0x', symbol: '', decimals: 0n },
@@ -78,5 +69,5 @@ export const STABLE_COINS: Record<SdkSupportedChainIds, { address: `0x${string}`
     [hashkey.id]: { address: '0x', symbol: '', decimals: 0n },
     [robinhood.id]: { address: '0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168', symbol: 'USDG', decimals: 6n },
     [unichain.id]: { address: '0x078D782b760474a361dDA0AF3839290b0EF57AD6', symbol: 'USDC', decimals: 6n },
-    [over.id]: { address: '0x', symbol: '', decimals: 0n },
+    [elysium.id]: { address: '0xb47c4C8F73F009CC0C0d3f92B388d13E293F0B65', symbol: 'USDC', decimals: 6n },
   };

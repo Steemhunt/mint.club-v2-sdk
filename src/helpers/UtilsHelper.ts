@@ -85,7 +85,33 @@ export class Utils {
       if (json?.height !== undefined) return BigInt(json.height);
     } catch {}
 
-    return undefined;
+    return this.estimateBlockNumber(chainId, prevTimeStamp);
+  }
+
+  // For chains DefiLlama does not index (e.g. Elysium): interpolate the block number from on-chain block timestamps.
+  private async estimateBlockNumber(chainId: number, timestamp: number): Promise<bigint | undefined> {
+    try {
+      const pc = this.clientHelper._getPublicClient(chainId);
+      let upper = await pc.getBlock();
+      if (Number(upper.timestamp) <= timestamp) return upper.number;
+
+      // Start from the recent block rate, then tighten the bracket around the target timestamp (regula falsi).
+      let lower = await pc.getBlock({ blockNumber: upper.number > 10_000n ? upper.number - 10_000n : 0n });
+      let guess = lower.number;
+      for (let round = 0; round < 6; round++) {
+        const seconds = Math.max(1, Number(upper.timestamp - lower.timestamp));
+        const blocksPerSecond = Number(upper.number - lower.number) / seconds;
+        const next = upper.number - BigInt(Math.round((Number(upper.timestamp) - timestamp) * blocksPerSecond));
+        guess = next > 0n ? next : 0n;
+        const block = await pc.getBlock({ blockNumber: guess });
+        if (Math.abs(Number(block.timestamp) - timestamp) <= 60) break;
+        if (Number(block.timestamp) > timestamp) upper = block;
+        else lower = block;
+      }
+      return guess;
+    } catch {
+      return undefined;
+    }
   }
 
   public async getTimestampFromBlock(params: {
