@@ -32,9 +32,11 @@ jobs:
             echo "GitHub Release $GITHUB_REF_NAME already exists"
           else
             VERSION="${GITHUB_REF_NAME#v}"
+            # GitHub's generated notes credit authors (per change and under New Contributors); keep only the changes.
+            GENERATED="$(gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="$GITHUB_REF_NAME" --jq .body)"
+            CHANGES="$(sed -E -e '/^## New Contributors$/,/^$/d' -e 's# by @[^ ]+ in (https://github\.com/[^ ]+/pull/[0-9]+)$# in \1#' <<<"$GENERATED")"
             gh release create "$GITHUB_REF_NAME" \
               --verify-tag \
               --title "Mint Club V2 SDK $GITHUB_REF_NAME" \
-              --notes "$(printf '## Package\n\n- @mint.club/v2-sdk@%s' "$VERSION")" \
-              --generate-notes
+              --notes "$(printf '## Package\n\n- @mint.club/v2-sdk@%s\n\n%s' "$VERSION" "$CHANGES")"
           fi
