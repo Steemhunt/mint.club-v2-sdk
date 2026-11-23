@@ -43,7 +43,7 @@ export const BASE_TOKENS = {
       'https://coin-images.coingecko.com/coins/images/102179737/large/aero-token.png?1792751076',
   },
   '0x940181a94A35A4569E4529A3CDfB74e38FD98631': {
-    name: 'AERO (Legacy)',
+    name: 'Aerodrome (Legacy)',
     symbol: 'AERO (Legacy)',
     address: '0x940181a94A35A4569E4529A3CDfB74e38FD98631',
     decimals: 18,
