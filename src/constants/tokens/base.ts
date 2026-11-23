@@ -34,9 +34,17 @@ export const BASE_TOKENS = {
     decimals: 18,
     image: 'https://assets.coingecko.com/coins/images/27008/large/cbeth.png',
   },
-  '0x940181a94A35A4569E4529A3CDfB74e38FD98631': {
-    name: 'Aerodrome Finance',
+  '0x3f5bF3EdAc59d650D8fDf9657a71F2f904A3a4Ee': {
+    name: 'Aero',
     symbol: 'AERO',
+    address: '0x3f5bF3EdAc59d650D8fDf9657a71F2f904A3a4Ee',
+    decimals: 18,
+    image:
+      'https://coin-images.coingecko.com/coins/images/102179737/large/aero-token.png?1792751076',
+  },
+  '0x940181a94A35A4569E4529A3CDfB74e38FD98631': {
+    name: 'AERO (Legacy)',
+    symbol: 'AERO (Legacy)',
     address: '0x940181a94A35A4569E4529A3CDfB74e38FD98631',
     decimals: 18,
     image: 'https://assets.coingecko.com/coins/images/31745/large/token.png',
